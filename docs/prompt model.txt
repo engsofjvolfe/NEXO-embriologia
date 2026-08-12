@@ -1,0 +1,28 @@
+seguir a cascata completa vmodel para desenvolvimento desse sistema:
+
+Requisitos (O que o módulo deve fazer?)
+   ↓
+Especificação (Como atender os requisitos?) 
+   ↓
+Projeto Arquitetônico (Como as peças se conectam?) 
+   ↓
+Projeto Detalhado (Detalhes de cada peça) 
+   ↓
+Implementação (Criar as peças e a lógica) ESTAMOS NESSA ETAPA
+   ↓
+   ↑
+Teste de Unidade (Cada peça está correta?)
+   ↑
+Teste de Integração (As peças funcionam juntas?)
+   ↑
+Teste do Sistema (O módulo completo funciona?)
+   ↑
+Teste de Aceitação (Usuário final aprova?)
+
+Não inferir. Não propor nada fora desse fluxo. Etapa em questao: Implementação para o documento docs/docs-VMODEL-visao-geral/1 - documento-de-conceito-geral.md e seus derivados
+
+
+- nao usar termos demasiadamente técnicos
+- estruturar a documentação de maneira que um engenheiro faria ao ler os documentos de conceito
+- se o documento de conceito não cobre algo que deveria para a especificação ser completa, então deve ser "corrigido" (adição) e já entrar na criação do projeto detalhado
+- se alguma instrução nao foi dada e deveria ter sido colocada aqui, mesmo que descoberta durante o projeto, atualizar esta lista

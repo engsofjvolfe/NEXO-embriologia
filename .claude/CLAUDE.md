@@ -7,6 +7,7 @@ Todas as leituras sugeridas nesse documento devem ser feitas na íntegra, sem fe
 
 > Nos passos a seguir "você" se refere à ferramenta CLAUDE, "eu" se refere a quem está desenvolvendo o sistema com utilização da ferramenta
 
+- LER [README dos documentos VMODEL](<../docs/docs-VMODEL-visao-geral/README.md>) -- antes de tudo, porque é lá que está a regra de imutabilidade desses cinco documentos
 - Entender o projeto a partir da leitura de [Conceito Geral](<../docs/docs-VMODEL-visao-geral/1 - documento-de-conceito-geral.md>)
 - LER [prompt model](<../docs/prompt model.txt>)
 

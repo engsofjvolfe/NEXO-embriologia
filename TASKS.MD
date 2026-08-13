@@ -69,3 +69,8 @@
       requisitos, especificação, projeto arquitetônico e projeto
       detalhado) passaram de "criação inicial" (0.1.0) para
       "Aprovado" (1.0.0).
+- [x] **Automatizar o aviso de versão desatualizada.** Resolvido — ver
+      [`scripts/hooks/pre-commit`](scripts/hooks/pre-commit) e
+      [`scripts/README.md`](scripts/README.md): gancho de git que
+      bloqueia o commit quando um documento com campo de versão
+      reconhecido muda de conteúdo sem a versão acompanhar.

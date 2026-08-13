@@ -17,6 +17,8 @@
   [especificação](<docs/docs-VMODEL-visao-geral/3 - especificacao-conceito-geral.md>),
   [projeto arquitetônico](<docs/docs-VMODEL-visao-geral/4 - projeto-arquitetonico.md>)
   e [projeto detalhado](<docs/docs-VMODEL-visao-geral/5 - projeto-detalhado.md>).
+- [`scripts/`](scripts/) — gancho de git que avisa quando falta subir
+  a versão de um documento.
 - [TASKS.md, Resolvidas](TASKS.md#resolvidas) — pendências já corrigidas.
 
 ## Próximo passo

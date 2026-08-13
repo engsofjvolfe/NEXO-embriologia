@@ -1,0 +1,272 @@
+# Architecture — Motor
+
+<!-- module-doc-type: architecture -->
+
+| Campo | Valor |
+|---|---|
+| Módulo | Motor |
+| Documento | Architecture |
+| Versão | 0.1.0 |
+| Data | 12-08-2026 |
+| Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
+
+> Descreve como o módulo é construído por dentro — layout de arquivos,
+> pacote, fronteiras, fluxo de dados técnico. É o "como" que corresponde
+> ao "o quê" do `concept.md`; lido logo em seguida, quando existir.
+>
+> Implementação de código deriva sempre daqui e do contrato em
+> `schemas/` — nunca o contrário: nunca escrever código primeiro e
+> desenhar arquitetura/schema depois só pra bater com o que já foi
+> escrito.
+>
+> Só cobre a parte do módulo cujo "como construir" já foi desenhado a
+> partir do `concept.md` — nunca escrito a partir do código já
+> existente. Se `concept.md` já cobre uma parte sem esse desenho
+> ainda, isso é dito explicitamente aqui, com ponteiro pra pendência
+> em `tasks.md` — nunca um documento incompleto sem explicação.
+>
+> Vale igual quando o módulo já tem código: o "como" aqui é sempre o
+> correto, desenhado a partir do requisito em `concept.md`, nunca um
+> espelho do código já existente. Se o código atual não bate com o
+> "como" desenhado aqui, quem muda é o código, não a arquitetura -- a
+> correção fica pendência em `tasks.md` até acontecer.
+>
+> Cada seção segue [a regra de escrita geral](../../README.md#como-escrever):
+> resumo simples primeiro, detalhe técnico depois.
+
+Convenção dos códigos citados neste documento:
+- `DA-LEI` — [`4 - projeto-arquitetonico.md`](<../../../docs/docs-VMODEL-visao-geral/4 - projeto-arquitetonico.md>), seção 6.1.
+- `DA-ARM` — [`4 - projeto-arquitetonico.md`](<../../../docs/docs-VMODEL-visao-geral/4 - projeto-arquitetonico.md>), seção 6.3.
+- `DA-IMP` — [`4 - projeto-arquitetonico.md`](<../../../docs/docs-VMODEL-visao-geral/4 - projeto-arquitetonico.md>), seção 6.4.
+- `DA-REG` — [`4 - projeto-arquitetonico.md`](<../../../docs/docs-VMODEL-visao-geral/4 - projeto-arquitetonico.md>), seção 6.7.
+- `EI-VAL` — [`3 - especificacao-conceito-geral.md`](<../../../docs/docs-VMODEL-visao-geral/3 - especificacao-conceito-geral.md>), seção 6.4.
+- `PD-LEI` — [`5 - projeto-detalhado.md`](<../../../docs/docs-VMODEL-visao-geral/5 - projeto-detalhado.md>), seção 6.1.
+- `PD-CON` — [`5 - projeto-detalhado.md`](<../../../docs/docs-VMODEL-visao-geral/5 - projeto-detalhado.md>), seção 6.2.
+- `PD-IMP` — [`5 - projeto-detalhado.md`](<../../../docs/docs-VMODEL-visao-geral/5 - projeto-detalhado.md>), seção 6.3.
+- `PD-NAV` — [`5 - projeto-detalhado.md`](<../../../docs/docs-VMODEL-visao-geral/5 - projeto-detalhado.md>), seção 6.4.
+
+## Índice
+- [Layout](#layout)
+  - [Aparelho de jogo (aplicativo)](#aparelho-de-jogo-aplicativo)
+    - [Núcleo do motor](#núcleo-do-motor)
+    - [Interface](#interface)
+  - [Acessório leitor (firmware)](#acessório-leitor-firmware)
+  - [Fronteira de dado entre aplicativo e acessório](#fronteira-de-dado-entre-aplicativo-e-acessório)
+  - [Fronteira de dado do pacote de conteúdo](#fronteira-de-dado-do-pacote-de-conteúdo)
+- [Referências](#referências)
+- [Controle de versão](#controle-de-versão)
+
+## Layout
+
+*Em resumo:* o módulo motor tem dois pedaços de código bem separados —
+o aplicativo, que roda no aparelho de quem joga, e o firmware de um
+acessório físico opcional, usado só quando o aparelho não tem antena
+própria pra ler as peças. Os dois trocam só um dado entre si.
+
+*Em detalhe técnico:* essa divisão em dois componentes já vem
+decidida — não é um desenho novo, é a mesma distinção que
+[`concept.md`](concept.md), seção Fluxo, e o
+[Projeto Arquitetônico](<../../../docs/docs-VMODEL-visao-geral/4 - projeto-arquitetonico.md>),
+seção 4, já registram entre "aparelho de jogo" e "acessório leitor".
+O que este documento faz é descer um nível: dizer o que cada
+componente é responsável por fazer e como os dois se conectam. A
+linguagem de programação de cada componente já está decidida (ver
+`decisions/`, ADRs 0001 e 0002, referenciadas ao final de cada
+subseção abaixo); a estrutura exata de pastas ainda não.
+
+### Aparelho de jogo (aplicativo)
+
+*Em resumo:* é onde a lógica do motor roda de verdade — leitura de
+peça, validação de tentativa, telas, guarda de sessão e relatório.
+Todo comportamento já decidido na cascata (documentos 1 a 5) vira
+código aqui. Por dentro, esse componente se divide em duas partes —
+núcleo e interface — do mesmo jeito que um motor de jogo se separa de
+quem desenha a tela: uma decide, a outra mostra.
+
+*Em detalhe técnico:* linguagem de programação: Kotlin, ver
+[decisions/0001-linguagem-do-aplicativo.md](<../decisions/0001-linguagem-do-aplicativo.md>).
+Estrutura exata de pastas do projeto Android: ainda não decidida —
+pendência registrada em `tasks.md`.
+
+#### Núcleo do motor
+
+*Em resumo:* tudo que decide alguma coisa — nunca desenha nada na
+tela. Já está inteiramente descrito pela cascata, sem nenhuma
+pendência de desenho.
+
+*Em detalhe técnico:* responsabilidades, cada uma já decidida em algum
+ponto da cascata:
+
+- Leitura de peça (categoria LEI) pelos dois caminhos já fixados
+  (DA-LEI-03): direto pela antena própria do aparelho (DA-LEI-04), ou
+  repassada pelo acessório externo via Bluetooth (ver
+  [Fronteira de dado entre aplicativo e acessório](#fronteira-de-dado-entre-aplicativo-e-acessório))
+  — nos dois casos, a lógica de validação (categoria VAL, EI-VAL-*)
+  trata a leitura do mesmo jeito (DA-LEI-06).
+- Toda a lógica de sessão — hierarquia, validação, erro, pular, dica,
+  pausa, registro — como especificado em
+  [`3 - especificacao-conceito-geral.md`](<../../../docs/docs-VMODEL-visao-geral/3 - especificacao-conceito-geral.md>).
+- Importação e validação (categoria IMP), item a item, do pacote de
+  conteúdo (PD-IMP-01, PD-IMP-02), lendo o arquivo compactado com
+  `java.util.zip.ZipFile`, parte do próprio SDK do Android/Java, sem
+  biblioteca externa (PD-IMP-03).
+- Navegação (categoria NAV) com busca aproximada por distância de
+  Levenshtein (PD-NAV-01, PD-NAV-02).
+- Guarda local de configuração, registro e relatório (categorias ARM
+  e REG), sem servidor central (DA-ARM-01), com o relatório exportado
+  em CSV e PDF (DA-REG-01).
+- Papel de cliente GATT (papel *central*), quando usa o acessório
+  externo, conectando ao Nordic UART Service que o acessório anuncia
+  (categoria CON, PD-CON-01 a PD-CON-04). Definição de GATT, serviço e
+  característica, e do papel de cliente/central:
+  [Projeto Detalhado](<../../../docs/docs-VMODEL-visao-geral/5 - projeto-detalhado.md>),
+  seção 4 e PD-CON-03.
+
+O núcleo nunca decide aparência — só estado. Pra cada tela, o que o
+núcleo entrega pra interface mostrar é exatamente o "conteúdo
+funcional" já listado no
+[Projeto Arquitetônico](<../../../docs/docs-VMODEL-visao-geral/4 - projeto-arquitetonico.md>),
+seção 6.6 — essa tabela já é, na prática, o contrato entre as duas
+partes.
+
+#### Interface
+
+*Em resumo:* as telas — o que mostra o estado que o núcleo decide,
+nunca decide nada por conta própria. Continua dentro do módulo motor,
+não um módulo separado (ver decisão registrada em `tasks.md`).
+
+*Em detalhe técnico:* o fluxo funcional de cada tela (quais existem, o
+que cada uma mostra) já está fixado no
+[Projeto Arquitetônico](<../../../docs/docs-VMODEL-visao-geral/4 - projeto-arquitetonico.md>),
+seção 6.6. A aparência visual (cor, fonte, layout) não está decidida —
+pendência registrada em [`tasks.md`](tasks.md). Direção provável,
+ainda não pesquisada nem decidida de verdade: uma casca única,
+neutra, no padrão Material Design do Google — reaproveitada por toda
+instância, já que a única coisa que varia de fato entre instâncias é
+o conteúdo (fotogramas, textos), não a aparência das telas em si.
+
+Material Design decide só a aparência (cor, componente, espaçamento)
+— não decide onde cada elemento vai em cada tela. Essa segunda
+decisão (layout, composição) segue um processo com método próprio,
+reconhecido fora deste projeto, chamado design centrado no usuário
+(NORMAN, 2013; INTERNATIONAL ORGANIZATION FOR STANDARDIZATION, 2019):
+
+1. Arquitetura de informação — o que precisa existir em cada tela. Já
+   resolvido: é a coluna "Conteúdo funcional" da tabela do
+   [Projeto Arquitetônico](<../../../docs/docs-VMODEL-visao-geral/4 - projeto-arquitetonico.md>),
+   seção 6.6.
+2. Wireframe — layout de cada tela (onde cada elemento vai), sem cor
+   nem fonte ainda.
+3. Aplicação do sistema visual (Material Design — GOOGLE, [s.d.]) em
+   cima do wireframe já pronto.
+4. Protótipo navegável e avaliação contra as heurísticas de
+   usabilidade (NIELSEN, 1994) antes de virar código de verdade.
+
+Nenhuma dessas quatro etapas foi executada ainda — só o método a
+seguir está registrado aqui.
+
+### Acessório leitor (firmware)
+
+*Em resumo:* só existe pra aparelhos sem antena NFC própria. Lê a
+etiqueta e informa o identificador ao aplicativo — não guarda
+conteúdo nem roda lógica de jogo, como já registrado no
+[Projeto Arquitetônico](<../../../docs/docs-VMODEL-visao-geral/4 - projeto-arquitetonico.md>),
+seção 4.
+
+*Em detalhe técnico:*
+
+- Hardware já fixado: módulo leitor NXP PN532/C1 (PD-LEI-01) e
+  microcontrolador Espressif ESP32-D0WD-V3 (PD-LEI-02), ligados entre
+  si por I2C (PD-LEI-03).
+- Papel de servidor GATT (papel *peripheral*, oposto ao de
+  cliente/central do aplicativo — ver
+  [Aparelho de jogo](#aparelho-de-jogo-aplicativo), ambos definidos
+  no [Projeto Detalhado](<../../../docs/docs-VMODEL-visao-geral/5 - projeto-detalhado.md>),
+  PD-CON-03), anunciando o Nordic UART Service (PD-CON-01, PD-CON-03).
+- A cada leitura de etiqueta bem-sucedida pelo PN532, notifica o
+  identificador da etiqueta na característica TX do serviço
+  (PD-CON-02, PD-CON-03).
+
+Linguagem e framework de firmware: C++ com framework Arduino, via
+PlatformIO — ver
+[decisions/0002-framework-do-firmware-do-acessorio.md](<../decisions/0002-framework-do-firmware-do-acessorio.md>).
+
+### Fronteira de dado entre aplicativo e acessório
+
+*Em resumo:* os dois trocam só um dado — o identificador da etiqueta
+lida, mandado do acessório pro aplicativo. Nada mais atravessa essa
+fronteira hoje.
+
+*Em detalhe técnico:* o acessório notifica o identificador na
+característica TX; a característica RX (escrita, do aplicativo pro
+acessório) existe, reservada, seguindo o par completo do serviço
+padrão, mas nenhuma comunicação nesse sentido é exigida pelos
+requisitos atuais — TX e RX definidas no
+[Projeto Detalhado](<../../../docs/docs-VMODEL-visao-geral/5 - projeto-detalhado.md>),
+PD-CON-02 e PD-CON-03. Tamanho de mensagem nunca chega perto do
+limite de MTU da conexão — *Maximum Transmission Unit*, o tamanho
+máximo de dado que cabe numa única mensagem trocada pela conexão —,
+então não há fragmentação a tratar (mesmo documento, PD-CON-04; o
+termo "MTU" em si não tem definição em nenhum documento da cascata,
+só a citação de PD-CON-04).
+
+### Fronteira de dado do pacote de conteúdo
+
+*Em resumo:* quem monta o conteúdo de uma instância entrega um único
+arquivo pro aplicativo; o aplicativo só aceita esse arquivo se ele
+bater exatamente com o contrato já fixado.
+
+*Em detalhe técnico:* o contrato está no bloco YAML de
+[`concept.md`](concept.md), seção Contrato de dado, gerado em
+[`schemas/`](../schemas/) — essa é a única porta de entrada de
+conteúdo novo no motor (DA-IMP-01, DA-IMP-02). O aplicativo nunca
+escreve esse arquivo, só lê (PD-IMP-03); a ferramenta que um dia vier
+a gerar esse arquivo pra quem monta conteúdo fica fora do escopo deste
+módulo (mesma premissa já registrada no
+[Projeto Arquitetônico](<../../../docs/docs-VMODEL-visao-geral/4 - projeto-arquitetonico.md>)
+e no
+[Projeto Detalhado](<../../../docs/docs-VMODEL-visao-geral/5 - projeto-detalhado.md>),
+ambos seção 8).
+
+## Referências
+
+Fontes externas citadas na seção [Interface](#interface), no formato
+definido pela norma ABNT NBR 6023 (Informação e documentação —
+Referências). Citadas no corpo do documento como (AUTOR, ano).
+
+GOOGLE. **Material Design 3**. [S.l.], [s.d.]. Disponível em:
+https://m3.material.io/. Acesso em: 12 ago. 2026. Nota sobre acesso:
+o site carrega o conteúdo por JavaScript — a ferramenta de leitura
+automatizada usada na elaboração deste documento não conseguiu trazer
+o texto completo da página, só confirmar que ela existe e pertence ao
+domínio oficial do Google para o Material Design.
+
+INTERNATIONAL ORGANIZATION FOR STANDARDIZATION. **ISO 9241-210:2019 —
+Ergonomics of human-system interaction — Part 210: Human-centred
+design for interactive systems**. Geneva: ISO, 2019. Disponível em:
+https://www.iso.org/standard/77520.html. Acesso em: 12 ago. 2026.
+Nota sobre acesso: o acesso automatizado ao domínio iso.org não foi
+possível durante a elaboração deste documento (erro do servidor) —
+mesma situação já registrada no
+[Projeto Detalhado](<../../../docs/docs-VMODEL-visao-geral/5 - projeto-detalhado.md>)
+para o site da NXP.
+
+NIELSEN, Jakob. **10 Usability Heuristics for User Interface
+Design**. Nielsen Norman Group, 24 abr. 1994, revisado em 30 jan.
+2024. Disponível em: https://www.nngroup.com/articles/ten-usability-heuristics/.
+Acesso em: 12 ago. 2026.
+
+NORMAN, Donald A. **The Design of Everyday Things**: revised and
+expanded edition. New York: Basic Books, 2013.
+
+## Controle de versão
+
+<!-- uma linha por versão publicada deste documento, mais antiga no
+topo -- nunca reescrita, só acrescentada; toda mudança de conteúdo real
+do documento sobe a versão (SemVer) e ganha uma linha nova aqui, junto
+com o campo Versão da tabela de cabeçalho, que sempre reflete a
+última linha desta tabela. -->
+
+| Versão | Data | Alteração | Origem da alteração |
+|---|---|---|---|
+| 0.1.0 | 12-08-2026 | Criação inicial: layout do aparelho de jogo (núcleo e interface), do acessório leitor, e das duas fronteiras de dado. | Criação inicial |

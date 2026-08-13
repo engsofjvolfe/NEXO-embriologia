@@ -69,3 +69,8 @@
       requisitos, especificação, projeto arquitetônico e projeto
       detalhado) passaram de "criação inicial" (0.1.0) para
       "Aprovado" (1.0.0).
+- [x] **Formalizar controle de versão no molde de módulo.** Resolvido
+      — [`modulos/_template/`](modulos/_template/) agora leva, em todo
+      arquivo, o campo Versão (na tabela de cabeçalho) e a tabela
+      Controle de versão (no rodapé), no mesmo formato já usado nos
+      cinco documentos da cascata do motor.

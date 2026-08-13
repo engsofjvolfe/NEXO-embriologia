@@ -17,6 +17,8 @@
   [especificação](<docs/docs-VMODEL-visao-geral/3 - especificacao-conceito-geral.md>),
   [projeto arquitetônico](<docs/docs-VMODEL-visao-geral/4 - projeto-arquitetonico.md>)
   e [projeto detalhado](<docs/docs-VMODEL-visao-geral/5 - projeto-detalhado.md>).
+- [`modulos/_template/`](modulos/_template/) — molde de módulo, agora
+  com controle de versão em todo arquivo.
 - [TASKS.md, Resolvidas](TASKS.md#resolvidas) — pendências já corrigidas.
 
 ## Próximo passo

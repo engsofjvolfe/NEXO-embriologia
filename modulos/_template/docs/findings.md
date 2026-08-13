@@ -2,6 +2,14 @@
 
 <!-- module-doc-type: findings -->
 
+| Campo | Valor |
+|---|---|
+| Módulo | <nome do módulo> |
+| Documento | Findings |
+| Versão | 0.1.0 |
+| Data | <AAAA-MM-DD> |
+| Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
+
 > Achados confirmados (por leitura de código, teste ao vivo, ou os dois)
 > sobre este módulo — cada entrada datada.
 >
@@ -23,6 +31,7 @@
 
 ## Índice
 - [Achados](#achados)
+- [Controle de versão](#controle-de-versão)
 
 ## Achados
 
@@ -38,3 +47,16 @@ código e teste ao vivo
 *Detalhe técnico:*
 - ...
 -->
+
+## Controle de versão
+
+<!-- uma linha por versão publicada deste documento, mais antiga no
+topo -- nunca reescrita, só acrescentada; toda mudança de conteúdo real
+do documento sobe a versão (SemVer) e ganha uma linha nova aqui, junto
+com o campo Versão da tabela de cabeçalho, que sempre reflete a
+última linha desta tabela. Entrada nova em "Achados" (append, sem
+reescrever) também conta como mudança de conteúdo real. -->
+
+| Versão | Data | Alteração | Origem da alteração |
+|---|---|---|---|
+| 0.1.0 | <AAAA-MM-DD> | Criação inicial. | Criação inicial |

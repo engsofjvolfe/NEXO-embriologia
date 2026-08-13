@@ -19,6 +19,8 @@
   e [projeto detalhado](<docs/docs-VMODEL-visao-geral/5 - projeto-detalhado.md>).
 - [`modulos/_template/`](modulos/_template/) — molde de módulo, agora
   com controle de versão em todo arquivo.
+- [`scripts/`](scripts/) — gancho de git que avisa quando falta subir
+  a versão de um documento.
 - [TASKS.md, Resolvidas](TASKS.md#resolvidas) — pendências já corrigidas.
 
 ## Próximo passo

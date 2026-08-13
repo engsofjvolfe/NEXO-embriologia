@@ -6,8 +6,8 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Decisions — Índice |
-| Versão | 0.1.0 |
-| Data | 12-08-2026 |
+| Versão | 0.2.0 |
+| Data | 13-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
 > Decisões (ADR) específicas deste módulo — um arquivo por decisão,
@@ -43,6 +43,7 @@
 |---|---|
 | [0001](0001-linguagem-do-aplicativo.md) | Linguagem do aplicativo |
 | [0002](0002-framework-do-firmware-do-acessorio.md) | Framework do firmware do acessório leitor |
+| [0003](0003-estrutura-de-modulos-do-aplicativo.md) | Estrutura de módulos do aplicativo |
 
 ## Controle de versão
 
@@ -58,3 +59,4 @@ pelo ADR-NNNN). -->
 | Versão | Data | Alteração | Origem da alteração |
 |---|---|---|---|
 | 0.1.0 | 12-08-2026 | Criação inicial: ADRs 0001 e 0002. | Criação inicial |
+| 0.2.0 | 13-08-2026 | ADR 0003 acrescentada à lista. | Resolução da pendência de estrutura de pastas do Android |

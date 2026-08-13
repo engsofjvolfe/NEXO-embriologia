@@ -6,8 +6,8 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Tasks |
-| Versão | 0.1.0 |
-| Data | 12-08-2026 |
+| Versão | 0.2.0 |
+| Data | 13-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
 > Lista mutável de pendências só deste módulo. Lida depois de
@@ -53,15 +53,6 @@ Convenção dos códigos citados aqui:
       lógica de busca aproximada. Origem:
       [Projeto Detalhado](<../../../docs/docs-VMODEL-visao-geral/5 - projeto-detalhado.md>),
       seção 9.
-
-- [ ] **Decidir a estrutura exata de pastas do projeto Android.**
-
-      *Resumo simples:* `architecture.md` já diz que o código do
-      aplicativo é Kotlin, mas não desce ao nível de quais pastas e
-      pacotes existem dentro do projeto.
-
-      *Detalhe técnico:* ver `architecture.md`, seção
-      "Aparelho de jogo (aplicativo)".
 
 - [ ] **Desenhar a aparência visual das telas do motor.**
 
@@ -150,6 +141,9 @@ Convenção dos códigos citados aqui:
 - [x] **Escolher a linguagem e o framework do firmware do acessório
       leitor.** Resolvido — ver
       [decisions/0002-framework-do-firmware-do-acessorio.md](<../decisions/0002-framework-do-firmware-do-acessorio.md>).
+- [x] **Decidir a estrutura exata de pastas do projeto Android.**
+      Resolvido — ver
+      [decisions/0003-estrutura-de-modulos-do-aplicativo.md](<../decisions/0003-estrutura-de-modulos-do-aplicativo.md>).
 
 ## Controle de versão
 
@@ -163,3 +157,4 @@ como mudança de conteúdo real. -->
 | Versão | Data | Alteração | Origem da alteração |
 |---|---|---|---|
 | 0.1.0 | 12-08-2026 | Criação inicial. | Criação inicial |
+| 0.2.0 | 13-08-2026 | Pendência "Decidir a estrutura exata de pastas do projeto Android" resolvida — movida para Resolvidas. | Resolução de [decisions/0003-estrutura-de-modulos-do-aplicativo.md](<../decisions/0003-estrutura-de-modulos-do-aplicativo.md>) |

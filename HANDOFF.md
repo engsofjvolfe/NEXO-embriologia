@@ -11,7 +11,7 @@
 
 ## Estado atual
 
-- Cascata completa do modelo em V do motor aprovada:
+- Cascata completa do modelo em V do motor aprovada (versão 1.0.0):
   [conceito](<docs/docs-VMODEL-visao-geral/1 - documento-de-conceito-geral.md>),
   [requisitos](<docs/docs-VMODEL-visao-geral/2 - requisitos-conceito-geral.md>),
   [especificação](<docs/docs-VMODEL-visao-geral/3 - especificacao-conceito-geral.md>),

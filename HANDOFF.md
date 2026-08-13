@@ -21,6 +21,9 @@
   com controle de versão em todo arquivo.
 - [`scripts/`](scripts/) — gancho de git que avisa quando falta subir
   a versão de um documento.
+- Módulo [motor](modulos/motor/) criado — desenho de código, contrato
+  de dado e decisões de linguagem/framework já registrados; nenhuma
+  linha de implementação ainda.
 - [TASKS.md, Resolvidas](TASKS.md#resolvidas) — pendências já corrigidas.
 
 ## Próximo passo

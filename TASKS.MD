@@ -11,46 +11,15 @@
 
 ## Em aberto
 
-- [ ] **Avançar para a Implementação da cascata do motor.**
+- [ ] **Continuar a implementação do módulo motor.**
 
-      *Resumo simples:* os cinco primeiros documentos do módulo
-      "Conceito Geral (Motor)" — conceito, requisitos, especificação,
-      projeto arquitetônico e projeto detalhado — já estão prontos e
-      aprovados (versão 1.0.0 cada, com referências de apoio). Falta
-      continuar a cascata a partir da próxima etapa.
+      *Resumo simples:* o módulo já tem desenho de código, contrato de
+      dado e decisões de linguagem — falta o código em si, os testes,
+      e o desenho visual das telas.
 
-      *Detalhe técnico:* próxima etapa é a Implementação, seguindo a
-      ordem descrita em `docs/prompt model.txt` (Projeto Detalhado →
-      Implementação → Testes). Ver
-      `docs/docs-VMODEL-visao-geral/5 - projeto-detalhado.md`, seção 9
-      ("Itens deferidos à Implementação"), pro que essa próxima etapa
-      precisa cobrir.
-
-- [ ] **Desenhar a aparência visual das telas do motor.**
-
-      *Resumo simples:* a cascata de documentação do motor (docs 1 a
-      5) especifica o fluxo funcional de cada tela — quais existem, o
-      que cada uma mostra (ver
-      `docs/docs-VMODEL-visao-geral/4 - projeto-arquitetonico.md`,
-      seção 6.6, DA-RET-01 a DA-RET-17) —, mas nunca decide a
-      aparência visual (cor, fonte, layout) de nenhuma delas: isso foi
-      excluído de propósito, repetidamente, em todos os cinco
-      documentos. Diferente de outras exclusões da cascata (como o
-      texto legal do termo de consentimento, que virou pendência
-      explícita com "rodada própria"), essa nunca virou um item
-      rastreado em nenhum documento — por isso mora aqui, na raiz, não
-      pertencendo a nenhuma etapa específica do V-Model do motor.
-
-      *Detalhe técnico:* das 17 entradas de tela, 7 são páginas de
-      navegação de fato (sessão pausada, navegação, ponto de início,
-      configuração da sessão, resultado/relatório, importar conteúdo,
-      consentimento) e 10 são estados/variações de conteúdo dentro da
-      tela principal de jogo (referência, aguardando tentativa,
-      confirmação de acerto, negativa, dica, sugestão de estudo,
-      resumo de evento, mensagem de pulo, síntese de cadeia,
-      confirmação de saída) — como agrupar esses estados em telas
-      físicas é parte do próprio desenho visual pendente. Sem
-      responsável definido ainda (designer, ou o próprio usuário).
+      *Detalhe técnico:* ver
+      [modulos/motor/docs/tasks.md, Em aberto](modulos/motor/docs/tasks.md#em-aberto)
+      pra lista completa.
 
 ## Resolvidas
 
@@ -79,3 +48,6 @@
       [`scripts/README.md`](scripts/README.md): gancho de git que
       bloqueia o commit quando um documento com campo de versão
       reconhecido muda de conteúdo sem a versão acompanhar.
+- [x] **Criar o módulo "motor" em `modulos/`.** Resolvido — desenho
+      de código, contrato de dado e decisões de linguagem/framework
+      já registrados, ver [modulos/motor/](modulos/motor/).

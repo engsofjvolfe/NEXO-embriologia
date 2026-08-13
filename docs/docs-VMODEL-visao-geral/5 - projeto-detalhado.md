@@ -7,8 +7,8 @@
 | Módulo | Conceito Geral (Motor) |
 | Etapa (V-Model) | Projeto Detalhado |
 | Documento(s) de origem | `4 - projeto-arquitetonico.md` v1.0.0 (normativo principal); `3 - especificacao-conceito-geral.md` v1.0.0, `2 - requisitos-conceito-geral.md` v1.0.0 e `1 - documento-de-conceito-geral.md` v1.0.0 (referência) |
-| Versão | 1.0.0 |
-| Data | 12-08-2026 |
+| Versão | 1.0.1 |
+| Data | 13-08-2026 |
 | Situação | Aprovado |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../LICENSE) |
 
@@ -245,7 +245,7 @@ Nota sobre unicidade: JSON Schema, por desenho, valida a estrutura de um documen
 
 | ID | Descrição | Origem |
 |---|---|---|
-| PD-IMP-01 | Esquema acima adotado como o esquema exato do pacote de conteúdo. Nomes de campo em inglês (`name`, `ordering`, `frames`, etc.) — decisão deste documento: manter compatibilidade com o vocabulário do próprio padrão JSON Schema e das bibliotecas de validação (`fastjsonschema`, já referenciada em `modulos/_template/schemas/README.md`), que são, elas mesmas, documentadas em inglês. Idioma de campo é uma escolha de formato de dado, não afeta em nada a regra de "sem termos técnicos" e "resposta sempre em português" do CLAUDE.md, que rege comunicação com pessoas, não nomes de chave num arquivo de máquina. | DA-IMP-01; Doc. Projeto Arquitetônico §9 |
+| PD-IMP-01 | Esquema acima adotado como o esquema exato do pacote de conteúdo. Nomes de campo em inglês (`name`, `ordering`, `frames`, etc.) — decisão deste documento: manter compatibilidade com o vocabulário do próprio padrão JSON Schema e das bibliotecas de validação (`fastjsonschema`, já referenciada em `modulos/_template/schemas/README.md`), que são, elas mesmas, documentadas em inglês. Idioma de campo é uma escolha de formato de dado, não comunicação com pessoa — não está sujeita a nenhuma convenção de linguagem simples e sem jargão que rege a comunicação em torno deste projeto. | DA-IMP-01; Doc. Projeto Arquitetônico §9 |
 | PD-IMP-02 | Cada instância, tema, evento e fotograma do pacote é validado individualmente na importação, item a item, reaproveitando a regra já fixada em DA-CFG-01/02/03: um item com erro de esquema (campo obrigatório ausente, tipo errado, `tag_id` duplicado) é recusado sozinho, sem impedir a importação do restante do pacote; o motor aponta o caminho exato do item recusado (ex.: `instance.themes[2].events[0].frames[5]`) e o motivo. | DA-CFG-01; DA-CFG-03 |
 
 #### 6.3.2 Leitura do arquivo ZIP (PD-IMP-03)
@@ -335,3 +335,4 @@ NXP SEMICONDUCTORS (anteriormente Philips Semiconductors). **PN532/C1 — NFC co
 |---|---|---|---|
 | 0.1.0 | 12-08-2026 | Criação inicial: modelo exato do módulo NFC e do microcontrolador do acessório leitor (PN532/C1 + ESP32-D0WD-V3, com a ressalva de descontinuação da variante sem "-V3"), serviço BLE exato entre acessório e aplicativo (Nordic UART Service, com UUIDs), esquema JSON completo do pacote de conteúdo, mecanismo exato de leitura do ZIP no Android (`java.util.zip.ZipFile`), algoritmo exato de busca aproximada (distância de Levenshtein, com limiar proposto) e forma exata de distribuição do aplicativo (instalação direta, com registro da política de verificação de desenvolvedor do Android e da opção paga fora da Play Store, ambas marcadas `[REVISAR-EXTERNO]` por dependerem de regra de terceiro que pode mudar sem aviso). Resolve os itens da seção 9 do Projeto Arquitetônico v0.1.0 que cabem a esta etapa — o texto legal do termo de consentimento (DA-RET-16), sétimo item daquela seção, permanece fora do escopo deste documento (ver §2.2). | Projeto Detalhado |
 | 1.0.0 | 12-08-2026 | Documento aprovado — primeira versão estável do Projeto Detalhado do módulo Conceito Geral (Motor). | Aprovação da cascata do motor |
+| 1.0.1 | 13-08-2026 | PD-IMP-01: removida menção a uma regra de arquivo de configuração de ferramenta (CLAUDE.md), sem documento próprio explicando seu uso dentro do projeto e sem sentido fora desse contexto; mantida a decisão em si (nomes de campo em inglês) e o motivo técnico (vocabulário do padrão JSON Schema e de `fastjsonschema`). | Correção de redação |

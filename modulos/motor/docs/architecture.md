@@ -6,8 +6,8 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Architecture |
-| Versão | 0.1.0 |
-| Data | 12-08-2026 |
+| Versão | 0.2.0 |
+| Data | 13-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
 > Descreve como o módulo é construído por dentro — layout de arquivos,
@@ -70,9 +70,9 @@ decidida — não é um desenho novo, é a mesma distinção que
 seção 4, já registram entre "aparelho de jogo" e "acessório leitor".
 O que este documento faz é descer um nível: dizer o que cada
 componente é responsável por fazer e como os dois se conectam. A
-linguagem de programação de cada componente já está decidida (ver
-`decisions/`, ADRs 0001 e 0002, referenciadas ao final de cada
-subseção abaixo); a estrutura exata de pastas ainda não.
+linguagem de programação de cada componente, e a estrutura de módulos e
+pacotes do aplicativo, já estão decididas (ver `decisions/`, ADRs 0001,
+0002 e 0003, referenciadas ao final de cada subseção abaixo).
 
 ### Aparelho de jogo (aplicativo)
 
@@ -85,8 +85,32 @@ quem desenha a tela: uma decide, a outra mostra.
 
 *Em detalhe técnico:* linguagem de programação: Kotlin, ver
 [decisions/0001-linguagem-do-aplicativo.md](<../decisions/0001-linguagem-do-aplicativo.md>).
-Estrutura exata de pastas do projeto Android: ainda não decidida —
-pendência registrada em `tasks.md`.
+Estrutura do projeto Android: dois módulos Gradle — `core` (núcleo do
+motor) e `app` (interface), com `app` dependendo de `core` e nunca o
+contrário — com pacotes organizados por assunto funcional dentro de cada
+um. Alternativas consideradas, decisão completa e motivo em
+[decisions/0003-estrutura-de-modulos-do-aplicativo.md](<../decisions/0003-estrutura-de-modulos-do-aplicativo.md>).
+
+```
+core/
+  src/main/kotlin/org/nexo/motor/core/
+    hierarchy/      instância, tema, evento — cadastro e navegação hierárquica
+    session/        sessão em curso: validação, erro, pular, dica, encadeamento, pausa/ocioso/saída
+    search/         busca aproximada (Levenshtein)
+    content/        importação e validação do pacote de conteúdo
+    connectivity/   cliente BLE, leitura de peça (NFC direta ou via acessório)
+    report/         registro de sessão, relatório, exportação CSV/PDF
+app/
+  src/main/kotlin/org/nexo/motor/app/
+    ui/             telas (Activities/Composables) — fluxo funcional definido
+                     na seção Interface, abaixo
+```
+
+O módulo `app` ainda não é desmembrado em módulos de funcionalidade
+menores — como as 17 entradas de tela do
+[Projeto Arquitetônico](<../../../docs/docs-VMODEL-visao-geral/4 - projeto-arquitetonico.md>),
+seção 6.6, se agrupam em telas físicas é parte do desenho visual ainda
+pendente (ver [`tasks.md`](tasks.md)).
 
 #### Núcleo do motor
 
@@ -270,3 +294,4 @@ com o campo Versão da tabela de cabeçalho, que sempre reflete a
 | Versão | Data | Alteração | Origem da alteração |
 |---|---|---|---|
 | 0.1.0 | 12-08-2026 | Criação inicial: layout do aparelho de jogo (núcleo e interface), do acessório leitor, e das duas fronteiras de dado. | Criação inicial |
+| 0.2.0 | 13-08-2026 | Estrutura de módulos e pacotes do projeto Android resolvida (dois módulos Gradle, `core` e `app`), substituindo a pendência registrada na seção "Aparelho de jogo (aplicativo)". | Resolução de [decisions/0003-estrutura-de-modulos-do-aplicativo.md](<../decisions/0003-estrutura-de-modulos-do-aplicativo.md>) |

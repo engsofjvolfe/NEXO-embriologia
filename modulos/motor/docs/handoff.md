@@ -6,8 +6,8 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Handoff |
-| Versão | 0.1.0 |
-| Data | 12-08-2026 |
+| Versão | 0.2.0 |
+| Data | 13-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
 > Resumo curto de "onde este módulo está" e "o que fazer a seguir" nele.
@@ -44,6 +44,8 @@
   Kotlin escolhido pro aplicativo.
 - [decisions/0002-framework-do-firmware-do-acessorio.md](<../decisions/0002-framework-do-firmware-do-acessorio.md>) —
   C++/Arduino/PlatformIO escolhido pro firmware do acessório.
+- [decisions/0003-estrutura-de-modulos-do-aplicativo.md](<../decisions/0003-estrutura-de-modulos-do-aplicativo.md>) —
+  estrutura de módulos e pacotes do projeto Android decidida.
 - [tasks.md, Resolvidas](tasks.md#resolvidas) — pendências já
   corrigidas.
 
@@ -62,3 +64,4 @@ com o campo Versão da tabela de cabeçalho, que sempre reflete a
 | Versão | Data | Alteração | Origem da alteração |
 |---|---|---|---|
 | 0.1.0 | 12-08-2026 | Criação inicial. | Criação inicial |
+| 0.2.0 | 13-08-2026 | Acrescentado ponteiro para decisions/0003-estrutura-de-modulos-do-aplicativo.md. | Resolução da pendência de estrutura de pastas do Android |

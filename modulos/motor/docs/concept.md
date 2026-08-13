@@ -6,8 +6,8 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Concept |
-| Versão | 0.1.0 |
-| Data | 12-08-2026 |
+| Versão | 0.2.0 |
+| Data | 13-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
 > Descreve o desenho pretendido do módulo — o que ele deve ser e como
@@ -58,7 +58,8 @@ aplicativo Android, e um acessório físico opcional pra ler as peças.
 comportar já está inteiramente decidido na cascata de documentos em
 [`docs/docs-VMODEL-visao-geral/`](../../../docs/docs-VMODEL-visao-geral/)
 — conceito, requisitos, especificação, projeto arquitetônico e projeto
-detalhado, todos na versão 1.0.0, aprovados. Este `concept.md` não
+detalhado, todos aprovados (versão exata de cada um no respectivo
+cabeçalho). Este `concept.md` não
 repete esse conteúdo — aponta pra ele como fonte normativa direta, e
 existe só pra dar a este módulo o ponto de entrada que todo módulo tem
 dentro de `modulos/` (ver
@@ -243,3 +244,4 @@ com o campo Versão da tabela de cabeçalho, que sempre reflete a
 | Versão | Data | Alteração | Origem da alteração |
 |---|---|---|---|
 | 0.1.0 | 12-08-2026 | Criação inicial: escopo, fluxo e contrato de dado do pacote de conteúdo. | Criação inicial |
+| 0.2.0 | 13-08-2026 | Escopo: removida menção a uma versão coletiva única (1.0.0) para a cascata inteira, já que o Projeto Detalhado subiu para 1.0.1 numa correção de redação — cada documento aponta a própria versão no cabeçalho. | Correção de redação, decorrente de [decisions/0003-estrutura-de-modulos-do-aplicativo.md](<../decisions/0003-estrutura-de-modulos-do-aplicativo.md>) |

@@ -2,6 +2,14 @@
 
 <!-- module-doc-type: handoff -->
 
+| Campo | Valor |
+|---|---|
+| Módulo | <nome do módulo> |
+| Documento | Handoff |
+| Versão | 0.1.0 |
+| Data | <AAAA-MM-DD> |
+| Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
+
 > Resumo curto de "onde este módulo está" e "o que fazer a seguir" nele.
 > Última etapa do fluxo — atualizado depois de qualquer uma das outras
 > mudar. Só ponteiro, nunca detalhe, nunca resumo — detalhe de verdade
@@ -23,6 +31,7 @@
 ## Índice
 - [Estado atual](#estado-atual)
 - [Próximo passo](#proximo-passo)
+- [Controle de versão](#controle-de-versão)
 
 ## Estado atual
 
@@ -39,3 +48,15 @@
 <!--
 - [tasks.md, Em aberto](tasks.md#em-aberto) — pendências abertas.
 -->
+
+## Controle de versão
+
+<!-- uma linha por versão publicada deste documento, mais antiga no
+topo -- nunca reescrita, só acrescentada; toda mudança de conteúdo real
+do documento sobe a versão (SemVer) e ganha uma linha nova aqui, junto
+com o campo Versão da tabela de cabeçalho, que sempre reflete a
+última linha desta tabela. -->
+
+| Versão | Data | Alteração | Origem da alteração |
+|---|---|---|---|
+| 0.1.0 | <AAAA-MM-DD> | Criação inicial. | Criação inicial |

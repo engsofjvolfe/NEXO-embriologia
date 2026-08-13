@@ -2,6 +2,14 @@
 
 <!-- module-doc-type: concept -->
 
+| Campo | Valor |
+|---|---|
+| Módulo | <nome do módulo> |
+| Documento | Concept |
+| Versão | 0.1.0 |
+| Data | <AAAA-MM-DD> |
+| Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
+
 > Descreve o desenho pretendido do módulo — o que ele deve ser e como
 > deve se comportar. É sempre o primeiro passo do módulo, com código
 > já existente ou não -- guia o resto (`architecture.md`, `schemas/`,
@@ -31,6 +39,7 @@
 ## Índice
 - [Escopo](#escopo)
 - [Fluxo](#fluxo)
+- [Controle de versão](#controle-de-versão)
 
 ## Escopo
 
@@ -47,3 +56,15 @@
 
 *Em detalhe técnico:* o desenho do comportamento, passo a passo.
 -->
+
+## Controle de versão
+
+<!-- uma linha por versão publicada deste documento, mais antiga no
+topo -- nunca reescrita, só acrescentada; toda mudança de conteúdo real
+do documento sobe a versão (SemVer) e ganha uma linha nova aqui, junto
+com o campo Versão da tabela de cabeçalho, que sempre reflete a
+última linha desta tabela. -->
+
+| Versão | Data | Alteração | Origem da alteração |
+|---|---|---|---|
+| 0.1.0 | <AAAA-MM-DD> | Criação inicial. | Criação inicial |

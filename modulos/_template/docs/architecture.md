@@ -2,6 +2,14 @@
 
 <!-- module-doc-type: architecture -->
 
+| Campo | Valor |
+|---|---|
+| Módulo | <nome do módulo> |
+| Documento | Architecture |
+| Versão | 0.1.0 |
+| Data | <AAAA-MM-DD> |
+| Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
+
 > Descreve como o módulo é construído por dentro — layout de arquivos,
 > pacote, fronteiras, fluxo de dados técnico. É o "como" que corresponde
 > ao "o quê" do `concept.md`; lido logo em seguida, quando existir.
@@ -28,6 +36,7 @@
 
 ## Índice
 - [Layout](#layout)
+- [Controle de versão](#controle-de-versão)
 
 ## Layout
 
@@ -41,3 +50,15 @@ Se alguma parte do concept.md ainda não tem arquitetura desenhada:
 arquitetura -- desenho de como construir pendente, ver
 tasks.md#em-aberto."
 -->
+
+## Controle de versão
+
+<!-- uma linha por versão publicada deste documento, mais antiga no
+topo -- nunca reescrita, só acrescentada; toda mudança de conteúdo real
+do documento sobe a versão (SemVer) e ganha uma linha nova aqui, junto
+com o campo Versão da tabela de cabeçalho, que sempre reflete a
+última linha desta tabela. -->
+
+| Versão | Data | Alteração | Origem da alteração |
+|---|---|---|---|
+| 0.1.0 | <AAAA-MM-DD> | Criação inicial. | Criação inicial |

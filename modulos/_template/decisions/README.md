@@ -2,6 +2,14 @@
 
 <!-- module-doc-type: decisions-index -->
 
+| Campo | Valor |
+|---|---|
+| Módulo | <nome do módulo> |
+| Documento | Decisions — Índice |
+| Versão | 0.1.0 |
+| Data | <AAAA-MM-DD> |
+| Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
+
 > Decisões (ADR) específicas deste módulo — um arquivo por decisão,
 > numerado (`0001-titulo-curto.md`, `0002-...`).
 >
@@ -28,3 +36,17 @@
 > corrigir erro factual, marcar transição de Status, acrescentar nota de
 > acompanhamento datada com verificação posterior -- essa nota também
 > começa com um resumo simples antes do detalhe técnico.
+
+## Controle de versão
+
+<!-- uma linha por versão publicada deste documento, mais antiga no
+topo -- nunca reescrita, só acrescentada; toda mudança de conteúdo real
+deste documento sobe a versão (SemVer) e ganha uma linha nova aqui,
+junto com o campo Versão da tabela de cabeçalho, que sempre reflete a
+última linha desta tabela. Esta versão é do próprio índice -- cada ADR
+individual não leva versão própria, o histórico dela é o campo Status
+(substituído pelo ADR-NNNN). -->
+
+| Versão | Data | Alteração | Origem da alteração |
+|---|---|---|---|
+| 0.1.0 | <AAAA-MM-DD> | Criação inicial. | Criação inicial |

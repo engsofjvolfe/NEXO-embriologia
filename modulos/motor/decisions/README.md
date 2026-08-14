@@ -6,8 +6,8 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Decisions — Índice |
-| Versão | 0.2.0 |
-| Data | 13-08-2026 |
+| Versão | 0.4.0 |
+| Data | 14-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
 > Decisões (ADR) específicas deste módulo — um arquivo por decisão,
@@ -44,6 +44,9 @@
 | [0001](0001-linguagem-do-aplicativo.md) | Linguagem do aplicativo |
 | [0002](0002-framework-do-firmware-do-acessorio.md) | Framework do firmware do acessório leitor |
 | [0003](0003-estrutura-de-modulos-do-aplicativo.md) | Estrutura de módulos do aplicativo |
+| [0004](0004-desenho-do-algoritmo-de-busca-aproximada.md) | Desenho do algoritmo de busca aproximada |
+| [0005](0005-abordagem-de-teste-do-nucleo-do-motor.md) | Abordagem de teste do núcleo do motor |
+| [0006](0006-localizacao-do-projeto-gradle-no-repositorio.md) | Localização do projeto Gradle no repositório |
 
 ## Controle de versão
 
@@ -60,3 +63,5 @@ pelo ADR-NNNN). -->
 |---|---|---|---|
 | 0.1.0 | 12-08-2026 | Criação inicial: ADRs 0001 e 0002. | Criação inicial |
 | 0.2.0 | 13-08-2026 | ADR 0003 acrescentada à lista. | Resolução da pendência de estrutura de pastas do Android |
+| 0.3.0 | 13-08-2026 | ADRs 0004 e 0005 acrescentadas à lista. | Desenho e primeira implementação do pacote `search` |
+| 0.4.0 | 14-08-2026 | ADR 0006 acrescentada à lista. | Decisão sobre onde o projeto Gradle mora no repositório |

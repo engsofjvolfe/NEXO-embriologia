@@ -1,1 +1,8 @@
 .claude/worktrees/
+
+# Gradle/Kotlin (modulos/motor/)
+.gradle/
+build/
+local.properties
+.idea/
+*.iml

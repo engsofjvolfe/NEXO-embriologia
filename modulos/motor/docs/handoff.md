@@ -6,7 +6,7 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Handoff |
-| Versão | 0.6.0 |
+| Versão | 0.7.0 |
 | Data | 14-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
@@ -65,6 +65,8 @@
 - [decisions/0012-versoes-de-plataforma-e-build-do-modulo-app.md](<../decisions/0012-versoes-de-plataforma-e-build-do-modulo-app.md>) —
   versões de SDK, alvo de API e Android Gradle Plugin do módulo `app`
   decididas.
+- [decisions/0013-desenho-do-pacote-content.md](<../decisions/0013-desenho-do-pacote-content.md>) —
+  desenho interno do pacote `content` decidido.
 - [findings.md](findings.md) — achados confirmados até agora.
 - [pitfalls.md](pitfalls.md) — armadilhas de ferramenta já encontradas.
 - [tasks.md, Resolvidas](tasks.md#resolvidas) — pendências já
@@ -90,3 +92,4 @@ com o campo Versão da tabela de cabeçalho, que sempre reflete a
 | 0.4.0 | 14-08-2026 | Acrescentado ponteiro para decisions/0007-desenho-do-pacote-hierarchy.md. | Segundo pacote do módulo `core` escrito (pacote `hierarchy`) |
 | 0.5.0 | 14-08-2026 | Acrescentado ponteiro para decisions/0008 a 0011 e para findings.md. | Terceiro pacote do módulo `core` escrito (pacote `session`), com um achado de `hierarchy` revelado no caminho |
 | 0.6.0 | 14-08-2026 | Acrescentado ponteiro para decisions/0012 e para pitfalls.md. | Esqueleto mínimo do módulo `app` escrito e testado ao vivo num emulador |
+| 0.7.0 | 14-08-2026 | Acrescentado ponteiro para decisions/0013. | Quarto pacote do módulo `core` escrito (pacote `content`) |

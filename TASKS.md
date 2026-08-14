@@ -36,6 +36,20 @@
       motor, de propósito (§2.2, Premissas seção 8) — não é módulo
       `motor`, é ferramenta separada, sobre o contrato de dado já
       fixado em PD-IMP-01. Sem desenho ainda, nem worktree própria.
+      Nota acrescentada durante a escrita do pacote `content`
+      ([modulos/motor/decisions/0013](<modulos/motor/decisions/0013-desenho-do-pacote-content.md>)):
+      essa ferramenta deveria impedir, no momento da criação, o tipo de
+      erro que hoje só é percebido depois, na importação (nome
+      repetido, posição de tema/evento pulando número) — sugerindo o
+      próximo número automaticamente, por exemplo, em vez de deixar a
+      pessoa digitar à mão. Ideia levantada, ainda não decidida: em vez
+      de (ou além de) um aplicativo de autoria completo, um site
+      simples, sem servidor próprio (hospedado num serviço gratuito de
+      arquivo estático, ex.: Netlify), que rode a mesma validação já
+      escrita em `content` e deixe a pessoa importar um pacote ali só
+      pra checar e corrigir erros, antes de instalar de verdade no
+      aplicativo — cada opção com seu próprio custo de construção,
+      nenhuma escolhida ainda.
 
 - [ ] **Desenhar e construir o preview isolado do projeto.**
 

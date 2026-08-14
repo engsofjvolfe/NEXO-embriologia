@@ -6,7 +6,7 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Pitfalls |
-| Versão | 0.3.0 |
+| Versão | 0.4.0 |
 | Data | 14-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
@@ -83,15 +83,48 @@ Registrado aqui como aviso conhecido, não como problema em aberto — se
 uma atualização futura de Gradle ou AGP transformar esse aviso em erro
 de verdade, este é o motivo.
 
+### <a id="2026-08-14-jsonprimitive-booleanornull-intornull-nao-checam-isstring"></a>2026-08-14 — `booleanOrNull`/`intOrNull` do kotlinx.serialization aceitam texto entre aspas como se fosse booleano/número
+
+*Resumo simples:* ao ler um campo de um JSON de estrutura desconhecida
+(`JsonElement`), as funções prontas `booleanOrNull` e `intOrNull` da
+biblioteca aceitam um valor que veio entre aspas no JSON original
+(por exemplo, `"hint_enabled": "true"`, uma string) do mesmo jeito que
+aceitam o literal sem aspas (`"hint_enabled": true`) — não bastava
+usar essas funções prontas pra validar que um campo é *de fato* do
+tipo esperado pelo esquema.
+
+*Detalhe técnico:* implementação de `JsonPrimitive.booleanOrNull`
+(kotlinx.serialization, `formats/json/commonMain/.../JsonElement.kt`):
+`get() = content.toBooleanStrictOrNull()` — opera só sobre `content`
+(o texto, sempre uma string internamente), sem checar `isString`
+antes. `intOrNull` segue o mesmo padrão, convertendo `content` direto.
+`isString` é a propriedade que de fato diferencia as duas origens —
+"indicates whether the primitive was explicitly constructed from
+String... E.g. `JsonPrimitive("42")` is represented by a string, while
+`JsonPrimitive(42)` is not" (JETBRAINS, [s.d.]). Sem checar `isString`
+manualmente, um pacote de conteúdo com `"hint_enabled": "true"` (tipo
+errado, deveria ser rejeitado por PD-IMP-01) passaria despercebido.
+Correção usada no pacote `content`
+([decisions/0013](<../decisions/0013-desenho-do-pacote-content.md>)):
+três funções próprias (`asStringOrNull`, `asBooleanOrNull`,
+`asIntOrNull`, em `ContentImport.kt`) checam `isString` explicitamente
+antes de converter, coerentes com o "type" exato de cada campo do
+esquema.
+
 ## Referências
 
-Fonte citada nas armadilhas acima, no formato definido pela norma ABNT
-NBR 6023 (Informação e documentação — Referências). Citada no corpo do
-documento como (ENTIDADE, ano).
+Fontes citadas nas armadilhas acima, no formato definido pela norma
+ABNT NBR 6023 (Informação e documentação — Referências). Citadas no
+corpo do documento como (ENTIDADE, ano).
 
 GOOGLE. **Android Gradle plugin 9.0.1 (January 2026) — Android Gradle
 plugin built-in Kotlin**. Android Developers, 2026. Disponível em:
 https://developer.android.com/build/releases/agp-9-0-0-release-notes#android-gradle-plugin-built-in-kotlin.
+Acesso em: 14 ago. 2026.
+
+JETBRAINS. **JsonPrimitive.isString**. Kotlin API reference,
+kotlinx.serialization, [s.d.]. Disponível em:
+https://kotlinlang.org/api/kotlinx.serialization/kotlinx-serialization-json/kotlinx.serialization.json/-json-primitive/is-string.html.
 Acesso em: 14 ago. 2026.
 
 ## Controle de versão
@@ -108,3 +141,4 @@ reescrever) também conta como mudança de conteúdo real. -->
 | 0.1.0 | 12-08-2026 | Criação inicial. | Criação inicial |
 | 0.2.0 | 14-08-2026 | Acrescentada a armadilha do suporte embutido a Kotlin no AGP 9, que quebra a build se o plugin `org.jetbrains.kotlin.android` continuar aplicado. | Achado durante a compilação do esqueleto mínimo do módulo `app` |
 | 0.3.0 | 14-08-2026 | Acrescentada a armadilha da versão de Kotlin do `core` precisar bater com o Kotlin embutido no AGP. | Achado durante a compilação do esqueleto mínimo do módulo `app` |
+| 0.4.0 | 14-08-2026 | Acrescentada a armadilha de `booleanOrNull`/`intOrNull` do kotlinx.serialization não checarem `isString`. | Achado durante a escrita do pacote `content` |

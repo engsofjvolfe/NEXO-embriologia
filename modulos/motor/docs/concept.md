@@ -6,8 +6,8 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Concept |
-| Versão | 0.1.0 |
-| Data | 12-08-2026 |
+| Versão | 0.2.0 |
+| Data | 14-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
 > Descreve o desenho pretendido do módulo — o que ele deve ser e como
@@ -132,16 +132,19 @@ seção 6.3.1 (PD-IMP-01), já decidiu usar nomes de campo em inglês
 neste arquivo específico — o conceito, em português, continua sendo
 sempre "fotograma".
 
-O valor de `schema_version` abaixo começa em `0.1.0`, diferente do
-`1.0.0` fixado no mesmo trecho do
+O valor de `schema_version` abaixo já é `1.0.0`, igual ao mesmo trecho
+do
 [Projeto Detalhado](<../../../docs/docs-VMODEL-visao-geral/5 - projeto-detalhado.md>)
-(PD-IMP-01) — lá esse valor é parte de um registro já congelado,
-aprovado; aqui é um contrato ainda não usado por nenhum código nem
-validado por nenhum pacote de conteúdo real. Sobe pra `1.0.0` quando
-isso deixar de ser verdade.
+(PD-IMP-01) — antes desta versão deste documento, o valor aqui era
+`0.1.0`, de propósito, porque este contrato ainda não era usado por
+nenhum código nem validado por nenhum pacote de conteúdo real; a
+condição de subida já estava registrada nesta mesma seção. O pacote
+`content` ([architecture.md, pacote `content`](<architecture.md#pacote-content--desenho-interno>))
+passa a validar pacotes de conteúdo reais contra este contrato — a
+condição se cumpriu, o valor sobe.
 
 ```yaml
-schema_version: "0.1.0"
+schema_version: "1.0.0"
 
 instance:
   type: object
@@ -243,3 +246,4 @@ com o campo Versão da tabela de cabeçalho, que sempre reflete a
 | Versão | Data | Alteração | Origem da alteração |
 |---|---|---|---|
 | 0.1.0 | 12-08-2026 | Criação inicial: escopo, fluxo e contrato de dado do pacote de conteúdo. | Criação inicial |
+| 0.2.0 | 14-08-2026 | `schema_version` do contrato de dado sobe de `0.1.0` para `1.0.0`, cumprindo a condição já registrada na versão anterior deste documento. | Escrita do pacote `content`, primeiro código a validar pacotes de conteúdo reais contra este contrato |

@@ -6,7 +6,7 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Handoff |
-| Versão | 0.8.0 |
+| Versão | 0.9.0 |
 | Data | 14-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
@@ -67,6 +67,8 @@
   decididas.
 - [decisions/0013-desenho-do-pacote-content.md](<../decisions/0013-desenho-do-pacote-content.md>) —
   desenho interno do pacote `content` decidido.
+- [decisions/0014-busca-aproximada-com-termo-vazio.md](<../decisions/0014-busca-aproximada-com-termo-vazio.md>) —
+  comportamento da busca aproximada com termo vazio decidido.
 - [findings.md](findings.md) — achados confirmados até agora.
 - [analysis.md](analysis.md) — registro de como cada investigação
   deste módulo foi feita.
@@ -96,3 +98,4 @@ com o campo Versão da tabela de cabeçalho, que sempre reflete a
 | 0.6.0 | 14-08-2026 | Acrescentado ponteiro para decisions/0012 e para pitfalls.md. | Esqueleto mínimo do módulo `app` escrito e testado ao vivo num emulador |
 | 0.7.0 | 14-08-2026 | Acrescentado ponteiro para decisions/0013. | Quarto pacote do módulo `core` escrito (pacote `content`) |
 | 0.8.0 | 14-08-2026 | Acrescentado ponteiro para analysis.md, que já existia mas nunca tinha linha própria aqui. | Revisão de cobertura de teste dos pacotes `search`, `hierarchy`, `session` e `content` |
+| 0.9.0 | 14-08-2026 | Acrescentado ponteiro para decisions/0014. | Formalização do comportamento da busca aproximada com termo vazio |

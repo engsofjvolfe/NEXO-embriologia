@@ -36,6 +36,9 @@
   `content` revisada contra a documentação; cinco lacunas fechadas com
   teste novo, sem divergência de comportamento encontrada — ver
   [modulos/motor/docs/analysis.md](<modulos/motor/docs/analysis.md#2026-08-14-revisao-de-cobertura-de-teste-dos-pacotes-core>).
+  Um sexto ponto (comportamento da busca aproximada com termo vazio)
+  formalizado como decisão — ver
+  [modulos/motor/decisions/0014](<modulos/motor/decisions/0014-busca-aproximada-com-termo-vazio.md>).
 - [TASKS.md, Resolvidas](TASKS.md#resolvidas) — pendências já corrigidas.
 
 ## Próximo passo

@@ -70,7 +70,7 @@ class ApproximateSearchTest {
     }
 
     @Test
-    fun `approximateSearch com termo vazio devolve a lista sem reordenar`() {
+    fun `approximateSearch com termo vazio devolve a lista sem reordenar, decisao da ADR 0014`() {
         val itens = listOf("Zebra", "Abacate", "Manga")
         assertEquals(itens, approximateSearch(itens, "   ", nameOf = { it }))
     }

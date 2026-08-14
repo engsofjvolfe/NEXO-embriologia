@@ -6,7 +6,7 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Architecture |
-| Versão | 0.10.0 |
+| Versão | 0.11.0 |
 | Data | 14-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
@@ -183,7 +183,11 @@ Elasticsearch); a busca compara o termo tanto contra o nome inteiro de
 cada item quanto contra qualquer trecho contíguo dele, com o resultado
 de nome inteiro aparecendo sempre primeiro; e o empate de distância
 preserva a ordem que a lista já tinha (por padrão, alfabética —
-DA-NAV-01), nunca decidido pelo próprio pacote.
+DA-NAV-01), nunca decidido pelo próprio pacote. Um quarto ponto, no
+mesmo nível, fica registrado em
+[decisions/0014](<../decisions/0014-busca-aproximada-com-termo-vazio.md>):
+termo vazio (ou só espaço) devolve a lista de entrada sem filtro nem
+reordenação, nunca lista vazia.
 
 API pública, genérica o bastante pra servir tanto a lista de
 instâncias quanto a de temas ou de eventos — nenhuma das três sabe o
@@ -621,3 +625,4 @@ com o campo Versão da tabela de cabeçalho, que sempre reflete a
 | 0.8.0 | 14-08-2026 | Acrescentado o esqueleto mínimo do módulo `app` (manifesto, `Application`, `Activity` sem tela) e as versões de plataforma/build que ele usa. | Resolução de [decisions/0012-versoes-de-plataforma-e-build-do-modulo-app.md](<../decisions/0012-versoes-de-plataforma-e-build-do-modulo-app.md>) |
 | 0.9.0 | 14-08-2026 | Acrescentado o desenho interno do pacote `content` (nome fixo do manifesto, validação por árvore JSON genérica item a item, regra de fotograma malformado, unicidade de `tag_id` em todo o pacote); removida a menção a `content` como "ainda não desenhado" na seção do pacote `session`. | Resolução de [decisions/0013-desenho-do-pacote-content.md](<../decisions/0013-desenho-do-pacote-content.md>) |
 | 0.10.0 | 14-08-2026 | Seção do pacote `content` revisada: regra de aceitação passa a ser tudo ou nada (qualquer violação recusa o pacote inteiro), substituindo a exclusão item a item descrita na versão anterior. | Revisão de [decisions/0013-desenho-do-pacote-content.md](<../decisions/0013-desenho-do-pacote-content.md>), em conversa direta antes de dar a tarefa como concluída |
+| 0.11.0 | 14-08-2026 | Acrescentado o quarto ponto do desenho de `search` (comportamento com termo vazio). | Resolução de [decisions/0014-busca-aproximada-com-termo-vazio.md](<../decisions/0014-busca-aproximada-com-termo-vazio.md>) |

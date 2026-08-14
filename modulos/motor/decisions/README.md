@@ -6,7 +6,7 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Decisions — Índice |
-| Versão | 0.9.0 |
+| Versão | 0.11.0 |
 | Data | 14-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
@@ -52,6 +52,9 @@
 | [0009](0009-calculo-do-recorte-continuo-de-sessao.md) | Cálculo do recorte contíguo de uma sessão |
 | [0010](0010-persistencia-do-estado-de-sessao-pausada.md) | Persistência do estado de sessão pausada em disco |
 | [0011](0011-formato-de-serializacao-do-estado-de-sessao.md) | Formato de serialização do estado de sessão persistido |
+| [0012](0012-versoes-de-plataforma-e-build-do-modulo-app.md) | Versões de plataforma e build do módulo app |
+| [0013](0013-desenho-do-pacote-content.md) | Desenho do pacote content |
+| [0014](0014-busca-aproximada-com-termo-vazio.md) | Comportamento da busca aproximada com termo vazio |
 
 ## Controle de versão
 
@@ -75,3 +78,5 @@ pelo ADR-NNNN). -->
 | 0.7.0 | 14-08-2026 | ADR 0010 acrescentada à lista (ADR 0009 ainda como `proposto`, aguardando revisão, por isso ainda fora deste índice). | Persistência do estado de sessão pausada em disco, último ponto de desenho do pacote `session` |
 | 0.8.0 | 14-08-2026 | ADR 0009 acrescentada à lista, depois de revisão confirmada. | Cálculo do recorte contíguo de uma sessão |
 | 0.9.0 | 14-08-2026 | ADR 0011 acrescentada à lista. | Formato de serialização (JSON, `kotlinx.serialization`) do estado de sessão persistido |
+| 0.10.0 | 14-08-2026 | ADRs 0012 e 0013 acrescentadas ao índice, retroativamente — já existiam como arquivo desde a tarefa que as criou, mas nunca tinham entrado nesta lista. | Checagem mecânica ao abrir este arquivo pra acrescentar a ADR 0014 |
+| 0.11.0 | 14-08-2026 | ADR 0014 acrescentada à lista. | Formalização do comportamento da busca aproximada com termo vazio |

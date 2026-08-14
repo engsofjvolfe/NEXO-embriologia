@@ -6,7 +6,7 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Analysis |
-| Versão | 0.3.0 |
+| Versão | 0.4.0 |
 | Data | 14-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
@@ -127,6 +127,62 @@ encontrados e fechados com teste novo.
   implementação já atendia todos os cinco pontos, só faltava o teste
   escrito provando isso.
 
+### <a id="2026-08-14-comportamento-de-busca-aproximada-com-termo-vazio"></a>2026-08-14 — Comportamento da busca aproximada com termo vazio
+
+**Levou a:** [decisions/0014-busca-aproximada-com-termo-vazio.md](<../decisions/0014-busca-aproximada-com-termo-vazio.md>)
+
+*Resumo simples:* um dos seis pontos levantados na investigação
+anterior (comportamento de `approximateSearch` com termo vazio, ver
+entrada acima) tinha ficado de fora, sem decisão, por uma dúvida real:
+isso depende do desenho de uma tela que ainda não existe, ou é uma
+decisão do próprio pacote `search`, independente de qualquer tela? A
+checagem mostrou que é a segunda — a função já roda hoje, já tem teste
+próprio, e o pacote é desenhado pra nunca depender de interface
+(RNF-MOD-01), então o contrato dela precisa estar decidido de qualquer
+jeito, com ou sem tela.
+
+*Detalhe técnico:*
+- Releitura de [decisions/0004](<../decisions/0004-desenho-do-algoritmo-de-busca-aproximada.md>)
+  confirmou o precedente direto: os três pontos que essa ADR resolve
+  também não vêm de nenhuma tela — vêm da necessidade do próprio
+  algoritmo de ter uma resposta pra rodar. Termo vazio é um quarto
+  ponto do mesmo tipo, não um ponto de categoria diferente.
+- Duas alternativas reais comparadas: devolver a lista de entrada sem
+  filtro, ou devolver lista vazia.
+- Cinco fontes externas pesquisadas, cobrindo os dois lados da escolha
+  e o cenário mais parecido tecnicamente com este pacote (busca
+  aproximada sobre lista em memória, sem servidor). Duas trouxeram
+  conteúdo oficial verificável, com citação exata confirmada direto na
+  fonte: documentação do Elasticsearch (parâmetro `zero_terms_query`,
+  padrão devolve nenhum resultado) e documentação do Algolia
+  (InstantSearch, padrão devolve todos os resultados). A do
+  Elasticsearch resolve um problema diferente do deste pacote (consulta
+  de texto contra servidor remoto, "zero termos" geralmente por filtro
+  de palavra irrelevante, não filtro de lista em memória) e não entra
+  na ADR. As outras três fontes checadas (Fuse.js — biblioteca de busca
+  aproximada em memória, o caso tecnicamente mais parecido com
+  `search`, mas só confirmada por discussão de comunidade, não por
+  página oficial, e no sentido contrário à escolha feita aqui;
+  documentação do componente de busca do Material Design, sem texto
+  extraível pela ferramenta de leitura automatizada, mesma limitação já
+  registrada em `architecture.md`; `SearchView` do Android, que
+  documenta um padrão de busca por confirmação, não o filtro em tempo
+  real que a categoria NAV do motor vai precisar) não trouxeram
+  conteúdo oficial verificável o bastante pra citar.
+- Prática de mercado não aponta um lado único pro caso específico deste
+  pacote — a decisão em [decisions/0014](<../decisions/0014-busca-aproximada-com-termo-vazio.md>)
+  se apoia principalmente na mesma lógica já registrada na decisão 2 da
+  ADR 0004, com o precedente do Algolia como reforço (peso técnico
+  limitado: escolha de produto, sem justificativa declarada), não como
+  base única.
+- Nenhuma mudança de código foi necessária — a implementação já
+  existente, e o teste já existente antes desta tarefa, já seguiam a
+  alternativa escolhida; o teste só ganhou a referência explícita à
+  ADR nova.
+- Checagem mecânica ao abrir `decisions/README.md` do módulo pra
+  acrescentar a ADR 0014: as ADRs 0012 e 0013 já existiam como arquivo
+  mas nunca tinham entrado no índice — corrigido junto, retroativamente.
+
 ## Controle de versão
 
 <!-- uma linha por versão publicada deste documento, mais antiga no
@@ -141,3 +197,4 @@ sem reescrever) também conta como mudança de conteúdo real. -->
 | 0.1.0 | 12-08-2026 | Criação inicial. | Criação inicial |
 | 0.2.0 | 14-08-2026 | Acrescentada a investigação do esqueleto mínimo do módulo `app` (instalação do SDK, pesquisa de versões, duas armadilhas de ferramenta, teste ao vivo no emulador). | Resolução da pendência "Escrever o esqueleto mínimo do módulo `app`" |
 | 0.3.0 | 14-08-2026 | Acrescentada a investigação de cobertura de teste dos pacotes `search`, `hierarchy`, `session` e `content` (cinco lacunas encontradas e fechadas com teste novo, sem divergência de comportamento). | Revisão de cobertura de teste, pedido direto |
+| 0.4.0 | 14-08-2026 | Acrescentada a investigação do comportamento da busca aproximada com termo vazio, sexto ponto deixado em aberto na investigação anterior. | Resolução de [decisions/0014-busca-aproximada-com-termo-vazio.md](<../decisions/0014-busca-aproximada-com-termo-vazio.md>) |

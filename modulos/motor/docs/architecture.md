@@ -6,7 +6,7 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Architecture |
-| Versão | 0.7.0 |
+| Versão | 0.8.0 |
 | Data | 14-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
@@ -56,6 +56,7 @@ Convenção dos códigos citados neste documento:
       - [Pacote `hierarchy` — desenho interno](#pacote-hierarchy--desenho-interno)
       - [Pacote `session` — desenho interno](#pacote-session--desenho-interno)
     - [Interface](#interface)
+    - [Esqueleto mínimo e versões de build](#esqueleto-mínimo-e-versões-de-build)
   - [Acessório leitor (firmware)](#acessório-leitor-firmware)
   - [Fronteira de dado entre aplicativo e acessório](#fronteira-de-dado-entre-aplicativo-e-acessório)
   - [Fronteira de dado do pacote de conteúdo](#fronteira-de-dado-do-pacote-de-conteúdo)
@@ -397,6 +398,39 @@ reconhecido fora deste projeto, chamado design centrado no usuário
 Nenhuma dessas quatro etapas foi executada ainda — só o método a
 seguir está registrado aqui.
 
+#### Esqueleto mínimo e versões de build
+
+*Em resumo:* antes de qualquer tela de verdade existir, o módulo `app`
+precisa só existir como projeto Android capaz de abrir num aparelho ou
+emulador — sem aparência, sem lógica, só o mínimo que o próprio Android
+exige pra reconhecer o que está instalado.
+
+*Em detalhe técnico:* três arquivos, sem nenhuma dependência da
+Interface descrita acima (que continua pendente):
+
+```
+app/
+  src/main/AndroidManifest.xml   declaração do pacote, da Application
+                                  e da Activity de entrada
+  src/main/kotlin/org/nexo/motor/app/
+    NexoMotorApplication.kt      subclasse mínima de Application
+    MainActivity.kt              subclasse mínima de Activity, sem
+                                  tela (nenhum setContentView) —
+                                  aparência fica pra quando a pendência
+                                  de desenho visual (ver tasks.md) for
+                                  resolvida
+```
+
+Versão mínima de Android aceita, versão usada como alvo/compilação, e
+versão do Android Gradle Plugin (a ferramenta que ensina o Gradle a
+montar um projeto Android, além do Kotlin puro que `core` já usa):
+decididas em
+[decisions/0012](<../decisions/0012-versoes-de-plataforma-e-build-do-modulo-app.md>).
+
+Testado só por build real (`gradlew :app:assembleDebug`) e instalação
+num emulador — sem teste automatizado ainda, porque não há nenhum
+comportamento pra testar além de "o pacote instala e abre".
+
 ### Acessório leitor (firmware)
 
 *Em resumo:* só existe pra aparelhos sem antena NFC própria. Lê a
@@ -508,3 +542,4 @@ com o campo Versão da tabela de cabeçalho, que sempre reflete a
 | 0.5.0 | 14-08-2026 | Validação de `hierarchy` passa a exigir posição sem buraco nem repetição dentro de um grupo "com ordem", não só posição única; ajustado o ponteiro do cálculo de recorte contíguo, agora de responsabilidade de `session`. | Achado [findings.md#2026-08-14-posicao-com-buraco-nao-detectada](<findings.md#2026-08-14-posicao-com-buraco-nao-detectada>), revelado pelo desenho de [decisions/0009-calculo-do-recorte-continuo-de-sessao.md](<../decisions/0009-calculo-do-recorte-continuo-de-sessao.md>) |
 | 0.6.0 | 14-08-2026 | Acrescentado o desenho interno do pacote `session` (representação do estado, cálculo de recorte contíguo, persistência da sessão pausada). | Resolução de [decisions/0008-representacao-do-estado-da-sessao.md](<../decisions/0008-representacao-do-estado-da-sessao.md>), [decisions/0009-calculo-do-recorte-continuo-de-sessao.md](<../decisions/0009-calculo-do-recorte-continuo-de-sessao.md>) e [decisions/0010-persistencia-do-estado-de-sessao-pausada.md](<../decisions/0010-persistencia-do-estado-de-sessao-pausada.md>) |
 | 0.7.0 | 14-08-2026 | Acrescentadas as transições de estado do pacote `session` (validar tentativa, pular, dica, sugestão de estudo, encadeamento, pausa/retomada) e o formato de serialização (JSON). | Resolução de [decisions/0011-formato-de-serializacao-do-estado-de-sessao.md](<../decisions/0011-formato-de-serializacao-do-estado-de-sessao.md>) |
+| 0.8.0 | 14-08-2026 | Acrescentado o esqueleto mínimo do módulo `app` (manifesto, `Application`, `Activity` sem tela) e as versões de plataforma/build que ele usa. | Resolução de [decisions/0012-versoes-de-plataforma-e-build-do-modulo-app.md](<../decisions/0012-versoes-de-plataforma-e-build-do-modulo-app.md>) |

@@ -27,7 +27,9 @@
   [`modulos/motor/core/`](modulos/motor/core/): pacotes `search` (busca
   aproximada), `hierarchy` (cadastro e navegação hierárquica) e
   `session` (lógica de uma partida — validação, erro, pular, dica,
-  encadeamento, pausa/retomada) já escritos — ver
+  encadeamento, pausa/retomada) já escritos. Projeto Android mínimo do
+  módulo [`modulos/motor/app/`](modulos/motor/app/) também já existe,
+  sem tela de verdade ainda — ver
   [modulos/motor/docs/handoff.md](modulos/motor/docs/handoff.md).
 - [TASKS.md, Resolvidas](TASKS.md#resolvidas) — pendências já corrigidas.
 

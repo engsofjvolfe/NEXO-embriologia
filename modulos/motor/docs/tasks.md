@@ -6,7 +6,7 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Tasks |
-| Versão | 0.9.0 |
+| Versão | 0.10.0 |
 | Data | 14-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
@@ -239,22 +239,6 @@ Convenção dos códigos citados aqui:
       decide", o que sugere que o texto pronto precisa chegar até elas
       já montado, não ser decidido ali.
 
-- [ ] **Escrever o esqueleto mínimo do módulo `app`.**
-
-      *Resumo simples:* hoje só existe o módulo `core` (lógica, sem
-      tela) — falta um projeto Android mínimo, capaz de abrir num
-      emulador, antes de existir qualquer coisa pra testar de verdade
-      num preview.
-
-      *Detalhe técnico:* estrutura já decidida em
-      [decisions/0003](<../decisions/0003-estrutura-de-modulos-do-aplicativo.md>)
-      (`app/`, dependendo de `core`, nunca o contrário) — falta criar
-      o projeto de verdade (`AndroidManifest.xml`, `Application`,
-      `Activity` mínima), sem aparência visual definida ainda (pendência
-      separada, "Desenhar a aparência visual das telas do motor").
-      Pré-requisito pra "preview isolado" (ver `TASKS.md`, raiz) ter
-      algo real pra rodar.
-
 ## Resolvidas
 
 - [x] **Escolher a linguagem de programação do aplicativo.** Resolvido
@@ -288,6 +272,12 @@ Convenção dos códigos citados aqui:
       partes de pulo (EI-PUL-05, EI-RET-04, EI-ENC-03) não entra neste
       pacote — depende do pacote `content`, ainda não escrito (ver
       [architecture.md, pacote `session`](<architecture.md#pacote-session--desenho-interno>)).
+- [x] **Escrever o esqueleto mínimo do módulo `app`.** Resolvido — ver
+      [decisions/0012-versoes-de-plataforma-e-build-do-modulo-app.md](<../decisions/0012-versoes-de-plataforma-e-build-do-modulo-app.md>);
+      testado ao vivo num emulador (ver
+      [analysis.md](<analysis.md#2026-08-14-esqueleto-minimo-do-modulo-app>)).
+      Duas armadilhas de ferramenta encontradas no caminho, ver
+      [pitfalls.md](<pitfalls.md#armadilhas>).
 
 ## Referências
 
@@ -322,3 +312,4 @@ como mudança de conteúdo real. -->
 | 0.7.0 | 14-08-2026 | Pendência nova "Explicar a organização de pastas do código de `core` em linguagem simples, e reavaliar conforme mais pacotes nascerem" acrescentada. | Pedido direto, durante o desenho do pacote `session` |
 | 0.8.0 | 14-08-2026 | Pendência "Escrever o código-fonte do pacote `session`" resolvida — movida para Resolvidas. | Resolução de [decisions/0008](<../decisions/0008-representacao-do-estado-da-sessao.md>), [decisions/0009](<../decisions/0009-calculo-do-recorte-continuo-de-sessao.md>), [decisions/0010](<../decisions/0010-persistencia-do-estado-de-sessao-pausada.md>) e [decisions/0011](<../decisions/0011-formato-de-serializacao-do-estado-de-sessao.md>) |
 | 0.9.0 | 14-08-2026 | Pendências novas "Decidir quem monta o texto de resumo/síntese exibido nas telas" e "Escrever o esqueleto mínimo do módulo `app`" acrescentadas. | Lacuna revelada durante o desenho do pacote `session` |
+| 0.10.0 | 14-08-2026 | Pendência "Escrever o esqueleto mínimo do módulo `app`" resolvida — movida para Resolvidas. | Resolução de [decisions/0012-versoes-de-plataforma-e-build-do-modulo-app.md](<../decisions/0012-versoes-de-plataforma-e-build-do-modulo-app.md>) |

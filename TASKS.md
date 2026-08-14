@@ -43,11 +43,12 @@
       como se já existisse, está vazio — nenhum arquivo, nenhuma
       instrução.
 
-      *Detalhe técnico:* não faz sentido desenhar antes de existir
-      algo real pra testar num emulador — ver
-      [modulos/motor/docs/tasks.md, "Escrever o esqueleto mínimo do
-      módulo `app`"](modulos/motor/docs/tasks.md#em-aberto), que é
-      pré-requisito direto desta pendência.
+      *Detalhe técnico:* o pré-requisito direto desta pendência (existir
+      algo real pra testar num emulador) já foi resolvido — ver
+      [modulos/motor/docs/tasks.md, Resolvidas](modulos/motor/docs/tasks.md#resolvidas),
+      "Escrever o esqueleto mínimo do módulo `app`". Falta agora
+      desenhar e construir o preview isolado em si — ainda sem
+      trabalho iniciado.
 
 ## Resolvidas
 

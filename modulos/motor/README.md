@@ -17,13 +17,15 @@ mecanismo em si.
 
 ## Situação atual
 
-Ainda em fase de desenho — nenhuma linha de código escrita. O que o
-motor precisa ser e fazer já está totalmente decidido (ver
-[`concept.md`](docs/concept.md)), como o código vai se organizar por
-dentro também já está desenhado (ver [`architecture.md`](docs/architecture.md)),
-e as duas linguagens de programação envolvidas já foram escolhidas
-(ver [`decisions/`](decisions/)). Acompanhar o que muda em
-[`docs/handoff.md`](docs/handoff.md).
+Em construção. O que o motor precisa ser e fazer já está totalmente
+decidido (ver [`concept.md`](docs/concept.md)), como o código vai se
+organizar por dentro também já está desenhado (ver
+[`architecture.md`](docs/architecture.md)), e as duas linguagens de
+programação envolvidas já foram escolhidas (ver [`decisions/`](decisions/)).
+Parte do código já existe: a lógica interna do aplicativo (cadastro e
+navegação de conteúdo, busca, e a lógica de uma partida jogada) e o
+projeto Android mínimo que a hospeda, ainda sem nenhuma tela de
+verdade. Acompanhar o que muda em [`docs/handoff.md`](docs/handoff.md).
 
 ## Como funciona, em linguagem simples
 

@@ -74,4 +74,10 @@ class ApproximateSearchTest {
         val itens = listOf("Zebra", "Abacate", "Manga")
         assertEquals(itens, approximateSearch(itens, "   ", nameOf = { it }))
     }
+
+    @Test
+    fun `approximateSearch exclui item cuja distancia, inteira e por trecho, excede o limiar do PD-NAV-02`() {
+        val itens = listOf("gato", "elefante")
+        assertEquals(listOf("gato"), approximateSearch(itens, "gato", nameOf = { it }))
+    }
 }

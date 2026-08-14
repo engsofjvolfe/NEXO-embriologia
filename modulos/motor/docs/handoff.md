@@ -6,7 +6,7 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Handoff |
-| Versão | 0.7.0 |
+| Versão | 0.8.0 |
 | Data | 14-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
@@ -68,6 +68,8 @@
 - [decisions/0013-desenho-do-pacote-content.md](<../decisions/0013-desenho-do-pacote-content.md>) —
   desenho interno do pacote `content` decidido.
 - [findings.md](findings.md) — achados confirmados até agora.
+- [analysis.md](analysis.md) — registro de como cada investigação
+  deste módulo foi feita.
 - [pitfalls.md](pitfalls.md) — armadilhas de ferramenta já encontradas.
 - [tasks.md, Resolvidas](tasks.md#resolvidas) — pendências já
   corrigidas.
@@ -93,3 +95,4 @@ com o campo Versão da tabela de cabeçalho, que sempre reflete a
 | 0.5.0 | 14-08-2026 | Acrescentado ponteiro para decisions/0008 a 0011 e para findings.md. | Terceiro pacote do módulo `core` escrito (pacote `session`), com um achado de `hierarchy` revelado no caminho |
 | 0.6.0 | 14-08-2026 | Acrescentado ponteiro para decisions/0012 e para pitfalls.md. | Esqueleto mínimo do módulo `app` escrito e testado ao vivo num emulador |
 | 0.7.0 | 14-08-2026 | Acrescentado ponteiro para decisions/0013. | Quarto pacote do módulo `core` escrito (pacote `content`) |
+| 0.8.0 | 14-08-2026 | Acrescentado ponteiro para analysis.md, que já existia mas nunca tinha linha própria aqui. | Revisão de cobertura de teste dos pacotes `search`, `hierarchy`, `session` e `content` |

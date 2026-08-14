@@ -31,11 +31,12 @@ class SessionTransitionsTest {
     }
 
     @Test
-    fun `recordAttempt trata qualquer peca errada do mesmo jeito, nao importa a origem, EI-VAL-03`() {
-        val deOutroEvento = recordAttempt(estadoInicial, tagId = "TAG-DE-OUTRO-EVENTO", expectedTagId = "TAG-1")
-        val jaUsadaAntes = recordAttempt(estadoInicial, tagId = "TAG-JA-USADA", expectedTagId = "TAG-1")
+    fun `recordAttempt rejeita qualquer peca diferente da esperada do mesmo jeito, EI-VAL-03`() {
+        val primeiraPecaErrada = recordAttempt(estadoInicial, tagId = "TAG-X", expectedTagId = "TAG-1")
+        val segundaPecaErrada = recordAttempt(estadoInicial, tagId = "TAG-Y", expectedTagId = "TAG-1")
 
-        assertEquals(deOutroEvento.log, jaUsadaAntes.log.map { SessionEvent.AttemptRejected(eventName = "Evento A", position = 1) })
+        assertEquals(primeiraPecaErrada.log, segundaPecaErrada.log)
+        assertEquals(primeiraPecaErrada.expectedPosition, segundaPecaErrada.expectedPosition)
     }
 
     @Test
@@ -69,6 +70,14 @@ class SessionTransitionsTest {
         )
 
         assertEquals(3, consecutiveAttempts(log, eventName = "Evento A", position = 1))
+    }
+
+    @Test
+    fun `useHint registra a dica usada sem mudar a posicao esperada, EI-DIC-02`() {
+        val novoEstado = useHint(estadoInicial)
+
+        assertEquals(1, novoEstado.expectedPosition)
+        assertEquals(listOf(SessionEvent.HintUsed(eventName = "Evento A", position = 1)), novoEstado.log)
     }
 
     @Test

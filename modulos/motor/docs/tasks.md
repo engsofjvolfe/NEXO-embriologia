@@ -6,7 +6,7 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Tasks |
-| Versão | 0.8.0 |
+| Versão | 0.9.0 |
 | Data | 14-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
@@ -216,6 +216,45 @@ Convenção dos códigos citados aqui:
       divisão continua fazendo sentido ou se algum pacote cresceu
       demais e merece ser dividido.
 
+- [ ] **Decidir quem monta o texto de resumo/síntese exibido nas
+      telas de fim de evento e de cadeia.**
+
+      *Resumo simples:* as telas de resumo de evento, mensagem de
+      pulo e síntese de cadeia (EI-RET-04, EI-PUL-05, EI-ENC-03)
+      precisam de um texto montado a partir dos textos que quem
+      monta o conteúdo já escreveu por fotograma — hoje nenhum
+      pacote assumiu essa responsabilidade.
+
+      *Detalhe técnico:* `session` (ver
+      [architecture.md, pacote `session`](<architecture.md#pacote-session--desenho-interno>))
+      registra só os fatos (o quê, quando, em que posição) — nunca
+      monta texto. `content` (ainda não escrito) só importa e valida
+      o pacote de conteúdo, sem responsabilidade de tela definida no
+      próprio resumo da pendência dele. `report` (ainda não escrito)
+      cobre histórico e exportação CSV/PDF, não tela ao vivo durante o
+      jogo. Falta decidir se essa montagem é responsabilidade de um
+      desses três, de uma função nova dentro de `app` (Interface), ou
+      de um pacote ainda não previsto — telas em
+      `architecture.md#interface` hoje só "mostram o que o núcleo
+      decide", o que sugere que o texto pronto precisa chegar até elas
+      já montado, não ser decidido ali.
+
+- [ ] **Escrever o esqueleto mínimo do módulo `app`.**
+
+      *Resumo simples:* hoje só existe o módulo `core` (lógica, sem
+      tela) — falta um projeto Android mínimo, capaz de abrir num
+      emulador, antes de existir qualquer coisa pra testar de verdade
+      num preview.
+
+      *Detalhe técnico:* estrutura já decidida em
+      [decisions/0003](<../decisions/0003-estrutura-de-modulos-do-aplicativo.md>)
+      (`app/`, dependendo de `core`, nunca o contrário) — falta criar
+      o projeto de verdade (`AndroidManifest.xml`, `Application`,
+      `Activity` mínima), sem aparência visual definida ainda (pendência
+      separada, "Desenhar a aparência visual das telas do motor").
+      Pré-requisito pra "preview isolado" (ver `TASKS.md`, raiz) ter
+      algo real pra rodar.
+
 ## Resolvidas
 
 - [x] **Escolher a linguagem de programação do aplicativo.** Resolvido
@@ -282,3 +321,4 @@ como mudança de conteúdo real. -->
 | 0.6.0 | 14-08-2026 | Pendência nova "Detectar posição de tema/evento com buraco ou duplicada" acrescentada já resolvida, movida direto para Resolvidas. | Achado revelado pelo desenho do pacote `session` |
 | 0.7.0 | 14-08-2026 | Pendência nova "Explicar a organização de pastas do código de `core` em linguagem simples, e reavaliar conforme mais pacotes nascerem" acrescentada. | Pedido direto, durante o desenho do pacote `session` |
 | 0.8.0 | 14-08-2026 | Pendência "Escrever o código-fonte do pacote `session`" resolvida — movida para Resolvidas. | Resolução de [decisions/0008](<../decisions/0008-representacao-do-estado-da-sessao.md>), [decisions/0009](<../decisions/0009-calculo-do-recorte-continuo-de-sessao.md>), [decisions/0010](<../decisions/0010-persistencia-do-estado-de-sessao-pausada.md>) e [decisions/0011](<../decisions/0011-formato-de-serializacao-do-estado-de-sessao.md>) |
+| 0.9.0 | 14-08-2026 | Pendências novas "Decidir quem monta o texto de resumo/síntese exibido nas telas" e "Escrever o esqueleto mínimo do módulo `app`" acrescentadas. | Lacuna revelada durante o desenho do pacote `session` |

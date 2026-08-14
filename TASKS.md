@@ -21,6 +21,34 @@
       [modulos/motor/docs/tasks.md, Em aberto](modulos/motor/docs/tasks.md#em-aberto)
       pra lista completa.
 
+- [ ] **Criar uma ferramenta de autoria de conteúdo amigável, sem
+      exigir programação.**
+
+      *Resumo simples:* o [README.md](README.md) da raiz já promete
+      que "quem monta [...] conteúdo (um professor, por exemplo)"
+      nunca precisa "escrever qualquer linha de código" — hoje isso
+      não é verdade: montar um pacote de conteúdo válido exige
+      escrever o JSON à mão ou com um editor de texto simples.
+
+      *Detalhe técnico:* o
+      [Projeto Detalhado](<docs/docs-VMODEL-visao-geral/5 - projeto-detalhado.md>)
+      já classifica essa ferramenta como fora do escopo da cascata do
+      motor, de propósito (§2.2, Premissas seção 8) — não é módulo
+      `motor`, é ferramenta separada, sobre o contrato de dado já
+      fixado em PD-IMP-01. Sem desenho ainda, nem worktree própria.
+
+- [ ] **Desenhar e construir o preview isolado do projeto.**
+
+      *Resumo simples:* `modulos/preview/`, citado no `CLAUDE.md`
+      como se já existisse, está vazio — nenhum arquivo, nenhuma
+      instrução.
+
+      *Detalhe técnico:* não faz sentido desenhar antes de existir
+      algo real pra testar num emulador — ver
+      [modulos/motor/docs/tasks.md, "Escrever o esqueleto mínimo do
+      módulo `app`"](modulos/motor/docs/tasks.md#em-aberto), que é
+      pré-requisito direto desta pendência.
+
 ## Resolvidas
 
 - [x] **Terminar a cascata do modelo em V no visão geral do motor

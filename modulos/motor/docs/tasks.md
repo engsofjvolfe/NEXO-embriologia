@@ -6,8 +6,8 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Tasks |
-| Versão | 0.4.0 |
-| Data | 13-08-2026 |
+| Versão | 0.5.0 |
+| Data | 14-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
 > Lista mutável de pendências só deste módulo. Lida depois de
@@ -43,21 +43,6 @@ Convenção dos códigos citados aqui:
 - [Controle de versão](#controle-de-versão)
 
 ## Em aberto
-
-- [ ] **Escrever o código-fonte do pacote `hierarchy` (núcleo do
-      aplicativo).**
-
-      *Resumo simples:* cadastro e navegação entre instância, tema e
-      evento — a estrutura que organiza o conteúdo já importado.
-
-      *Detalhe técnico:* pacote `core/hierarchy/`, ver
-      [architecture.md, layout do aparelho de jogo](<architecture.md#aparelho-de-jogo-aplicativo>).
-      Comportamento descrito junto da lógica de sessão em
-      [architecture.md, núcleo do motor](<architecture.md#núcleo-do-motor>)
-      e em
-      [`3 - especificacao-conceito-geral.md`](<../../../docs/docs-VMODEL-visao-geral/3 - especificacao-conceito-geral.md>).
-      Estrutura de dado de instância/tema/evento: bloco YAML em
-      [concept.md, Contrato de dado](<concept.md#contrato-de-dado>).
 
 - [ ] **Escrever o código-fonte do pacote `session` (núcleo do
       aplicativo).**
@@ -241,6 +226,9 @@ Convenção dos códigos citados aqui:
       [decisions/0004-desenho-do-algoritmo-de-busca-aproximada.md](<../decisions/0004-desenho-do-algoritmo-de-busca-aproximada.md>)
       e
       [decisions/0005-abordagem-de-teste-do-nucleo-do-motor.md](<../decisions/0005-abordagem-de-teste-do-nucleo-do-motor.md>).
+- [x] **Escrever o código-fonte do pacote `hierarchy` (núcleo do
+      aplicativo).** Resolvido — ver
+      [decisions/0007-desenho-do-pacote-hierarchy.md](<../decisions/0007-desenho-do-pacote-hierarchy.md>).
 
 ## Referências
 
@@ -270,3 +258,4 @@ como mudança de conteúdo real. -->
 | 0.2.0 | 13-08-2026 | Pendência "Decidir a estrutura exata de pastas do projeto Android" resolvida — movida para Resolvidas. | Resolução de [decisions/0003-estrutura-de-modulos-do-aplicativo.md](<../decisions/0003-estrutura-de-modulos-do-aplicativo.md>) |
 | 0.3.0 | 13-08-2026 | Pendência única "Escrever o código-fonte de cada componente já desenhado" dividida em sete pendências, uma por pacote/componente já fixado em `architecture.md` (`hierarchy`, `session`, `search`, `content`, `connectivity`, `report` e firmware do acessório). | Detalhamento de pendência existente, sem decisão nova |
 | 0.4.0 | 13-08-2026 | Pendência "Validar em campo o limiar de busca aproximada" detalhada com critério objetivo de medição (precisão e revocação). | Detalhamento de pendência existente, sem decisão nova |
+| 0.5.0 | 14-08-2026 | Pendência "Escrever o código-fonte do pacote `hierarchy`" resolvida — movida para Resolvidas. | Resolução de [decisions/0007-desenho-do-pacote-hierarchy.md](<../decisions/0007-desenho-do-pacote-hierarchy.md>) |

@@ -25,9 +25,10 @@
   de dado e decisões de linguagem/framework já registrados.
 - Código do módulo motor em andamento, dentro de
   [`modulos/motor/core/`](modulos/motor/core/): pacotes `search` (busca
-  aproximada), `hierarchy` (cadastro e navegação hierárquica) e
+  aproximada), `hierarchy` (cadastro e navegação hierárquica),
   `session` (lógica de uma partida — validação, erro, pular, dica,
-  encadeamento, pausa/retomada) já escritos. Projeto Android mínimo do
+  encadeamento, pausa/retomada) e `content` (leitura e validação do
+  pacote de conteúdo) já escritos. Projeto Android mínimo do
   módulo [`modulos/motor/app/`](modulos/motor/app/) também já existe,
   sem tela de verdade ainda — ver
   [modulos/motor/docs/handoff.md](modulos/motor/docs/handoff.md).

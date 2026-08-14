@@ -6,7 +6,7 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Tasks |
-| Versão | 0.10.0 |
+| Versão | 0.12.0 |
 | Data | 14-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
@@ -44,20 +44,25 @@ Convenção dos códigos citados aqui:
 
 ## Em aberto
 
-- [ ] **Escrever o código-fonte do pacote `content` (núcleo do
-      aplicativo).**
+- [ ] **Avaliar importação parcial de conteúdo (só um tema ou evento
+      novo, sem reimportar a instância inteira).**
 
-      *Resumo simples:* ler o arquivo de pacote de conteúdo (o
-      contrato já fechado no `concept.md`) e recusar qualquer arquivo
-      que não bata exatamente com ele.
+      *Resumo simples:* hoje só existe um jeito de trazer conteúdo pro
+      aplicativo: importar a instância inteira, com todos os temas e
+      eventos dentro do mesmo arquivo. Não existe (nem está desenhado)
+      um jeito de acrescentar só um tema novo ou só um evento novo a
+      uma instância que a pessoa já tem instalada.
 
-      *Detalhe técnico:* pacote `core/content/`, ver
-      [architecture.md, layout do aparelho de jogo](<architecture.md#aparelho-de-jogo-aplicativo>).
-      Importação e validação item a item: PD-IMP-01, PD-IMP-02;
-      leitura do arquivo compactado com `java.util.zip.ZipFile`, sem
-      biblioteca externa (PD-IMP-03). Contrato de dado a validar:
-      [concept.md, Contrato de dado](<concept.md#contrato-de-dado>),
-      gerado em [`schemas/`](<../schemas/>).
+      *Detalhe técnico:* essa limitação vem do próprio esquema já
+      aprovado ([Projeto Detalhado](<../../../docs/docs-VMODEL-visao-geral/5 - projeto-detalhado.md>),
+      PD-IMP-01) — o arquivo sempre é um único bloco `instance`, sem
+      forma alternativa pra descrever só um tema ou evento avulso.
+      Mudar isso exigiria alterar o esquema em si, não é ajuste de
+      implementação — pendência registrada só como possibilidade a
+      avaliar depois, sem desenho, sem decisão, sem responsável ainda.
+      Levantada durante a escrita do pacote `content`
+      ([decisions/0013](<../decisions/0013-desenho-do-pacote-content.md>)),
+      que hoje só sabe importar instância completa.
 
 - [ ] **Escrever o código-fonte do pacote `connectivity` (núcleo do
       aplicativo).**
@@ -278,6 +283,11 @@ Convenção dos códigos citados aqui:
       [analysis.md](<analysis.md#2026-08-14-esqueleto-minimo-do-modulo-app>)).
       Duas armadilhas de ferramenta encontradas no caminho, ver
       [pitfalls.md](<pitfalls.md#armadilhas>).
+- [x] **Escrever o código-fonte do pacote `content` (núcleo do
+      aplicativo).** Resolvido — ver
+      [decisions/0013-desenho-do-pacote-content.md](<../decisions/0013-desenho-do-pacote-content.md>).
+      Uma armadilha de ferramenta encontrada no caminho, ver
+      [pitfalls.md](<pitfalls.md#armadilhas>).
 
 ## Referências
 
@@ -313,3 +323,5 @@ como mudança de conteúdo real. -->
 | 0.8.0 | 14-08-2026 | Pendência "Escrever o código-fonte do pacote `session`" resolvida — movida para Resolvidas. | Resolução de [decisions/0008](<../decisions/0008-representacao-do-estado-da-sessao.md>), [decisions/0009](<../decisions/0009-calculo-do-recorte-continuo-de-sessao.md>), [decisions/0010](<../decisions/0010-persistencia-do-estado-de-sessao-pausada.md>) e [decisions/0011](<../decisions/0011-formato-de-serializacao-do-estado-de-sessao.md>) |
 | 0.9.0 | 14-08-2026 | Pendências novas "Decidir quem monta o texto de resumo/síntese exibido nas telas" e "Escrever o esqueleto mínimo do módulo `app`" acrescentadas. | Lacuna revelada durante o desenho do pacote `session` |
 | 0.10.0 | 14-08-2026 | Pendência "Escrever o esqueleto mínimo do módulo `app`" resolvida — movida para Resolvidas. | Resolução de [decisions/0012-versoes-de-plataforma-e-build-do-modulo-app.md](<../decisions/0012-versoes-de-plataforma-e-build-do-modulo-app.md>) |
+| 0.11.0 | 14-08-2026 | Pendência "Escrever o código-fonte do pacote `content`" resolvida — movida para Resolvidas. | Resolução de [decisions/0013-desenho-do-pacote-content.md](<../decisions/0013-desenho-do-pacote-content.md>) |
+| 0.12.0 | 14-08-2026 | Pendência nova "Avaliar importação parcial de conteúdo (só um tema ou evento novo)" acrescentada. | Pergunta direta, durante a revisão do pacote `content` |

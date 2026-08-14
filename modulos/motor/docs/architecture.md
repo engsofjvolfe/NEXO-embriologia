@@ -6,7 +6,7 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Architecture |
-| Versão | 0.8.0 |
+| Versão | 0.10.0 |
 | Data | 14-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
@@ -55,6 +55,7 @@ Convenção dos códigos citados neste documento:
       - [Pacote `search` — desenho interno](#pacote-search--desenho-interno)
       - [Pacote `hierarchy` — desenho interno](#pacote-hierarchy--desenho-interno)
       - [Pacote `session` — desenho interno](#pacote-session--desenho-interno)
+    - [Pacote `content` — desenho interno](#pacote-content--desenho-interno)
     - [Interface](#interface)
     - [Esqueleto mínimo e versões de build](#esqueleto-mínimo-e-versões-de-build)
   - [Acessório leitor (firmware)](#acessório-leitor-firmware)
@@ -342,7 +343,7 @@ core/session/
 `recordAttempt` e `continueToNextEvent` recebem o identificador
 esperado (`expectedTagId`) e o nome do próximo evento como parâmetro,
 em vez de descobrir isso sozinhos — `session` não conhece o pacote
-`content` (ainda não desenhado), então quem chama essas funções é
+`content`, então quem chama essas funções é
 responsável por já ter em mãos o dado que vem de lá, mesma lógica de
 desacoplamento por assunto já usada em todo o núcleo
 (RNF-MOD-01, [decisions/0003](<../decisions/0003-estrutura-de-modulos-do-aplicativo.md>)).
@@ -357,6 +358,81 @@ ainda não desenhado, vai usar para montar o relatório final
 (EI-REG-01/02) — `session` só expõe o registro; `report` decide
 formato e exportação, sem que `session` precise saber nada sobre
 isso.
+
+Testado com `kotlin-test` + JUnit Jupiter, mesma ferramenta já fixada
+em [decisions/0005](<../decisions/0005-abordagem-de-teste-do-nucleo-do-motor.md>)
+para todo pacote de `core`.
+
+##### Pacote `content` — desenho interno
+
+*Em resumo:* dentro do núcleo, o pacote `content` é quem lê o arquivo
+que reúne todo o conteúdo de uma área (temas, eventos, fotogramas,
+textos) e confere se ele bate exatamente com o formato já combinado.
+Nunca corrige nem altera o arquivo — só decide, sem meio-termo: ou o
+pacote inteiro está certo e vira uma instância pronta pra jogo, ou não
+está, e nada dele fica disponível, com a lista completa do que precisa
+ser corrigido.
+
+*Em detalhe técnico:* implementa PD-IMP-01 (esquema do pacote de
+conteúdo) e PD-IMP-03 (leitura do arquivo ZIP com
+`java.util.zip.ZipFile`), além de DA-CFG-01/02 (validação de conteúdo
+incompleto).
+
+**Regra de aceitação — tudo ou nada, em qualquer nível da
+hierarquia.** Havendo qualquer violação — falta um tema numa
+instância, falta um evento num tema, falta uma sequência de
+fotogramas num evento, ou é só um campo isolado — o pacote inteiro é
+recusado; a instância só é devolvida quando a lista de violações vem
+completamente vazia. Diverge, de propósito, da leitura literal de
+DA-CFG-03 e PD-IMP-02 ("item recusado sozinho, sem travar o restante
+do pacote") — ver
+[decisions/0013](<../decisions/0013-desenho-do-pacote-content.md>),
+decisão 1, que usa o mecanismo de revisão que o próprio Projeto
+Arquitetônico já previu pra essa escolha específica, sem reescrever
+nenhum documento da cascata.
+
+Três detalhes técnicos que essa regra exige, e que a cascata de
+documentação não desce a esse nível, ficam registrados em
+[decisions/0013](<../decisions/0013-desenho-do-pacote-content.md>):
+
+- **Nome do manifesto:** o arquivo JSON dentro do ZIP tem nome fixo,
+  `content.json`, na raiz do pacote.
+- **Varredura completa, não fail-fast:** o manifesto é parseado como
+  árvore genérica (`JsonElement`, kotlinx.serialization), nunca
+  decodificado direto pra um tipo Kotlin tipado — cada tema, evento e
+  fotograma é validado individualmente, e um problema numa parte não
+  impede de continuar checando o resto, juntando a lista completa de
+  violações numa só passada (cada fotograma identificado pelo índice
+  dele dentro do evento, já que não tem `position` própria). A árvore
+  inteira (mesmo vindo de partes com erro) ainda passa pela checagem
+  de `hierarchy.validate()` (ver
+  [pacote `hierarchy`](#pacote-hierarchy--desenho-interno)) e pela
+  checagem de `tag_id` único em todo o pacote — essa unicidade só dá
+  pra confirmar depois que tudo já foi lido, nunca olhando um
+  fotograma sozinho.
+
+API pública:
+
+```
+core/content/
+  Content.kt                 Frame, ContentEvent, ContentTheme, ContentInstance,
+                              ContentViolation (sealed: InvalidManifest, InvalidTheme,
+                              InvalidEvent, InvalidFrame, DuplicateTagId, Hierarchy),
+                              ContentImportResult
+  ContentImport.kt            importContentPackage(manifestJson: String): ContentImportResult
+  ContentPackageArchive.kt    ContentPackageArchive (Closeable, abre um ZipFile),
+                              readManifest(): String, readImage(path: String): ByteArray
+```
+
+A leitura do arquivo ZIP fica isolada da validação do JSON —
+`importContentPackage` recebe o texto do manifesto já lido, sem saber
+que ele veio de um arquivo compactado. Mesma separação de assunto já
+usada entre `SessionState.kt` (lógica pura) e
+`SessionStatePersistence.kt` (E/S em arquivo). Cada chamada processa um
+único arquivo e devolve uma única instância (completa) ou nenhuma —
+nunca mescla conteúdo de mais de uma importação; decidir o que fazer
+quando um nome de instância já existente é reimportado fica fora deste
+pacote, numa camada de armazenamento ainda não desenhada.
 
 Testado com `kotlin-test` + JUnit Jupiter, mesma ferramenta já fixada
 em [decisions/0005](<../decisions/0005-abordagem-de-teste-do-nucleo-do-motor.md>)
@@ -543,3 +619,5 @@ com o campo Versão da tabela de cabeçalho, que sempre reflete a
 | 0.6.0 | 14-08-2026 | Acrescentado o desenho interno do pacote `session` (representação do estado, cálculo de recorte contíguo, persistência da sessão pausada). | Resolução de [decisions/0008-representacao-do-estado-da-sessao.md](<../decisions/0008-representacao-do-estado-da-sessao.md>), [decisions/0009-calculo-do-recorte-continuo-de-sessao.md](<../decisions/0009-calculo-do-recorte-continuo-de-sessao.md>) e [decisions/0010-persistencia-do-estado-de-sessao-pausada.md](<../decisions/0010-persistencia-do-estado-de-sessao-pausada.md>) |
 | 0.7.0 | 14-08-2026 | Acrescentadas as transições de estado do pacote `session` (validar tentativa, pular, dica, sugestão de estudo, encadeamento, pausa/retomada) e o formato de serialização (JSON). | Resolução de [decisions/0011-formato-de-serializacao-do-estado-de-sessao.md](<../decisions/0011-formato-de-serializacao-do-estado-de-sessao.md>) |
 | 0.8.0 | 14-08-2026 | Acrescentado o esqueleto mínimo do módulo `app` (manifesto, `Application`, `Activity` sem tela) e as versões de plataforma/build que ele usa. | Resolução de [decisions/0012-versoes-de-plataforma-e-build-do-modulo-app.md](<../decisions/0012-versoes-de-plataforma-e-build-do-modulo-app.md>) |
+| 0.9.0 | 14-08-2026 | Acrescentado o desenho interno do pacote `content` (nome fixo do manifesto, validação por árvore JSON genérica item a item, regra de fotograma malformado, unicidade de `tag_id` em todo o pacote); removida a menção a `content` como "ainda não desenhado" na seção do pacote `session`. | Resolução de [decisions/0013-desenho-do-pacote-content.md](<../decisions/0013-desenho-do-pacote-content.md>) |
+| 0.10.0 | 14-08-2026 | Seção do pacote `content` revisada: regra de aceitação passa a ser tudo ou nada (qualquer violação recusa o pacote inteiro), substituindo a exclusão item a item descrita na versão anterior. | Revisão de [decisions/0013-desenho-do-pacote-content.md](<../decisions/0013-desenho-do-pacote-content.md>), em conversa direta antes de dar a tarefa como concluída |

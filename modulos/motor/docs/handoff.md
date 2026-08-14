@@ -6,7 +6,7 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Handoff |
-| Versão | 0.4.0 |
+| Versão | 0.5.0 |
 | Data | 14-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
@@ -54,6 +54,15 @@
   localização do projeto Gradle no repositório decidida.
 - [decisions/0007-desenho-do-pacote-hierarchy.md](<../decisions/0007-desenho-do-pacote-hierarchy.md>) —
   desenho interno do pacote `hierarchy` decidido.
+- [decisions/0008-representacao-do-estado-da-sessao.md](<../decisions/0008-representacao-do-estado-da-sessao.md>) —
+  representação do estado da sessão em curso decidida.
+- [decisions/0009-calculo-do-recorte-continuo-de-sessao.md](<../decisions/0009-calculo-do-recorte-continuo-de-sessao.md>) —
+  cálculo do recorte contíguo de uma sessão decidido.
+- [decisions/0010-persistencia-do-estado-de-sessao-pausada.md](<../decisions/0010-persistencia-do-estado-de-sessao-pausada.md>) —
+  persistência do estado de sessão pausada em disco decidida.
+- [decisions/0011-formato-de-serializacao-do-estado-de-sessao.md](<../decisions/0011-formato-de-serializacao-do-estado-de-sessao.md>) —
+  formato de serialização (JSON) do estado de sessão decidido.
+- [findings.md](findings.md) — achados confirmados até agora.
 - [tasks.md, Resolvidas](tasks.md#resolvidas) — pendências já
   corrigidas.
 
@@ -75,3 +84,4 @@ com o campo Versão da tabela de cabeçalho, que sempre reflete a
 | 0.2.0 | 13-08-2026 | Acrescentado ponteiro para decisions/0003-estrutura-de-modulos-do-aplicativo.md. | Resolução da pendência de estrutura de pastas do Android |
 | 0.3.0 | 14-08-2026 | Acrescentado ponteiro para decisions/0004, 0005 e 0006-localizacao-do-projeto-gradle-no-repositorio.md. | Primeiro código do módulo (pacote `search`) |
 | 0.4.0 | 14-08-2026 | Acrescentado ponteiro para decisions/0007-desenho-do-pacote-hierarchy.md. | Segundo pacote do módulo `core` escrito (pacote `hierarchy`) |
+| 0.5.0 | 14-08-2026 | Acrescentado ponteiro para decisions/0008 a 0011 e para findings.md. | Terceiro pacote do módulo `core` escrito (pacote `session`), com um achado de `hierarchy` revelado no caminho |

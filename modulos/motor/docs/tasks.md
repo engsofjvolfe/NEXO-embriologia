@@ -6,7 +6,7 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Tasks |
-| Versão | 0.5.0 |
+| Versão | 0.8.0 |
 | Data | 14-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
@@ -43,20 +43,6 @@ Convenção dos códigos citados aqui:
 - [Controle de versão](#controle-de-versão)
 
 ## Em aberto
-
-- [ ] **Escrever o código-fonte do pacote `session` (núcleo do
-      aplicativo).**
-
-      *Resumo simples:* a lógica de uma partida em si — validar uma
-      tentativa, marcar erro, pular, dar dica, encadear eventos,
-      pausar/retomar, sair.
-
-      *Detalhe técnico:* pacote `core/session/`, ver
-      [architecture.md, layout do aparelho de jogo](<architecture.md#aparelho-de-jogo-aplicativo>).
-      Comportamento especificado em
-      [`3 - especificacao-conceito-geral.md`](<../../../docs/docs-VMODEL-visao-geral/3 - especificacao-conceito-geral.md>)
-      (categoria `EI-VAL` pra validação — ver
-      [architecture.md, núcleo do motor](<architecture.md#núcleo-do-motor>)).
 
 - [ ] **Escrever o código-fonte do pacote `content` (núcleo do
       aplicativo).**
@@ -210,6 +196,26 @@ Convenção dos códigos citados aqui:
       um limiar novo é de fato melhor que o atual, em vez de julgar só
       pela impressão.
 
+- [ ] **Explicar a organização de pastas do código de `core` em
+      linguagem simples, e reavaliar se ainda faz sentido conforme
+      mais pacotes nascerem.**
+
+      *Resumo simples:* quem acompanha o projeto sem saber ler Kotlin
+      não consegue confirmar sozinho onde cada coisa mora nem por quê
+      — falta uma explicação acessível da organização que já existe,
+      não um conserto nela.
+
+      *Detalhe técnico:* a organização em si já está decidida
+      ([decisions/0003](<../decisions/0003-estrutura-de-modulos-do-aplicativo.md>):
+      uma pasta por assunto funcional dentro de `core` — `hierarchy/`,
+      `search/`, `session/`, e futuramente `content/`,
+      `connectivity/`, `report/` —, nunca por tipo técnico de arquivo
+      misturado. Falta: (1) uma explicação, sem termo técnico, de como
+      ler essa árvore de pastas; (2) conferir de novo, conforme
+      `content`, `connectivity` e `report` forem escritos, se essa
+      divisão continua fazendo sentido ou se algum pacote cresceu
+      demais e merece ser dividido.
+
 ## Resolvidas
 
 - [x] **Escolher a linguagem de programação do aplicativo.** Resolvido
@@ -229,6 +235,20 @@ Convenção dos códigos citados aqui:
 - [x] **Escrever o código-fonte do pacote `hierarchy` (núcleo do
       aplicativo).** Resolvido — ver
       [decisions/0007-desenho-do-pacote-hierarchy.md](<../decisions/0007-desenho-do-pacote-hierarchy.md>).
+- [x] **Detectar posição de tema/evento com buraco ou duplicada na
+      validação de `hierarchy`.** Resolvido — ver
+      [findings.md#2026-08-14-posicao-com-buraco-nao-detectada](<findings.md#2026-08-14-posicao-com-buraco-nao-detectada>).
+- [x] **Escrever o código-fonte do pacote `session` (núcleo do
+      aplicativo).** Resolvido — ver
+      [decisions/0008-representacao-do-estado-da-sessao.md](<../decisions/0008-representacao-do-estado-da-sessao.md>),
+      [decisions/0009-calculo-do-recorte-continuo-de-sessao.md](<../decisions/0009-calculo-do-recorte-continuo-de-sessao.md>),
+      [decisions/0010-persistencia-do-estado-de-sessao-pausada.md](<../decisions/0010-persistencia-do-estado-de-sessao-pausada.md>)
+      e
+      [decisions/0011-formato-de-serializacao-do-estado-de-sessao.md](<../decisions/0011-formato-de-serializacao-do-estado-de-sessao.md>).
+      A montagem de texto de resumos, sínteses e da mensagem de três
+      partes de pulo (EI-PUL-05, EI-RET-04, EI-ENC-03) não entra neste
+      pacote — depende do pacote `content`, ainda não escrito (ver
+      [architecture.md, pacote `session`](<architecture.md#pacote-session--desenho-interno>)).
 
 ## Referências
 
@@ -259,3 +279,6 @@ como mudança de conteúdo real. -->
 | 0.3.0 | 13-08-2026 | Pendência única "Escrever o código-fonte de cada componente já desenhado" dividida em sete pendências, uma por pacote/componente já fixado em `architecture.md` (`hierarchy`, `session`, `search`, `content`, `connectivity`, `report` e firmware do acessório). | Detalhamento de pendência existente, sem decisão nova |
 | 0.4.0 | 13-08-2026 | Pendência "Validar em campo o limiar de busca aproximada" detalhada com critério objetivo de medição (precisão e revocação). | Detalhamento de pendência existente, sem decisão nova |
 | 0.5.0 | 14-08-2026 | Pendência "Escrever o código-fonte do pacote `hierarchy`" resolvida — movida para Resolvidas. | Resolução de [decisions/0007-desenho-do-pacote-hierarchy.md](<../decisions/0007-desenho-do-pacote-hierarchy.md>) |
+| 0.6.0 | 14-08-2026 | Pendência nova "Detectar posição de tema/evento com buraco ou duplicada" acrescentada já resolvida, movida direto para Resolvidas. | Achado revelado pelo desenho do pacote `session` |
+| 0.7.0 | 14-08-2026 | Pendência nova "Explicar a organização de pastas do código de `core` em linguagem simples, e reavaliar conforme mais pacotes nascerem" acrescentada. | Pedido direto, durante o desenho do pacote `session` |
+| 0.8.0 | 14-08-2026 | Pendência "Escrever o código-fonte do pacote `session`" resolvida — movida para Resolvidas. | Resolução de [decisions/0008](<../decisions/0008-representacao-do-estado-da-sessao.md>), [decisions/0009](<../decisions/0009-calculo-do-recorte-continuo-de-sessao.md>), [decisions/0010](<../decisions/0010-persistencia-do-estado-de-sessao-pausada.md>) e [decisions/0011](<../decisions/0011-formato-de-serializacao-do-estado-de-sessao.md>) |

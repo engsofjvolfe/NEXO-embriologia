@@ -91,4 +91,111 @@ class HierarchyValidationTest {
             HierarchyViolation.DuplicateEventName(instanceName = "Instancia", themeName = "Tema A", name = "Evento 1") in violacoes,
         )
     }
+
+    @Test
+    fun `validate devolve lista vazia quando as posicoes dos eventos com ordem sao contiguas`() {
+        val instance = Instance(
+            name = "Instancia",
+            themes = listOf(
+                Theme(
+                    name = "Tema A",
+                    ordering = Ordering.Standalone,
+                    events = listOf(
+                        Event(name = "Evento 1", ordering = Ordering.Ordered(position = 1)),
+                        Event(name = "Evento 2", ordering = Ordering.Ordered(position = 2)),
+                        Event(name = "Evento 3", ordering = Ordering.Ordered(position = 3)),
+                    ),
+                ),
+            ),
+        )
+
+        assertTrue(validate(instance).isEmpty())
+    }
+
+    @Test
+    fun `validate acha buraco na posicao dos eventos com ordem, achado 2026-08-14`() {
+        val instance = Instance(
+            name = "Instancia",
+            themes = listOf(
+                Theme(
+                    name = "Tema A",
+                    ordering = Ordering.Standalone,
+                    events = listOf(
+                        Event(name = "Evento 1", ordering = Ordering.Ordered(position = 1)),
+                        Event(name = "Evento 3", ordering = Ordering.Ordered(position = 3)),
+                    ),
+                ),
+            ),
+        )
+
+        assertEquals(
+            listOf(
+                HierarchyViolation.NonContiguousEventPositions(
+                    instanceName = "Instancia",
+                    themeName = "Tema A",
+                    positions = listOf(1, 3),
+                ),
+            ),
+            validate(instance),
+        )
+    }
+
+    @Test
+    fun `validate acha posicao duplicada entre eventos com ordem, achado 2026-08-14`() {
+        val instance = Instance(
+            name = "Instancia",
+            themes = listOf(
+                Theme(
+                    name = "Tema A",
+                    ordering = Ordering.Standalone,
+                    events = listOf(
+                        Event(name = "Evento 1", ordering = Ordering.Ordered(position = 1)),
+                        Event(name = "Evento 2", ordering = Ordering.Ordered(position = 1)),
+                    ),
+                ),
+            ),
+        )
+
+        assertEquals(
+            listOf(
+                HierarchyViolation.NonContiguousEventPositions(
+                    instanceName = "Instancia",
+                    themeName = "Tema A",
+                    positions = listOf(1, 1),
+                ),
+            ),
+            validate(instance),
+        )
+    }
+
+    @Test
+    fun `validate acha buraco na posicao dos temas com ordem, achado 2026-08-14`() {
+        val instance = Instance(
+            name = "Instancia",
+            themes = listOf(
+                Theme(name = "Tema A", ordering = Ordering.Ordered(position = 1), events = listOf(evento("Evento 1"))),
+                Theme(name = "Tema B", ordering = Ordering.Ordered(position = 3), events = listOf(evento("Evento 1"))),
+            ),
+        )
+
+        assertEquals(
+            listOf(
+                HierarchyViolation.NonContiguousThemePositions(instanceName = "Instancia", positions = listOf(1, 3)),
+            ),
+            validate(instance),
+        )
+    }
+
+    @Test
+    fun `validate nao acusa buraco quando os itens sao avulsos, sem posicao`() {
+        val instance = Instance(
+            name = "Instancia",
+            themes = listOf(
+                Theme(name = "Tema A", ordering = Ordering.Standalone, events = listOf(evento("Evento 1"))),
+                Theme(name = "Tema B", ordering = Ordering.Standalone, events = listOf(evento("Evento 1"))),
+            ),
+        )
+
+        assertTrue(validate(instance).isEmpty())
+    }
 }

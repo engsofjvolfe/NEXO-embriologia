@@ -25,8 +25,9 @@
   de dado e decisões de linguagem/framework já registrados.
 - Código do módulo motor em andamento, dentro de
   [`modulos/motor/core/`](modulos/motor/core/): pacotes `search` (busca
-  aproximada) e `hierarchy` (cadastro e navegação hierárquica) já
-  escritos — ver
+  aproximada), `hierarchy` (cadastro e navegação hierárquica) e
+  `session` (lógica de uma partida — validação, erro, pular, dica,
+  encadeamento, pausa/retomada) já escritos — ver
   [modulos/motor/docs/handoff.md](modulos/motor/docs/handoff.md).
 - [TASKS.md, Resolvidas](TASKS.md#resolvidas) — pendências já corrigidas.
 

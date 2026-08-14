@@ -6,7 +6,7 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Decisions — Índice |
-| Versão | 0.5.0 |
+| Versão | 0.9.0 |
 | Data | 14-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
@@ -48,6 +48,10 @@
 | [0005](0005-abordagem-de-teste-do-nucleo-do-motor.md) | Abordagem de teste do núcleo do motor |
 | [0006](0006-localizacao-do-projeto-gradle-no-repositorio.md) | Localização do projeto Gradle no repositório |
 | [0007](0007-desenho-do-pacote-hierarchy.md) | Desenho do pacote hierarchy |
+| [0008](0008-representacao-do-estado-da-sessao.md) | Representação do estado da sessão em curso |
+| [0009](0009-calculo-do-recorte-continuo-de-sessao.md) | Cálculo do recorte contíguo de uma sessão |
+| [0010](0010-persistencia-do-estado-de-sessao-pausada.md) | Persistência do estado de sessão pausada em disco |
+| [0011](0011-formato-de-serializacao-do-estado-de-sessao.md) | Formato de serialização do estado de sessão persistido |
 
 ## Controle de versão
 
@@ -67,3 +71,7 @@ pelo ADR-NNNN). -->
 | 0.3.0 | 13-08-2026 | ADRs 0004 e 0005 acrescentadas à lista. | Desenho e primeira implementação do pacote `search` |
 | 0.4.0 | 14-08-2026 | ADR 0006 acrescentada à lista. | Decisão sobre onde o projeto Gradle mora no repositório |
 | 0.5.0 | 14-08-2026 | ADR 0007 acrescentada à lista. | Desenho do pacote `hierarchy` |
+| 0.6.0 | 14-08-2026 | ADR 0008 acrescentada à lista. | Representação do estado da sessão em curso, primeiro ponto de desenho do pacote `session` |
+| 0.7.0 | 14-08-2026 | ADR 0010 acrescentada à lista (ADR 0009 ainda como `proposto`, aguardando revisão, por isso ainda fora deste índice). | Persistência do estado de sessão pausada em disco, último ponto de desenho do pacote `session` |
+| 0.8.0 | 14-08-2026 | ADR 0009 acrescentada à lista, depois de revisão confirmada. | Cálculo do recorte contíguo de uma sessão |
+| 0.9.0 | 14-08-2026 | ADR 0011 acrescentada à lista. | Formato de serialização (JSON, `kotlinx.serialization`) do estado de sessão persistido |

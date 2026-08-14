@@ -1,5 +1,6 @@
 plugins {
     alias(libs.plugins.kotlinJvm)
+    alias(libs.plugins.kotlinSerialization)
 }
 
 repositories {
@@ -7,6 +8,7 @@ repositories {
 }
 
 dependencies {
+    implementation(libs.org.jetbrains.kotlinx.kotlinx.serialization.json)
     testImplementation(kotlin("test"))
     testImplementation(libs.org.junit.jupiter.junit.jupiter.api)
     testImplementation(libs.org.junit.jupiter.junit.jupiter.params)

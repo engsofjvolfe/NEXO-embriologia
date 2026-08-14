@@ -22,8 +22,10 @@
 - [`scripts/`](scripts/) — gancho de git que avisa quando falta subir
   a versão de um documento.
 - Módulo [motor](modulos/motor/) criado — desenho de código, contrato
-  de dado e decisões de linguagem/framework já registrados; nenhuma
-  linha de implementação ainda.
+  de dado e decisões de linguagem/framework já registrados.
+- Primeiro código do módulo motor escrito: pacote `search` (busca
+  aproximada), dentro de [`modulos/motor/core/`](modulos/motor/core/) —
+  ver [modulos/motor/docs/handoff.md](modulos/motor/docs/handoff.md).
 - [TASKS.md, Resolvidas](TASKS.md#resolvidas) — pendências já corrigidas.
 
 ## Próximo passo

@@ -6,8 +6,8 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Architecture |
-| Versão | 0.2.0 |
-| Data | 13-08-2026 |
+| Versão | 0.3.0 |
+| Data | 14-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
 > Descreve como o módulo é construído por dentro — layout de arquivos,
@@ -49,6 +49,7 @@ Convenção dos códigos citados neste documento:
 - [Layout](#layout)
   - [Aparelho de jogo (aplicativo)](#aparelho-de-jogo-aplicativo)
     - [Núcleo do motor](#núcleo-do-motor)
+      - [Pacote `search` — desenho interno](#pacote-search--desenho-interno)
     - [Interface](#interface)
   - [Acessório leitor (firmware)](#acessório-leitor-firmware)
   - [Fronteira de dado entre aplicativo e acessório](#fronteira-de-dado-entre-aplicativo-e-acessório)
@@ -90,6 +91,10 @@ motor) e `app` (interface), com `app` dependendo de `core` e nunca o
 contrário — com pacotes organizados por assunto funcional dentro de cada
 um. Alternativas consideradas, decisão completa e motivo em
 [decisions/0003-estrutura-de-modulos-do-aplicativo.md](<../decisions/0003-estrutura-de-modulos-do-aplicativo.md>).
+Esse projeto Gradle mora dentro de `modulos/motor/` (não na raiz do
+repositório) — motivo em
+[decisions/0006-localizacao-do-projeto-gradle-no-repositorio.md](<../decisions/0006-localizacao-do-projeto-gradle-no-repositorio.md>).
+A árvore abaixo é relativa a `modulos/motor/`:
 
 ```
 core/
@@ -152,6 +157,44 @@ funcional" já listado no
 [Projeto Arquitetônico](<../../../docs/docs-VMODEL-visao-geral/4 - projeto-arquitetonico.md>),
 seção 6.6 — essa tabela já é, na prática, o contrato entre as duas
 partes.
+
+##### Pacote `search` — desenho interno
+
+*Em resumo:* dentro do núcleo, o pacote `search` é quem sabe achar um
+item de navegação (instância, tema ou evento) mesmo com erro de
+digitação. Não decide nada de tela — só recebe uma lista de itens e o
+termo que a pessoa digitou, e devolve a lista já filtrada e ordenada.
+
+*Em detalhe técnico:* implementa PD-NAV-01 e PD-NAV-02 (distância de
+edição de Levenshtein, limiar de 20% do tamanho do termo digitado,
+arredondado pra baixo, mínimo 1). Três pontos que a cascata de
+documentação não desce a esse nível de detalhe ficam registrados em
+[decisions/0004](<../decisions/0004-desenho-do-algoritmo-de-busca-aproximada.md>):
+a comparação ignora maiúscula/minúscula e acento (normaliza os dois
+lados antes de comparar, mesmo padrão usado por Google Cloud e
+Elasticsearch); a busca compara o termo tanto contra o nome inteiro de
+cada item quanto contra qualquer trecho contíguo dele, com o resultado
+de nome inteiro aparecendo sempre primeiro; e o empate de distância
+preserva a ordem que a lista já tinha (por padrão, alfabética —
+DA-NAV-01), nunca decidido pelo próprio pacote.
+
+API pública, genérica o bastante pra servir tanto a lista de
+instâncias quanto a de temas ou de eventos — nenhuma das três sabe o
+que é "instância" ou "evento", só recebem uma lista de itens e uma
+função que extrai o nome de cada um (RNF-MOD-01, o motor não conhece o
+assunto do conteúdo):
+
+```
+core/search/
+  ApproximateSearch.kt   levenshteinDistance, substringLevenshteinDistance,
+                          approximateSearchThreshold, approximateSearch<T>
+```
+
+Testado com `kotlin-test` + JUnit Jupiter, conforme
+[decisions/0005](<../decisions/0005-abordagem-de-teste-do-nucleo-do-motor.md>)
+— primeiro pacote do módulo `core` a existir, junto com o esqueleto
+mínimo de build do projeto inteiro (`settings.gradle.kts` na raiz,
+`core/build.gradle.kts`).
 
 #### Interface
 
@@ -295,3 +338,4 @@ com o campo Versão da tabela de cabeçalho, que sempre reflete a
 |---|---|---|---|
 | 0.1.0 | 12-08-2026 | Criação inicial: layout do aparelho de jogo (núcleo e interface), do acessório leitor, e das duas fronteiras de dado. | Criação inicial |
 | 0.2.0 | 13-08-2026 | Estrutura de módulos e pacotes do projeto Android resolvida (dois módulos Gradle, `core` e `app`), substituindo a pendência registrada na seção "Aparelho de jogo (aplicativo)". | Resolução de [decisions/0003-estrutura-de-modulos-do-aplicativo.md](<../decisions/0003-estrutura-de-modulos-do-aplicativo.md>) |
+| 0.3.0 | 14-08-2026 | Acrescentado o desenho interno do pacote `search` (API pública, normalização de texto, comparação inteira e por trecho, abordagem de teste), e a localização do projeto Gradle dentro de `modulos/motor/`. | Resolução de [decisions/0004-desenho-do-algoritmo-de-busca-aproximada.md](<../decisions/0004-desenho-do-algoritmo-de-busca-aproximada.md>), [decisions/0005-abordagem-de-teste-do-nucleo-do-motor.md](<../decisions/0005-abordagem-de-teste-do-nucleo-do-motor.md>) e [decisions/0006-localizacao-do-projeto-gradle-no-repositorio.md](<../decisions/0006-localizacao-do-projeto-gradle-no-repositorio.md>) |

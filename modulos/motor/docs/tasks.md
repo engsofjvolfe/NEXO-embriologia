@@ -6,7 +6,7 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Tasks |
-| Versão | 0.3.0 |
+| Versão | 0.4.0 |
 | Data | 13-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
@@ -39,6 +39,7 @@ Convenção dos códigos citados aqui:
 ## Índice
 - [Em aberto](#em-aberto)
 - [Resolvidas](#resolvidas)
+- [Referências](#referências)
 - [Controle de versão](#controle-de-versão)
 
 ## Em aberto
@@ -71,18 +72,6 @@ Convenção dos códigos citados aqui:
       [`3 - especificacao-conceito-geral.md`](<../../../docs/docs-VMODEL-visao-geral/3 - especificacao-conceito-geral.md>)
       (categoria `EI-VAL` pra validação — ver
       [architecture.md, núcleo do motor](<architecture.md#núcleo-do-motor>)).
-
-- [ ] **Escrever o código-fonte do pacote `search` (núcleo do
-      aplicativo).**
-
-      *Resumo simples:* encontrar um item de navegação mesmo com erro
-      de digitação — busca por distância de Levenshtein.
-
-      *Detalhe técnico:* pacote `core/search/`, ver
-      [architecture.md, layout do aparelho de jogo](<architecture.md#aparelho-de-jogo-aplicativo>).
-      Regra de negócio: PD-NAV-01, PD-NAV-02. O limiar usado ali é
-      ponto de partida, não valor final validado — ver pendência
-      "Validar em campo o limiar de busca aproximada", mais abaixo.
 
 - [ ] **Escrever o código-fonte do pacote `content` (núcleo do
       aplicativo).**
@@ -219,7 +208,22 @@ Convenção dos códigos citados aqui:
       *Detalhe técnico:* ajustar depois de observação de uso real é
       esperado, não conserto de erro — mesma premissa já registrada
       no [Projeto Detalhado](<../../../docs/docs-VMODEL-visao-geral/5 - projeto-detalhado.md>),
-      seção 8.
+      seção 8. Critério objetivo pra essa validação, não inventado
+      aqui: **precisão** e **revocação** (precision e recall), as duas
+      métricas padrão de avaliação de sistema de busca (MANNING;
+      RAGHAVAN; SCHÜTZE, 2008, cap. 8) — precisão é a fração dos
+      resultados devolvidos que realmente eram o item procurado;
+      revocação é a fração das vezes em que o item procurado existia e
+      foi mesmo devolvido. Aplicado aqui: reunir uma coleção de teste
+      (pares "termo digitado com erro" → "item que deveria aparecer"),
+      a partir de nomes reais de um pacote de conteúdo em uso; rodar a
+      busca com o limiar atual contra essa coleção; contar quantas
+      vezes o item certo apareceu (revocação) e quantos resultados
+      errados vieram junto (precisão). Isso não substitui a validação
+      em campo (que depende de comportamento real de digitação, não dá
+      pra simular) — dá o critério numérico, repetível, pra decidir se
+      um limiar novo é de fato melhor que o atual, em vez de julgar só
+      pela impressão.
 
 ## Resolvidas
 
@@ -232,6 +236,24 @@ Convenção dos códigos citados aqui:
 - [x] **Decidir a estrutura exata de pastas do projeto Android.**
       Resolvido — ver
       [decisions/0003-estrutura-de-modulos-do-aplicativo.md](<../decisions/0003-estrutura-de-modulos-do-aplicativo.md>).
+- [x] **Escrever o código-fonte do pacote `search` (núcleo do
+      aplicativo).** Resolvido — ver
+      [decisions/0004-desenho-do-algoritmo-de-busca-aproximada.md](<../decisions/0004-desenho-do-algoritmo-de-busca-aproximada.md>)
+      e
+      [decisions/0005-abordagem-de-teste-do-nucleo-do-motor.md](<../decisions/0005-abordagem-de-teste-do-nucleo-do-motor.md>).
+
+## Referências
+
+Fonte externa citada na pendência "Validar em campo o limiar de busca
+aproximada", no formato definido pela norma ABNT NBR 6023 (Informação
+e documentação — Referências). Citada no corpo do documento como
+(AUTOR, ano).
+
+MANNING, Christopher D.; RAGHAVAN, Prabhakar; SCHÜTZE, Hinrich.
+**Introduction to Information Retrieval**. Cambridge: Cambridge
+University Press, 2008. Disponível em:
+https://nlp.stanford.edu/IR-book/pdf/08eval.pdf. Acesso em: 13 ago.
+2026.
 
 ## Controle de versão
 
@@ -247,3 +269,4 @@ como mudança de conteúdo real. -->
 | 0.1.0 | 12-08-2026 | Criação inicial. | Criação inicial |
 | 0.2.0 | 13-08-2026 | Pendência "Decidir a estrutura exata de pastas do projeto Android" resolvida — movida para Resolvidas. | Resolução de [decisions/0003-estrutura-de-modulos-do-aplicativo.md](<../decisions/0003-estrutura-de-modulos-do-aplicativo.md>) |
 | 0.3.0 | 13-08-2026 | Pendência única "Escrever o código-fonte de cada componente já desenhado" dividida em sete pendências, uma por pacote/componente já fixado em `architecture.md` (`hierarchy`, `session`, `search`, `content`, `connectivity`, `report` e firmware do acessório). | Detalhamento de pendência existente, sem decisão nova |
+| 0.4.0 | 13-08-2026 | Pendência "Validar em campo o limiar de busca aproximada" detalhada com critério objetivo de medição (precisão e revocação). | Detalhamento de pendência existente, sem decisão nova |

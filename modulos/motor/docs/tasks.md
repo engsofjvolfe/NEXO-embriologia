@@ -6,7 +6,7 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Tasks |
-| Versão | 0.2.0 |
+| Versão | 0.3.0 |
 | Data | 13-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
@@ -28,6 +28,11 @@
 > resumo simples primeiro, detalhe técnico depois.
 
 Convenção dos códigos citados aqui:
+- `DA-LEI` — [`4 - projeto-arquitetonico.md`](<../../../docs/docs-VMODEL-visao-geral/4 - projeto-arquitetonico.md>), seção 6.1.
+- `DA-ARM` — [`4 - projeto-arquitetonico.md`](<../../../docs/docs-VMODEL-visao-geral/4 - projeto-arquitetonico.md>), seção 6.3.
+- `DA-REG` — [`4 - projeto-arquitetonico.md`](<../../../docs/docs-VMODEL-visao-geral/4 - projeto-arquitetonico.md>), seção 6.7.
+- `PD-LEI` — [`5 - projeto-detalhado.md`](<../../../docs/docs-VMODEL-visao-geral/5 - projeto-detalhado.md>), seção 6.1.
+- `PD-CON` — [`5 - projeto-detalhado.md`](<../../../docs/docs-VMODEL-visao-geral/5 - projeto-detalhado.md>), seção 6.2.
 - `PD-IMP` — [`5 - projeto-detalhado.md`](<../../../docs/docs-VMODEL-visao-geral/5 - projeto-detalhado.md>), seção 6.3.
 - `PD-NAV` — [`5 - projeto-detalhado.md`](<../../../docs/docs-VMODEL-visao-geral/5 - projeto-detalhado.md>), seção 6.4.
 
@@ -38,21 +43,104 @@ Convenção dos códigos citados aqui:
 
 ## Em aberto
 
-- [ ] **Escrever o código-fonte de cada componente já desenhado.**
+- [ ] **Escrever o código-fonte do pacote `hierarchy` (núcleo do
+      aplicativo).**
 
-      *Resumo simples:* o firmware do acessório leitor e a lógica do
-      aplicativo (importação de conteúdo, busca aproximada) ainda não
-      têm nenhuma linha escrita — só o desenho de como devem ser.
+      *Resumo simples:* cadastro e navegação entre instância, tema e
+      evento — a estrutura que organiza o conteúdo já importado.
 
-      *Detalhe técnico:* cobre o firmware do acessório (PN532 +
-      ESP32-D0WD-V3, em C++/Arduino via PlatformIO — ver
-      [decisions/0002](<../decisions/0002-framework-do-firmware-do-acessorio.md>))
-      e, no aplicativo (Kotlin — ver
-      [decisions/0001](<../decisions/0001-linguagem-do-aplicativo.md>)),
-      a lógica de importação e validação do pacote de conteúdo e a
-      lógica de busca aproximada. Origem:
-      [Projeto Detalhado](<../../../docs/docs-VMODEL-visao-geral/5 - projeto-detalhado.md>),
-      seção 9.
+      *Detalhe técnico:* pacote `core/hierarchy/`, ver
+      [architecture.md, layout do aparelho de jogo](<architecture.md#aparelho-de-jogo-aplicativo>).
+      Comportamento descrito junto da lógica de sessão em
+      [architecture.md, núcleo do motor](<architecture.md#núcleo-do-motor>)
+      e em
+      [`3 - especificacao-conceito-geral.md`](<../../../docs/docs-VMODEL-visao-geral/3 - especificacao-conceito-geral.md>).
+      Estrutura de dado de instância/tema/evento: bloco YAML em
+      [concept.md, Contrato de dado](<concept.md#contrato-de-dado>).
+
+- [ ] **Escrever o código-fonte do pacote `session` (núcleo do
+      aplicativo).**
+
+      *Resumo simples:* a lógica de uma partida em si — validar uma
+      tentativa, marcar erro, pular, dar dica, encadear eventos,
+      pausar/retomar, sair.
+
+      *Detalhe técnico:* pacote `core/session/`, ver
+      [architecture.md, layout do aparelho de jogo](<architecture.md#aparelho-de-jogo-aplicativo>).
+      Comportamento especificado em
+      [`3 - especificacao-conceito-geral.md`](<../../../docs/docs-VMODEL-visao-geral/3 - especificacao-conceito-geral.md>)
+      (categoria `EI-VAL` pra validação — ver
+      [architecture.md, núcleo do motor](<architecture.md#núcleo-do-motor>)).
+
+- [ ] **Escrever o código-fonte do pacote `search` (núcleo do
+      aplicativo).**
+
+      *Resumo simples:* encontrar um item de navegação mesmo com erro
+      de digitação — busca por distância de Levenshtein.
+
+      *Detalhe técnico:* pacote `core/search/`, ver
+      [architecture.md, layout do aparelho de jogo](<architecture.md#aparelho-de-jogo-aplicativo>).
+      Regra de negócio: PD-NAV-01, PD-NAV-02. O limiar usado ali é
+      ponto de partida, não valor final validado — ver pendência
+      "Validar em campo o limiar de busca aproximada", mais abaixo.
+
+- [ ] **Escrever o código-fonte do pacote `content` (núcleo do
+      aplicativo).**
+
+      *Resumo simples:* ler o arquivo de pacote de conteúdo (o
+      contrato já fechado no `concept.md`) e recusar qualquer arquivo
+      que não bata exatamente com ele.
+
+      *Detalhe técnico:* pacote `core/content/`, ver
+      [architecture.md, layout do aparelho de jogo](<architecture.md#aparelho-de-jogo-aplicativo>).
+      Importação e validação item a item: PD-IMP-01, PD-IMP-02;
+      leitura do arquivo compactado com `java.util.zip.ZipFile`, sem
+      biblioteca externa (PD-IMP-03). Contrato de dado a validar:
+      [concept.md, Contrato de dado](<concept.md#contrato-de-dado>),
+      gerado em [`schemas/`](<../schemas/>).
+
+- [ ] **Escrever o código-fonte do pacote `connectivity` (núcleo do
+      aplicativo).**
+
+      *Resumo simples:* ler o identificador de uma peça física, direto
+      pela antena do aparelho ou repassado pelo acessório externo por
+      Bluetooth.
+
+      *Detalhe técnico:* pacote `core/connectivity/`, ver
+      [architecture.md, layout do aparelho de jogo](<architecture.md#aparelho-de-jogo-aplicativo>).
+      Dois caminhos de leitura (DA-LEI-03): direto (DA-LEI-04) ou via
+      acessório (DA-LEI-06) — a validação trata os dois do mesmo jeito.
+      Papel de cliente GATT (central), conectando ao Nordic UART
+      Service que o acessório anuncia: PD-CON-01 a PD-CON-04. Fronteira
+      de dado com o acessório:
+      [architecture.md, fronteira de dado entre aplicativo e acessório](<architecture.md#fronteira-de-dado-entre-aplicativo-e-acessório>).
+
+- [ ] **Escrever o código-fonte do pacote `report` (núcleo do
+      aplicativo).**
+
+      *Resumo simples:* guardar o histórico de cada sessão jogada e
+      gerar o relatório em CSV e PDF.
+
+      *Detalhe técnico:* pacote `core/report/`, ver
+      [architecture.md, layout do aparelho de jogo](<architecture.md#aparelho-de-jogo-aplicativo>).
+      Guarda local de configuração, registro e relatório, sem servidor
+      central: DA-ARM-01. Exportação em CSV e PDF: DA-REG-01.
+
+- [ ] **Escrever o firmware do acessório leitor.**
+
+      *Resumo simples:* o programa que roda no acessório físico
+      opcional — lê a etiqueta da peça e avisa o aplicativo, sem
+      guardar conteúdo nem rodar lógica de jogo.
+
+      *Detalhe técnico:* C++/Arduino via PlatformIO, ver
+      [decisions/0002](<../decisions/0002-framework-do-firmware-do-acessorio.md>).
+      Hardware já fixado: módulo leitor NXP PN532/C1 (PD-LEI-01) e
+      microcontrolador Espressif ESP32-D0WD-V3 (PD-LEI-02), ligados por
+      I2C (PD-LEI-03). Papel de servidor GATT (peripheral), anunciando
+      o Nordic UART Service (PD-CON-01, PD-CON-03); a cada leitura
+      bem-sucedida, notifica o identificador da etiqueta na
+      característica TX (PD-CON-02, PD-CON-03). Ver
+      [architecture.md, acessório leitor (firmware)](<architecture.md#acessório-leitor-firmware>).
 
 - [ ] **Desenhar a aparência visual das telas do motor.**
 
@@ -158,3 +246,4 @@ como mudança de conteúdo real. -->
 |---|---|---|---|
 | 0.1.0 | 12-08-2026 | Criação inicial. | Criação inicial |
 | 0.2.0 | 13-08-2026 | Pendência "Decidir a estrutura exata de pastas do projeto Android" resolvida — movida para Resolvidas. | Resolução de [decisions/0003-estrutura-de-modulos-do-aplicativo.md](<../decisions/0003-estrutura-de-modulos-do-aplicativo.md>) |
+| 0.3.0 | 13-08-2026 | Pendência única "Escrever o código-fonte de cada componente já desenhado" dividida em sete pendências, uma por pacote/componente já fixado em `architecture.md` (`hierarchy`, `session`, `search`, `content`, `connectivity`, `report` e firmware do acessório). | Detalhamento de pendência existente, sem decisão nova |

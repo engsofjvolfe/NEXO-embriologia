@@ -6,7 +6,7 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Handoff |
-| Versão | 0.3.0 |
+| Versão | 0.4.0 |
 | Data | 14-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
@@ -52,6 +52,8 @@
   ferramenta de teste do módulo `core` decidida.
 - [decisions/0006-localizacao-do-projeto-gradle-no-repositorio.md](<../decisions/0006-localizacao-do-projeto-gradle-no-repositorio.md>) —
   localização do projeto Gradle no repositório decidida.
+- [decisions/0007-desenho-do-pacote-hierarchy.md](<../decisions/0007-desenho-do-pacote-hierarchy.md>) —
+  desenho interno do pacote `hierarchy` decidido.
 - [tasks.md, Resolvidas](tasks.md#resolvidas) — pendências já
   corrigidas.
 
@@ -72,3 +74,4 @@ com o campo Versão da tabela de cabeçalho, que sempre reflete a
 | 0.1.0 | 12-08-2026 | Criação inicial. | Criação inicial |
 | 0.2.0 | 13-08-2026 | Acrescentado ponteiro para decisions/0003-estrutura-de-modulos-do-aplicativo.md. | Resolução da pendência de estrutura de pastas do Android |
 | 0.3.0 | 14-08-2026 | Acrescentado ponteiro para decisions/0004, 0005 e 0006-localizacao-do-projeto-gradle-no-repositorio.md. | Primeiro código do módulo (pacote `search`) |
+| 0.4.0 | 14-08-2026 | Acrescentado ponteiro para decisions/0007-desenho-do-pacote-hierarchy.md. | Segundo pacote do módulo `core` escrito (pacote `hierarchy`) |

@@ -6,7 +6,7 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Architecture |
-| Versão | 0.3.0 |
+| Versão | 0.4.0 |
 | Data | 14-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
@@ -39,6 +39,9 @@ Convenção dos códigos citados neste documento:
 - `DA-ARM` — [`4 - projeto-arquitetonico.md`](<../../../docs/docs-VMODEL-visao-geral/4 - projeto-arquitetonico.md>), seção 6.3.
 - `DA-IMP` — [`4 - projeto-arquitetonico.md`](<../../../docs/docs-VMODEL-visao-geral/4 - projeto-arquitetonico.md>), seção 6.4.
 - `DA-REG` — [`4 - projeto-arquitetonico.md`](<../../../docs/docs-VMODEL-visao-geral/4 - projeto-arquitetonico.md>), seção 6.7.
+- `DA-CFG` — [`4 - projeto-arquitetonico.md`](<../../../docs/docs-VMODEL-visao-geral/4 - projeto-arquitetonico.md>), seção 6.5.
+- `EI-HIE` — [`3 - especificacao-conceito-geral.md`](<../../../docs/docs-VMODEL-visao-geral/3 - especificacao-conceito-geral.md>), seção 6.1.
+- `EI-SES` — [`3 - especificacao-conceito-geral.md`](<../../../docs/docs-VMODEL-visao-geral/3 - especificacao-conceito-geral.md>), seção 6.10.
 - `EI-VAL` — [`3 - especificacao-conceito-geral.md`](<../../../docs/docs-VMODEL-visao-geral/3 - especificacao-conceito-geral.md>), seção 6.4.
 - `PD-LEI` — [`5 - projeto-detalhado.md`](<../../../docs/docs-VMODEL-visao-geral/5 - projeto-detalhado.md>), seção 6.1.
 - `PD-CON` — [`5 - projeto-detalhado.md`](<../../../docs/docs-VMODEL-visao-geral/5 - projeto-detalhado.md>), seção 6.2.
@@ -50,6 +53,7 @@ Convenção dos códigos citados neste documento:
   - [Aparelho de jogo (aplicativo)](#aparelho-de-jogo-aplicativo)
     - [Núcleo do motor](#núcleo-do-motor)
       - [Pacote `search` — desenho interno](#pacote-search--desenho-interno)
+      - [Pacote `hierarchy` — desenho interno](#pacote-hierarchy--desenho-interno)
     - [Interface](#interface)
   - [Acessório leitor (firmware)](#acessório-leitor-firmware)
   - [Fronteira de dado entre aplicativo e acessório](#fronteira-de-dado-entre-aplicativo-e-acessório)
@@ -196,6 +200,62 @@ Testado com `kotlin-test` + JUnit Jupiter, conforme
 mínimo de build do projeto inteiro (`settings.gradle.kts` na raiz,
 `core/build.gradle.kts`).
 
+##### Pacote `hierarchy` — desenho interno
+
+*Em resumo:* dentro do núcleo, o pacote `hierarchy` é quem representa
+e organiza os três primeiros níveis do conteúdo — instância, tema e
+evento — garantindo que a regra "cada tema ou evento é ou tem ordem,
+ou é avulso" nunca vire uma combinação impossível dentro do código.
+Não decide nada sobre a sessão de jogo em si, nem sobre o conteúdo de
+um fotograma — só sobre a estrutura e o nome de cada item.
+
+*Em detalhe técnico:* implementa EI-HIE-01 a EI-HIE-04 (nome único
+dentro do grupo imediatamente acima; declaração individual, por item,
+de ordem ou avulso; posição obrigatória quando "com ordem", proibida
+quando avulso). EI-HIE-05 (fotograma sempre ordenado, sem exceção)
+fica fora deste pacote — sequência e fotograma são o nível onde "a
+mecânica de peça e tentativa... realmente acontece"
+([`1 - documento-de-conceito-geral.md`](<../../../docs/docs-VMODEL-visao-geral/1 - documento-de-conceito-geral.md>),
+§2), território do pacote `session`, não de navegação hierárquica.
+Pelo mesmo motivo, os campos do contrato de dado ligados ao conteúdo
+de um evento em si (`zero_mark`, `hint_enabled`, `hint_content`,
+`frames`, ver [concept.md, Contrato de dado](<concept.md#contrato-de-dado>))
+também ficam fora — `hierarchy` só carrega o que é necessário pra
+organizar e navegar: nome, e a relação de ordem/avulso com os vizinhos
+do mesmo grupo.
+
+Dois pontos que a cascata de documentação não desce a esse nível de
+detalhe ficam registrados em
+[decisions/0007](<../decisions/0007-desenho-do-pacote-hierarchy.md>):
+a relação "com ordem" ou "avulso" é representada por um tipo próprio
+(`Ordering`), com duas formas que o próprio compilador Kotlin já
+diferencia — torna impossível, em tempo de compilação, um item avulso
+carregar uma posição por engano, ou um item com ordem não carregar
+nenhuma; e a checagem de nome repetido dentro do mesmo grupo
+(EI-HIE-01) devolve a lista completa do que foi encontrado de errado,
+em vez de parar no primeiro problema — mesma postura já usada em
+DA-CFG-03/PD-IMP-02 para item de conteúdo incompleto ("recusado
+sozinho, sem impedir a importação do restante").
+
+API pública:
+
+```
+core/hierarchy/
+  Hierarchy.kt             Ordering (Ordered/Standalone), Event, Theme, Instance
+  HierarchyValidation.kt   HierarchyViolation, validate(instance: Instance): List<HierarchyViolation>
+```
+
+O cálculo de quais itens formam um recorte contíguo dentro de um grupo
+ordenado (EI-SES-06 a EI-SES-08) — necessário pra compor uma sessão
+que atravesse mais de um evento ou tema — não entra neste pacote:
+`hierarchy` expõe só a lista ordenada, com a posição de cada item;
+decidir e montar esse recorte é responsabilidade do pacote `session`,
+ainda não desenhado (ver [`tasks.md`](tasks.md)).
+
+Testado com `kotlin-test` + JUnit Jupiter, mesma ferramenta já fixada
+em [decisions/0005](<../decisions/0005-abordagem-de-teste-do-nucleo-do-motor.md>)
+para todo pacote de `core`.
+
 #### Interface
 
 *Em resumo:* as telas — o que mostra o estado que o núcleo decide,
@@ -339,3 +399,4 @@ com o campo Versão da tabela de cabeçalho, que sempre reflete a
 | 0.1.0 | 12-08-2026 | Criação inicial: layout do aparelho de jogo (núcleo e interface), do acessório leitor, e das duas fronteiras de dado. | Criação inicial |
 | 0.2.0 | 13-08-2026 | Estrutura de módulos e pacotes do projeto Android resolvida (dois módulos Gradle, `core` e `app`), substituindo a pendência registrada na seção "Aparelho de jogo (aplicativo)". | Resolução de [decisions/0003-estrutura-de-modulos-do-aplicativo.md](<../decisions/0003-estrutura-de-modulos-do-aplicativo.md>) |
 | 0.3.0 | 14-08-2026 | Acrescentado o desenho interno do pacote `search` (API pública, normalização de texto, comparação inteira e por trecho, abordagem de teste), e a localização do projeto Gradle dentro de `modulos/motor/`. | Resolução de [decisions/0004-desenho-do-algoritmo-de-busca-aproximada.md](<../decisions/0004-desenho-do-algoritmo-de-busca-aproximada.md>), [decisions/0005-abordagem-de-teste-do-nucleo-do-motor.md](<../decisions/0005-abordagem-de-teste-do-nucleo-do-motor.md>) e [decisions/0006-localizacao-do-projeto-gradle-no-repositorio.md](<../decisions/0006-localizacao-do-projeto-gradle-no-repositorio.md>) |
+| 0.4.0 | 14-08-2026 | Acrescentado o desenho interno do pacote `hierarchy` (tipos que representam instância, tema e evento, representação de ordem/avulso que o compilador já diferencia, validação de nome único devolvendo lista de violações). | Resolução de [decisions/0007-desenho-do-pacote-hierarchy.md](<../decisions/0007-desenho-do-pacote-hierarchy.md>) |

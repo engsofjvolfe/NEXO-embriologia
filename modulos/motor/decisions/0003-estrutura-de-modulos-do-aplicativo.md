@@ -13,6 +13,15 @@ Convenção dos códigos citados abaixo:
 - `RNF-MOD` — [`2 - requisitos-conceito-geral.md`](<../../../docs/docs-VMODEL-visao-geral/2 - requisitos-conceito-geral.md>), seção 7.
 - `PD-IMP` — [`5 - projeto-detalhado.md`](<../../../docs/docs-VMODEL-visao-geral/5 - projeto-detalhado.md>), seção 6.3.
 
+**Nota de leitura — marcador `[REVISAR-EXTERNO]`:** mesmo marcador já
+usado no [Projeto Detalhado](<../../../docs/docs-VMODEL-visao-geral/5 - projeto-detalhado.md>),
+seção 6.3.3. Todo trecho abaixo marcado descreve a recomendação atual
+de um terceiro (a documentação oficial do Android) — não uma decisão
+deste projeto, e sujeita a mudar sem aviso. Quem ler este documento
+depois deve tratar esse conteúdo como possivelmente desatualizado e
+reconfirmar na fonte oficial (seção Referências) antes de usar como
+base pra qualquer decisão nova.
+
 **Status:** aceito
 
 **Contexto:** [architecture.md](<../docs/architecture.md#aparelho-de-jogo-aplicativo>)
@@ -34,21 +43,21 @@ por engano.
 módulos Gradle separados. Um módulo Gradle só enxerga o que outro expõe
 publicamente e só compila contra um módulo que declarou como dependência
 dele — a fronteira vira uma regra da própria ferramenta de build, não um
-combinado informal. É também a estrutura que a documentação oficial do
-Android recomenda para projetos com expectativa de crescimento,
-descrevendo módulo como partes "fracamente acopladas e autocontidas" de
-uma base de código, cada uma com "propósito claro" (GOOGLE, [s.d.]b), e
-recomendando, como princípio central de arquitetura, "separação de
-responsabilidades" e "reduzir dependência de classes do Android" nas
-camadas que não são de interface, para melhorar testabilidade e reduzir
-acoplamento (GOOGLE, [s.d.]a).
+combinado informal. `[REVISAR-EXTERNO]` É também a estrutura que a
+documentação oficial do Android recomenda para projetos com expectativa
+de crescimento, descrevendo módulo como partes "fracamente acopladas e
+autocontidas" de uma base de código, cada uma com "propósito claro"
+(GOOGLE, [s.d.]b), e recomendando, como princípio central de
+arquitetura, "separação de responsabilidades" e "reduzir dependência de
+classes do Android" nas camadas que não são de interface, para melhorar
+testabilidade e reduzir acoplamento (GOOGLE, [s.d.]a).
 
-A mesma documentação oficial também alerta que módulos demais, cedo
-demais, trazem custo (mais configuração, mais tempo de build) sem
-benefício, numa base de código que ainda não cresceu o bastante para
-justificar — recomendando começar pequeno e desmembrar conforme a
-necessidade aparece, não modularizar de forma prematura (GOOGLE,
-[s.d.]b).
+`[REVISAR-EXTERNO]` A mesma documentação oficial também alerta que
+módulos demais, cedo demais, trazem custo (mais configuração, mais
+tempo de build) sem benefício, numa base de código que ainda não
+cresceu o bastante para justificar — recomendando começar pequeno e
+desmembrar conforme a necessidade aparece, não modularizar de forma
+prematura (GOOGLE, [s.d.]b).
 
 **Decisão:** projeto Android multi-módulo, com dois módulos Gradle nesta
 primeira versão:

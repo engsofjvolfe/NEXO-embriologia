@@ -18,6 +18,7 @@ import android.os.Binder
 import android.os.IBinder
 import android.os.ParcelUuid
 import java.util.UUID
+import org.nexo.motor.core.connectivity.ConnectionState
 import org.nexo.motor.core.connectivity.NordicUartService
 import org.nexo.motor.core.connectivity.tagIdFromBytes
 
@@ -30,6 +31,8 @@ class BleAccessoryService : Service() {
     private var bluetoothAdapter: BluetoothAdapter? = null
     private var bluetoothGatt: BluetoothGatt? = null
     private var pieceReadListener: PieceReadListener? = null
+    private var connectionStateListener: ConnectionStateListener? = null
+    private var connectionState: ConnectionState = ConnectionState.DISCONNECTED
 
     inner class LocalBinder : Binder() {
         fun getService(): BleAccessoryService = this@BleAccessoryService
@@ -40,6 +43,12 @@ class BleAccessoryService : Service() {
     fun setPieceReadListener(listener: PieceReadListener?) {
         pieceReadListener = listener
     }
+
+    fun setConnectionStateListener(listener: ConnectionStateListener?) {
+        connectionStateListener = listener
+    }
+
+    fun currentConnectionState(): ConnectionState = connectionState
 
     fun startScanAndConnect(): Boolean {
         val manager = getSystemService(Context.BLUETOOTH_SERVICE) as? BluetoothManager
@@ -54,6 +63,7 @@ class BleAccessoryService : Service() {
             .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
             .build()
         scanner.startScan(listOf(filter), settings, scanCallback)
+        updateConnectionState(ConnectionState.SCANNING)
         return true
     }
 
@@ -66,7 +76,13 @@ class BleAccessoryService : Service() {
         disconnect()
         bluetoothGatt?.close()
         bluetoothGatt = null
+        updateConnectionState(ConnectionState.DISCONNECTED)
         super.onDestroy()
+    }
+
+    private fun updateConnectionState(newState: ConnectionState) {
+        connectionState = newState
+        connectionStateListener?.onConnectionStateChanged(newState)
     }
 
     private val scanCallback = object : ScanCallback() {
@@ -79,10 +95,14 @@ class BleAccessoryService : Service() {
     private val gattCallback = object : BluetoothGattCallback() {
         override fun onConnectionStateChange(gatt: BluetoothGatt, status: Int, newState: Int) {
             when (newState) {
-                BluetoothProfile.STATE_CONNECTED -> gatt.discoverServices()
+                BluetoothProfile.STATE_CONNECTED -> {
+                    updateConnectionState(ConnectionState.CONNECTED)
+                    gatt.discoverServices()
+                }
                 BluetoothProfile.STATE_DISCONNECTED -> {
                     gatt.close()
                     bluetoothGatt = null
+                    updateConnectionState(ConnectionState.DISCONNECTED)
                 }
             }
         }

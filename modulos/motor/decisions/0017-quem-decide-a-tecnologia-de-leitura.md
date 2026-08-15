@@ -84,3 +84,27 @@ do VMODEL prevê.
   [tasks.md](<../docs/tasks.md#em-aberto>): são perguntas de
   experiência (o que a pessoa vê), não de qual tecnologia é usada por
   baixo.
+
+**Nota de acompanhamento — 15-08-2026:**
+
+*Resumo simples:* o Documento de Conceito (documento 1, a base de toda
+a cascata) já dizia, antes mesmo do Projeto Arquitetônico existir, que
+nada no sistema deveria ser decidido automaticamente — reforça, de um
+lugar mais fundamental, a mesma decisão já tomada acima.
+
+*Detalhe técnico:* lendo o
+[Documento de Conceito](<../../../docs/docs-VMODEL-visao-geral/1 - documento-de-conceito-geral.md>)
+por completo (seção 15, "Modularidade e configuração manual"): "Os
+parâmetros do sistema são definidos manualmente em dois momentos
+distintos. Nada é inferido ou calculado automaticamente pelo sistema
+— tudo é uma escolha explícita de configuração, num momento ou no
+outro." Essa seção lista dois momentos (montagem do conteúdo,
+configuração de sessão) sem citar tecnologia de leitura de peça entre
+eles — mas o princípio geral ("nada é automático") já mostra, de forma
+independente da questão sobre a leitura de DA-LEI-03, que a leitura
+literal desse item do Projeto Arquitetônico ("escolhidos
+automaticamente conforme o hardware disponível") já divergia do
+documento mais fundamental da cascata, não só de uma intenção verbal
+nunca escrita em lugar nenhum. A decisão acima corrige os dois pontos
+ao mesmo tempo, sem que isso tivesse sido percebido no momento em que
+foi tomada.

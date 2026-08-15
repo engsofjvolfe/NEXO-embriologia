@@ -6,7 +6,7 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Architecture |
-| Versão | 0.14.0 |
+| Versão | 0.15.0 |
 | Data | 15-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
@@ -487,6 +487,11 @@ core/connectivity/
                           identificador físico bruto (bytes) pro mesmo formato de texto
                           hexadecimal maiúsculo usado no campo tag_id do pacote de
                           conteúdo (PD-IMP-01)
+  ConnectionState.kt      enum DISCONNECTED/SCANNING/CONNECTED — dado puro, sem nenhuma
+                          opinião sobre como isso aparece pra pessoa (isso é aparência,
+                          fora de escopo aqui); usado só pelo lado app do Bluetooth, já
+                          que a leitura NFC não tem estado de conexão (é por peça, não
+                          contínua)
 ```
 
 Nenhum tipo do pacote depende de classe do Android — testável por
@@ -540,20 +545,26 @@ API do lado `app`:
 
 ```
 app/connectivity/
-  PieceReadListener.kt      fun interface PieceReadListener { onPieceRead(tagId: String) } —
-                             formato único de aviso, usado tanto pelo Service de Bluetooth
-                             quanto pela leitura NFC de MainActivity, em vez de cada caminho
-                             inventar o próprio formato
-  BluetoothPermissions.kt   requiredBluetoothPermissions(), hasBluetoothPermissions(context) —
-                             lista as permissões exigidas pela versão do Android em uso
-                             (decisions/0018), num lugar só
-  BleAccessoryService.kt    Service vinculado (LocalBinder); startScanAndConnect() procura
-                             por perto um aparelho anunciando o Nordic UART Service e conecta
-                             no primeiro encontrado (só costuma existir um por ambiente — não
-                             há tela de escolha entre vários, pendência ainda em aberto se
-                             algum dia isso deixar de valer); onCharacteristicChanged decodifica
-                             a notificação da característica TX com tagIdFromBytes e entrega
-                             pro PieceReadListener registrado
+  PieceReadListener.kt         fun interface PieceReadListener { onPieceRead(tagId: String) } —
+                                formato único de aviso, usado tanto pelo Service de Bluetooth
+                                quanto pela leitura NFC de MainActivity, em vez de cada caminho
+                                inventar o próprio formato
+  ConnectionStateListener.kt   fun interface ConnectionStateListener {
+                                onConnectionStateChanged(state: ConnectionState) } — só o
+                                Service de Bluetooth usa (ver acima, por que NFC não tem isso)
+  BluetoothPermissions.kt      requiredBluetoothPermissions(), hasBluetoothPermissions(context) —
+                                lista as permissões exigidas pela versão do Android em uso
+                                (decisions/0018), num lugar só
+  BleAccessoryService.kt       Service vinculado (LocalBinder); startScanAndConnect() procura
+                                por perto um aparelho anunciando o Nordic UART Service e conecta
+                                no primeiro encontrado (só costuma existir um por ambiente — não
+                                há tela de escolha entre vários, pendência ainda em aberto se
+                                algum dia isso deixar de valer); avisa o ConnectionStateListener
+                                a cada mudança de estado (procurando, conectado, desconectado) e
+                                o PieceReadListener a cada leitura — o único lugar que muda os
+                                dois estados é updateConnectionState, em vez de repetir a lógica
+                                de avisar em cada ponto que a conexão muda; onCharacteristicChanged
+                                decodifica a notificação da característica TX com tagIdFromBytes
 ```
 
 `MainActivity` (esqueleto já existente, ver
@@ -586,6 +597,11 @@ ainda não pesquisada nem decidida de verdade: uma casca única,
 neutra, no padrão Material Design do Google — reaproveitada por toda
 instância, já que a única coisa que varia de fato entre instâncias é
 o conteúdo (fotogramas, textos), não a aparência das telas em si.
+
+Ponto específico a não esquecer quando essa aparência for desenhada,
+com detalhe completo em [tasks.md](tasks.md): "Aguardando tentativa"
+(DA-RET-06) precisa mostrar o estado de conexão do acessório
+Bluetooth.
 
 Material Design decide só a aparência (cor, componente, espaçamento)
 — não decide onde cada elemento vai em cada tela. Essa segunda
@@ -758,3 +774,4 @@ com o campo Versão da tabela de cabeçalho, que sempre reflete a
 | 0.12.0 | 14-08-2026 | Acrescentado o desenho interno do pacote `connectivity` (contrato puro em `core`, UUIDs do Nordic UART Service, decodificação de identificador físico, formato do dado transmitido pelo acessório) e a fronteira com o `Service`/`Activity` de `app` que hospedam o código real de Bluetooth e NFC; acrescentado pacote `connectivity` na árvore de `app`. | Resolução de [decisions/0015-fronteira-entre-core-e-app-no-pacote-connectivity.md](<../decisions/0015-fronteira-entre-core-e-app-no-pacote-connectivity.md>) e [decisions/0016-formato-do-identificador-na-notificacao-bluetooth.md](<../decisions/0016-formato-do-identificador-na-notificacao-bluetooth.md>) |
 | 0.13.0 | 14-08-2026 | Registrado que a escolha entre os dois caminhos de leitura (NFC direto ou acessório por Bluetooth) é da pessoa, nunca automática do aplicativo — ajustadas as duas citações de DA-LEI-03 em "Núcleo do motor" e na seção `connectivity` que sugeriam o contrário; acrescentada a estratégia de permissão de Bluetooth e NFC (declarações de manifesto, momento do pedido). | Resolução de [decisions/0017-quem-decide-a-tecnologia-de-leitura.md](<../decisions/0017-quem-decide-a-tecnologia-de-leitura.md>) e [decisions/0018-estrategia-de-permissao-de-bluetooth-e-nfc.md](<../decisions/0018-estrategia-de-permissao-de-bluetooth-e-nfc.md>) |
 | 0.14.0 | 15-08-2026 | Acrescentada a API do lado `app` do pacote `connectivity` (`PieceReadListener.kt`, `BluetoothPermissions.kt`, `BleAccessoryService.kt`) e a leitura NFC em `MainActivity`; testado por compilação real. | Escrita do lado `app` do pacote `connectivity` |
+| 0.15.0 | 15-08-2026 | Acrescentado `ConnectionState` (`core`) e `ConnectionStateListener` (`app`) — o `Service` de Bluetooth passa a avisar quando muda de estado (procurando/conectado/desconectado), não só quando lê uma peça. | Pendência "como a pessoa sabe se está conectado", parte de dado (sem aparência) |

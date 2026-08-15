@@ -6,7 +6,7 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Tasks |
-| Versão | 0.15.0 |
+| Versão | 0.17.0 |
 | Data | 15-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
@@ -91,30 +91,36 @@ Convenção dos códigos citados aqui:
       característica TX (PD-CON-02, PD-CON-03). Ver
       [architecture.md, acessório leitor (firmware)](<architecture.md#acessório-leitor-firmware>).
 
-- [ ] **Substituir o módulo leitor NFC do acessório (PN532/C1 →
-      PN7160), já marcado pelo fabricante como não recomendado pra
-      projeto novo.**
+- [ ] **Substituir o módulo leitor NFC do acessório — o PN532/C1 já
+      foi marcado pelo fabricante como não recomendado pra projeto
+      novo.**
 
       *Resumo simples:* o chip de leitura NFC escolhido pro acessório
       físico (PD-LEI-01) foi marcado pela própria NXP como "não
       recomendado pra projeto novo" (NRND — Not Recommended for New
-      Designs) — a peça ainda existe à venda, mas o fabricante já
-      aponta outro chip, o PN7160, como substituto oficial.
+      Designs) — a peça ainda existe à venda, mas o fabricante
+      recomenda migrar pra outra. Qual chip exatamente vira o
+      substituto ainda precisa ser confirmado com calma — um
+      candidato (PN7160) já apareceu, mas essa parte específica ainda
+      não está bem estabelecida, então fica em aberto por enquanto,
+      sem fechar nele.
 
       *Detalhe técnico:* PD-LEI-01, do
       [Projeto Detalhado](<../../../docs/docs-VMODEL-visao-geral/5 - projeto-detalhado.md>)
       (já aprovado, imutável — divergência vira pendência aqui, nunca
-      reescrita naquele documento), fixa o NXP PN532/C1. Não afeta
-      nenhum trabalho já feito ou em andamento no pacote `connectivity`
-      até agora: o aplicativo fala só com o Bluetooth do acessório
-      (Nordic UART Service, PD-CON-01 a PD-CON-04), nunca diretamente
-      com o chip leitor — a troca de chip só afeta o firmware do
-      acessório (pendência acima, ainda não iniciada) e, possivelmente,
-      a ligação elétrica já fixada em PD-LEI-03 (I2C entre o leitor e o
-      microcontrolador) — falta confirmar se o PN7160 mantém a mesma
-      interface. Sem decisão tomada ainda sobre como fazer essa troca;
-      registrado aqui só pra não perder o alerta antes que o firmware
-      comece a ser escrito.
+      reescrita naquele documento), fixa o NXP PN532/C1 — só essa parte
+      (o PN532 estar descontinuado) está confirmada. Não afeta nenhum
+      trabalho já feito ou em andamento no pacote `connectivity` até
+      agora: o aplicativo fala só com o Bluetooth do acessório (Nordic
+      UART Service, PD-CON-01 a PD-CON-04), nunca diretamente com o
+      chip leitor — a troca de chip só afeta o firmware do acessório
+      (pendência acima, ainda não iniciada) e, possivelmente, a ligação
+      elétrica já fixada em PD-LEI-03 (I2C entre o leitor e o
+      microcontrolador). Sem decisão tomada ainda sobre qual chip
+      exatamente, nem sobre como fazer a troca; registrado aqui só pra
+      não perder o alerta antes que o firmware comece a ser escrito —
+      a escolha do substituto fica pra quando essa pesquisa for feita
+      com mais cuidado.
 
 - [ ] **Desenhar a aparência visual das telas do motor.**
 
@@ -148,6 +154,20 @@ Convenção dos códigos citados aqui:
       confirmação de saída) — como agrupar esses estados em telas
       físicas é parte do próprio desenho visual pendente. Sem
       responsável definido ainda (designer, ou o próprio usuário).
+      Ponto específico a cobrir quando esse desenho acontecer: a tela
+      "Aguardando tentativa" (DA-RET-06) precisa mostrar, de algum
+      jeito, se o acessório Bluetooth está conectado, procurando, ou
+      desconectado — o dado já existe pronto pra isso
+      (`ConnectionState`, ver
+      [architecture.md, pacote `connectivity`](<architecture.md#pacote-connectivity--desenho-interno>)),
+      só falta decidir como ele aparece. Mesma pergunta pra NFC/Bluetooth
+      desligados no aparelho — como avisar a pessoa disso ainda não
+      tem resposta nem no dado, nem na aparência. Limite a respeitar
+      nesse desenho:
+      [Documento de Conceito](<../../../docs/docs-VMODEL-visao-geral/1 - documento-de-conceito-geral.md>),
+      seção 8 ("a tela... confirma, não anuncia") — esse indicador
+      precisa ser discreto, nunca virar uma explicação ou aviso que
+      compita com essa regra.
 
 - [ ] **Decidir ferramenta de teste pro módulo `app`.**
 
@@ -365,3 +385,5 @@ como mudança de conteúdo real. -->
 | 0.13.0 | 14-08-2026 | Pendência "Escrever o código-fonte do pacote `connectivity`" reduzida ao lado `app` (`Service` de Bluetooth, leitura NFC) — o lado `core` já foi escrito, testado e removido do escopo desta pendência. | Resolução parcial de [decisions/0015](<../decisions/0015-fronteira-entre-core-e-app-no-pacote-connectivity.md>) e [decisions/0016](<../decisions/0016-formato-do-identificador-na-notificacao-bluetooth.md>) |
 | 0.14.0 | 14-08-2026 | Pendência nova "Substituir o módulo leitor NFC do acessório (PN532/C1 → PN7160)" acrescentada, sobre PD-LEI-01. | Alerta trazido diretamente, já confirmado em sessão anterior |
 | 0.15.0 | 15-08-2026 | Pendência "Escrever o código-fonte do lado `app` do pacote `connectivity`" resolvida — movida para Resolvidas. Pendência nova "Decidir ferramenta de teste pro módulo `app`" acrescentada. | Resolução de [decisions/0015](<../decisions/0015-fronteira-entre-core-e-app-no-pacote-connectivity.md>), [decisions/0017](<../decisions/0017-quem-decide-a-tecnologia-de-leitura.md>) e [decisions/0018](<../decisions/0018-estrategia-de-permissao-de-bluetooth-e-nfc.md>) |
+| 0.16.0 | 15-08-2026 | Pendência "Desenhar a aparência visual das telas" ganha ponto específico: "Aguardando tentativa" (DA-RET-06) precisa cobrir o `ConnectionState` do acessório, de forma discreta (Documento de Conceito, seção 8). | `Service` de Bluetooth passa a expor o próprio estado de conexão |
+| 0.17.0 | 15-08-2026 | Pendência "Substituir o módulo leitor NFC do acessório" abrandada: só o PN532 descontinuado está confirmado — o PN7160 como substituto exato ainda não está bem estabelecido, fica em aberto sem fechar nele. | Pedido direto, revisão antes de fechar a tarefa |

@@ -6,7 +6,7 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Tasks |
-| Versão | 0.18.0 |
+| Versão | 0.19.0 |
 | Data | 15-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
@@ -70,8 +70,10 @@ Convenção dos códigos citados aqui:
       *Resumo simples:* guardar o histórico de cada sessão jogada e
       gerar o relatório em CSV e PDF.
 
-      *Detalhe técnico:* pacote `core/report/`, ver
-      [architecture.md, layout do aparelho de jogo](<architecture.md#aparelho-de-jogo-aplicativo>).
+      *Detalhe técnico:* pacote `core/report/`, mecanismo de geração,
+      guarda e compartilhamento já desenhado, ver
+      [architecture.md, pacote `report`](<architecture.md#pacote-report--desenho-interno>)
+      e [decisions/0019](<../decisions/0019-mecanismo-de-geracao-guarda-e-compartilhamento-do-relatorio.md>).
       Guarda local de configuração, registro e relatório, sem servidor
       central: DA-ARM-01. Exportação em CSV e PDF: DA-REG-01.
 
@@ -471,3 +473,4 @@ como mudança de conteúdo real. -->
 | 0.16.0 | 15-08-2026 | Pendência "Desenhar a aparência visual das telas" ganha ponto específico: "Aguardando tentativa" (DA-RET-06) precisa cobrir o `ConnectionState` do acessório, de forma discreta (Documento de Conceito, seção 8). | `Service` de Bluetooth passa a expor o próprio estado de conexão |
 | 0.17.0 | 15-08-2026 | Pendência "Substituir o módulo leitor NFC do acessório" abrandada: só o PN532 descontinuado está confirmado — o PN7160 como substituto exato ainda não está bem estabelecido, fica em aberto sem fechar nele. | Pedido direto, revisão antes de fechar a tarefa |
 | 0.18.0 | 15-08-2026 | Pendência nova "Confirmar se o acessório leitor precisa de homologação ANATEL" acrescentada, com três fontes legais citadas (Lei 9.472/1997, Resoluções ANATEL 680/2017 e 715/2019). | Achado revelado durante a pesquisa sobre substituição do chip PN532 |
+| 0.19.0 | 15-08-2026 | Pendência "Escrever o código-fonte do pacote `report`" ganha ponteiro pro desenho interno já decidido, ainda não riscada (falta o código em si). | Resolução de [decisions/0019](<../decisions/0019-mecanismo-de-geracao-guarda-e-compartilhamento-do-relatorio.md>) |

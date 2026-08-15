@@ -6,7 +6,7 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Architecture |
-| Versão | 0.15.0 |
+| Versão | 0.16.0 |
 | Data | 15-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
@@ -57,6 +57,7 @@ Convenção dos códigos citados neste documento:
       - [Pacote `session` — desenho interno](#pacote-session--desenho-interno)
     - [Pacote `content` — desenho interno](#pacote-content--desenho-interno)
     - [Pacote `connectivity` — desenho interno](#pacote-connectivity--desenho-interno)
+    - [Pacote `report` — desenho interno](#pacote-report--desenho-interno)
     - [Interface](#interface)
     - [Esqueleto mínimo e versões de build](#esqueleto-mínimo-e-versões-de-build)
   - [Acessório leitor (firmware)](#acessório-leitor-firmware)
@@ -119,6 +120,8 @@ app/
                      na seção Interface, abaixo
     connectivity/   Service de Bluetooth e leitura NFC — ver "Pacote
                      `connectivity` — desenho interno", abaixo
+    report/         escrita de verdade do relatório no aparelho — ver
+                     "Pacote `report` — desenho interno", abaixo
 ```
 
 O módulo `app` ainda não é desmembrado em módulos de funcionalidade
@@ -365,11 +368,12 @@ entra neste pacote — depende dos textos e fotogramas que só `content`
 vai ter; `session` só registra os fatos (o quê, quando, em que
 posição) que essas telas vão precisar.
 
-O registro interno do estado é também a fonte que o pacote `report`,
-ainda não desenhado, vai usar para montar o relatório final
-(EI-REG-01/02) — `session` só expõe o registro; `report` decide
-formato e exportação, sem que `session` precise saber nada sobre
-isso.
+O registro interno do estado é também a fonte que o pacote `report`
+(ver [pacote `report`](#pacote-report--desenho-interno),
+[decisions/0019](<../decisions/0019-mecanismo-de-geracao-guarda-e-compartilhamento-do-relatorio.md>))
+usa para montar o relatório final (EI-REG-01/02) — `session` só expõe
+o registro; `report` decide formato e exportação, sem que `session`
+precise saber nada sobre isso.
 
 Testado com `kotlin-test` + JUnit Jupiter, mesma ferramenta já fixada
 em [decisions/0005](<../decisions/0005-abordagem-de-teste-do-nucleo-do-motor.md>)
@@ -582,6 +586,30 @@ teste automatizado, porque o módulo `app` não tem ferramenta de teste
 configurada ainda pra código que toca API do Android (diferente do
 `core`); ver pendência em [tasks.md](tasks.md).
 
+#### Pacote `report` — desenho interno
+
+*Em resumo:* dentro do núcleo, o pacote `report` monta o conteúdo dos
+dois formatos de relatório (CSV e PDF) a partir do registro que
+`session` já mantém — nunca decide onde o arquivo é salvo no
+aparelho, só o que deveria estar escrito nele.
+
+*Em detalhe técnico:* implementa DA-REG-01/02 (dois formatos, mesmo
+registro) e EI-REG-01/02 (o que cada relatório precisa conter).
+Mecanismo de geração de cada formato, onde o arquivo fica guardado no
+aparelho, e o atalho de compartilhar na tela de resultado (DA-RET-14):
+[decisions/0019](<../decisions/0019-mecanismo-de-geracao-guarda-e-compartilhamento-do-relatorio.md>).
+
+Mesma separação já usada em `content` e `session`: este pacote monta
+os bytes de cada formato a partir do registro recebido como
+parâmetro, sem depender de `Context`; escrever o arquivo de verdade
+no aparelho é responsabilidade do módulo `app` (pacote novo
+`app/report/`, irmão de `ui/` e `connectivity/`).
+
+Testável como os demais pacotes de `core`, com `kotlin-test` + JUnit
+Jupiter
+([decisions/0005](<../decisions/0005-abordagem-de-teste-do-nucleo-do-motor.md>)),
+já que não depende de nenhuma classe do Android.
+
 #### Interface
 
 *Em resumo:* as telas — o que mostra o estado que o núcleo decide,
@@ -775,3 +803,4 @@ com o campo Versão da tabela de cabeçalho, que sempre reflete a
 | 0.13.0 | 14-08-2026 | Registrado que a escolha entre os dois caminhos de leitura (NFC direto ou acessório por Bluetooth) é da pessoa, nunca automática do aplicativo — ajustadas as duas citações de DA-LEI-03 em "Núcleo do motor" e na seção `connectivity` que sugeriam o contrário; acrescentada a estratégia de permissão de Bluetooth e NFC (declarações de manifesto, momento do pedido). | Resolução de [decisions/0017-quem-decide-a-tecnologia-de-leitura.md](<../decisions/0017-quem-decide-a-tecnologia-de-leitura.md>) e [decisions/0018-estrategia-de-permissao-de-bluetooth-e-nfc.md](<../decisions/0018-estrategia-de-permissao-de-bluetooth-e-nfc.md>) |
 | 0.14.0 | 15-08-2026 | Acrescentada a API do lado `app` do pacote `connectivity` (`PieceReadListener.kt`, `BluetoothPermissions.kt`, `BleAccessoryService.kt`) e a leitura NFC em `MainActivity`; testado por compilação real. | Escrita do lado `app` do pacote `connectivity` |
 | 0.15.0 | 15-08-2026 | Acrescentado `ConnectionState` (`core`) e `ConnectionStateListener` (`app`) — o `Service` de Bluetooth passa a avisar quando muda de estado (procurando/conectado/desconectado), não só quando lê uma peça. | Pendência "como a pessoa sabe se está conectado", parte de dado (sem aparência) |
+| 0.16.0 | 15-08-2026 | Acrescentado o desenho interno do pacote `report` (geração de CSV e PDF sem biblioteca externa, guarda na pasta pública "Downloads" do aparelho por dois caminhos conforme a versão do Android, atalho de compartilhar na tela de resultado); acrescentado pacote `report` na árvore de `app`; ajustado o ponteiro na seção do pacote `session` que citava `report` como "ainda não desenhado". | Resolução de [decisions/0019-mecanismo-de-geracao-guarda-e-compartilhamento-do-relatorio.md](<../decisions/0019-mecanismo-de-geracao-guarda-e-compartilhamento-do-relatorio.md>) |

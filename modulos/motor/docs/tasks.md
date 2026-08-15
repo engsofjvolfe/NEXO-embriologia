@@ -6,7 +6,7 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Tasks |
-| Versão | 0.12.0 |
+| Versão | 0.13.0 |
 | Data | 14-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
@@ -64,21 +64,29 @@ Convenção dos códigos citados aqui:
       ([decisions/0013](<../decisions/0013-desenho-do-pacote-content.md>)),
       que hoje só sabe importar instância completa.
 
-- [ ] **Escrever o código-fonte do pacote `connectivity` (núcleo do
-      aplicativo).**
+- [ ] **Escrever o código-fonte do lado `app` do pacote `connectivity`
+      (`Service` de Bluetooth, leitura NFC na `Activity` de entrada).**
 
       *Resumo simples:* ler o identificador de uma peça física, direto
       pela antena do aparelho ou repassado pelo acessório externo por
-      Bluetooth.
+      Bluetooth. A metade que só faz conta (sem tocar hardware) já foi
+      escrita e testada; falta a metade que liga o rádio de verdade.
 
-      *Detalhe técnico:* pacote `core/connectivity/`, ver
-      [architecture.md, layout do aparelho de jogo](<architecture.md#aparelho-de-jogo-aplicativo>).
-      Dois caminhos de leitura (DA-LEI-03): direto (DA-LEI-04) ou via
-      acessório (DA-LEI-06) — a validação trata os dois do mesmo jeito.
-      Papel de cliente GATT (central), conectando ao Nordic UART
-      Service que o acessório anuncia: PD-CON-01 a PD-CON-04. Fronteira
-      de dado com o acessório:
-      [architecture.md, fronteira de dado entre aplicativo e acessório](<architecture.md#fronteira-de-dado-entre-aplicativo-e-acessório>).
+      *Detalhe técnico:* o lado `core/connectivity/` (contrato: UUIDs
+      do Nordic UART Service, decodificação de identificador físico)
+      já está escrito e testado — ver
+      [architecture.md, pacote `connectivity`](<architecture.md#pacote-connectivity--desenho-interno>),
+      [decisions/0015](<../decisions/0015-fronteira-entre-core-e-app-no-pacote-connectivity.md>)
+      e
+      [decisions/0016](<../decisions/0016-formato-do-identificador-na-notificacao-bluetooth.md>).
+      Falta o lado `app`: `connectivity/BleAccessoryService.kt` (cliente
+      GATT de verdade, PD-CON-01 a PD-CON-04) e o código de leitura NFC
+      direta na `Activity` de entrada já existente (`enableReaderMode`,
+      DA-LEI-04) — os dois já com desenho fechado, sem pendência de
+      decisão; falta só escrever. Nenhum dos dois espera nada: nem
+      desenho visual de tela (a `Activity` de entrada já existe), nem o
+      firmware do acessório (o formato do dado já está decidido em
+      decisions/0016).
 
 - [ ] **Escrever o código-fonte do pacote `report` (núcleo do
       aplicativo).**
@@ -325,3 +333,4 @@ como mudança de conteúdo real. -->
 | 0.10.0 | 14-08-2026 | Pendência "Escrever o esqueleto mínimo do módulo `app`" resolvida — movida para Resolvidas. | Resolução de [decisions/0012-versoes-de-plataforma-e-build-do-modulo-app.md](<../decisions/0012-versoes-de-plataforma-e-build-do-modulo-app.md>) |
 | 0.11.0 | 14-08-2026 | Pendência "Escrever o código-fonte do pacote `content`" resolvida — movida para Resolvidas. | Resolução de [decisions/0013-desenho-do-pacote-content.md](<../decisions/0013-desenho-do-pacote-content.md>) |
 | 0.12.0 | 14-08-2026 | Pendência nova "Avaliar importação parcial de conteúdo (só um tema ou evento novo)" acrescentada. | Pergunta direta, durante a revisão do pacote `content` |
+| 0.13.0 | 14-08-2026 | Pendência "Escrever o código-fonte do pacote `connectivity`" reduzida ao lado `app` (`Service` de Bluetooth, leitura NFC) — o lado `core` já foi escrito, testado e removido do escopo desta pendência. | Resolução parcial de [decisions/0015](<../decisions/0015-fronteira-entre-core-e-app-no-pacote-connectivity.md>) e [decisions/0016](<../decisions/0016-formato-do-identificador-na-notificacao-bluetooth.md>) |

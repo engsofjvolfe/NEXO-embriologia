@@ -6,7 +6,7 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Architecture |
-| Versão | 0.11.0 |
+| Versão | 0.12.0 |
 | Data | 14-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
@@ -56,6 +56,7 @@ Convenção dos códigos citados neste documento:
       - [Pacote `hierarchy` — desenho interno](#pacote-hierarchy--desenho-interno)
       - [Pacote `session` — desenho interno](#pacote-session--desenho-interno)
     - [Pacote `content` — desenho interno](#pacote-content--desenho-interno)
+    - [Pacote `connectivity` — desenho interno](#pacote-connectivity--desenho-interno)
     - [Interface](#interface)
     - [Esqueleto mínimo e versões de build](#esqueleto-mínimo-e-versões-de-build)
   - [Acessório leitor (firmware)](#acessório-leitor-firmware)
@@ -116,6 +117,8 @@ app/
   src/main/kotlin/org/nexo/motor/app/
     ui/             telas (Activities/Composables) — fluxo funcional definido
                      na seção Interface, abaixo
+    connectivity/   Service de Bluetooth e leitura NFC — ver "Pacote
+                     `connectivity` — desenho interno", abaixo
 ```
 
 O módulo `app` ainda não é desmembrado em módulos de funcionalidade
@@ -442,6 +445,72 @@ Testado com `kotlin-test` + JUnit Jupiter, mesma ferramenta já fixada
 em [decisions/0005](<../decisions/0005-abordagem-de-teste-do-nucleo-do-motor.md>)
 para todo pacote de `core`.
 
+#### Pacote `connectivity` — desenho interno
+
+*Em resumo:* dentro do núcleo, o pacote `connectivity` guarda só a
+descrição de "uma peça foi lida" — sem saber, ele mesmo, se essa
+leitura veio da antena do próprio aparelho ou foi repassada pelo
+acessório externo por Bluetooth (DA-LEI-06: "os dois casos tratados do
+mesmo jeito"). O código que liga de verdade o rádio — Bluetooth ou NFC
+— não mora aqui: mora no módulo `app`, decisão registrada em
+[decisions/0015](<../decisions/0015-fronteira-entre-core-e-app-no-pacote-connectivity.md>).
+
+*Em detalhe técnico:* implementa a parte de `core` de DA-LEI-03 a
+DA-LEI-06 (os dois caminhos de leitura, tratados igual) e o contrato de
+protocolo de PD-CON-01 a PD-CON-04 (Nordic UART Service) — nunca a
+conexão em si.
+
+Um ponto que a cascata de documentação não desce a esse nível de
+detalhe — e que o texto de "Núcleo do motor" acima, escrito antes
+desta seção existir, só descreve em palavras ("papel de cliente
+GATT... conectando ao Nordic UART Service") — fica registrado em
+[decisions/0015](<../decisions/0015-fronteira-entre-core-e-app-no-pacote-connectivity.md>):
+esse "papel de cliente GATT" é um conceito de protocolo (quem pede
+dado, quem responde — PD-CON-03), não uma afirmação de que a classe
+que gerencia `BluetoothGatt` mora dentro de `core` — onde essa classe
+mora de fato é o assunto dos dois parágrafos abaixo.
+
+API pública:
+
+```
+core/connectivity/
+  NordicUartService.kt   SERVICE_UUID, RX_CHARACTERISTIC_UUID, TX_CHARACTERISTIC_UUID —
+                          os três UUIDs fixados em PD-CON-02, como java.util.UUID puro
+  TagId.kt                tagIdFromBytes(bytes: ByteArray): String — decodifica um
+                          identificador físico bruto (bytes) pro mesmo formato de texto
+                          hexadecimal maiúsculo usado no campo tag_id do pacote de
+                          conteúdo (PD-IMP-01)
+```
+
+Nenhum tipo do pacote depende de classe do Android — testável por
+teste de unidade comum, com `kotlin-test` + JUnit Jupiter
+([decisions/0005](<../decisions/0005-abordagem-de-teste-do-nucleo-do-motor.md>)),
+mesma ferramenta já fixada pra todo pacote de `core`. `tagIdFromBytes`
+serve os dois caminhos de leitura igual (DA-LEI-06): tanto o
+identificador bruto lido diretamente de uma etiqueta NFC pela antena
+do próprio aparelho quanto o que chega pela notificação da
+característica TX do acessório passam pela mesma função antes de virar
+o `tag_id` que `session.recordAttempt` espera receber.
+
+O código que liga de verdade o Bluetooth — gerencia `BluetoothGatt`,
+conecta ao Nordic UART Service usando os UUIDs acima, recebe a
+notificação — mora em `app`, dentro de um `Service` vinculado
+(`connectivity/BleAccessoryService.kt`, pacote novo dentro de `app`,
+irmão de `ui/`). O código que recebe a leitura NFC direta mora na
+`Activity` de entrada que já existe
+([decisions/0012](<../decisions/0012-versoes-de-plataforma-e-build-do-modulo-app.md>),
+`MainActivity`), usando o modo leitor de NFC já decidido em DA-LEI-04
+(`enableReaderMode()` com um `NfcAdapter.ReaderCallback`) — motivo
+completo e fonte oficial em
+[decisions/0015](<../decisions/0015-fronteira-entre-core-e-app-no-pacote-connectivity.md>).
+
+O acessório manda o identificador físico bruto na notificação da
+característica TX, sem nenhuma conversão prévia — o mesmo formato de
+bytes que o módulo leitor PN532 devolve (PD-LEI-01) — pra que
+`tagIdFromBytes` seja a única conversão que existe, usada pelos dois
+caminhos por igual; motivo completo em
+[decisions/0016](<../decisions/0016-formato-do-identificador-na-notificacao-bluetooth.md>).
+
 #### Interface
 
 *Em resumo:* as telas — o que mostra o estado que o núcleo decide,
@@ -626,3 +695,4 @@ com o campo Versão da tabela de cabeçalho, que sempre reflete a
 | 0.9.0 | 14-08-2026 | Acrescentado o desenho interno do pacote `content` (nome fixo do manifesto, validação por árvore JSON genérica item a item, regra de fotograma malformado, unicidade de `tag_id` em todo o pacote); removida a menção a `content` como "ainda não desenhado" na seção do pacote `session`. | Resolução de [decisions/0013-desenho-do-pacote-content.md](<../decisions/0013-desenho-do-pacote-content.md>) |
 | 0.10.0 | 14-08-2026 | Seção do pacote `content` revisada: regra de aceitação passa a ser tudo ou nada (qualquer violação recusa o pacote inteiro), substituindo a exclusão item a item descrita na versão anterior. | Revisão de [decisions/0013-desenho-do-pacote-content.md](<../decisions/0013-desenho-do-pacote-content.md>), em conversa direta antes de dar a tarefa como concluída |
 | 0.11.0 | 14-08-2026 | Acrescentado o quarto ponto do desenho de `search` (comportamento com termo vazio). | Resolução de [decisions/0014-busca-aproximada-com-termo-vazio.md](<../decisions/0014-busca-aproximada-com-termo-vazio.md>) |
+| 0.12.0 | 14-08-2026 | Acrescentado o desenho interno do pacote `connectivity` (contrato puro em `core`, UUIDs do Nordic UART Service, decodificação de identificador físico, formato do dado transmitido pelo acessório) e a fronteira com o `Service`/`Activity` de `app` que hospedam o código real de Bluetooth e NFC; acrescentado pacote `connectivity` na árvore de `app`. | Resolução de [decisions/0015-fronteira-entre-core-e-app-no-pacote-connectivity.md](<../decisions/0015-fronteira-entre-core-e-app-no-pacote-connectivity.md>) e [decisions/0016-formato-do-identificador-na-notificacao-bluetooth.md](<../decisions/0016-formato-do-identificador-na-notificacao-bluetooth.md>) |

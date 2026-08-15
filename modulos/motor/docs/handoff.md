@@ -6,7 +6,7 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Handoff |
-| Versão | 0.9.0 |
+| Versão | 0.10.0 |
 | Data | 14-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
@@ -69,6 +69,10 @@
   desenho interno do pacote `content` decidido.
 - [decisions/0014-busca-aproximada-com-termo-vazio.md](<../decisions/0014-busca-aproximada-com-termo-vazio.md>) —
   comportamento da busca aproximada com termo vazio decidido.
+- [decisions/0015-fronteira-entre-core-e-app-no-pacote-connectivity.md](<../decisions/0015-fronteira-entre-core-e-app-no-pacote-connectivity.md>) —
+  fronteira entre `core` e `app` no pacote `connectivity` decidida.
+- [decisions/0016-formato-do-identificador-na-notificacao-bluetooth.md](<../decisions/0016-formato-do-identificador-na-notificacao-bluetooth.md>) —
+  formato do identificador de peça na notificação Bluetooth decidido.
 - [findings.md](findings.md) — achados confirmados até agora.
 - [analysis.md](analysis.md) — registro de como cada investigação
   deste módulo foi feita.
@@ -99,3 +103,4 @@ com o campo Versão da tabela de cabeçalho, que sempre reflete a
 | 0.7.0 | 14-08-2026 | Acrescentado ponteiro para decisions/0013. | Quarto pacote do módulo `core` escrito (pacote `content`) |
 | 0.8.0 | 14-08-2026 | Acrescentado ponteiro para analysis.md, que já existia mas nunca tinha linha própria aqui. | Revisão de cobertura de teste dos pacotes `search`, `hierarchy`, `session` e `content` |
 | 0.9.0 | 14-08-2026 | Acrescentado ponteiro para decisions/0014. | Formalização do comportamento da busca aproximada com termo vazio |
+| 0.10.0 | 14-08-2026 | Acrescentado ponteiro para decisions/0015 e 0016. | Lado `core` do pacote `connectivity` escrito e testado (contrato: UUIDs do Nordic UART Service, decodificação de identificador físico); lado `app` (`Service` de Bluetooth, leitura NFC) segue como pendência em `tasks.md` |

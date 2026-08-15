@@ -39,6 +39,14 @@
   Um sexto ponto (comportamento da busca aproximada com termo vazio)
   formalizado como decisão — ver
   [modulos/motor/decisions/0014](<modulos/motor/decisions/0014-busca-aproximada-com-termo-vazio.md>).
+- Lado `core` do pacote `connectivity` escrito e testado (contrato:
+  identificação do serviço Bluetooth do acessório, decodificação de
+  identificador físico de peça) — ver
+  [modulos/motor/decisions/0015](<modulos/motor/decisions/0015-fronteira-entre-core-e-app-no-pacote-connectivity.md>)
+  e
+  [modulos/motor/decisions/0016](<modulos/motor/decisions/0016-formato-do-identificador-na-notificacao-bluetooth.md>).
+  Lado `app` (o código que liga o Bluetooth e a antena NFC de verdade)
+  segue em [modulos/motor/docs/tasks.md, Em aberto](modulos/motor/docs/tasks.md#em-aberto).
 - [TASKS.md, Resolvidas](TASKS.md#resolvidas) — pendências já corrigidas.
 
 ## Próximo passo

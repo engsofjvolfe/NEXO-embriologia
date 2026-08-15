@@ -6,7 +6,7 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Decisions — Índice |
-| Versão | 0.11.0 |
+| Versão | 0.12.0 |
 | Data | 14-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
@@ -55,6 +55,8 @@
 | [0012](0012-versoes-de-plataforma-e-build-do-modulo-app.md) | Versões de plataforma e build do módulo app |
 | [0013](0013-desenho-do-pacote-content.md) | Desenho do pacote content |
 | [0014](0014-busca-aproximada-com-termo-vazio.md) | Comportamento da busca aproximada com termo vazio |
+| [0015](0015-fronteira-entre-core-e-app-no-pacote-connectivity.md) | Fronteira entre core e app no pacote connectivity |
+| [0016](0016-formato-do-identificador-na-notificacao-bluetooth.md) | Formato do identificador de peça na notificação Bluetooth |
 
 ## Controle de versão
 
@@ -80,3 +82,4 @@ pelo ADR-NNNN). -->
 | 0.9.0 | 14-08-2026 | ADR 0011 acrescentada à lista. | Formato de serialização (JSON, `kotlinx.serialization`) do estado de sessão persistido |
 | 0.10.0 | 14-08-2026 | ADRs 0012 e 0013 acrescentadas ao índice, retroativamente — já existiam como arquivo desde a tarefa que as criou, mas nunca tinham entrado nesta lista. | Checagem mecânica ao abrir este arquivo pra acrescentar a ADR 0014 |
 | 0.11.0 | 14-08-2026 | ADR 0014 acrescentada à lista. | Formalização do comportamento da busca aproximada com termo vazio |
+| 0.12.0 | 14-08-2026 | ADRs 0015 e 0016 acrescentadas à lista. | Fronteira core/app e formato de dado do pacote `connectivity` |

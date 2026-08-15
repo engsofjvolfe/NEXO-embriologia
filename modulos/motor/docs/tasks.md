@@ -6,7 +6,7 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Tasks |
-| Versão | 0.20.0 |
+| Versão | 0.21.0 |
 | Data | 15-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
@@ -335,36 +335,30 @@ Convenção dos códigos citados aqui:
       *Detalhe técnico:* a organização em si já está decidida
       ([decisions/0003](<../decisions/0003-estrutura-de-modulos-do-aplicativo.md>):
       uma pasta por assunto funcional dentro de `core` — `hierarchy/`,
-      `search/`, `session/`, e futuramente `content/`,
-      `connectivity/`, `report/` —, nunca por tipo técnico de arquivo
-      misturado. Falta: (1) uma explicação, sem termo técnico, de como
-      ler essa árvore de pastas; (2) conferir de novo, conforme
-      `content`, `connectivity` e `report` forem escritos, se essa
-      divisão continua fazendo sentido ou se algum pacote cresceu
-      demais e merece ser dividido.
+      `search/`, `session/`, `content/`, `connectivity/`, e ainda por
+      escrever, `report/` e `summary/` —, nunca por tipo técnico de
+      arquivo misturado. Falta: (1) uma explicação, sem termo técnico,
+      de como ler essa árvore de pastas; (2) conferir de novo, conforme
+      `report` e `summary` forem escritos, se essa divisão continua
+      fazendo sentido ou se algum pacote cresceu demais e merece ser
+      dividido.
 
-- [ ] **Decidir quem monta o texto de resumo/síntese exibido nas
-      telas de fim de evento e de cadeia.**
+- [ ] **Escrever o código-fonte do pacote `summary`, e ajustar
+      `content` pra validar o campo novo `summary_fragment`.**
 
-      *Resumo simples:* as telas de resumo de evento, mensagem de
-      pulo e síntese de cadeia (EI-RET-04, EI-PUL-05, EI-ENC-03)
-      precisam de um texto montado a partir dos textos que quem
-      monta o conteúdo já escreveu por fotograma — hoje nenhum
-      pacote assumiu essa responsabilidade.
+      *Resumo simples:* montar o texto de resumo/síntese de fim de
+      evento e de cadeia já foi desenhado — falta escrever o código.
+      `content` (já escrito) ainda valida o pacote de conteúdo contra
+      a versão antiga do contrato, sem o campo novo obrigatório.
 
-      *Detalhe técnico:* `session` (ver
-      [architecture.md, pacote `session`](<architecture.md#pacote-session--desenho-interno>))
-      registra só os fatos (o quê, quando, em que posição) — nunca
-      monta texto. `content` (ainda não escrito) só importa e valida
-      o pacote de conteúdo, sem responsabilidade de tela definida no
-      próprio resumo da pendência dele. `report` (ainda não escrito)
-      cobre histórico e exportação CSV/PDF, não tela ao vivo durante o
-      jogo. Falta decidir se essa montagem é responsabilidade de um
-      desses três, de uma função nova dentro de `app` (Interface), ou
-      de um pacote ainda não previsto — telas em
-      `architecture.md#interface` hoje só "mostram o que o núcleo
-      decide", o que sugere que o texto pronto precisa chegar até elas
-      já montado, não ser decidido ali.
+      *Detalhe técnico:* `core/summary/`, mecanismo já desenhado, ver
+      [architecture.md, pacote `summary`](<architecture.md#pacote-summary--desenho-interno>)
+      e [decisions/0021](<../decisions/0021-quem-monta-o-texto-de-resumo-e-sintese.md>).
+      Contrato de dado em
+      [concept.md](<concept.md#contrato-de-dado>), `schema_version`
+      `2.0.0` — `content` precisa passar a exigir `summary_fragment`
+      em cada fotograma, hoje ainda validando contra a versão `1.0.0`
+      (sem esse campo).
 
 ## Resolvidas
 
@@ -397,8 +391,9 @@ Convenção dos códigos citados aqui:
       [decisions/0011-formato-de-serializacao-do-estado-de-sessao.md](<../decisions/0011-formato-de-serializacao-do-estado-de-sessao.md>).
       A montagem de texto de resumos, sínteses e da mensagem de três
       partes de pulo (EI-PUL-05, EI-RET-04, EI-ENC-03) não entra neste
-      pacote — depende do pacote `content`, ainda não escrito (ver
-      [architecture.md, pacote `session`](<architecture.md#pacote-session--desenho-interno>)).
+      pacote — é responsabilidade do pacote `summary`, ver
+      [decisions/0021](<../decisions/0021-quem-monta-o-texto-de-resumo-e-sintese.md>)
+      ([architecture.md, pacote `session`](<architecture.md#pacote-session--desenho-interno>)).
 - [x] **Escrever o esqueleto mínimo do módulo `app`.** Resolvido — ver
       [decisions/0012-versoes-de-plataforma-e-build-do-modulo-app.md](<../decisions/0012-versoes-de-plataforma-e-build-do-modulo-app.md>);
       testado ao vivo num emulador (ver
@@ -422,6 +417,10 @@ Convenção dos códigos citados aqui:
       "Decidir ferramenta de teste pro módulo `app`" abaixo. Uma
       armadilha de ferramenta encontrada no caminho, ver
       [pitfalls.md](<pitfalls.md#armadilhas>).
+- [x] **Decidir quem monta o texto de resumo/síntese exibido nas
+      telas de fim de evento e de cadeia.** Resolvido — ver
+      [decisions/0021-quem-monta-o-texto-de-resumo-e-sintese.md](<../decisions/0021-quem-monta-o-texto-de-resumo-e-sintese.md>).
+      Escrita do código em si segue como pendência própria, acima.
 
 ## Referências
 
@@ -490,3 +489,4 @@ como mudança de conteúdo real. -->
 | 0.18.0 | 15-08-2026 | Pendência nova "Confirmar se o acessório leitor precisa de homologação ANATEL" acrescentada, com três fontes legais citadas (Lei 9.472/1997, Resoluções ANATEL 680/2017 e 715/2019). | Achado revelado durante a pesquisa sobre substituição do chip PN532 |
 | 0.19.0 | 15-08-2026 | Pendência "Escrever o código-fonte do pacote `report`" ganha ponteiro pro desenho interno já decidido, ainda não riscada (falta o código em si). | Resolução de [decisions/0019](<../decisions/0019-mecanismo-de-geracao-guarda-e-compartilhamento-do-relatorio.md>) |
 | 0.20.0 | 15-08-2026 | Pendência nova "Escrever o código-fonte da ligação entre leitura de peça, sessão e tela (`ViewModel`)" acrescentada. | Resolução de [decisions/0020](<../decisions/0020-ligacao-entre-leitura-de-peca-e-a-tela.md>) |
+| 0.21.0 | 15-08-2026 | Pendência "Decidir quem monta o texto de resumo/síntese" resolvida — movida para Resolvidas. Pendência nova "Escrever o código-fonte do pacote `summary`, e ajustar `content` pra validar o campo novo `summary_fragment`" acrescentada; `report` e `summary` acrescentados na lista de pacotes da pendência "Explicar a organização de pastas do `core`". | Resolução de [decisions/0021](<../decisions/0021-quem-monta-o-texto-de-resumo-e-sintese.md>) |

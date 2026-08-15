@@ -6,7 +6,7 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Architecture |
-| Versão | 0.17.0 |
+| Versão | 0.18.0 |
 | Data | 15-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
@@ -58,6 +58,7 @@ Convenção dos códigos citados neste documento:
     - [Pacote `content` — desenho interno](#pacote-content--desenho-interno)
     - [Pacote `connectivity` — desenho interno](#pacote-connectivity--desenho-interno)
     - [Pacote `report` — desenho interno](#pacote-report--desenho-interno)
+    - [Pacote `summary` — desenho interno](#pacote-summary--desenho-interno)
     - [Interface](#interface)
       - [Ligação com o núcleo do motor](#ligação-com-o-núcleo-do-motor)
     - [Esqueleto mínimo e versões de build](#esqueleto-mínimo-e-versões-de-build)
@@ -115,6 +116,7 @@ core/
     content/        importação e validação do pacote de conteúdo
     connectivity/   cliente BLE, leitura de peça (NFC direta ou via acessório)
     report/         registro de sessão, relatório, exportação CSV/PDF
+    summary/        texto de resumo/síntese de fim de evento e de cadeia
 app/
   src/main/kotlin/org/nexo/motor/app/
     ui/             telas (Activities/Composables) — fluxo funcional definido
@@ -365,9 +367,12 @@ desacoplamento por assunto já usada em todo o núcleo
 (RNF-MOD-01, [decisions/0003](<../decisions/0003-estrutura-de-modulos-do-aplicativo.md>)).
 Pela mesma razão, a montagem de texto da mensagem de três partes
 (EI-PUL-05) e das sínteses de resumo/cadeia (EI-RET-04, EI-ENC-03) não
-entra neste pacote — depende dos textos e fotogramas que só `content`
-vai ter; `session` só registra os fatos (o quê, quando, em que
-posição) que essas telas vão precisar.
+entra neste pacote — é responsabilidade do pacote `summary` (ver
+[pacote `summary`](#pacote-summary--desenho-interno),
+[decisions/0021](<../decisions/0021-quem-monta-o-texto-de-resumo-e-sintese.md>)),
+que combina o registro daqui com os textos que só `content` tem;
+`session` só registra os fatos (o quê, quando, em que posição) que
+esse outro pacote vai precisar.
 
 O registro interno do estado é também a fonte que o pacote `report`
 (ver [pacote `report`](#pacote-report--desenho-interno),
@@ -612,6 +617,23 @@ Jupiter
 ([decisions/0005](<../decisions/0005-abordagem-de-teste-do-nucleo-do-motor.md>)),
 já que não depende de nenhuma classe do Android.
 
+#### Pacote `summary` — desenho interno
+
+*Em resumo:* dentro do núcleo, o pacote `summary` monta o texto (ou a
+lista de dados) de fim de evento e de fim de cadeia — mensagem de
+pulo, síntese sem pulo — a partir do que `session` e `content` já
+sabem, sem conhecer nenhum dos dois por dentro.
+
+*Em detalhe técnico:* implementa EI-PUL-05, EI-RET-04 e EI-ENC-03.
+Mecanismo completo, incluindo o campo novo no contrato de dado
+(`summary_fragment`, ver [concept.md](<concept.md#contrato-de-dado>)):
+[decisions/0021](<../decisions/0021-quem-monta-o-texto-de-resumo-e-sintese.md>).
+
+Testável como os demais pacotes de `core`, com `kotlin-test` + JUnit
+Jupiter
+([decisions/0005](<../decisions/0005-abordagem-de-teste-do-nucleo-do-motor.md>)),
+já que não depende de nenhuma classe do Android.
+
 #### Interface
 
 *Em resumo:* as telas — o que mostra o estado que o núcleo decide,
@@ -824,3 +846,4 @@ com o campo Versão da tabela de cabeçalho, que sempre reflete a
 | 0.15.0 | 15-08-2026 | Acrescentado `ConnectionState` (`core`) e `ConnectionStateListener` (`app`) — o `Service` de Bluetooth passa a avisar quando muda de estado (procurando/conectado/desconectado), não só quando lê uma peça. | Pendência "como a pessoa sabe se está conectado", parte de dado (sem aparência) |
 | 0.16.0 | 15-08-2026 | Acrescentado o desenho interno do pacote `report` (geração de CSV e PDF sem biblioteca externa, guarda na pasta pública "Downloads" do aparelho por dois caminhos conforme a versão do Android, atalho de compartilhar na tela de resultado); acrescentado pacote `report` na árvore de `app`; ajustado o ponteiro na seção do pacote `session` que citava `report` como "ainda não desenhado". | Resolução de [decisions/0019-mecanismo-de-geracao-guarda-e-compartilhamento-do-relatorio.md](<../decisions/0019-mecanismo-de-geracao-guarda-e-compartilhamento-do-relatorio.md>) |
 | 0.17.0 | 15-08-2026 | Acrescentada a seção "Ligação com o núcleo do motor" (ViewModel que guarda o estado da sessão, alimentado por função direta a partir de `MainActivity`/`BleAccessoryService`, nunca por referência à tela ou ao `Service`); ajustado o parágrafo do pacote `connectivity` que apontava esse consumo como pendência. | Resolução de [decisions/0020-ligacao-entre-leitura-de-peca-e-a-tela.md](<../decisions/0020-ligacao-entre-leitura-de-peca-e-a-tela.md>) |
+| 0.18.0 | 15-08-2026 | Acrescentado o desenho interno do pacote `summary` (mensagem de pulo como dado organizado, síntese sem pulo concatenando `summary_fragment`) e o pacote `summary` na árvore de `core`; ajustado o parágrafo do pacote `session` que citava a montagem de texto como responsabilidade indefinida de `content`. | Resolução de [decisions/0021-quem-monta-o-texto-de-resumo-e-sintese.md](<../decisions/0021-quem-monta-o-texto-de-resumo-e-sintese.md>) |

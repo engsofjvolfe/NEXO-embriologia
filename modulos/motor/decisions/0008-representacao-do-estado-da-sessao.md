@@ -164,6 +164,27 @@ significa também não ganhar, de graça, algumas vantagens que ele
 ofereceria (por exemplo, desfazer uma ação relendo o diário) — aceito
 porque nenhum requisito da Especificação pede esse tipo de operação.
 
+**Nota de acompanhamento (15-08-2026):**
+
+*Resumo simples:* essa decisão dizia que a "ficha" da sessão já
+guardava tudo que o relatório final precisa mostrar — não guardava:
+faltava o horário de cada acontecimento, se a sugestão de estudo
+apareceu, e se uma interrupção foi por pausa pedida ou por falta de
+uso. A correção completa o que já estava decidido, sem mudar a forma
+escolhida pra "ficha" em si.
+
+*Detalhe técnico:* o ponto 2 desta decisão afirmava que o registro
+interno cobre "exatamente os fatos que EI-REG-01 já exige" —
+afirmação incompleta, corrigida agora, sem mudar a decisão em si (o
+retrato imutável com registro interno continua sendo a forma
+escolhida). Achado completo, com o raciocínio e as fontes, em
+[findings.md#2026-08-15-registro-de-sessao-incompleto-frente-a-ei-reg-01](<../docs/findings.md#2026-08-15-registro-de-sessao-incompleto-frente-a-ei-reg-01>) —
+não repetido aqui. Em código: `SessionEvent` ganhou campo
+`timestamp: Long` em toda variante, tipo novo `StudySuggestionShown`
+e tipo novo `WentIdle` (ao lado do `Paused` já existente) — nenhuma
+mudança na forma geral do retrato (ponto 1) nem em como os números
+derivados são calculados (ponto 3).
+
 ## Referências
 
 Fontes externas citadas no Contexto, no formato definido pela norma

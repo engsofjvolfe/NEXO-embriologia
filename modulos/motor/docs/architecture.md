@@ -6,7 +6,7 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Architecture |
-| Versão | 0.18.0 |
+| Versão | 0.19.0 |
 | Data | 15-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
@@ -346,17 +346,30 @@ API pública:
 
 ```
 core/session/
-  SessionState.kt              SessionState (retrato imutável), SessionEvent (registro interno),
-                                errorCount(event), consecutiveAttempts(position) — derivados do registro
+  SessionState.kt              SessionState (retrato imutável), SessionEvent (registro interno,
+                                sete variantes: AttemptAccepted, AttemptRejected, HintUsed,
+                                StudySuggestionShown, PositionSkipped, Paused, WentIdle — cada
+                                uma com timestamp próprio), errorCount(event), consecutiveAttempts(position)
+                                — derivados do registro
   SessionScope.kt               sessionScope<T>(siblings: List<T>, ordering: (T) -> Ordering, from: T, until: T): List<T>
   SessionTransitions.kt         recordAttempt, skipPosition, hintAvailable, useHint,
-                                 studySuggestionAvailable, eventComplete, continueToNextEvent,
-                                 pause, resume — cada uma devolve um novo SessionState, nunca altera
-                                 o estado recebido em lugar
+                                 studySuggestionAvailable, showStudySuggestion, eventComplete,
+                                 continueToNextEvent, pause, goIdle, resume — cada uma devolve um
+                                 novo SessionState, nunca altera o estado recebido em lugar
   SessionStatePersistence.kt    saveSessionState(state: SessionState, file: File),
                                  loadSessionState(file: File): SessionState?,
                                  deleteSessionState(file: File)
 ```
+
+Todo evento do registro carrega o próprio horário (`timestamp: Long`,
+milissegundos), recebido como parâmetro explícito por quem chama cada
+função de transição — mesma lógica de `expectedTagId` abaixo: `session`
+não lê relógio nenhum sozinho, só guarda o valor que recebe.
+`showStudySuggestion` registra o momento em que a sugestão de estudo
+aparece na tela, mesmo padrão já usado entre `hintAvailable`/`useHint`.
+Horário, `WentIdle` e `StudySuggestionShown` fecham uma lacuna entre o
+registro e EI-REG-01 — motivo completo em
+[findings.md](<findings.md#2026-08-15-registro-de-sessao-incompleto-frente-a-ei-reg-01>).
 
 `recordAttempt` e `continueToNextEvent` recebem o identificador
 esperado (`expectedTagId`) e o nome do próximo evento como parâmetro,
@@ -847,3 +860,4 @@ com o campo Versão da tabela de cabeçalho, que sempre reflete a
 | 0.16.0 | 15-08-2026 | Acrescentado o desenho interno do pacote `report` (geração de CSV e PDF sem biblioteca externa, guarda na pasta pública "Downloads" do aparelho por dois caminhos conforme a versão do Android, atalho de compartilhar na tela de resultado); acrescentado pacote `report` na árvore de `app`; ajustado o ponteiro na seção do pacote `session` que citava `report` como "ainda não desenhado". | Resolução de [decisions/0019-mecanismo-de-geracao-guarda-e-compartilhamento-do-relatorio.md](<../decisions/0019-mecanismo-de-geracao-guarda-e-compartilhamento-do-relatorio.md>) |
 | 0.17.0 | 15-08-2026 | Acrescentada a seção "Ligação com o núcleo do motor" (ViewModel que guarda o estado da sessão, alimentado por função direta a partir de `MainActivity`/`BleAccessoryService`, nunca por referência à tela ou ao `Service`); ajustado o parágrafo do pacote `connectivity` que apontava esse consumo como pendência. | Resolução de [decisions/0020-ligacao-entre-leitura-de-peca-e-a-tela.md](<../decisions/0020-ligacao-entre-leitura-de-peca-e-a-tela.md>) |
 | 0.18.0 | 15-08-2026 | Acrescentado o desenho interno do pacote `summary` (mensagem de pulo como dado organizado, síntese sem pulo concatenando `summary_fragment`) e o pacote `summary` na árvore de `core`; ajustado o parágrafo do pacote `session` que citava a montagem de texto como responsabilidade indefinida de `content`. | Resolução de [decisions/0021-quem-monta-o-texto-de-resumo-e-sintese.md](<../decisions/0021-quem-monta-o-texto-de-resumo-e-sintese.md>) |
+| 0.19.0 | 15-08-2026 | Seção do pacote `session` revisada: `SessionEvent` ganha `timestamp` em toda variante e dois tipos novos (`StudySuggestionShown`, `WentIdle`, ao lado do `Paused` já existente); API pública atualizada com `showStudySuggestion` e `goIdle`. | Nota de acompanhamento em [decisions/0008](<../decisions/0008-representacao-do-estado-da-sessao.md>), achado [findings.md#2026-08-15-registro-de-sessao-incompleto-frente-a-ei-reg-01](<findings.md#2026-08-15-registro-de-sessao-incompleto-frente-a-ei-reg-01>) |

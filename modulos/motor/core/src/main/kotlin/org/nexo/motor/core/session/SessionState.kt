@@ -6,21 +6,28 @@ import kotlinx.serialization.Serializable
 sealed interface SessionEvent {
     val eventName: String
     val position: Int
+    val timestamp: Long
 
     @Serializable
-    data class AttemptAccepted(override val eventName: String, override val position: Int) : SessionEvent
+    data class AttemptAccepted(override val eventName: String, override val position: Int, override val timestamp: Long) : SessionEvent
 
     @Serializable
-    data class AttemptRejected(override val eventName: String, override val position: Int) : SessionEvent
+    data class AttemptRejected(override val eventName: String, override val position: Int, override val timestamp: Long) : SessionEvent
 
     @Serializable
-    data class HintUsed(override val eventName: String, override val position: Int) : SessionEvent
+    data class HintUsed(override val eventName: String, override val position: Int, override val timestamp: Long) : SessionEvent
 
     @Serializable
-    data class PositionSkipped(override val eventName: String, override val position: Int) : SessionEvent
+    data class StudySuggestionShown(override val eventName: String, override val position: Int, override val timestamp: Long) : SessionEvent
 
     @Serializable
-    data class Paused(override val eventName: String, override val position: Int) : SessionEvent
+    data class PositionSkipped(override val eventName: String, override val position: Int, override val timestamp: Long) : SessionEvent
+
+    @Serializable
+    data class Paused(override val eventName: String, override val position: Int, override val timestamp: Long) : SessionEvent
+
+    @Serializable
+    data class WentIdle(override val eventName: String, override val position: Int, override val timestamp: Long) : SessionEvent
 }
 
 @Serializable

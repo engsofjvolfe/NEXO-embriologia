@@ -6,7 +6,7 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Analysis |
-| Versão | 0.5.0 |
+| Versão | 0.6.0 |
 | Data | 15-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
@@ -231,6 +231,56 @@ país.
   cobrindo os 13,56 MHz do NFC já fixados em PD-LEI-01) é inferência
   técnica desta investigação, não citação literal da norma.
 
+### <a id="2026-08-15-revisao-do-registro-de-sessao-contra-ei-reg-01"></a>2026-08-15 — Revisão do registro interno de `session` contra EI-REG-01
+
+**Levou a:** [findings.md#2026-08-15-registro-de-sessao-incompleto-frente-a-ei-reg-01](<findings.md#2026-08-15-registro-de-sessao-incompleto-frente-a-ei-reg-01>)
+
+*Resumo simples:* antes de escrever o pacote `report` (que monta o
+relatório final a partir do registro que `session` mantém), foi
+checado se esse registro já carrega tudo que o relatório precisa
+mostrar. Não carregava — faltavam três coisas, cada uma confirmada
+lendo o texto normativo já aprovado, não por suposição.
+
+*Detalhe técnico:*
+- Leitura completa, nesta ordem, antes de qualquer conclusão: Conceito
+  (seções 6, 12 e 14), Requisitos (RF-PAU-01, RF-REG-01, RF-CFG-01),
+  Especificação (EI-REG-01, EI-PAU-01, EI-DIC-03), Projeto
+  Arquitetônico (DA-REG-01 a 03) e
+  [decisions/0008](<../decisions/0008-representacao-do-estado-da-sessao.md>)
+  — a ADR que desenhou o registro interno de `session` e afirma cobrir
+  "exatamente os fatos que EI-REG-01 já exige".
+- Comparação, item a item, entre o que EI-REG-01 lista como exigido no
+  registro ("tentativa aceita, tentativa rejeitada, dica usada,
+  sugestão de estudo exibida, posição pulada, pausa ou ociosidade
+  acionada... com a posição, o evento, e o momento em que cada um
+  ocorreu") e o que `SessionState.kt`/`SessionTransitions.kt` (antes
+  desta correção) de fato registravam. Três lacunas confirmadas:
+  1. Nenhum campo de horário existia em `SessionEvent`, embora
+     EI-REG-01 e RF-REG-01 exijam "o momento em que cada [fato]
+     ocorreu".
+  2. `studySuggestionAvailable` calculava só se a sugestão de estudo
+     *podia* aparecer (um booleano) — nenhuma função gravava, no
+     registro, o momento em que ela *de fato* apareceu na tela, embora
+     EI-REG-01 liste "sugestão de estudo exibida" como um dos seis
+     fatos a registrar.
+  3. Existia um único tipo de evento (`Paused`) para as duas situações
+     de interrupção (pausa explícita e ociosidade). Uma primeira
+     leitura, só da Especificação, concluiu que isso bastava — conclusão
+     corrigida depois de ler também o Conceito (seção 12: "a única
+     diferença entre as duas é o que dispara cada uma") e os Requisitos
+     (RF-PAU-01, mesma frase; RF-REG-01, que lista "pausa" e
+     "ociosidade" como duas categorias separadas na mesma enumeração em
+     que "erro" e "pulo" também são duas categorias separadas) — as três
+     fontes, lidas juntas, deixam claro que o gatilho é o dado que
+     precisa ficar registrado, não só o efeito comum às duas.
+- Nenhuma das três lacunas envolveu escolher entre alternativas de
+  desenho reais — as três são casos de completar, no código, uma
+  exigência que já estava no texto normativo antes deste código
+  existir. Por isso a correção virou achado (`findings.md`) e nota de
+  acompanhamento em
+  [decisions/0008](<../decisions/0008-representacao-do-estado-da-sessao.md>),
+  nunca uma ADR nova.
+
 ## Controle de versão
 
 <!-- uma linha por versão publicada deste documento, mais antiga no
@@ -247,3 +297,4 @@ sem reescrever) também conta como mudança de conteúdo real. -->
 | 0.3.0 | 14-08-2026 | Acrescentada a investigação de cobertura de teste dos pacotes `search`, `hierarchy`, `session` e `content` (cinco lacunas encontradas e fechadas com teste novo, sem divergência de comportamento). | Revisão de cobertura de teste, pedido direto |
 | 0.4.0 | 14-08-2026 | Acrescentada a investigação do comportamento da busca aproximada com termo vazio, sexto ponto deixado em aberto na investigação anterior. | Resolução de [decisions/0014-busca-aproximada-com-termo-vazio.md](<../decisions/0014-busca-aproximada-com-termo-vazio.md>) |
 | 0.5.0 | 15-08-2026 | Acrescentada a investigação da exigência de homologação ANATEL pro acessório leitor (Bluetooth + NFC), com três fontes legais e a norma ISO/IEC/IEEE 29148:2018 como enquadramento metodológico. | Achado revelado durante a pesquisa sobre substituição do chip PN532; pendência nova em `tasks.md` |
+| 0.6.0 | 15-08-2026 | Acrescentada a investigação do registro interno de `session` contra EI-REG-01, revelando três lacunas (horário ausente, sugestão de estudo exibida nunca registrada, pausa e ociosidade não distinguíveis). | Preparação pro pacote `report`, que depende desse registro estar completo |

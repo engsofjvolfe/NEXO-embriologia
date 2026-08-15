@@ -1,11 +1,11 @@
 package org.nexo.motor.core.session
 
-fun recordAttempt(state: SessionState, tagId: String, expectedTagId: String): SessionState {
+fun recordAttempt(state: SessionState, tagId: String, expectedTagId: String, timestamp: Long): SessionState {
     val matches = tagId == expectedTagId
     val event = if (matches) {
-        SessionEvent.AttemptAccepted(eventName = state.expectedEventName, position = state.expectedPosition)
+        SessionEvent.AttemptAccepted(eventName = state.expectedEventName, position = state.expectedPosition, timestamp = timestamp)
     } else {
-        SessionEvent.AttemptRejected(eventName = state.expectedEventName, position = state.expectedPosition)
+        SessionEvent.AttemptRejected(eventName = state.expectedEventName, position = state.expectedPosition, timestamp = timestamp)
     }
     return state.copy(
         expectedPosition = if (matches) state.expectedPosition + 1 else state.expectedPosition,
@@ -13,16 +13,16 @@ fun recordAttempt(state: SessionState, tagId: String, expectedTagId: String): Se
     )
 }
 
-fun skipPosition(state: SessionState): SessionState {
-    val event = SessionEvent.PositionSkipped(eventName = state.expectedEventName, position = state.expectedPosition)
+fun skipPosition(state: SessionState, timestamp: Long): SessionState {
+    val event = SessionEvent.PositionSkipped(eventName = state.expectedEventName, position = state.expectedPosition, timestamp = timestamp)
     return state.copy(expectedPosition = state.expectedPosition + 1, log = state.log + event)
 }
 
 fun hintAvailable(state: SessionState, hintThreshold: Int): Boolean =
     consecutiveAttempts(state.log, state.expectedEventName, state.expectedPosition) >= hintThreshold
 
-fun useHint(state: SessionState): SessionState {
-    val event = SessionEvent.HintUsed(eventName = state.expectedEventName, position = state.expectedPosition)
+fun useHint(state: SessionState, timestamp: Long): SessionState {
+    val event = SessionEvent.HintUsed(eventName = state.expectedEventName, position = state.expectedPosition, timestamp = timestamp)
     return state.copy(log = state.log + event)
 }
 
@@ -34,14 +34,24 @@ fun studySuggestionAvailable(state: SessionState, studyThreshold: Int): Boolean 
         consecutiveAttempts(state.log, state.expectedEventName, state.expectedPosition) >= studyThreshold
 }
 
+fun showStudySuggestion(state: SessionState, timestamp: Long): SessionState {
+    val event = SessionEvent.StudySuggestionShown(eventName = state.expectedEventName, position = state.expectedPosition, timestamp = timestamp)
+    return state.copy(log = state.log + event)
+}
+
 fun eventComplete(state: SessionState, totalPositions: Int): Boolean =
     state.expectedPosition > totalPositions
 
 fun continueToNextEvent(state: SessionState, nextEventName: String): SessionState =
     state.copy(expectedEventName = nextEventName, expectedPosition = 1)
 
-fun pause(state: SessionState): SessionState {
-    val event = SessionEvent.Paused(eventName = state.expectedEventName, position = state.expectedPosition)
+fun pause(state: SessionState, timestamp: Long): SessionState {
+    val event = SessionEvent.Paused(eventName = state.expectedEventName, position = state.expectedPosition, timestamp = timestamp)
+    return state.copy(paused = true, log = state.log + event)
+}
+
+fun goIdle(state: SessionState, timestamp: Long): SessionState {
+    val event = SessionEvent.WentIdle(eventName = state.expectedEventName, position = state.expectedPosition, timestamp = timestamp)
     return state.copy(paused = true, log = state.log + event)
 }
 

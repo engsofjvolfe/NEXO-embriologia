@@ -3,7 +3,7 @@ package org.nexo.motor.core.content
 import org.nexo.motor.core.hierarchy.HierarchyViolation
 import org.nexo.motor.core.hierarchy.Ordering
 
-data class Frame(val tagId: String, val image: String, val confirmationText: String?)
+data class Frame(val tagId: String, val image: String, val confirmationText: String?, val summaryFragment: String)
 
 data class ContentEvent(
     val name: String,

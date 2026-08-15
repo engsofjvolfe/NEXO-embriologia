@@ -6,7 +6,7 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Tasks |
-| Versão | 0.19.0 |
+| Versão | 0.20.0 |
 | Data | 15-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
@@ -76,6 +76,21 @@ Convenção dos códigos citados aqui:
       e [decisions/0019](<../decisions/0019-mecanismo-de-geracao-guarda-e-compartilhamento-do-relatorio.md>).
       Guarda local de configuração, registro e relatório, sem servidor
       central: DA-ARM-01. Exportação em CSV e PDF: DA-REG-01.
+
+- [ ] **Escrever o código-fonte da ligação entre leitura de peça,
+      sessão e tela (`ViewModel`).**
+
+      *Resumo simples:* hoje uma peça lida (por NFC ou Bluetooth) não
+      mexe em nada — falta o pedaço que pergunta pra lógica do jogo se
+      é a peça certa e guarda o resultado pra tela mostrar.
+
+      *Detalhe técnico:* `app/ui/SessionViewModel.kt`, mecanismo já
+      desenhado, ver
+      [architecture.md, Ligação com o núcleo do motor](<architecture.md#ligação-com-o-núcleo-do-motor>)
+      e [decisions/0020](<../decisions/0020-ligacao-entre-leitura-de-peca-e-a-tela.md>).
+      Conteúdo exato do estado exposto depende do desenho visual das
+      telas, ainda pendente (ver "Desenhar a aparência visual das
+      telas", abaixo).
 
 - [ ] **Escrever o firmware do acessório leitor.**
 
@@ -474,3 +489,4 @@ como mudança de conteúdo real. -->
 | 0.17.0 | 15-08-2026 | Pendência "Substituir o módulo leitor NFC do acessório" abrandada: só o PN532 descontinuado está confirmado — o PN7160 como substituto exato ainda não está bem estabelecido, fica em aberto sem fechar nele. | Pedido direto, revisão antes de fechar a tarefa |
 | 0.18.0 | 15-08-2026 | Pendência nova "Confirmar se o acessório leitor precisa de homologação ANATEL" acrescentada, com três fontes legais citadas (Lei 9.472/1997, Resoluções ANATEL 680/2017 e 715/2019). | Achado revelado durante a pesquisa sobre substituição do chip PN532 |
 | 0.19.0 | 15-08-2026 | Pendência "Escrever o código-fonte do pacote `report`" ganha ponteiro pro desenho interno já decidido, ainda não riscada (falta o código em si). | Resolução de [decisions/0019](<../decisions/0019-mecanismo-de-geracao-guarda-e-compartilhamento-do-relatorio.md>) |
+| 0.20.0 | 15-08-2026 | Pendência nova "Escrever o código-fonte da ligação entre leitura de peça, sessão e tela (`ViewModel`)" acrescentada. | Resolução de [decisions/0020](<../decisions/0020-ligacao-entre-leitura-de-peca-e-a-tela.md>) |

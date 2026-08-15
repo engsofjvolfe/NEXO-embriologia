@@ -6,7 +6,7 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Architecture |
-| Versão | 0.16.0 |
+| Versão | 0.17.0 |
 | Data | 15-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
@@ -59,6 +59,7 @@ Convenção dos códigos citados neste documento:
     - [Pacote `connectivity` — desenho interno](#pacote-connectivity--desenho-interno)
     - [Pacote `report` — desenho interno](#pacote-report--desenho-interno)
     - [Interface](#interface)
+      - [Ligação com o núcleo do motor](#ligação-com-o-núcleo-do-motor)
     - [Esqueleto mínimo e versões de build](#esqueleto-mínimo-e-versões-de-build)
   - [Acessório leitor (firmware)](#acessório-leitor-firmware)
   - [Fronteira de dado entre aplicativo e acessório](#fronteira-de-dado-entre-aplicativo-e-acessório)
@@ -578,8 +579,9 @@ implementa `NfcAdapter.ReaderCallback` e liga/desliga o modo leitor em
 da etiqueta com a mesma `tagIdFromBytes` e entrega pro
 `PieceReadListener` exposto por ela. Nem `MainActivity` nem
 `BleAccessoryService` decidem o que fazer com uma leitura além de
-entregá-la — quem vai consumir esse aviso (a lógica de sessão) ainda
-não está escrito, ver [tasks.md](tasks.md).
+entregá-la — quem consome esse aviso é o `ViewModel` descrito em
+["Interface", abaixo](#interface), ver
+[decisions/0020](<../decisions/0020-ligacao-entre-leitura-de-peca-e-a-tela.md>).
 
 Testado só por compilação real (`gradlew :app:assembleDebug`) — sem
 teste automatizado, porque o módulo `app` não tem ferramenta de teste
@@ -650,6 +652,23 @@ reconhecido fora deste projeto, chamado design centrado no usuário
 
 Nenhuma dessas quatro etapas foi executada ainda — só o método a
 seguir está registrado aqui.
+
+##### Ligação com o núcleo do motor
+
+*Em resumo:* separado da aparência (ainda pendente), o mecanismo que
+liga a leitura de uma peça à lógica de sessão e ao que a tela mostra
+já está decidido.
+
+*Em detalhe técnico:*
+[decisions/0020](<../decisions/0020-ligacao-entre-leitura-de-peca-e-a-tela.md>):
+um `ViewModel` (`app/ui/SessionViewModel.kt`) guarda o estado da
+sessão em curso, exposto como `StateFlow`; `MainActivity` (ou o que
+vier a substituí-la) continua gerenciando a leitura de NFC e a ligação
+com `BleAccessoryService`, só repassando cada aviso pro `ViewModel`
+por função direta, nunca por referência à tela ou ao `Service`. O
+`ViewModel` é quem chama `session` e `content` pra validar cada
+tentativa. Conteúdo exato do estado exposto (os campos que a tela vai
+mostrar) fica pra quando o desenho visual acima acontecer.
 
 #### Esqueleto mínimo e versões de build
 
@@ -804,3 +823,4 @@ com o campo Versão da tabela de cabeçalho, que sempre reflete a
 | 0.14.0 | 15-08-2026 | Acrescentada a API do lado `app` do pacote `connectivity` (`PieceReadListener.kt`, `BluetoothPermissions.kt`, `BleAccessoryService.kt`) e a leitura NFC em `MainActivity`; testado por compilação real. | Escrita do lado `app` do pacote `connectivity` |
 | 0.15.0 | 15-08-2026 | Acrescentado `ConnectionState` (`core`) e `ConnectionStateListener` (`app`) — o `Service` de Bluetooth passa a avisar quando muda de estado (procurando/conectado/desconectado), não só quando lê uma peça. | Pendência "como a pessoa sabe se está conectado", parte de dado (sem aparência) |
 | 0.16.0 | 15-08-2026 | Acrescentado o desenho interno do pacote `report` (geração de CSV e PDF sem biblioteca externa, guarda na pasta pública "Downloads" do aparelho por dois caminhos conforme a versão do Android, atalho de compartilhar na tela de resultado); acrescentado pacote `report` na árvore de `app`; ajustado o ponteiro na seção do pacote `session` que citava `report` como "ainda não desenhado". | Resolução de [decisions/0019-mecanismo-de-geracao-guarda-e-compartilhamento-do-relatorio.md](<../decisions/0019-mecanismo-de-geracao-guarda-e-compartilhamento-do-relatorio.md>) |
+| 0.17.0 | 15-08-2026 | Acrescentada a seção "Ligação com o núcleo do motor" (ViewModel que guarda o estado da sessão, alimentado por função direta a partir de `MainActivity`/`BleAccessoryService`, nunca por referência à tela ou ao `Service`); ajustado o parágrafo do pacote `connectivity` que apontava esse consumo como pendência. | Resolução de [decisions/0020-ligacao-entre-leitura-de-peca-e-a-tela.md](<../decisions/0020-ligacao-entre-leitura-de-peca-e-a-tela.md>) |

@@ -6,7 +6,7 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Handoff |
-| Versão | 0.14.0 |
+| Versão | 0.15.0 |
 | Data | 15-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
@@ -80,6 +80,8 @@
 - [decisions/0019-mecanismo-de-geracao-guarda-e-compartilhamento-do-relatorio.md](<../decisions/0019-mecanismo-de-geracao-guarda-e-compartilhamento-do-relatorio.md>) —
   mecanismo de geração, guarda e compartilhamento do relatório
   decidido.
+- [decisions/0020-ligacao-entre-leitura-de-peca-e-a-tela.md](<../decisions/0020-ligacao-entre-leitura-de-peca-e-a-tela.md>) —
+  ligação entre leitura de peça, lógica de sessão e tela decidida.
 - [findings.md](findings.md) — achados confirmados até agora.
 - [analysis.md](analysis.md) — registro de como cada investigação
   deste módulo foi feita.
@@ -115,3 +117,4 @@ com o campo Versão da tabela de cabeçalho, que sempre reflete a
 | 0.12.0 | 15-08-2026 | Nenhum ponteiro novo (pacote `connectivity` já citado). | Lado `app` do pacote `connectivity` escrito e testado por compilação real — pacote completo, `core` e `app` |
 | 0.13.0 | 15-08-2026 | Nenhum ponteiro novo (`tasks.md` e `analysis.md` já citados). | Pendência nova em `tasks.md` sobre exigência de homologação ANATEL pro acessório leitor, com investigação registrada em `analysis.md` |
 | 0.14.0 | 15-08-2026 | Acrescentado ponteiro para decisions/0019. | Mecanismo de geração, guarda e compartilhamento do relatório decidido (pacote `report`) |
+| 0.15.0 | 15-08-2026 | Acrescentado ponteiro para decisions/0020. | Ligação entre leitura de peça, lógica de sessão e tela decidida (`ViewModel`) |

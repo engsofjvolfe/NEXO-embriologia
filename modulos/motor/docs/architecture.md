@@ -6,7 +6,7 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Architecture |
-| Versão | 0.19.0 |
+| Versão | 0.20.0 |
 | Data | 15-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
@@ -642,6 +642,30 @@ Mecanismo completo, incluindo o campo novo no contrato de dado
 (`summary_fragment`, ver [concept.md](<concept.md#contrato-de-dado>)):
 [decisions/0021](<../decisions/0021-quem-monta-o-texto-de-resumo-e-sintese.md>).
 
+API pública, recebendo sempre dado já extraído de `session`/`content`
+pelo `ViewModel` — o pacote nunca conhece esses dois por dentro, mesmo
+espírito de `search`:
+
+```
+core/summary/
+  Summary.kt   PositionOutcome (sealed: Answered(position, confirmationText), Skipped(position)),
+               AnsweredPosition, SkipMessage(answered, unansweredPositions),
+               buildSkipMessage(positions: List<PositionOutcome>): SkipMessage — EI-PUL-05
+               ChainOutcome (Filled/Lost), ChainSkipSynthesis(filledCount, lostCount),
+               buildChainSkipSynthesis(outcomes: List<ChainOutcome>): ChainSkipSynthesis — EI-ENC-03, caso com pulo
+               buildContinuousSynthesis(summaryFragmentsInOrder: List<String>): String — EI-RET-04, EI-ENC-03 sem pulo
+```
+
+`buildSkipMessage` nunca recebe nem devolve o conteúdo de uma posição
+pulada — só a posição em si, preservando a proibição de revelar
+conteúdo pulado (EI-PUL-05, Documento de Conceito, seções 1 e 13).
+`buildContinuousSynthesis` concatena os fragmentos na ordem recebida,
+com um espaço simples entre eles — quem monta o conteúdo já escreve
+cada `summary_fragment` pensando em encaixar com o vizinho (ver
+[decisions/0021](<../decisions/0021-quem-monta-o-texto-de-resumo-e-sintese.md>)),
+então a função em si não precisa de nenhuma pontuação especial, só
+juntar.
+
 Testável como os demais pacotes de `core`, com `kotlin-test` + JUnit
 Jupiter
 ([decisions/0005](<../decisions/0005-abordagem-de-teste-do-nucleo-do-motor.md>)),
@@ -861,3 +885,4 @@ com o campo Versão da tabela de cabeçalho, que sempre reflete a
 | 0.17.0 | 15-08-2026 | Acrescentada a seção "Ligação com o núcleo do motor" (ViewModel que guarda o estado da sessão, alimentado por função direta a partir de `MainActivity`/`BleAccessoryService`, nunca por referência à tela ou ao `Service`); ajustado o parágrafo do pacote `connectivity` que apontava esse consumo como pendência. | Resolução de [decisions/0020-ligacao-entre-leitura-de-peca-e-a-tela.md](<../decisions/0020-ligacao-entre-leitura-de-peca-e-a-tela.md>) |
 | 0.18.0 | 15-08-2026 | Acrescentado o desenho interno do pacote `summary` (mensagem de pulo como dado organizado, síntese sem pulo concatenando `summary_fragment`) e o pacote `summary` na árvore de `core`; ajustado o parágrafo do pacote `session` que citava a montagem de texto como responsabilidade indefinida de `content`. | Resolução de [decisions/0021-quem-monta-o-texto-de-resumo-e-sintese.md](<../decisions/0021-quem-monta-o-texto-de-resumo-e-sintese.md>) |
 | 0.19.0 | 15-08-2026 | Seção do pacote `session` revisada: `SessionEvent` ganha `timestamp` em toda variante e dois tipos novos (`StudySuggestionShown`, `WentIdle`, ao lado do `Paused` já existente); API pública atualizada com `showStudySuggestion` e `goIdle`. | Nota de acompanhamento em [decisions/0008](<../decisions/0008-representacao-do-estado-da-sessao.md>), achado [findings.md#2026-08-15-registro-de-sessao-incompleto-frente-a-ei-reg-01](<findings.md#2026-08-15-registro-de-sessao-incompleto-frente-a-ei-reg-01>) |
+| 0.20.0 | 15-08-2026 | Seção do pacote `summary` ganha a API pública (`buildSkipMessage`, `buildChainSkipSynthesis`, `buildContinuousSynthesis`), que faltava. | Escrita do código-fonte do pacote `summary` |

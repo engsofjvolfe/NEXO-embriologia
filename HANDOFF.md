@@ -49,6 +49,11 @@
   [modulos/motor/decisions/0018](<modulos/motor/decisions/0018-estrategia-de-permissao-de-bluetooth-e-nfc.md>).
   Registrado que é a pessoa quem decide usar NFC ou Bluetooth, nunca
   uma escolha automática do aplicativo (decisions/0017).
+- Achado: o acessório leitor (Bluetooth + NFC) provavelmente depende
+  de homologação da ANATEL antes de poder ser usado ou vendido no
+  Brasil — nenhum documento da cascata trata disso; pendência nova,
+  ainda sem decisão — ver
+  [modulos/motor/docs/tasks.md, Em aberto](<modulos/motor/docs/tasks.md#em-aberto>).
 - [TASKS.md, Resolvidas](TASKS.md#resolvidas) — pendências já corrigidas.
 
 ## Próximo passo

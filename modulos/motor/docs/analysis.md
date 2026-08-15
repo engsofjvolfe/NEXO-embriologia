@@ -6,8 +6,8 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Analysis |
-| Versão | 0.4.0 |
-| Data | 14-08-2026 |
+| Versão | 0.5.0 |
+| Data | 15-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
 > Registro datado de como uma investigação foi feita neste módulo — o
@@ -183,6 +183,54 @@ jeito, com ou sem tela.
   acrescentar a ADR 0014: as ADRs 0012 e 0013 já existiam como arquivo
   mas nunca tinham entrado no índice — corrigido junto, retroativamente.
 
+### <a id="2026-08-15-verificacao-de-exigencia-de-homologacao-anatel"></a>2026-08-15 — Verificação de exigência de homologação ANATEL pro acessório leitor
+
+**Levou a:** [tasks.md, Em aberto](<tasks.md#em-aberto>) (pendência
+nova, sem decisão ainda)
+
+*Resumo simples:* investigação nascida durante a pesquisa sobre a
+descontinuação do chip leitor NFC (PD-LEI-01) — ao comparar peça
+genuína contra cópia/clone, pra um projeto que não nasce só como
+piloto descartável, apareceu uma exigência legal nunca antes
+considerada por nenhum documento da cascata: qualquer equipamento com
+Bluetooth ou NFC ativo, pra ser usado ou vendido no Brasil, depende de
+homologação da ANATEL, a agência reguladora de telecomunicação do
+país.
+
+*Detalhe técnico:*
+- Ponto de partida: pesquisa de mercado sobre disponibilidade do NXP
+  PN532/C1 e de substitutos (PN7150/PN7160, MFRC522) — cobrindo status
+  de ciclo de vida do fabricante, loja brasileira e internacional, e a
+  diferença entre chip genuíno e clone. A pergunta "qual o problema
+  real de usar um chip clone" levou direto a esta checagem: não é só
+  questão de confiabilidade de peça, é exigência legal formal.
+- Fontes oficiais lidas por completo, sem ferramenta de resumo,
+  seguindo pedido direto de checar fonte primária, nunca resultado de
+  busca: Lei nº 9.472, de 16 de julho de 1997, art. 162, §2º;
+  Resolução ANATEL nº 715/2019, art. 1º e art. 55; Resolução ANATEL nº
+  680/2017, texto integral — as três conferidas como cópia genuína
+  (a última, pela estrutura padrão de norma: artigos, parágrafos,
+  marcações "Redação dada pela Resolução nº..." de cada atualização
+  histórica).
+- Enquadramento do achado dentro de engenharia de requisitos: a norma
+  ISO/IEC/IEEE 29148:2018 (*Systems and software engineering — Life
+  cycle processes — Requirements engineering*) trata restrição legal e
+  regulatória como parte do processo de análise de negócio/missão — a
+  etapa mais próxima do que os documentos 1 e 2 da cascata (Conceito e
+  Requisitos) deste projeto cobrem. Reforça que o lugar "natural" pra
+  esse tipo de exigência seria bem no início da cascata, não no
+  Projeto Detalhado; mas, como a cascata já está aprovada e é imutável
+  (ver
+  [docs/docs-VMODEL-visao-geral/README.md](<../../../docs/docs-VMODEL-visao-geral/README.md>)),
+  o achado fica registrado aqui e em `tasks.md`, nunca inserido
+  retroativamente nos documentos 1 ou 2. Título, número e escopo geral
+  confirmados via página oficial do IEEE (`standards.ieee.org`).
+- Resolução 680/2017 não cita "Bluetooth" nem "NFC" pelo nome — a
+  ligação entre essas tecnologias e as faixas de frequência listadas
+  no Anexo I dela (2.400-2.483,5 MHz pro Bluetooth, 13,41-14,01 MHz
+  cobrindo os 13,56 MHz do NFC já fixados em PD-LEI-01) é inferência
+  técnica desta investigação, não citação literal da norma.
+
 ## Controle de versão
 
 <!-- uma linha por versão publicada deste documento, mais antiga no
@@ -198,3 +246,4 @@ sem reescrever) também conta como mudança de conteúdo real. -->
 | 0.2.0 | 14-08-2026 | Acrescentada a investigação do esqueleto mínimo do módulo `app` (instalação do SDK, pesquisa de versões, duas armadilhas de ferramenta, teste ao vivo no emulador). | Resolução da pendência "Escrever o esqueleto mínimo do módulo `app`" |
 | 0.3.0 | 14-08-2026 | Acrescentada a investigação de cobertura de teste dos pacotes `search`, `hierarchy`, `session` e `content` (cinco lacunas encontradas e fechadas com teste novo, sem divergência de comportamento). | Revisão de cobertura de teste, pedido direto |
 | 0.4.0 | 14-08-2026 | Acrescentada a investigação do comportamento da busca aproximada com termo vazio, sexto ponto deixado em aberto na investigação anterior. | Resolução de [decisions/0014-busca-aproximada-com-termo-vazio.md](<../decisions/0014-busca-aproximada-com-termo-vazio.md>) |
+| 0.5.0 | 15-08-2026 | Acrescentada a investigação da exigência de homologação ANATEL pro acessório leitor (Bluetooth + NFC), com três fontes legais e a norma ISO/IEC/IEEE 29148:2018 como enquadramento metodológico. | Achado revelado durante a pesquisa sobre substituição do chip PN532; pendência nova em `tasks.md` |

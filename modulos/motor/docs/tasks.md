@@ -6,7 +6,7 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Tasks |
-| Versão | 0.17.0 |
+| Versão | 0.18.0 |
 | Data | 15-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
@@ -121,6 +121,66 @@ Convenção dos códigos citados aqui:
       não perder o alerta antes que o firmware comece a ser escrito —
       a escolha do substituto fica pra quando essa pesquisa for feita
       com mais cuidado.
+
+- [ ] **Confirmar se o acessório leitor (Bluetooth + NFC) precisa de
+      homologação ANATEL antes de poder ser usado ou vendido no
+      Brasil.**
+
+      *Resumo simples:* toda a cascata do motor (documentos 1 a 5,
+      aprovados) decidiu o hardware do acessório — leitor NFC
+      (PD-LEI-01), microcontrolador com Bluetooth (PD-LEI-02), serviço
+      Bluetooth (PD-CON-01) — sem nunca considerar que, no Brasil, um
+      aparelho com rádio (Bluetooth ou NFC com transmissor) só pode
+      ser usado ou vendido depois de passar por um processo de
+      aprovação da ANATEL, a agência que regula telecomunicação no
+      país. Não foi decidido ainda como (ou se) esse processo vai
+      acontecer.
+
+      *Detalhe técnico:* três fontes oficiais confirmam a exigência,
+      cada uma checada por leitura direta do texto, nunca por resumo
+      de terceiro:
+      - Lei nº 9.472, de 16 de julho de 1997 (Lei Geral de
+        Telecomunicações), art. 162, §2º: veda "a utilização de
+        equipamentos emissores de radiofrequência sem certificação
+        expedida ou aceita pela Agência" (BRASIL, 1997).
+      - Resolução ANATEL nº 715, de 23 de outubro de 2019 (Regulamento
+        de Avaliação da Conformidade e de Homologação de Produtos
+        para Telecomunicações), art. 55: "a homologação é
+        pré-requisito obrigatório para a utilização e a
+        comercialização, no País, dos produtos abrangidos por este
+        Regulamento" (BRASIL, 2019) — cobre tanto uso quanto venda,
+        não só venda.
+      - Resolução ANATEL nº 680, de 27 de junho de 2017 (Regulamento
+        sobre Equipamentos de Radiocomunicação de Radiação Restrita),
+        art. 4º: equipamento de radiação restrita "deve possuir
+        certificação emitida ou aceita pela Anatel" (BRASIL, 2017).
+        Essa resolução não cita "Bluetooth" nem "NFC" pelo nome — ela
+        classifica por faixa de radiofrequência (Anexo I) — mas duas
+        faixas listadas ali cobrem exatamente o acessório do NEXO:
+        2.400 a 2.483,5 MHz (a faixa que o Bluetooth usa) e 13,41 a
+        14,01 MHz (cobre os 13,56 MHz que PD-LEI-01 já fixa pro leitor
+        NFC). A ligação entre "Bluetooth/NFC" e essas faixas é leitura
+        técnica direta da frequência de operação de cada tecnologia,
+        não uma frase literal da norma — nenhuma das três fontes usa
+        as palavras "Bluetooth" ou "NFC".
+
+      Nenhum documento da cascata aprovada (imutável, ver
+      [docs/docs-VMODEL-visao-geral/README.md](<../../../docs/docs-VMODEL-visao-geral/README.md>))
+      trata desse ponto — a pendência nasce aqui, nunca como edição
+      retroativa de nenhum dos cinco documentos. Investigação completa
+      registrada em
+      [analysis.md](<analysis.md#2026-08-15-verificacao-de-exigencia-de-homologacao-anatel>).
+      Relacionada à pendência "Substituir o módulo leitor NFC do
+      acessório" acima — mesma investigação de origem, mas achado
+      independente: mesmo trocando o chip leitor, a exigência de
+      homologação continua valendo, porque não depende de qual chip
+      específico é usado, só da faixa de frequência em que ele opera.
+      Ainda sem decisão, sem responsável, sem desenho de como esse
+      processo se encaixaria no fluxo do projeto — só o registro de
+      que ele existe. Mesma lógica do marcador `[REVISAR-EXTERNO]` já
+      usada no Projeto Detalhado (PD-IMP-05, PD-IMP-07): é regra de
+      terceiro (ANATEL), pode mudar — reconfirmar na fonte oficial
+      antes de agir (comprar homologação, iniciar processo).
 
 - [ ] **Desenhar a aparência visual das telas do motor.**
 
@@ -348,10 +408,33 @@ Convenção dos códigos citados aqui:
 
 ## Referências
 
-Fonte externa citada na pendência "Validar em campo o limiar de busca
-aproximada", no formato definido pela norma ABNT NBR 6023 (Informação
-e documentação — Referências). Citada no corpo do documento como
-(AUTOR, ano).
+Fontes externas citadas nas pendências "Validar em campo o limiar de
+busca aproximada" e "Confirmar se o acessório leitor precisa de
+homologação ANATEL", no formato definido pela norma ABNT NBR 6023
+(Informação e documentação — Referências). Citadas no corpo do
+documento como (AUTOR, ano).
+
+BRASIL. Lei nº 9.472, de 16 de julho de 1997. Dispõe sobre a
+organização dos serviços de telecomunicações, a criação e
+funcionamento de um órgão regulador e outros aspectos institucionais,
+nos termos da Emenda Constitucional nº 8, de 1995 (Lei Geral de
+Telecomunicações). Diário Oficial da União, Brasília, DF, 17 jul.
+1997. Disponível em: https://www.planalto.gov.br/ccivil_03/leis/l9472.htm.
+Acesso em: 15 ago. 2026.
+
+BRASIL. Agência Nacional de Telecomunicações. Resolução nº 680, de 27
+de junho de 2017. Aprova o Regulamento sobre Equipamentos de
+Radiocomunicação de Radiação Restrita. Diário Oficial da União,
+Brasília, DF, 29 jun. 2017. Disponível em:
+https://www.anatel.gov.br/legislacao/resolucoes/2017/936-resolucao-680.
+Acesso em: 15 ago. 2026.
+
+BRASIL. Agência Nacional de Telecomunicações. Resolução nº 715, de 23
+de outubro de 2019. Aprova o Regulamento de Avaliação da Conformidade
+e de Homologação de Produtos para Telecomunicações. Diário Oficial da
+União, Brasília, DF, 2019. Disponível em:
+https://informacoes.anatel.gov.br/legislacao/resolucoes/2019/1350-resolucao-715.
+Acesso em: 15 ago. 2026.
 
 MANNING, Christopher D.; RAGHAVAN, Prabhakar; SCHÜTZE, Hinrich.
 **Introduction to Information Retrieval**. Cambridge: Cambridge
@@ -387,3 +470,4 @@ como mudança de conteúdo real. -->
 | 0.15.0 | 15-08-2026 | Pendência "Escrever o código-fonte do lado `app` do pacote `connectivity`" resolvida — movida para Resolvidas. Pendência nova "Decidir ferramenta de teste pro módulo `app`" acrescentada. | Resolução de [decisions/0015](<../decisions/0015-fronteira-entre-core-e-app-no-pacote-connectivity.md>), [decisions/0017](<../decisions/0017-quem-decide-a-tecnologia-de-leitura.md>) e [decisions/0018](<../decisions/0018-estrategia-de-permissao-de-bluetooth-e-nfc.md>) |
 | 0.16.0 | 15-08-2026 | Pendência "Desenhar a aparência visual das telas" ganha ponto específico: "Aguardando tentativa" (DA-RET-06) precisa cobrir o `ConnectionState` do acessório, de forma discreta (Documento de Conceito, seção 8). | `Service` de Bluetooth passa a expor o próprio estado de conexão |
 | 0.17.0 | 15-08-2026 | Pendência "Substituir o módulo leitor NFC do acessório" abrandada: só o PN532 descontinuado está confirmado — o PN7160 como substituto exato ainda não está bem estabelecido, fica em aberto sem fechar nele. | Pedido direto, revisão antes de fechar a tarefa |
+| 0.18.0 | 15-08-2026 | Pendência nova "Confirmar se o acessório leitor precisa de homologação ANATEL" acrescentada, com três fontes legais citadas (Lei 9.472/1997, Resoluções ANATEL 680/2017 e 715/2019). | Achado revelado durante a pesquisa sobre substituição do chip PN532 |

@@ -135,7 +135,7 @@ desenho visual das telas acontecer (pendência já registrada em
 exposto e como desenhá-lo — o mecanismo que leva a leitura até a tela
 já está pronto, não muda.
 
-**Nota de correção (15-08-2026):**
+**Nota de acompanhamento (15-08-2026):**
 
 *Resumo simples:* o ponto 2 desta decisão dizia que o conteúdo exato
 do estado exposto pelo `ViewModel` só poderia ser decidido quando a

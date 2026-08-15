@@ -6,7 +6,7 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Decisions — Índice |
-| Versão | 0.14.0 |
+| Versão | 0.15.0 |
 | Data | 14-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
@@ -59,6 +59,10 @@
 | [0016](0016-formato-do-identificador-na-notificacao-bluetooth.md) | Formato do identificador de peça na notificação Bluetooth |
 | [0017](0017-quem-decide-a-tecnologia-de-leitura.md) | Quem decide a tecnologia de leitura: NFC ou Bluetooth |
 | [0018](0018-estrategia-de-permissao-de-bluetooth-e-nfc.md) | Estratégia de permissão de Bluetooth e NFC no aplicativo |
+| [0019](0019-mecanismo-de-geracao-guarda-e-compartilhamento-do-relatorio.md) | Mecanismo de geração, guarda e compartilhamento do relatório de sessão |
+| [0020](0020-ligacao-entre-leitura-de-peca-e-a-tela.md) | Ligação entre leitura de peça, lógica de sessão e tela |
+| [0021](0021-quem-monta-o-texto-de-resumo-e-sintese.md) | Quem monta o texto de resumo e síntese exibido nas telas |
+| [0022](0022-conteudo-do-estado-exposto-pelo-viewmodel.md) | Conteúdo do estado exposto pelo ViewModel |
 
 ## Controle de versão
 
@@ -87,3 +91,4 @@ pelo ADR-NNNN). -->
 | 0.12.0 | 14-08-2026 | ADRs 0015 e 0016 acrescentadas à lista. | Fronteira core/app e formato de dado do pacote `connectivity` |
 | 0.13.0 | 14-08-2026 | ADR 0017 acrescentada à lista. | Estratégia de permissão de Bluetooth e NFC do pacote `connectivity` |
 | 0.14.0 | 14-08-2026 | ADR 0017 renomeada de "Estratégia de permissão..." para "Quem decide a tecnologia de leitura" (o assunto real dela); ADR 0018 acrescentada à lista, herdando o título e o assunto de permissão que a 0017 tinha antes. | Correção de escopo: a automação de escolha entre NFC e Bluetooth foi questionada e revertida antes do commit inicial da 0017 |
+| 0.15.0 | 15-08-2026 | ADRs 0019, 0020, 0021 e 0022 acrescentadas ao índice, as três primeiras retroativamente — já existiam como arquivo, mas nunca tinham entrado nesta lista. | Checagem mecânica ao abrir este arquivo pra acrescentar a ADR 0022 |

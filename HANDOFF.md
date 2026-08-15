@@ -61,6 +61,11 @@
   escritos, este último dividido entre `core` (dado puro) e `app`
   (desenho do PDF, escrita no aparelho) — ver
   [modulos/motor/docs/handoff.md](modulos/motor/docs/handoff.md).
+- `ViewModel` da sessão escrito (`app/ui/SessionUiState.kt`,
+  `SessionViewModel.kt`) — liga leitura de peça, lógica de sessão e o
+  que a tela mostra; correção registrada numa decisão anterior que
+  tinha adiado o conteúdo do estado sem necessidade — ver
+  [modulos/motor/docs/handoff.md](modulos/motor/docs/handoff.md).
 - [TASKS.md, Resolvidas](TASKS.md#resolvidas) — pendências já corrigidas.
 
 ## Próximo passo

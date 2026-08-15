@@ -6,7 +6,7 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Tasks |
-| Versão | 0.13.0 |
+| Versão | 0.14.0 |
 | Data | 14-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
@@ -114,6 +114,31 @@ Convenção dos códigos citados aqui:
       bem-sucedida, notifica o identificador da etiqueta na
       característica TX (PD-CON-02, PD-CON-03). Ver
       [architecture.md, acessório leitor (firmware)](<architecture.md#acessório-leitor-firmware>).
+
+- [ ] **Substituir o módulo leitor NFC do acessório (PN532/C1 →
+      PN7160), já marcado pelo fabricante como não recomendado pra
+      projeto novo.**
+
+      *Resumo simples:* o chip de leitura NFC escolhido pro acessório
+      físico (PD-LEI-01) foi marcado pela própria NXP como "não
+      recomendado pra projeto novo" (NRND — Not Recommended for New
+      Designs) — a peça ainda existe à venda, mas o fabricante já
+      aponta outro chip, o PN7160, como substituto oficial.
+
+      *Detalhe técnico:* PD-LEI-01, do
+      [Projeto Detalhado](<../../../docs/docs-VMODEL-visao-geral/5 - projeto-detalhado.md>)
+      (já aprovado, imutável — divergência vira pendência aqui, nunca
+      reescrita naquele documento), fixa o NXP PN532/C1. Não afeta
+      nenhum trabalho já feito ou em andamento no pacote `connectivity`
+      até agora: o aplicativo fala só com o Bluetooth do acessório
+      (Nordic UART Service, PD-CON-01 a PD-CON-04), nunca diretamente
+      com o chip leitor — a troca de chip só afeta o firmware do
+      acessório (pendência acima, ainda não iniciada) e, possivelmente,
+      a ligação elétrica já fixada em PD-LEI-03 (I2C entre o leitor e o
+      microcontrolador) — falta confirmar se o PN7160 mantém a mesma
+      interface. Sem decisão tomada ainda sobre como fazer essa troca;
+      registrado aqui só pra não perder o alerta antes que o firmware
+      comece a ser escrito.
 
 - [ ] **Desenhar a aparência visual das telas do motor.**
 
@@ -334,3 +359,4 @@ como mudança de conteúdo real. -->
 | 0.11.0 | 14-08-2026 | Pendência "Escrever o código-fonte do pacote `content`" resolvida — movida para Resolvidas. | Resolução de [decisions/0013-desenho-do-pacote-content.md](<../decisions/0013-desenho-do-pacote-content.md>) |
 | 0.12.0 | 14-08-2026 | Pendência nova "Avaliar importação parcial de conteúdo (só um tema ou evento novo)" acrescentada. | Pergunta direta, durante a revisão do pacote `content` |
 | 0.13.0 | 14-08-2026 | Pendência "Escrever o código-fonte do pacote `connectivity`" reduzida ao lado `app` (`Service` de Bluetooth, leitura NFC) — o lado `core` já foi escrito, testado e removido do escopo desta pendência. | Resolução parcial de [decisions/0015](<../decisions/0015-fronteira-entre-core-e-app-no-pacote-connectivity.md>) e [decisions/0016](<../decisions/0016-formato-do-identificador-na-notificacao-bluetooth.md>) |
+| 0.14.0 | 14-08-2026 | Pendência nova "Substituir o módulo leitor NFC do acessório (PN532/C1 → PN7160)" acrescentada, sobre PD-LEI-01. | Alerta trazido diretamente, já confirmado em sessão anterior |

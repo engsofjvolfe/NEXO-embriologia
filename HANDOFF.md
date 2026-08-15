@@ -45,6 +45,11 @@
   [modulos/motor/decisions/0015](<modulos/motor/decisions/0015-fronteira-entre-core-e-app-no-pacote-connectivity.md>)
   e
   [modulos/motor/decisions/0016](<modulos/motor/decisions/0016-formato-do-identificador-na-notificacao-bluetooth.md>).
+  Registrado que é a pessoa quem decide usar NFC ou Bluetooth, nunca
+  uma escolha automática do aplicativo — ver
+  [modulos/motor/decisions/0017](<modulos/motor/decisions/0017-quem-decide-a-tecnologia-de-leitura.md>)
+  e
+  [modulos/motor/decisions/0018](<modulos/motor/decisions/0018-estrategia-de-permissao-de-bluetooth-e-nfc.md>).
   Lado `app` (o código que liga o Bluetooth e a antena NFC de verdade)
   segue em [modulos/motor/docs/tasks.md, Em aberto](modulos/motor/docs/tasks.md#em-aberto).
 - [TASKS.md, Resolvidas](TASKS.md#resolvidas) — pendências já corrigidas.

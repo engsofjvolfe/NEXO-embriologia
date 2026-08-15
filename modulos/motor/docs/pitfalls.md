@@ -6,8 +6,8 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Pitfalls |
-| Versão | 0.4.0 |
-| Data | 14-08-2026 |
+| Versão | 0.5.0 |
+| Data | 15-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
 > Comportamento não óbvio de ferramenta/mecanismo usado só neste módulo
@@ -111,6 +111,31 @@ três funções próprias (`asStringOrNull`, `asBooleanOrNull`,
 antes de converter, coerentes com o "type" exato de cada campo do
 esquema.
 
+### <a id="2026-08-15-suppress-nao-vale-em-instrucao-solta"></a>2026-08-15 — `@Suppress` não é válido em cima de uma instrução solta, só de uma declaração
+
+*Resumo simples:* pra silenciar um aviso de "descontinuado"
+(`@Suppress("DEPRECATION")`), escrever a anotação bem em cima da linha
+que usa a API descontinuada só funciona se essa linha for uma
+declaração (função, variável, classe) — em cima de uma instrução
+solta, como uma atribuição de propriedade (`objeto.propriedade =
+valor`), essa posição não é válida em Kotlin.
+
+*Detalhe técnico:* ao escrever `BleAccessoryService.kt` (pacote
+`connectivity` do módulo `app`), duas chamadas a APIs de Bluetooth já
+descontinuadas, mas ainda necessárias pra cobrir toda a faixa de
+`minSdk` 24 a `targetSdk` 36
+([decisions/0018](<../decisions/0018-estrategia-de-permissao-de-bluetooth-e-nfc.md>)) —
+`BluetoothGattDescriptor.value =` e `BluetoothGatt.writeDescriptor(descriptor)`
+de um argumento só — foram inicialmente marcadas com
+`@Suppress("DEPRECATION")` direto em cima de cada instrução solta.
+Corrigido antes de qualquer tentativa de compilação (revisão manual,
+já que o SDK do Android ainda não estava configurado neste ambiente
+naquele momento): a anotação precisa ir na declaração que contém essas
+instruções (a função `onServicesDiscovered`, no caso), cobrindo o
+corpo inteiro — nunca em cima de uma instrução isolada dentro dela.
+Compilação real (`gradlew :app:assembleDebug`), feita depois da
+correção, confirmou que o código corrigido compila sem erro.
+
 ## Referências
 
 Fontes citadas nas armadilhas acima, no formato definido pela norma
@@ -142,3 +167,4 @@ reescrever) também conta como mudança de conteúdo real. -->
 | 0.2.0 | 14-08-2026 | Acrescentada a armadilha do suporte embutido a Kotlin no AGP 9, que quebra a build se o plugin `org.jetbrains.kotlin.android` continuar aplicado. | Achado durante a compilação do esqueleto mínimo do módulo `app` |
 | 0.3.0 | 14-08-2026 | Acrescentada a armadilha da versão de Kotlin do `core` precisar bater com o Kotlin embutido no AGP. | Achado durante a compilação do esqueleto mínimo do módulo `app` |
 | 0.4.0 | 14-08-2026 | Acrescentada a armadilha de `booleanOrNull`/`intOrNull` do kotlinx.serialization não checarem `isString`. | Achado durante a escrita do pacote `content` |
+| 0.5.0 | 15-08-2026 | Acrescentada a armadilha de `@Suppress` não valer em cima de uma instrução solta, só de uma declaração. | Achado durante a escrita do lado `app` do pacote `connectivity` |

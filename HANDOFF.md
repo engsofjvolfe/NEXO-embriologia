@@ -39,6 +39,16 @@
   Um sexto ponto (comportamento da busca aproximada com termo vazio)
   formalizado como decisão — ver
   [modulos/motor/decisions/0014](<modulos/motor/decisions/0014-busca-aproximada-com-termo-vazio.md>).
+- Pacote `connectivity` completo (lado `core` e lado `app`) — lê a
+  peça física direto pela antena do celular ou pelo acessório externo
+  por Bluetooth; testado por teste automático (`core`) e por
+  compilação real (`app`, que ainda não tem ferramenta de teste
+  configurada) — ver
+  [modulos/motor/decisions/0015](<modulos/motor/decisions/0015-fronteira-entre-core-e-app-no-pacote-connectivity.md>)
+  a
+  [modulos/motor/decisions/0018](<modulos/motor/decisions/0018-estrategia-de-permissao-de-bluetooth-e-nfc.md>).
+  Registrado que é a pessoa quem decide usar NFC ou Bluetooth, nunca
+  uma escolha automática do aplicativo (decisions/0017).
 - [TASKS.md, Resolvidas](TASKS.md#resolvidas) — pendências já corrigidas.
 
 ## Próximo passo

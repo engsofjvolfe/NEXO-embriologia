@@ -6,8 +6,8 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Handoff |
-| Versão | 0.9.0 |
-| Data | 14-08-2026 |
+| Versão | 0.12.0 |
+| Data | 15-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
 > Resumo curto de "onde este módulo está" e "o que fazer a seguir" nele.
@@ -69,6 +69,14 @@
   desenho interno do pacote `content` decidido.
 - [decisions/0014-busca-aproximada-com-termo-vazio.md](<../decisions/0014-busca-aproximada-com-termo-vazio.md>) —
   comportamento da busca aproximada com termo vazio decidido.
+- [decisions/0015-fronteira-entre-core-e-app-no-pacote-connectivity.md](<../decisions/0015-fronteira-entre-core-e-app-no-pacote-connectivity.md>) —
+  fronteira entre `core` e `app` no pacote `connectivity` decidida.
+- [decisions/0016-formato-do-identificador-na-notificacao-bluetooth.md](<../decisions/0016-formato-do-identificador-na-notificacao-bluetooth.md>) —
+  formato do identificador de peça na notificação Bluetooth decidido.
+- [decisions/0017-quem-decide-a-tecnologia-de-leitura.md](<../decisions/0017-quem-decide-a-tecnologia-de-leitura.md>) —
+  quem decide a tecnologia de leitura (NFC ou Bluetooth) decidido.
+- [decisions/0018-estrategia-de-permissao-de-bluetooth-e-nfc.md](<../decisions/0018-estrategia-de-permissao-de-bluetooth-e-nfc.md>) —
+  estratégia de permissão de Bluetooth e NFC decidida.
 - [findings.md](findings.md) — achados confirmados até agora.
 - [analysis.md](analysis.md) — registro de como cada investigação
   deste módulo foi feita.
@@ -99,3 +107,6 @@ com o campo Versão da tabela de cabeçalho, que sempre reflete a
 | 0.7.0 | 14-08-2026 | Acrescentado ponteiro para decisions/0013. | Quarto pacote do módulo `core` escrito (pacote `content`) |
 | 0.8.0 | 14-08-2026 | Acrescentado ponteiro para analysis.md, que já existia mas nunca tinha linha própria aqui. | Revisão de cobertura de teste dos pacotes `search`, `hierarchy`, `session` e `content` |
 | 0.9.0 | 14-08-2026 | Acrescentado ponteiro para decisions/0014. | Formalização do comportamento da busca aproximada com termo vazio |
+| 0.10.0 | 14-08-2026 | Acrescentado ponteiro para decisions/0015 e 0016. | Lado `core` do pacote `connectivity` escrito e testado (contrato: UUIDs do Nordic UART Service, decodificação de identificador físico); lado `app` (`Service` de Bluetooth, leitura NFC) segue como pendência em `tasks.md` |
+| 0.11.0 | 15-08-2026 | Acrescentado ponteiro para decisions/0017 e 0018. | Registrado que a pessoa decide entre NFC e Bluetooth, nunca o aplicativo sozinho; estratégia de permissão redesenhada em cima dessa decisão |
+| 0.12.0 | 15-08-2026 | Nenhum ponteiro novo (pacote `connectivity` já citado). | Lado `app` do pacote `connectivity` escrito e testado por compilação real — pacote completo, `core` e `app` |

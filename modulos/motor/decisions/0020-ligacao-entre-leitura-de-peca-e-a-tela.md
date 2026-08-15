@@ -135,6 +135,36 @@ desenho visual das telas acontecer (pendência já registrada em
 exposto e como desenhá-lo — o mecanismo que leva a leitura até a tela
 já está pronto, não muda.
 
+**Nota de correção (15-08-2026):**
+
+*Resumo simples:* o ponto 2 desta decisão dizia que o conteúdo exato
+do estado exposto pelo `ViewModel` só poderia ser decidido quando a
+aparência das telas fosse desenhada — isso está errado. A tabela que
+já lista o que cada tela precisa mostrar (Projeto Arquitetônico, seção
+6.6) existia desde antes desta ADR ser escrita, aprovada, e nunca foi
+consultada aqui. Não é uma informação que só apareceu depois — é uma
+fonte que já estava disponível e não foi lida.
+
+*Detalhe técnico:* o erro do ponto 2 foi tratar duas coisas diferentes
+como se fossem uma só — o **conteúdo** de cada tela (o que ela precisa
+mostrar, já fixado na tabela, seção 6.6, sem nenhuma relação com cor
+ou layout) e a **aparência** dela (isso sim, ainda pendente). A
+decisão de verdade sobre o conteúdo do estado — derivada da tabela e
+dos itens de Especificação que ela cita — está em
+[decisions/0022](0022-conteudo-do-estado-exposto-pelo-viewmodel.md).
+
+Os outros três pontos desta ADR (1, 3 e 4) não têm esse problema,
+porque nenhum deles trata do assunto "o que cada tela mostra" — cada
+um resolve uma pergunta diferente, já verificada contra a fonte certa:
+o ponto 1 só confirma que a conexão de Bluetooth/NFC continua
+funcionando do jeito que já está (decisions/0015, 0017, 0018); o ponto
+3 escolhe como o aviso de peça lida chega até o `ViewModel`, com base
+na documentação oficial do Android sobre `ViewModel` e serviço
+vinculado (citada acima); o ponto 4 só define quem chama quem entre os
+pacotes (decisions/0003). Nenhum desses três precisava da tabela DA-RET
+pra nada — por isso continuam corretos, e só o ponto 2 precisou da
+correção.
+
 ## Referências
 
 Fontes externas citadas no Contexto, no formato definido pela norma

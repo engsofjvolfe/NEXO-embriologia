@@ -6,7 +6,7 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Tasks |
-| Versão | 0.21.0 |
+| Versão | 0.22.0 |
 | Data | 15-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
@@ -63,19 +63,6 @@ Convenção dos códigos citados aqui:
       Levantada durante a escrita do pacote `content`
       ([decisions/0013](<../decisions/0013-desenho-do-pacote-content.md>)),
       que hoje só sabe importar instância completa.
-
-- [ ] **Escrever o código-fonte do pacote `report` (núcleo do
-      aplicativo).**
-
-      *Resumo simples:* guardar o histórico de cada sessão jogada e
-      gerar o relatório em CSV e PDF.
-
-      *Detalhe técnico:* pacote `core/report/`, mecanismo de geração,
-      guarda e compartilhamento já desenhado, ver
-      [architecture.md, pacote `report`](<architecture.md#pacote-report--desenho-interno>)
-      e [decisions/0019](<../decisions/0019-mecanismo-de-geracao-guarda-e-compartilhamento-do-relatorio.md>).
-      Guarda local de configuração, registro e relatório, sem servidor
-      central: DA-ARM-01. Exportação em CSV e PDF: DA-REG-01.
 
 - [ ] **Escrever o código-fonte da ligação entre leitura de peça,
       sessão e tela (`ViewModel`).**
@@ -254,13 +241,17 @@ Convenção dos códigos citados aqui:
 
       *Detalhe técnico:* código que toca API do Android (o `Service`
       de Bluetooth, a leitura NFC do pacote `connectivity`, ver
-      [decisions/0015](<../decisions/0015-fronteira-entre-core-e-app-no-pacote-connectivity.md>))
+      [decisions/0015](<../decisions/0015-fronteira-entre-core-e-app-no-pacote-connectivity.md>);
+      agora também o desenho do PDF e a escrita de arquivo do lado
+      `app` do pacote `report`, ver
+      [architecture.md, pacote `report`](<architecture.md#pacote-report--desenho-interno>))
       não dá pra testar com `kotlin-test` comum — precisa ou de um
       aparelho/emulador de verdade (teste instrumentado) ou de uma
       ferramenta que simule partes do Android dentro do próprio
       computador (ex.: Robolectric). Nenhuma das duas foi escolhida
       ainda. Levantada durante a escrita do lado `app` do pacote
-      `connectivity`, testado só por compilação real até agora.
+      `connectivity`, testado só por compilação real até agora — mesmo
+      critério aplicado ao lado `app` de `report`.
 
 - [ ] **Escrever os testes de unidade, integração, sistema e
       aceitação.**
@@ -343,23 +334,6 @@ Convenção dos códigos citados aqui:
       fazendo sentido ou se algum pacote cresceu demais e merece ser
       dividido.
 
-- [ ] **Escrever o código-fonte do pacote `summary`, e ajustar
-      `content` pra validar o campo novo `summary_fragment`.**
-
-      *Resumo simples:* montar o texto de resumo/síntese de fim de
-      evento e de cadeia já foi desenhado — falta escrever o código.
-      `content` (já escrito) ainda valida o pacote de conteúdo contra
-      a versão antiga do contrato, sem o campo novo obrigatório.
-
-      *Detalhe técnico:* `core/summary/`, mecanismo já desenhado, ver
-      [architecture.md, pacote `summary`](<architecture.md#pacote-summary--desenho-interno>)
-      e [decisions/0021](<../decisions/0021-quem-monta-o-texto-de-resumo-e-sintese.md>).
-      Contrato de dado em
-      [concept.md](<concept.md#contrato-de-dado>), `schema_version`
-      `2.0.0` — `content` precisa passar a exigir `summary_fragment`
-      em cada fotograma, hoje ainda validando contra a versão `1.0.0`
-      (sem esse campo).
-
 ## Resolvidas
 
 - [x] **Escolher a linguagem de programação do aplicativo.** Resolvido
@@ -421,6 +395,20 @@ Convenção dos códigos citados aqui:
       telas de fim de evento e de cadeia.** Resolvido — ver
       [decisions/0021-quem-monta-o-texto-de-resumo-e-sintese.md](<../decisions/0021-quem-monta-o-texto-de-resumo-e-sintese.md>).
       Escrita do código em si segue como pendência própria, acima.
+- [x] **Escrever o código-fonte do pacote `summary`, e ajustar
+      `content` pra validar o campo novo `summary_fragment`.**
+      Resolvido — ver
+      [decisions/0021-quem-monta-o-texto-de-resumo-e-sintese.md](<../decisions/0021-quem-monta-o-texto-de-resumo-e-sintese.md>).
+      `schema_version` de `content` sobe pra `2.0.0`,
+      `summary_fragment` agora obrigatório em cada fotograma.
+- [x] **Escrever o código-fonte do pacote `report` (núcleo do
+      aplicativo).** Resolvido — ver
+      [decisions/0019-mecanismo-de-geracao-guarda-e-compartilhamento-do-relatorio.md](<../decisions/0019-mecanismo-de-geracao-guarda-e-compartilhamento-do-relatorio.md>),
+      nota de acompanhamento incluída. Dividido entre `core/report/`
+      (dado puro, testado com `kotlin-test`) e `app/report/` (desenho
+      do PDF, escrita no aparelho, atalho de compartilhar, testado só
+      por compilação real) — achado que motivou essa divisão em
+      [findings.md#2026-08-15-mecanismo-de-pdf-incompativel-com-core](<findings.md#2026-08-15-mecanismo-de-pdf-incompativel-com-core>).
 
 ## Referências
 
@@ -490,3 +478,4 @@ como mudança de conteúdo real. -->
 | 0.19.0 | 15-08-2026 | Pendência "Escrever o código-fonte do pacote `report`" ganha ponteiro pro desenho interno já decidido, ainda não riscada (falta o código em si). | Resolução de [decisions/0019](<../decisions/0019-mecanismo-de-geracao-guarda-e-compartilhamento-do-relatorio.md>) |
 | 0.20.0 | 15-08-2026 | Pendência nova "Escrever o código-fonte da ligação entre leitura de peça, sessão e tela (`ViewModel`)" acrescentada. | Resolução de [decisions/0020](<../decisions/0020-ligacao-entre-leitura-de-peca-e-a-tela.md>) |
 | 0.21.0 | 15-08-2026 | Pendência "Decidir quem monta o texto de resumo/síntese" resolvida — movida para Resolvidas. Pendência nova "Escrever o código-fonte do pacote `summary`, e ajustar `content` pra validar o campo novo `summary_fragment`" acrescentada; `report` e `summary` acrescentados na lista de pacotes da pendência "Explicar a organização de pastas do `core`". | Resolução de [decisions/0021](<../decisions/0021-quem-monta-o-texto-de-resumo-e-sintese.md>) |
+| 0.22.0 | 15-08-2026 | Pendências "Escrever o código-fonte do pacote `report`" e "Escrever o código-fonte do pacote `summary`, e ajustar `content`" resolvidas — movidas para Resolvidas. Pendência "Decidir ferramenta de teste pro módulo `app`" passa a citar também o lado `app` de `report`. | Escrita dos pacotes `summary` e `report`; achado sobre `PdfDocument` incompatível com `core` (`findings.md`) motivou dividir `report` entre `core` e `app` |

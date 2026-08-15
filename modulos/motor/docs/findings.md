@@ -6,7 +6,7 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Findings |
-| Versão | 0.4.0 |
+| Versão | 0.5.0 |
 | Data | 15-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
@@ -145,6 +145,35 @@ ociosidade.
   que afirmava cobrir "exatamente os fatos que EI-REG-01 já exige" —
   afirmação incompleta até esta correção.
 
+### <a id="2026-08-15-mecanismo-de-pdf-incompativel-com-core"></a>2026-08-15 — Mecanismo de PDF de `decisions/0019` incompatível com o módulo `core`
+
+**Confirmado por:** leitura de código e teste ao vivo
+
+*Resumo simples:* a decisão que escolheu `android.graphics.pdf.PdfDocument`
+pra gerar o PDF do relatório também afirma que o pacote `report` fica
+inteiro "sem depender de nenhuma classe do Android" — as duas coisas
+não podem ser verdade ao mesmo tempo, porque `PdfDocument` é uma
+classe exclusiva do Android, e o pacote `report` mora dentro de `core`,
+que é montado sem nada de Android.
+
+*Detalhe técnico:*
+- Raciocínio completo — leitura de `core/build.gradle.kts`, por que
+  `android.graphics.pdf.PdfDocument`/`Canvas` não compilam num módulo
+  Kotlin puro, e o precedente já existente no módulo pro mesmo tipo de
+  problema (`connectivity`, decisions/0015) — em
+  [analysis.md#2026-08-15-pdfdocument-incompativel-com-modulo-core-kotlin-puro](<analysis.md#2026-08-15-pdfdocument-incompativel-com-modulo-core-kotlin-puro>);
+  não repetido aqui.
+- Resolvido dividindo `report` do mesmo jeito que `connectivity` já
+  divide: `core/report/` monta só dado (texto do CSV, lista de linhas
+  do conteúdo do PDF), sem nenhuma classe do Android; `app/report/`
+  desenha o PDF de verdade (`PdfDocument`/`Canvas`), escreve os dois
+  arquivos no aparelho e monta o atalho de compartilhar. Testado por
+  compilação real: `gradlew :app:assembleDebug`, `BUILD SUCCESSFUL`.
+  Nota de acompanhamento acrescentada em
+  [decisions/0019](<../decisions/0019-mecanismo-de-geracao-guarda-e-compartilhamento-do-relatorio.md>) —
+  a ferramenta escolhida (`PdfDocument`) não muda, só onde o código que
+  a usa mora.
+
 ## Controle de versão
 
 <!-- uma linha por versão publicada deste documento, mais antiga no
@@ -160,3 +189,4 @@ reescrever) também conta como mudança de conteúdo real. -->
 | 0.2.0 | 14-08-2026 | Achado "Posição de tema/evento com buraco ou duplicada não é detectada" acrescentado. | Desenho do pacote `session` revelou divergência no pacote `hierarchy` já existente |
 | 0.3.0 | 14-08-2026 | Achado "Violação de hierarquia era relatada, mas o pacote inteiro ainda ficava disponível pra jogo" acrescentado. | Revisão do desenho do pacote `content`, em conversa direta antes de dar a tarefa como concluída |
 | 0.4.0 | 15-08-2026 | Achado "Registro interno de `session` incompleto frente a EI-REG-01" acrescentado. | Revisão do registro de sessão antes de escrever o pacote `report` |
+| 0.5.0 | 15-08-2026 | Achado "Mecanismo de PDF de decisions/0019 incompatível com o módulo core" acrescentado. | Revisão do mecanismo de PDF antes de escrever o pacote `report` |

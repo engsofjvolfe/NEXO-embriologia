@@ -6,7 +6,7 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Architecture |
-| Versão | 0.20.0 |
+| Versão | 0.21.0 |
 | Data | 15-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
@@ -611,24 +611,64 @@ configurada ainda pra código que toca API do Android (diferente do
 *Em resumo:* dentro do núcleo, o pacote `report` monta o conteúdo dos
 dois formatos de relatório (CSV e PDF) a partir do registro que
 `session` já mantém — nunca decide onde o arquivo é salvo no
-aparelho, só o que deveria estar escrito nele.
+aparelho, nem desenha nada. Dividido entre `core` e `app` pelo mesmo
+motivo que `connectivity` já é: a ferramenta de desenho do PDF só
+existe dentro do Android.
 
 *Em detalhe técnico:* implementa DA-REG-01/02 (dois formatos, mesmo
 registro) e EI-REG-01/02 (o que cada relatório precisa conter).
 Mecanismo de geração de cada formato, onde o arquivo fica guardado no
 aparelho, e o atalho de compartilhar na tela de resultado (DA-RET-14):
-[decisions/0019](<../decisions/0019-mecanismo-de-geracao-guarda-e-compartilhamento-do-relatorio.md>).
+[decisions/0019](<../decisions/0019-mecanismo-de-geracao-guarda-e-compartilhamento-do-relatorio.md>),
+nota de acompanhamento incluída (motivo completo em
+[findings.md](<findings.md#2026-08-15-mecanismo-de-pdf-incompativel-com-core>)).
 
-Mesma separação já usada em `content` e `session`: este pacote monta
-os bytes de cada formato a partir do registro recebido como
-parâmetro, sem depender de `Context`; escrever o arquivo de verdade
-no aparelho é responsabilidade do módulo `app` (pacote novo
-`app/report/`, irmão de `ui/` e `connectivity/`).
+API pública do lado `core` — monta só dado, nunca desenha nem escreve
+arquivo de verdade, recebendo o registro de `session` (`SessionEvent`)
+e a configuração da sessão como parâmetro (esta última ainda sem
+produtor real, porque depende da tela de configuração de sessão,
+ainda pendente — ver [`tasks.md`](tasks.md)):
 
-Testável como os demais pacotes de `core`, com `kotlin-test` + JUnit
-Jupiter
+```
+core/report/
+  Report.kt   EventConfiguration(eventName, skipEnabled, hintThreshold, studyThreshold),
+              SessionConfiguration(eventNames, startingPosition, idleThresholdMillis, events),
+              sessionEventTypeName(event: SessionEvent): String — nome em português de cada
+              uma das sete variantes de SessionEvent, usado nas duas linhas abaixo
+              buildReportCsv(configuration, log: List<SessionEvent>): String — texto CSV,
+              escapado conforme RFC 4180 (DA-REG-01), terminador de linha CRLF
+              buildReportPdfLines(configuration, log: List<SessionEvent>): List<String> —
+              uma linha de texto por item; app/report desenha cada linha, nunca decide o texto
+```
+
+API do lado `app` — só aqui existe classe do Android:
+
+```
+app/report/
+  ReportPdfRenderer.kt   renderReportPdf(lines: List<String>): PdfDocument — desenha cada
+                          linha com Canvas, paginando quando a página enche
+  ReportFileWriter.kt     writeReportCsv/writeReportPdf(context, fileName, conteúdo,
+                          onWritten: (Uri) -> Unit) — os dois caminhos da decisão 3 de
+                          decisions/0019 (MediaStore.Downloads a partir do Android 10;
+                          getExternalStoragePublicDirectory + MediaScannerConnection.scanFile
+                          antes disso), sempre entregando um content:// Uri pro callback
+  ReportShareIntent.kt    buildReportShareIntent(csvUri, pdfUri): Intent — ACTION_SEND_MULTIPLE,
+                          tipo genérico "*/*", decisão 4 de decisions/0019
+```
+
+`AndroidManifest.xml` ganha `WRITE_EXTERNAL_STORAGE` com
+`android:maxSdkVersion="28"`, ao lado das já existentes de Bluetooth e
+NFC. Nenhuma tela ainda chama esse código — a chamada real (a partir
+da tela de resultado, DA-RET-14) fica pra quando o desenho visual das
+telas acontecer (ver [`tasks.md`](tasks.md)), mesma situação que
+`app/connectivity` já tinha antes do `ViewModel` existir.
+
+Lado `core` testável com `kotlin-test` + JUnit Jupiter
 ([decisions/0005](<../decisions/0005-abordagem-de-teste-do-nucleo-do-motor.md>)),
-já que não depende de nenhuma classe do Android.
+mesma ferramenta de todo pacote de `core`. Lado `app` testado só por
+compilação real (`gradlew :app:assembleDebug`), mesmo padrão já usado
+em `app/connectivity`, porque `app` ainda não tem ferramenta de teste
+configurada pra código que toca API do Android (ver [`tasks.md`](tasks.md)).
 
 #### Pacote `summary` — desenho interno
 
@@ -886,3 +926,4 @@ com o campo Versão da tabela de cabeçalho, que sempre reflete a
 | 0.18.0 | 15-08-2026 | Acrescentado o desenho interno do pacote `summary` (mensagem de pulo como dado organizado, síntese sem pulo concatenando `summary_fragment`) e o pacote `summary` na árvore de `core`; ajustado o parágrafo do pacote `session` que citava a montagem de texto como responsabilidade indefinida de `content`. | Resolução de [decisions/0021-quem-monta-o-texto-de-resumo-e-sintese.md](<../decisions/0021-quem-monta-o-texto-de-resumo-e-sintese.md>) |
 | 0.19.0 | 15-08-2026 | Seção do pacote `session` revisada: `SessionEvent` ganha `timestamp` em toda variante e dois tipos novos (`StudySuggestionShown`, `WentIdle`, ao lado do `Paused` já existente); API pública atualizada com `showStudySuggestion` e `goIdle`. | Nota de acompanhamento em [decisions/0008](<../decisions/0008-representacao-do-estado-da-sessao.md>), achado [findings.md#2026-08-15-registro-de-sessao-incompleto-frente-a-ei-reg-01](<findings.md#2026-08-15-registro-de-sessao-incompleto-frente-a-ei-reg-01>) |
 | 0.20.0 | 15-08-2026 | Seção do pacote `summary` ganha a API pública (`buildSkipMessage`, `buildChainSkipSynthesis`, `buildContinuousSynthesis`), que faltava. | Escrita do código-fonte do pacote `summary` |
+| 0.21.0 | 15-08-2026 | Seção do pacote `report` reescrita: dividido entre `core/report/` (dado puro) e `app/report/` (desenho do PDF, escrita no aparelho, atalho de compartilhar), corrigindo a afirmação de que o pacote inteiro ficaria sem depender de Android. | Nota de acompanhamento em [decisions/0019](<../decisions/0019-mecanismo-de-geracao-guarda-e-compartilhamento-do-relatorio.md>), achado [findings.md#2026-08-15-mecanismo-de-pdf-incompativel-com-core](<findings.md#2026-08-15-mecanismo-de-pdf-incompativel-com-core>) |

@@ -5,6 +5,8 @@ Este documento bem como todos os citados nele devem ser lidos na íntegra, sem f
 Instruções para o Claude Code neste repositório.
 Todas as leituras sugeridas nesse documento devem ser feitas na íntegra, sem ferramentas de 
 
+**Este CLAUDE.md é de leitura obrigatória, integral, antes de ler qualquer outro documento ou memória -- inclusive antes dos arquivos de memória pessoal.**
+
 > Nos passos a seguir "você" se refere à ferramenta CLAUDE, "eu" se refere a quem está desenvolvendo o sistema com utilização da ferramenta
 
 - LER [README dos documentos VMODEL](<../docs/docs-VMODEL-visao-geral/README.md>) -- antes de tudo, porque é lá que está a regra de imutabilidade desses cinco documentos
@@ -12,6 +14,7 @@ Todas as leituras sugeridas nesse documento devem ser feitas na íntegra, sem fe
 - LER [prompt model](<../docs/prompt model.txt>)
 
 > Para este projeto apenas os documentos 1, 2, 3, 4 e 5 aqui
+> Esses documentos são os primeiros de leitura obrigatória, integral, antes de qualquer um dos outros.
 [DOCS](../docs/docs-VMODEL-visao-geral) não seguem um padrão especificado
 
 ## Fonte de verdade

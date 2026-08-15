@@ -6,8 +6,8 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Concept |
-| Versão | 0.2.0 |
-| Data | 14-08-2026 |
+| Versão | 0.3.0 |
+| Data | 15-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
 > Descreve o desenho pretendido do módulo — o que ele deve ser e como
@@ -132,19 +132,30 @@ seção 6.3.1 (PD-IMP-01), já decidiu usar nomes de campo em inglês
 neste arquivo específico — o conceito, em português, continua sendo
 sempre "fotograma".
 
-O valor de `schema_version` abaixo já é `1.0.0`, igual ao mesmo trecho
-do
-[Projeto Detalhado](<../../../docs/docs-VMODEL-visao-geral/5 - projeto-detalhado.md>)
-(PD-IMP-01) — antes desta versão deste documento, o valor aqui era
-`0.1.0`, de propósito, porque este contrato ainda não era usado por
-nenhum código nem validado por nenhum pacote de conteúdo real; a
-condição de subida já estava registrada nesta mesma seção. O pacote
-`content` ([architecture.md, pacote `content`](<architecture.md#pacote-content--desenho-interno>))
-passa a validar pacotes de conteúdo reais contra este contrato — a
-condição se cumpriu, o valor sobe.
+Dois campos de texto do fotograma têm papel diferente, mesmo os dois
+escritos por quem monta o conteúdo: `confirmation_text` (opcional)
+aparece sozinho, na hora em que a pessoa acerta aquela peça específica
+— pode ficar de fora, sem problema. `summary_fragment` (obrigatório)
+nunca aparece sozinho — só entra, já combinado com o de peças
+vizinhas, na síntese de fim de sessão sem pulo; por isso é sempre
+exigido, mesmo quando `confirmation_text` não é. Motivo completo:
+[decisions/0021](<../decisions/0021-quem-monta-o-texto-de-resumo-e-sintese.md>).
+
+O valor de `schema_version` é `2.0.0`. O campo novo `summary_fragment`
+(ver abaixo) é obrigatório, então um pacote de conteúdo válido na
+versão anterior deixa de ser válido sem alteração — mudança que quebra
+compatibilidade, por isso o número maior sobe, não só o do meio
+(convenção SemVer, já usada em todo o projeto — ver
+[modulos/README.md](../../README.md)). Esse campo extrapola o que o
+Projeto Detalhado (PD-IMP-01, aprovado, imutável) fixa — legítimo
+porque este `concept.md`, não aquele documento, é quem evolui o
+contrato de dado (ver nota acima, "Fonte única"); PD-IMP-01 continua
+correto para a versão que ele descreve. Motivo completo da mudança,
+com as alternativas descartadas antes de chegar nela:
+[decisions/0021](<../decisions/0021-quem-monta-o-texto-de-resumo-e-sintese.md>).
 
 ```yaml
-schema_version: "1.0.0"
+schema_version: "2.0.0"
 
 instance:
   type: object
@@ -223,7 +234,7 @@ event:
 
 frame:
   type: object
-  required: [tag_id, image]
+  required: [tag_id, image, summary_fragment]
   properties:
     tag_id:
       type: string
@@ -233,6 +244,9 @@ frame:
       minLength: 1
     confirmation_text:
       type: string
+    summary_fragment:
+      type: string
+      minLength: 1
 ```
 
 ## Controle de versão
@@ -247,3 +261,4 @@ com o campo Versão da tabela de cabeçalho, que sempre reflete a
 |---|---|---|---|
 | 0.1.0 | 12-08-2026 | Criação inicial: escopo, fluxo e contrato de dado do pacote de conteúdo. | Criação inicial |
 | 0.2.0 | 14-08-2026 | `schema_version` do contrato de dado sobe de `0.1.0` para `1.0.0`, cumprindo a condição já registrada na versão anterior deste documento. | Escrita do pacote `content`, primeiro código a validar pacotes de conteúdo reais contra este contrato |
+| 0.3.0 | 15-08-2026 | `schema_version` do contrato de dado sobe de `1.0.0` para `2.0.0`: campo novo `summary_fragment`, obrigatório, em `frame` — mudança que quebra compatibilidade com pacotes de conteúdo já válidos na versão anterior. | Resolução de [decisions/0021](<../decisions/0021-quem-monta-o-texto-de-resumo-e-sintese.md>) |

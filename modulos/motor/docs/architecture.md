@@ -6,8 +6,8 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Architecture |
-| Versão | 0.13.0 |
-| Data | 14-08-2026 |
+| Versão | 0.14.0 |
+| Data | 15-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
 > Descreve como o módulo é construído por dentro — layout de arquivos,
@@ -536,6 +536,41 @@ aparelho ter ou não NFC — nunca de antemão. Lista exata de permissões,
 motivo de cada uma, e por que pedir só nesse momento (com fonte oficial
 do Android): [decisions/0018](<../decisions/0018-estrategia-de-permissao-de-bluetooth-e-nfc.md>).
 
+API do lado `app`:
+
+```
+app/connectivity/
+  PieceReadListener.kt      fun interface PieceReadListener { onPieceRead(tagId: String) } —
+                             formato único de aviso, usado tanto pelo Service de Bluetooth
+                             quanto pela leitura NFC de MainActivity, em vez de cada caminho
+                             inventar o próprio formato
+  BluetoothPermissions.kt   requiredBluetoothPermissions(), hasBluetoothPermissions(context) —
+                             lista as permissões exigidas pela versão do Android em uso
+                             (decisions/0018), num lugar só
+  BleAccessoryService.kt    Service vinculado (LocalBinder); startScanAndConnect() procura
+                             por perto um aparelho anunciando o Nordic UART Service e conecta
+                             no primeiro encontrado (só costuma existir um por ambiente — não
+                             há tela de escolha entre vários, pendência ainda em aberto se
+                             algum dia isso deixar de valer); onCharacteristicChanged decodifica
+                             a notificação da característica TX com tagIdFromBytes e entrega
+                             pro PieceReadListener registrado
+```
+
+`MainActivity` (esqueleto já existente, ver
+[decisions/0012](<../decisions/0012-versoes-de-plataforma-e-build-do-modulo-app.md>))
+implementa `NfcAdapter.ReaderCallback` e liga/desliga o modo leitor em
+`onResume`/`onPause`; `onTagDiscovered` decodifica o identificador bruto
+da etiqueta com a mesma `tagIdFromBytes` e entrega pro
+`PieceReadListener` exposto por ela. Nem `MainActivity` nem
+`BleAccessoryService` decidem o que fazer com uma leitura além de
+entregá-la — quem vai consumir esse aviso (a lógica de sessão) ainda
+não está escrito, ver [tasks.md](tasks.md).
+
+Testado só por compilação real (`gradlew :app:assembleDebug`) — sem
+teste automatizado, porque o módulo `app` não tem ferramenta de teste
+configurada ainda pra código que toca API do Android (diferente do
+`core`); ver pendência em [tasks.md](tasks.md).
+
 #### Interface
 
 *Em resumo:* as telas — o que mostra o estado que o núcleo decide,
@@ -722,3 +757,4 @@ com o campo Versão da tabela de cabeçalho, que sempre reflete a
 | 0.11.0 | 14-08-2026 | Acrescentado o quarto ponto do desenho de `search` (comportamento com termo vazio). | Resolução de [decisions/0014-busca-aproximada-com-termo-vazio.md](<../decisions/0014-busca-aproximada-com-termo-vazio.md>) |
 | 0.12.0 | 14-08-2026 | Acrescentado o desenho interno do pacote `connectivity` (contrato puro em `core`, UUIDs do Nordic UART Service, decodificação de identificador físico, formato do dado transmitido pelo acessório) e a fronteira com o `Service`/`Activity` de `app` que hospedam o código real de Bluetooth e NFC; acrescentado pacote `connectivity` na árvore de `app`. | Resolução de [decisions/0015-fronteira-entre-core-e-app-no-pacote-connectivity.md](<../decisions/0015-fronteira-entre-core-e-app-no-pacote-connectivity.md>) e [decisions/0016-formato-do-identificador-na-notificacao-bluetooth.md](<../decisions/0016-formato-do-identificador-na-notificacao-bluetooth.md>) |
 | 0.13.0 | 14-08-2026 | Registrado que a escolha entre os dois caminhos de leitura (NFC direto ou acessório por Bluetooth) é da pessoa, nunca automática do aplicativo — ajustadas as duas citações de DA-LEI-03 em "Núcleo do motor" e na seção `connectivity` que sugeriam o contrário; acrescentada a estratégia de permissão de Bluetooth e NFC (declarações de manifesto, momento do pedido). | Resolução de [decisions/0017-quem-decide-a-tecnologia-de-leitura.md](<../decisions/0017-quem-decide-a-tecnologia-de-leitura.md>) e [decisions/0018-estrategia-de-permissao-de-bluetooth-e-nfc.md](<../decisions/0018-estrategia-de-permissao-de-bluetooth-e-nfc.md>) |
+| 0.14.0 | 15-08-2026 | Acrescentada a API do lado `app` do pacote `connectivity` (`PieceReadListener.kt`, `BluetoothPermissions.kt`, `BleAccessoryService.kt`) e a leitura NFC em `MainActivity`; testado por compilação real. | Escrita do lado `app` do pacote `connectivity` |

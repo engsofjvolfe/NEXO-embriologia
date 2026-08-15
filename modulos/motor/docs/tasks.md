@@ -6,8 +6,8 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Tasks |
-| Versão | 0.14.0 |
-| Data | 14-08-2026 |
+| Versão | 0.15.0 |
+| Data | 15-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
 > Lista mutável de pendências só deste módulo. Lida depois de
@@ -63,30 +63,6 @@ Convenção dos códigos citados aqui:
       Levantada durante a escrita do pacote `content`
       ([decisions/0013](<../decisions/0013-desenho-do-pacote-content.md>)),
       que hoje só sabe importar instância completa.
-
-- [ ] **Escrever o código-fonte do lado `app` do pacote `connectivity`
-      (`Service` de Bluetooth, leitura NFC na `Activity` de entrada).**
-
-      *Resumo simples:* ler o identificador de uma peça física, direto
-      pela antena do aparelho ou repassado pelo acessório externo por
-      Bluetooth. A metade que só faz conta (sem tocar hardware) já foi
-      escrita e testada; falta a metade que liga o rádio de verdade.
-
-      *Detalhe técnico:* o lado `core/connectivity/` (contrato: UUIDs
-      do Nordic UART Service, decodificação de identificador físico)
-      já está escrito e testado — ver
-      [architecture.md, pacote `connectivity`](<architecture.md#pacote-connectivity--desenho-interno>),
-      [decisions/0015](<../decisions/0015-fronteira-entre-core-e-app-no-pacote-connectivity.md>)
-      e
-      [decisions/0016](<../decisions/0016-formato-do-identificador-na-notificacao-bluetooth.md>).
-      Falta o lado `app`: `connectivity/BleAccessoryService.kt` (cliente
-      GATT de verdade, PD-CON-01 a PD-CON-04) e o código de leitura NFC
-      direta na `Activity` de entrada já existente (`enableReaderMode`,
-      DA-LEI-04) — os dois já com desenho fechado, sem pendência de
-      decisão; falta só escrever. Nenhum dos dois espera nada: nem
-      desenho visual de tela (a `Activity` de entrada já existe), nem o
-      firmware do acessório (o formato do dado já está decidido em
-      decisions/0016).
 
 - [ ] **Escrever o código-fonte do pacote `report` (núcleo do
       aplicativo).**
@@ -172,6 +148,22 @@ Convenção dos códigos citados aqui:
       confirmação de saída) — como agrupar esses estados em telas
       físicas é parte do próprio desenho visual pendente. Sem
       responsável definido ainda (designer, ou o próprio usuário).
+
+- [ ] **Decidir ferramenta de teste pro módulo `app`.**
+
+      *Resumo simples:* o `core` já tem ferramenta de teste fixada
+      (`kotlin-test`), mas o `app` não — hoje só é testado compilando
+      de verdade, sem checar nenhum comportamento.
+
+      *Detalhe técnico:* código que toca API do Android (o `Service`
+      de Bluetooth, a leitura NFC do pacote `connectivity`, ver
+      [decisions/0015](<../decisions/0015-fronteira-entre-core-e-app-no-pacote-connectivity.md>))
+      não dá pra testar com `kotlin-test` comum — precisa ou de um
+      aparelho/emulador de verdade (teste instrumentado) ou de uma
+      ferramenta que simule partes do Android dentro do próprio
+      computador (ex.: Robolectric). Nenhuma das duas foi escolhida
+      ainda. Levantada durante a escrita do lado `app` do pacote
+      `connectivity`, testado só por compilação real até agora.
 
 - [ ] **Escrever os testes de unidade, integração, sistema e
       aceitação.**
@@ -321,6 +313,18 @@ Convenção dos códigos citados aqui:
       [decisions/0013-desenho-do-pacote-content.md](<../decisions/0013-desenho-do-pacote-content.md>).
       Uma armadilha de ferramenta encontrada no caminho, ver
       [pitfalls.md](<pitfalls.md#armadilhas>).
+- [x] **Escrever o código-fonte do lado `app` do pacote `connectivity`
+      (`Service` de Bluetooth, leitura NFC na `Activity` de entrada).**
+      Resolvido — ver
+      [decisions/0015](<../decisions/0015-fronteira-entre-core-e-app-no-pacote-connectivity.md>),
+      [decisions/0017](<../decisions/0017-quem-decide-a-tecnologia-de-leitura.md>)
+      e
+      [decisions/0018](<../decisions/0018-estrategia-de-permissao-de-bluetooth-e-nfc.md>).
+      Testado só por compilação real (`gradlew :app:assembleDebug`,
+      `BUILD SUCCESSFUL`) — sem teste automatizado, ver pendência
+      "Decidir ferramenta de teste pro módulo `app`" abaixo. Uma
+      armadilha de ferramenta encontrada no caminho, ver
+      [pitfalls.md](<pitfalls.md#armadilhas>).
 
 ## Referências
 
@@ -360,3 +364,4 @@ como mudança de conteúdo real. -->
 | 0.12.0 | 14-08-2026 | Pendência nova "Avaliar importação parcial de conteúdo (só um tema ou evento novo)" acrescentada. | Pergunta direta, durante a revisão do pacote `content` |
 | 0.13.0 | 14-08-2026 | Pendência "Escrever o código-fonte do pacote `connectivity`" reduzida ao lado `app` (`Service` de Bluetooth, leitura NFC) — o lado `core` já foi escrito, testado e removido do escopo desta pendência. | Resolução parcial de [decisions/0015](<../decisions/0015-fronteira-entre-core-e-app-no-pacote-connectivity.md>) e [decisions/0016](<../decisions/0016-formato-do-identificador-na-notificacao-bluetooth.md>) |
 | 0.14.0 | 14-08-2026 | Pendência nova "Substituir o módulo leitor NFC do acessório (PN532/C1 → PN7160)" acrescentada, sobre PD-LEI-01. | Alerta trazido diretamente, já confirmado em sessão anterior |
+| 0.15.0 | 15-08-2026 | Pendência "Escrever o código-fonte do lado `app` do pacote `connectivity`" resolvida — movida para Resolvidas. Pendência nova "Decidir ferramenta de teste pro módulo `app`" acrescentada. | Resolução de [decisions/0015](<../decisions/0015-fronteira-entre-core-e-app-no-pacote-connectivity.md>), [decisions/0017](<../decisions/0017-quem-decide-a-tecnologia-de-leitura.md>) e [decisions/0018](<../decisions/0018-estrategia-de-permissao-de-bluetooth-e-nfc.md>) |

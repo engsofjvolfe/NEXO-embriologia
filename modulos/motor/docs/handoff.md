@@ -6,8 +6,8 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Handoff |
-| Versão | 0.11.0 |
-| Data | 14-08-2026 |
+| Versão | 0.12.0 |
+| Data | 15-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
 > Resumo curto de "onde este módulo está" e "o que fazer a seguir" nele.
@@ -109,3 +109,4 @@ com o campo Versão da tabela de cabeçalho, que sempre reflete a
 | 0.9.0 | 14-08-2026 | Acrescentado ponteiro para decisions/0014. | Formalização do comportamento da busca aproximada com termo vazio |
 | 0.10.0 | 14-08-2026 | Acrescentado ponteiro para decisions/0015 e 0016. | Lado `core` do pacote `connectivity` escrito e testado (contrato: UUIDs do Nordic UART Service, decodificação de identificador físico); lado `app` (`Service` de Bluetooth, leitura NFC) segue como pendência em `tasks.md` |
 | 0.11.0 | 15-08-2026 | Acrescentado ponteiro para decisions/0017 e 0018. | Registrado que a pessoa decide entre NFC e Bluetooth, nunca o aplicativo sozinho; estratégia de permissão redesenhada em cima dessa decisão |
+| 0.12.0 | 15-08-2026 | Nenhum ponteiro novo (pacote `connectivity` já citado). | Lado `app` do pacote `connectivity` escrito e testado por compilação real — pacote completo, `core` e `app` |

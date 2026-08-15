@@ -39,19 +39,16 @@
   Um sexto ponto (comportamento da busca aproximada com termo vazio)
   formalizado como decisão — ver
   [modulos/motor/decisions/0014](<modulos/motor/decisions/0014-busca-aproximada-com-termo-vazio.md>).
-- Lado `core` do pacote `connectivity` escrito e testado (contrato:
-  identificação do serviço Bluetooth do acessório, decodificação de
-  identificador físico de peça) — ver
+- Pacote `connectivity` completo (lado `core` e lado `app`) — lê a
+  peça física direto pela antena do celular ou pelo acessório externo
+  por Bluetooth; testado por teste automático (`core`) e por
+  compilação real (`app`, que ainda não tem ferramenta de teste
+  configurada) — ver
   [modulos/motor/decisions/0015](<modulos/motor/decisions/0015-fronteira-entre-core-e-app-no-pacote-connectivity.md>)
-  e
-  [modulos/motor/decisions/0016](<modulos/motor/decisions/0016-formato-do-identificador-na-notificacao-bluetooth.md>).
-  Registrado que é a pessoa quem decide usar NFC ou Bluetooth, nunca
-  uma escolha automática do aplicativo — ver
-  [modulos/motor/decisions/0017](<modulos/motor/decisions/0017-quem-decide-a-tecnologia-de-leitura.md>)
-  e
+  a
   [modulos/motor/decisions/0018](<modulos/motor/decisions/0018-estrategia-de-permissao-de-bluetooth-e-nfc.md>).
-  Lado `app` (o código que liga o Bluetooth e a antena NFC de verdade)
-  segue em [modulos/motor/docs/tasks.md, Em aberto](modulos/motor/docs/tasks.md#em-aberto).
+  Registrado que é a pessoa quem decide usar NFC ou Bluetooth, nunca
+  uma escolha automática do aplicativo (decisions/0017).
 - [TASKS.md, Resolvidas](TASKS.md#resolvidas) — pendências já corrigidas.
 
 ## Próximo passo

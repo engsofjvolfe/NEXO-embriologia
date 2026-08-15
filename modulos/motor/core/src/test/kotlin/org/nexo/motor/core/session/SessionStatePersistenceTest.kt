@@ -58,4 +58,19 @@ class SessionStatePersistenceTest {
         assertEquals(true, conteudo.contains("\"expectedEventName\""))
         assertEquals(true, conteudo.contains("\"paused\": true"))
     }
+
+    @Test
+    fun `deleteSessionState apaga o estado retomavel, EI-PAU-03`() {
+        val estado = SessionState(
+            expectedEventName = "Evento A",
+            expectedPosition = 1,
+            paused = true,
+            log = emptyList(),
+        )
+        saveSessionState(estado, arquivoTemporario.toFile())
+
+        deleteSessionState(arquivoTemporario.toFile())
+
+        assertNull(loadSessionState(arquivoTemporario.toFile()))
+    }
 }

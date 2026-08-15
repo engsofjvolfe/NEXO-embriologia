@@ -304,4 +304,20 @@ class ContentImportTest {
             },
         )
     }
+
+    @Test
+    fun `importContentPackage acumula mais de uma violacao independente na mesma passada, varredura completa da decisao 3 da ADR 0013`() {
+        val temaA = theme("Tema repetido", events = listOf(event("Evento 1", frames = listOf(frame("01")))))
+        val temaB = theme("Tema repetido", events = listOf(event("Evento 2", frames = listOf(frame("01")))))
+
+        val result = importContentPackage(manifest(listOf(temaA, temaB)))
+
+        assertNull(result.instance)
+        assertTrue(
+            result.violations.any {
+                it is ContentViolation.Hierarchy && it.violation is HierarchyViolation.DuplicateThemeName
+            },
+        )
+        assertTrue(result.violations.any { it is ContentViolation.DuplicateTagId && it.tagId == "01" })
+    }
 }

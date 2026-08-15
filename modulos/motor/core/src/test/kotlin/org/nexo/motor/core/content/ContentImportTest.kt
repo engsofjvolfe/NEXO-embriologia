@@ -9,8 +9,8 @@ import org.nexo.motor.core.hierarchy.Ordering
 
 class ContentImportTest {
 
-    private fun frame(tagId: String, image: String = "img.png") =
-        """{"tag_id": "$tagId", "image": "$image"}"""
+    private fun frame(tagId: String, image: String = "img.png", summaryFragment: String? = "fragmento de resumo") =
+        """{"tag_id": "$tagId", "image": "$image"${summaryFragment?.let { ", \"summary_fragment\": \"$it\"" } ?: ""}}"""
 
     private fun event(
         name: String,
@@ -52,7 +52,7 @@ class ContentImportTest {
         """.trimIndent()
     }
 
-    private fun manifest(themes: List<String>, schemaVersion: String = "1.0.0"): String =
+    private fun manifest(themes: List<String>, schemaVersion: String = "2.0.0"): String =
         """
             {
               "schema_version": "$schemaVersion",
@@ -76,6 +76,7 @@ class ContentImportTest {
         assertEquals("Tema A", instance.themes.first().name)
         assertEquals(Ordering.Standalone, instance.themes.first().ordering)
         assertEquals("01", instance.themes.first().events.first().frames.first().tagId)
+        assertEquals("fragmento de resumo", instance.themes.first().events.first().frames.first().summaryFragment)
     }
 
     @Test
@@ -126,8 +127,17 @@ class ContentImportTest {
     }
 
     @Test
+    fun `importContentPackage rejeita schema_version 1_0_0, versao anterior sem summary_fragment obrigatorio`() {
+        val result = importContentPackage(manifest(listOf(theme("Tema A")), schemaVersion = "1.0.0"))
+
+        assertNull(result.instance)
+        val violation = result.violations.single() as ContentViolation.InvalidManifest
+        assertTrue(violation.reason.contains("schema_version"))
+    }
+
+    @Test
     fun `importContentPackage rejeita instance ausente`() {
-        val result = importContentPackage("""{"schema_version": "1.0.0"}""")
+        val result = importContentPackage("""{"schema_version": "2.0.0"}""")
 
         assertNull(result.instance)
         val violation = result.violations.single() as ContentViolation.InvalidManifest
@@ -138,7 +148,7 @@ class ContentImportTest {
     fun `importContentPackage rejeita retention_period fora do padrao ISO 8601`() {
         val json = """
             {
-              "schema_version": "1.0.0",
+              "schema_version": "2.0.0",
               "instance": {
                 "name": "Instancia",
                 "retention_period": "6 meses",
@@ -158,7 +168,7 @@ class ContentImportTest {
     fun `importContentPackage rejeita name que nao e string, mesmo com o mesmo texto`() {
         val json = """
             {
-              "schema_version": "1.0.0",
+              "schema_version": "2.0.0",
               "instance": {
                 "name": 123,
                 "retention_period": "P6M",
@@ -200,7 +210,7 @@ class ContentImportTest {
 
     @Test
     fun `importContentPackage recusa o pacote inteiro quando um fotograma vem malformado, mesmo com outro fotograma correto no mesmo evento`() {
-        val fotogramaSemImage = """{"tag_id": "01"}"""
+        val fotogramaSemImage = """{"tag_id": "01", "summary_fragment": "fragmento"}"""
         val eventoComFotogramaRuim = event("Evento com fotograma ruim", frames = listOf(fotogramaSemImage, frame("02")))
 
         val result = importContentPackage(manifest(listOf(theme("Tema A", events = listOf(eventoComFotogramaRuim)))))
@@ -208,6 +218,19 @@ class ContentImportTest {
         assertNull(result.instance)
         assertTrue(
             result.violations.any { it is ContentViolation.InvalidFrame && it.reason.contains("image") },
+        )
+    }
+
+    @Test
+    fun `importContentPackage rejeita fotograma sem summary_fragment, schema_version 2_0_0`() {
+        val fotogramaSemFragmento = frame("01", summaryFragment = null)
+        val eventoComFotogramaSemFragmento = event("Evento", frames = listOf(fotogramaSemFragmento))
+
+        val result = importContentPackage(manifest(listOf(theme("Tema A", events = listOf(eventoComFotogramaSemFragmento)))))
+
+        assertNull(result.instance)
+        assertTrue(
+            result.violations.any { it is ContentViolation.InvalidFrame && it.reason.contains("summary_fragment") },
         )
     }
 

@@ -6,7 +6,7 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Handoff |
-| Versão | 0.16.0 |
+| Versão | 0.17.0 |
 | Data | 15-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
@@ -121,3 +121,4 @@ com o campo Versão da tabela de cabeçalho, que sempre reflete a
 | 0.14.0 | 15-08-2026 | Acrescentado ponteiro para decisions/0019. | Mecanismo de geração, guarda e compartilhamento do relatório decidido (pacote `report`) |
 | 0.15.0 | 15-08-2026 | Acrescentado ponteiro para decisions/0020. | Ligação entre leitura de peça, lógica de sessão e tela decidida (`ViewModel`) |
 | 0.16.0 | 15-08-2026 | Acrescentado ponteiro para decisions/0021. | Quem monta o texto de resumo e síntese decidido (pacote `summary`, com mudança de contrato de dado) |
+| 0.17.0 | 15-08-2026 | Nenhum ponteiro novo (decisions/0008 e 0019 já citadas, `findings.md`/`analysis.md`/`tasks.md` genéricos). | Registro de sessão completado frente a EI-REG-01; `content` atualizado pro contrato `2.0.0`; pacotes `summary` e `report` escritos, `report` dividido entre `core` e `app` |

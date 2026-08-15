@@ -12,7 +12,7 @@ import org.nexo.motor.core.hierarchy.Ordering
 import org.nexo.motor.core.hierarchy.Theme as HierarchyTheme
 import org.nexo.motor.core.hierarchy.validate as validateHierarchy
 
-private const val SUPPORTED_SCHEMA_VERSION = "1.0.0"
+private const val SUPPORTED_SCHEMA_VERSION = "2.0.0"
 private val RETENTION_PERIOD_PATTERN = Regex("^P(?!\$)(\\d+Y)?(\\d+M)?(\\d+D)?\$")
 private val TAG_ID_PATTERN = Regex("^[0-9A-F]+\$")
 
@@ -173,6 +173,7 @@ private fun parseFrame(json: JsonElement, path: String, violations: MutableList<
 
     val tagId = obj["tag_id"].asStringOrNull()
     val image = obj["image"].asStringOrNull()
+    val summaryFragment = obj["summary_fragment"].asStringOrNull()
 
     val errors = mutableListOf<String>()
     if (tagId.isNullOrEmpty()) {
@@ -181,13 +182,19 @@ private fun parseFrame(json: JsonElement, path: String, violations: MutableList<
         errors += "\"tag_id\" não bate com o padrão [0-9A-F]+"
     }
     if (image.isNullOrEmpty()) errors += "\"image\" ausente"
+    if (summaryFragment.isNullOrEmpty()) errors += "\"summary_fragment\" ausente"
 
     if (errors.isNotEmpty()) {
         violations += ContentViolation.InvalidFrame(path, errors.joinToString("; "))
         return null
     }
 
-    return Frame(tagId = tagId!!, image = image!!, confirmationText = obj["confirmation_text"].asStringOrNull())
+    return Frame(
+        tagId = tagId!!,
+        image = image!!,
+        confirmationText = obj["confirmation_text"].asStringOrNull(),
+        summaryFragment = summaryFragment!!,
+    )
 }
 
 private fun ContentInstance.toHierarchyInstance(): HierarchyInstance =

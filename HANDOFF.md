@@ -54,6 +54,13 @@
   Brasil — nenhum documento da cascata trata disso; pendência nova,
   ainda sem decisão — ver
   [modulos/motor/docs/tasks.md, Em aberto](<modulos/motor/docs/tasks.md#em-aberto>).
+- Registro interno de sessão completado (horário de cada acontecimento,
+  sugestão de estudo exibida, pausa distinta de ociosidade — os três já
+  exigidos pela Especificação, faltavam no código); pacote `content`
+  atualizado pro contrato de dado `2.0.0`; pacotes `summary` e `report`
+  escritos, este último dividido entre `core` (dado puro) e `app`
+  (desenho do PDF, escrita no aparelho) — ver
+  [modulos/motor/docs/handoff.md](modulos/motor/docs/handoff.md).
 - [TASKS.md, Resolvidas](TASKS.md#resolvidas) — pendências já corrigidas.
 
 ## Próximo passo

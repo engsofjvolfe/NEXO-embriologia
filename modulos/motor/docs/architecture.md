@@ -6,7 +6,7 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Architecture |
-| Versão | 0.18.0 |
+| Versão | 0.21.0 |
 | Data | 15-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
@@ -346,17 +346,30 @@ API pública:
 
 ```
 core/session/
-  SessionState.kt              SessionState (retrato imutável), SessionEvent (registro interno),
-                                errorCount(event), consecutiveAttempts(position) — derivados do registro
+  SessionState.kt              SessionState (retrato imutável), SessionEvent (registro interno,
+                                sete variantes: AttemptAccepted, AttemptRejected, HintUsed,
+                                StudySuggestionShown, PositionSkipped, Paused, WentIdle — cada
+                                uma com timestamp próprio), errorCount(event), consecutiveAttempts(position)
+                                — derivados do registro
   SessionScope.kt               sessionScope<T>(siblings: List<T>, ordering: (T) -> Ordering, from: T, until: T): List<T>
   SessionTransitions.kt         recordAttempt, skipPosition, hintAvailable, useHint,
-                                 studySuggestionAvailable, eventComplete, continueToNextEvent,
-                                 pause, resume — cada uma devolve um novo SessionState, nunca altera
-                                 o estado recebido em lugar
+                                 studySuggestionAvailable, showStudySuggestion, eventComplete,
+                                 continueToNextEvent, pause, goIdle, resume — cada uma devolve um
+                                 novo SessionState, nunca altera o estado recebido em lugar
   SessionStatePersistence.kt    saveSessionState(state: SessionState, file: File),
                                  loadSessionState(file: File): SessionState?,
                                  deleteSessionState(file: File)
 ```
+
+Todo evento do registro carrega o próprio horário (`timestamp: Long`,
+milissegundos), recebido como parâmetro explícito por quem chama cada
+função de transição — mesma lógica de `expectedTagId` abaixo: `session`
+não lê relógio nenhum sozinho, só guarda o valor que recebe.
+`showStudySuggestion` registra o momento em que a sugestão de estudo
+aparece na tela, mesmo padrão já usado entre `hintAvailable`/`useHint`.
+Horário, `WentIdle` e `StudySuggestionShown` fecham uma lacuna entre o
+registro e EI-REG-01 — motivo completo em
+[findings.md](<findings.md#2026-08-15-registro-de-sessao-incompleto-frente-a-ei-reg-01>).
 
 `recordAttempt` e `continueToNextEvent` recebem o identificador
 esperado (`expectedTagId`) e o nome do próximo evento como parâmetro,
@@ -598,24 +611,64 @@ configurada ainda pra código que toca API do Android (diferente do
 *Em resumo:* dentro do núcleo, o pacote `report` monta o conteúdo dos
 dois formatos de relatório (CSV e PDF) a partir do registro que
 `session` já mantém — nunca decide onde o arquivo é salvo no
-aparelho, só o que deveria estar escrito nele.
+aparelho, nem desenha nada. Dividido entre `core` e `app` pelo mesmo
+motivo que `connectivity` já é: a ferramenta de desenho do PDF só
+existe dentro do Android.
 
 *Em detalhe técnico:* implementa DA-REG-01/02 (dois formatos, mesmo
 registro) e EI-REG-01/02 (o que cada relatório precisa conter).
 Mecanismo de geração de cada formato, onde o arquivo fica guardado no
 aparelho, e o atalho de compartilhar na tela de resultado (DA-RET-14):
-[decisions/0019](<../decisions/0019-mecanismo-de-geracao-guarda-e-compartilhamento-do-relatorio.md>).
+[decisions/0019](<../decisions/0019-mecanismo-de-geracao-guarda-e-compartilhamento-do-relatorio.md>),
+nota de acompanhamento incluída (motivo completo em
+[findings.md](<findings.md#2026-08-15-mecanismo-de-pdf-incompativel-com-core>)).
 
-Mesma separação já usada em `content` e `session`: este pacote monta
-os bytes de cada formato a partir do registro recebido como
-parâmetro, sem depender de `Context`; escrever o arquivo de verdade
-no aparelho é responsabilidade do módulo `app` (pacote novo
-`app/report/`, irmão de `ui/` e `connectivity/`).
+API pública do lado `core` — monta só dado, nunca desenha nem escreve
+arquivo de verdade, recebendo o registro de `session` (`SessionEvent`)
+e a configuração da sessão como parâmetro (esta última ainda sem
+produtor real, porque depende da tela de configuração de sessão,
+ainda pendente — ver [`tasks.md`](tasks.md)):
 
-Testável como os demais pacotes de `core`, com `kotlin-test` + JUnit
-Jupiter
+```
+core/report/
+  Report.kt   EventConfiguration(eventName, skipEnabled, hintThreshold, studyThreshold),
+              SessionConfiguration(eventNames, startingPosition, idleThresholdMillis, events),
+              sessionEventTypeName(event: SessionEvent): String — nome em português de cada
+              uma das sete variantes de SessionEvent, usado nas duas linhas abaixo
+              buildReportCsv(configuration, log: List<SessionEvent>): String — texto CSV,
+              escapado conforme RFC 4180 (DA-REG-01), terminador de linha CRLF
+              buildReportPdfLines(configuration, log: List<SessionEvent>): List<String> —
+              uma linha de texto por item; app/report desenha cada linha, nunca decide o texto
+```
+
+API do lado `app` — só aqui existe classe do Android:
+
+```
+app/report/
+  ReportPdfRenderer.kt   renderReportPdf(lines: List<String>): PdfDocument — desenha cada
+                          linha com Canvas, paginando quando a página enche
+  ReportFileWriter.kt     writeReportCsv/writeReportPdf(context, fileName, conteúdo,
+                          onWritten: (Uri) -> Unit) — os dois caminhos da decisão 3 de
+                          decisions/0019 (MediaStore.Downloads a partir do Android 10;
+                          getExternalStoragePublicDirectory + MediaScannerConnection.scanFile
+                          antes disso), sempre entregando um content:// Uri pro callback
+  ReportShareIntent.kt    buildReportShareIntent(csvUri, pdfUri): Intent — ACTION_SEND_MULTIPLE,
+                          tipo genérico "*/*", decisão 4 de decisions/0019
+```
+
+`AndroidManifest.xml` ganha `WRITE_EXTERNAL_STORAGE` com
+`android:maxSdkVersion="28"`, ao lado das já existentes de Bluetooth e
+NFC. Nenhuma tela ainda chama esse código — a chamada real (a partir
+da tela de resultado, DA-RET-14) fica pra quando o desenho visual das
+telas acontecer (ver [`tasks.md`](tasks.md)), mesma situação que
+`app/connectivity` já tinha antes do `ViewModel` existir.
+
+Lado `core` testável com `kotlin-test` + JUnit Jupiter
 ([decisions/0005](<../decisions/0005-abordagem-de-teste-do-nucleo-do-motor.md>)),
-já que não depende de nenhuma classe do Android.
+mesma ferramenta de todo pacote de `core`. Lado `app` testado só por
+compilação real (`gradlew :app:assembleDebug`), mesmo padrão já usado
+em `app/connectivity`, porque `app` ainda não tem ferramenta de teste
+configurada pra código que toca API do Android (ver [`tasks.md`](tasks.md)).
 
 #### Pacote `summary` — desenho interno
 
@@ -628,6 +681,30 @@ sabem, sem conhecer nenhum dos dois por dentro.
 Mecanismo completo, incluindo o campo novo no contrato de dado
 (`summary_fragment`, ver [concept.md](<concept.md#contrato-de-dado>)):
 [decisions/0021](<../decisions/0021-quem-monta-o-texto-de-resumo-e-sintese.md>).
+
+API pública, recebendo sempre dado já extraído de `session`/`content`
+pelo `ViewModel` — o pacote nunca conhece esses dois por dentro, mesmo
+espírito de `search`:
+
+```
+core/summary/
+  Summary.kt   PositionOutcome (sealed: Answered(position, confirmationText), Skipped(position)),
+               AnsweredPosition, SkipMessage(answered, unansweredPositions),
+               buildSkipMessage(positions: List<PositionOutcome>): SkipMessage — EI-PUL-05
+               ChainOutcome (Filled/Lost), ChainSkipSynthesis(filledCount, lostCount),
+               buildChainSkipSynthesis(outcomes: List<ChainOutcome>): ChainSkipSynthesis — EI-ENC-03, caso com pulo
+               buildContinuousSynthesis(summaryFragmentsInOrder: List<String>): String — EI-RET-04, EI-ENC-03 sem pulo
+```
+
+`buildSkipMessage` nunca recebe nem devolve o conteúdo de uma posição
+pulada — só a posição em si, preservando a proibição de revelar
+conteúdo pulado (EI-PUL-05, Documento de Conceito, seções 1 e 13).
+`buildContinuousSynthesis` concatena os fragmentos na ordem recebida,
+com um espaço simples entre eles — quem monta o conteúdo já escreve
+cada `summary_fragment` pensando em encaixar com o vizinho (ver
+[decisions/0021](<../decisions/0021-quem-monta-o-texto-de-resumo-e-sintese.md>)),
+então a função em si não precisa de nenhuma pontuação especial, só
+juntar.
 
 Testável como os demais pacotes de `core`, com `kotlin-test` + JUnit
 Jupiter
@@ -847,3 +924,6 @@ com o campo Versão da tabela de cabeçalho, que sempre reflete a
 | 0.16.0 | 15-08-2026 | Acrescentado o desenho interno do pacote `report` (geração de CSV e PDF sem biblioteca externa, guarda na pasta pública "Downloads" do aparelho por dois caminhos conforme a versão do Android, atalho de compartilhar na tela de resultado); acrescentado pacote `report` na árvore de `app`; ajustado o ponteiro na seção do pacote `session` que citava `report` como "ainda não desenhado". | Resolução de [decisions/0019-mecanismo-de-geracao-guarda-e-compartilhamento-do-relatorio.md](<../decisions/0019-mecanismo-de-geracao-guarda-e-compartilhamento-do-relatorio.md>) |
 | 0.17.0 | 15-08-2026 | Acrescentada a seção "Ligação com o núcleo do motor" (ViewModel que guarda o estado da sessão, alimentado por função direta a partir de `MainActivity`/`BleAccessoryService`, nunca por referência à tela ou ao `Service`); ajustado o parágrafo do pacote `connectivity` que apontava esse consumo como pendência. | Resolução de [decisions/0020-ligacao-entre-leitura-de-peca-e-a-tela.md](<../decisions/0020-ligacao-entre-leitura-de-peca-e-a-tela.md>) |
 | 0.18.0 | 15-08-2026 | Acrescentado o desenho interno do pacote `summary` (mensagem de pulo como dado organizado, síntese sem pulo concatenando `summary_fragment`) e o pacote `summary` na árvore de `core`; ajustado o parágrafo do pacote `session` que citava a montagem de texto como responsabilidade indefinida de `content`. | Resolução de [decisions/0021-quem-monta-o-texto-de-resumo-e-sintese.md](<../decisions/0021-quem-monta-o-texto-de-resumo-e-sintese.md>) |
+| 0.19.0 | 15-08-2026 | Seção do pacote `session` revisada: `SessionEvent` ganha `timestamp` em toda variante e dois tipos novos (`StudySuggestionShown`, `WentIdle`, ao lado do `Paused` já existente); API pública atualizada com `showStudySuggestion` e `goIdle`. | Nota de acompanhamento em [decisions/0008](<../decisions/0008-representacao-do-estado-da-sessao.md>), achado [findings.md#2026-08-15-registro-de-sessao-incompleto-frente-a-ei-reg-01](<findings.md#2026-08-15-registro-de-sessao-incompleto-frente-a-ei-reg-01>) |
+| 0.20.0 | 15-08-2026 | Seção do pacote `summary` ganha a API pública (`buildSkipMessage`, `buildChainSkipSynthesis`, `buildContinuousSynthesis`), que faltava. | Escrita do código-fonte do pacote `summary` |
+| 0.21.0 | 15-08-2026 | Seção do pacote `report` reescrita: dividido entre `core/report/` (dado puro) e `app/report/` (desenho do PDF, escrita no aparelho, atalho de compartilhar), corrigindo a afirmação de que o pacote inteiro ficaria sem depender de Android. | Nota de acompanhamento em [decisions/0019](<../decisions/0019-mecanismo-de-geracao-guarda-e-compartilhamento-do-relatorio.md>), achado [findings.md#2026-08-15-mecanismo-de-pdf-incompativel-com-core](<findings.md#2026-08-15-mecanismo-de-pdf-incompativel-com-core>) |

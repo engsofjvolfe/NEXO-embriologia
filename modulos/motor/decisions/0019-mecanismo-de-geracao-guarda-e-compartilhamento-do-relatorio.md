@@ -194,6 +194,35 @@ restrito à tela de resultado (DA-RET-14), logo depois da sessão
 terminar — o NEXO não ganha, com esta ADR, nenhuma tela de histórico
 pra rever ou compartilhar relatórios de sessões passadas.
 
+**Nota de acompanhamento (15-08-2026):**
+
+*Resumo simples:* essa decisão tinha um erro — dizia que a parte do
+código que monta o relatório ficaria inteira livre de qualquer coisa
+específica do Android, mas isso não é possível: desenhar o PDF é, por
+natureza, uma tarefa do Android. A correção não troca a ferramenta
+escolhida pra gerar o PDF, só ajusta em que lugar do projeto esse
+pedaço de código mora.
+
+*Detalhe técnico:* a frase "pode continuar sem depender de classe do
+Android, testável como os demais pacotes de `core`", nas
+Consequências, estava errada — corrigida agora, sem mudar a
+ferramenta escolhida no ponto 1 (`PdfDocument` continua sendo a
+ferramenta certa). Achado completo, com o raciocínio e o teste que o
+confirmou, em
+[findings.md#2026-08-15-mecanismo-de-pdf-incompativel-com-core](<../docs/findings.md#2026-08-15-mecanismo-de-pdf-incompativel-com-core>) —
+não repetido aqui.
+
+`report` passa a ser dividido do mesmo jeito que `connectivity` já é
+(ver [decisions/0015](0015-fronteira-entre-core-e-app-no-pacote-connectivity.md)):
+`core/report/` monta só dado (texto do CSV, lista de linhas do
+conteúdo do PDF), sem nenhuma classe do Android, testável com
+`kotlin-test`; `app/report/` desenha o PDF de verdade
+(`PdfDocument`/`Canvas`), escreve os dois arquivos no aparelho (pontos
+3 e 4 desta ADR, sem mudança) e monta o atalho de compartilhar —
+testado só por compilação real
+(`gradlew :app:assembleDebug`), mesmo padrão já usado no lado `app` de
+`connectivity`.
+
 ## Referências
 
 Fontes externas citadas no Contexto, no formato definido pela norma

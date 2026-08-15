@@ -23,10 +23,12 @@ class SessionStatePersistenceTest {
             expectedPosition = 3,
             paused = false,
             log = listOf(
-                SessionEvent.AttemptAccepted(eventName = "Evento A", position = 1),
-                SessionEvent.AttemptRejected(eventName = "Evento A", position = 2),
-                SessionEvent.HintUsed(eventName = "Evento A", position = 2),
-                SessionEvent.AttemptAccepted(eventName = "Evento A", position = 2),
+                SessionEvent.AttemptAccepted(eventName = "Evento A", position = 1, timestamp = 1000L),
+                SessionEvent.AttemptRejected(eventName = "Evento A", position = 2, timestamp = 1001L),
+                SessionEvent.HintUsed(eventName = "Evento A", position = 2, timestamp = 1002L),
+                SessionEvent.StudySuggestionShown(eventName = "Evento A", position = 2, timestamp = 1003L),
+                SessionEvent.WentIdle(eventName = "Evento A", position = 2, timestamp = 1004L),
+                SessionEvent.AttemptAccepted(eventName = "Evento A", position = 2, timestamp = 1005L),
             ),
         )
 

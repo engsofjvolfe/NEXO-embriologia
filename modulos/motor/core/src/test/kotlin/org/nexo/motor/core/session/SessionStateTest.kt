@@ -8,10 +8,10 @@ class SessionStateTest {
     @Test
     fun `errorCount conta so tentativas rejeitadas do evento, decisao 3 da ADR 0008`() {
         val log = listOf(
-            SessionEvent.AttemptRejected(eventName = "Evento A", position = 1),
-            SessionEvent.AttemptRejected(eventName = "Evento A", position = 1),
-            SessionEvent.AttemptAccepted(eventName = "Evento A", position = 1),
-            SessionEvent.AttemptRejected(eventName = "Evento B", position = 1),
+            SessionEvent.AttemptRejected(eventName = "Evento A", position = 1, timestamp = 1L),
+            SessionEvent.AttemptRejected(eventName = "Evento A", position = 1, timestamp = 2L),
+            SessionEvent.AttemptAccepted(eventName = "Evento A", position = 1, timestamp = 3L),
+            SessionEvent.AttemptRejected(eventName = "Evento B", position = 1, timestamp = 4L),
         )
 
         assertEquals(2, errorCount(log, eventName = "Evento A"))
@@ -21,11 +21,11 @@ class SessionStateTest {
     @Test
     fun `errorCount nunca zera, mesmo apos a posicao avancar, EI-ERR-02`() {
         val log = listOf(
-            SessionEvent.AttemptRejected(eventName = "Evento A", position = 1),
-            SessionEvent.AttemptAccepted(eventName = "Evento A", position = 1),
-            SessionEvent.AttemptRejected(eventName = "Evento A", position = 2),
-            SessionEvent.AttemptRejected(eventName = "Evento A", position = 2),
-            SessionEvent.AttemptAccepted(eventName = "Evento A", position = 2),
+            SessionEvent.AttemptRejected(eventName = "Evento A", position = 1, timestamp = 1L),
+            SessionEvent.AttemptAccepted(eventName = "Evento A", position = 1, timestamp = 2L),
+            SessionEvent.AttemptRejected(eventName = "Evento A", position = 2, timestamp = 3L),
+            SessionEvent.AttemptRejected(eventName = "Evento A", position = 2, timestamp = 4L),
+            SessionEvent.AttemptAccepted(eventName = "Evento A", position = 2, timestamp = 5L),
         )
 
         assertEquals(3, errorCount(log, eventName = "Evento A"))
@@ -39,9 +39,9 @@ class SessionStateTest {
     @Test
     fun `consecutiveAttempts conta so as rejeicoes seguidas mais recentes daquela posicao, EI-DIC-01`() {
         val log = listOf(
-            SessionEvent.AttemptRejected(eventName = "Evento A", position = 1),
-            SessionEvent.AttemptRejected(eventName = "Evento A", position = 1),
-            SessionEvent.AttemptRejected(eventName = "Evento A", position = 1),
+            SessionEvent.AttemptRejected(eventName = "Evento A", position = 1, timestamp = 1L),
+            SessionEvent.AttemptRejected(eventName = "Evento A", position = 1, timestamp = 2L),
+            SessionEvent.AttemptRejected(eventName = "Evento A", position = 1, timestamp = 3L),
         )
 
         assertEquals(3, consecutiveAttempts(log, eventName = "Evento A", position = 1))
@@ -50,9 +50,9 @@ class SessionStateTest {
     @Test
     fun `consecutiveAttempts zera quando a posicao e preenchida por acerto`() {
         val log = listOf(
-            SessionEvent.AttemptRejected(eventName = "Evento A", position = 1),
-            SessionEvent.AttemptRejected(eventName = "Evento A", position = 1),
-            SessionEvent.AttemptAccepted(eventName = "Evento A", position = 1),
+            SessionEvent.AttemptRejected(eventName = "Evento A", position = 1, timestamp = 1L),
+            SessionEvent.AttemptRejected(eventName = "Evento A", position = 1, timestamp = 2L),
+            SessionEvent.AttemptAccepted(eventName = "Evento A", position = 1, timestamp = 3L),
         )
 
         assertEquals(0, consecutiveAttempts(log, eventName = "Evento A", position = 1))
@@ -61,8 +61,8 @@ class SessionStateTest {
     @Test
     fun `consecutiveAttempts zera quando a posicao e preenchida por pulo, EI-DIC-01`() {
         val log = listOf(
-            SessionEvent.AttemptRejected(eventName = "Evento A", position = 1),
-            SessionEvent.PositionSkipped(eventName = "Evento A", position = 1),
+            SessionEvent.AttemptRejected(eventName = "Evento A", position = 1, timestamp = 1L),
+            SessionEvent.PositionSkipped(eventName = "Evento A", position = 1, timestamp = 2L),
         )
 
         assertEquals(0, consecutiveAttempts(log, eventName = "Evento A", position = 1))
@@ -71,10 +71,10 @@ class SessionStateTest {
     @Test
     fun `consecutiveAttempts nao mistura posicoes ou eventos diferentes`() {
         val log = listOf(
-            SessionEvent.AttemptRejected(eventName = "Evento A", position = 1),
-            SessionEvent.AttemptRejected(eventName = "Evento A", position = 1),
-            SessionEvent.AttemptRejected(eventName = "Evento A", position = 2),
-            SessionEvent.AttemptRejected(eventName = "Evento B", position = 1),
+            SessionEvent.AttemptRejected(eventName = "Evento A", position = 1, timestamp = 1L),
+            SessionEvent.AttemptRejected(eventName = "Evento A", position = 1, timestamp = 2L),
+            SessionEvent.AttemptRejected(eventName = "Evento A", position = 2, timestamp = 3L),
+            SessionEvent.AttemptRejected(eventName = "Evento B", position = 1, timestamp = 4L),
         )
 
         assertEquals(1, consecutiveAttempts(log, eventName = "Evento A", position = 2))

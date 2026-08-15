@@ -11,7 +11,7 @@ Todas as leituras sugeridas nesse documento devem ser feitas na íntegra, sem fe
 - Entender o projeto a partir da leitura de [Conceito Geral](<../docs/docs-VMODEL-visao-geral/1 - documento-de-conceito-geral.md>)
 - LER [prompt model](<../docs/prompt model.txt>)
 
-> Para este projeto apenas os documentos 1 e 2 aqui
+> Para este projeto apenas os documentos 1, 2, 3, 4 e 5 aqui
 [DOCS](../docs/docs-VMODEL-visao-geral) não seguem um padrão especificado
 
 ## Fonte de verdade

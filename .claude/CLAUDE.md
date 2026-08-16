@@ -1,75 +1,45 @@
 # CLAUDE.md
 
-Este documento bem como todos os citados nele devem ser lidos na íntegra, sem ferramentas de resumo, sem cortes, sem negociação
-
 Instruções para o Claude Code neste repositório.
-Todas as leituras sugeridas nesse documento devem ser feitas na íntegra, sem ferramentas de 
 
-**Este CLAUDE.md é de leitura obrigatória, integral, antes de ler qualquer outro documento ou memória -- inclusive antes dos arquivos de memória pessoal.**
+## Leitura obrigatória, fonte da verdade
+
+Todo documento deste projeto -- este CLAUDE.md, os importados abaixo,
+e qualquer outro citado neles -- é lido na íntegra: sem ferramenta de
+resumo, sem corte, sem exceção.
+
+Não concluir o desenho de uma mudança só a partir do que já chegou
+carregado -- tratar isso como hipótese e confirmar antes de escrever a
+correção, principalmente quando o comportamento envolve estado
+(sessão, portão de entrada, condicional).
+
+**LEITURA MANUAL OBRIGATÓRIA -- antes de qualquer outra coisa:**
+
+- [1 - documento-de-conceito-geral.md](<../docs/docs-VMODEL-visao-geral/1 - documento-de-conceito-geral.md>)
+- [2 - requisitos-conceito-geral.md](<../docs/docs-VMODEL-visao-geral/2 - requisitos-conceito-geral.md>)
+- [3 - especificacao-conceito-geral.md](<../docs/docs-VMODEL-visao-geral/3 - especificacao-conceito-geral.md>)
+- [4 - projeto-arquitetonico.md](<../docs/docs-VMODEL-visao-geral/4 - projeto-arquitetonico.md>)
+- [5 - projeto-detalhado.md](<../docs/docs-VMODEL-visao-geral/5 - projeto-detalhado.md>)
+- [prompt model](<../docs/prompt model.txt>)
+
+- @../TASKS.md
+- @../README.md
+- @../HANDOFF.md
+- @../docs/docs-VMODEL-visao-geral/README.md
+- @../modulos/README.md
+- @../modulos/_template/docs/concept.md
+- @../modulos/_template/docs/architecture.md
+- @../modulos/_template/docs/analysis.md
+- @../modulos/_template/docs/findings.md
+- @../modulos/_template/docs/handoff.md
+- @../modulos/_template/docs/pitfalls.md
+- @../modulos/_template/docs/tasks.md
+- @../modulos/_template/schemas/README.md
+- @../modulos/_template/decisions/README.md
+- @../modulos/motor/docs/handoff.md
+- @../modulos/motor/docs/concept.md
 
 > Nos passos a seguir "você" se refere à ferramenta CLAUDE, "eu" se refere a quem está desenvolvendo o sistema com utilização da ferramenta
-
-- LER [README dos documentos VMODEL](<../docs/docs-VMODEL-visao-geral/README.md>) -- antes de tudo, porque é lá que está a regra de imutabilidade desses cinco documentos
-- Entender o projeto a partir da leitura de [Conceito Geral](<../docs/docs-VMODEL-visao-geral/1 - documento-de-conceito-geral.md>)
-- LER [prompt model](<../docs/prompt model.txt>)
-
-> Para este projeto apenas os documentos 1, 2, 3, 4 e 5 aqui
-> Esses documentos são os primeiros de leitura obrigatória, integral, antes de qualquer um dos outros.
-[DOCS](../docs/docs-VMODEL-visao-geral) não seguem um padrão especificado
-
-## Fonte de verdade
-
-Ver `HANDOFF.md` primeiro -- só aponta pro módulo certo, nunca
-contém detalhe. Ver `TASKS.md` (raiz) pras pendências, mesma regra: só
-aponta. Ver `modulos/README.md` pro índice completo dos módulos, o
-fluxo de trabalho e a convenção de escrita.
-
-## Leitura obrigatória antes de qualquer alteração
-
-Regra geral, sem fronteira de seção -- vale pra qualquer leitura, em
-qualquer momento do trabalho, não só a lista abaixo: nenhuma saída
-parcial substitui ler o conteúdo inteiro -- resultado de busca por
-padrão, trecho com contexto cortado, prévia, paginação, corte por
-tamanho, resumo gerado por qualquer ferramenta ou por outro agente,
-lembrança de leitura anterior. A regra é sobre a forma do resultado
-(parcial ou completo), não sobre qual ferramenta específica produziu
-ele -- vale pra qualquer mecanismo, presente ou futuro, que devolva
-menos que o conteúdo inteiro. Busca por padrão só serve pra uma coisa
--- checagem de existência (essa string aparece em algum lugar, sim ou
-não) -- nunca pra confirmar o que uma seção diz ou decidir se uma
-regra bate. Teste prático: depois de "ler" um documento, devia ser
-possível citar qualquer trecho dele, não só o que apareceu numa busca
--- se isso só é possível reabrindo o arquivo, a leitura anterior não
-foi completa.
-
-Ordem de leitura, nessa sequência, sempre:
-
-1. Arquivos de memória pessoal (fora da pasta do projeto) -- não uma
-   eventual pasta de memória vazia dentro do próprio projeto; a
-   memória de verdade fica associada à sessão/usuário, não ao
-   repositório. Memória é retrato de um momento, não fato vivo --
-   checar contra o estado real do repositório antes de tratar
-   qualquer coisa lida ali como verdade atual.
-2. `HANDOFF.md` e `TASKS.md` (raiz), depois `modulos/README.md`
-   completo (índice de módulos, fluxo de trabalho, e a seção "Como
-   escrever" -- fonte única do formato de todo documento do sistema).
-3. `handoff.md` e `concept.md` completos do módulo da área que for
-   mexer (não só a seção que parece relevante).
-4. `modulos/_template/` completo -- todos os arquivos-modelo dentro de
-   `docs/` (`concept.md`, `architecture.md`, `analysis.md`,
-   `findings.md`, `handoff.md`, `pitfalls.md`, `tasks.md`), incluindo o
-   `README.md` de dentro de cada subpasta irmã de `docs/`
-   (`schemas/`, `decisions/`), não só os arquivos de `docs/` sozinhos.
-   Documento já escrito, de outro módulo já existente, nunca conta
-   como fonte de regra ou formato: só `_template/` é normativo, não
-   importa quantos módulos já façam de outro jeito.
-
-Não concluir o desenho de uma mudança só a partir do código/doc lido --
-tratar isso como hipótese e confirmar antes de escrever a correção,
-principalmente quando o comportamento envolve estado (sessão, portão de
-entrada, condicional). Ler o código e inferir a partir dele, pulando o
-documento correspondente, já causou retrabalho antes -- não é atalho,
-é custo escondido.
 
 ## Fluxo de escrita e revisão de documentação
 
@@ -222,7 +192,7 @@ cd .claude/worktrees/nome-da-tarefa
 
 **Portão pro Passo 2:** a worktree existe de verdade e é o diretório
 de trabalho atual (`pwd` confirma) -- nenhuma linha de código escrita
-antes disso, e a [leitura obrigatória](#leitura-obrigatória-antes-de-qualquer-alteração)
+antes disso, e a [leitura obrigatória](#leitura-obrigatória-fonte-da-verdade)
 já feita de verdade, não presumida.
 
 ### Passo 2: Fazer o código

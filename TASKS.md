@@ -51,6 +51,27 @@
       aplicativo — cada opção com seu próprio custo de construção,
       nenhuma escolhida ainda.
 
+- [ ] **Encontrar forma de importar automaticamente os seis documentos
+      com espaço no nome (cascata VMODEL numerada + `prompt
+      model.txt`) pro `CLAUDE.md`.**
+
+      *Resumo simples:* hoje esses seis arquivos não entram na
+      importação automática do `CLAUDE.md` — precisam ser lidos
+      manualmente, toda sessão, por instrução explícita no topo do
+      documento.
+
+      *Detalhe técnico:* confirmado por teste ao vivo (sessão nova,
+      pergunta direta sobre o que carregou no contexto) que espaço no
+      nome do arquivo quebra o mecanismo de importação `@caminho` do
+      Claude Code — testado em três formatos diferentes (linha solta,
+      parágrafo separado, lista markdown) e com codificação `%20`,
+      todos falharam. Comportamento não coberto pela documentação
+      oficial (confirmado por consulta direta a ela). Renomear os
+      arquivos pra tirar o espaço foi avaliado e descartado: os cinco
+      documentos da cascata se citam entre si dentro do próprio texto
+      já aprovado, que é imutável (ver
+      [docs/docs-VMODEL-visao-geral/README.md](<docs/docs-VMODEL-visao-geral/README.md>)).
+
 - [ ] **Desenhar e construir o preview isolado do projeto.**
 
       *Resumo simples:* `modulos/preview/`, citado no `CLAUDE.md`

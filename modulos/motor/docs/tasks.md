@@ -6,7 +6,7 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Tasks |
-| Versão | 0.29.0 |
+| Versão | 0.30.0 |
 | Data | 16-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
@@ -234,28 +234,29 @@ Convenção dos códigos citados aqui:
       (`kotlin-test`), mas o `app` não — hoje só é testado compilando
       de verdade, sem checar nenhum comportamento.
 
-      *Detalhe técnico:* código que toca API do Android — o `Service`
-      de Bluetooth e a leitura NFC do pacote `connectivity`, ver
-      [decisions/0015](<../decisions/0015-fronteira-entre-core-e-app-no-pacote-connectivity.md>);
-      o desenho do PDF e a escrita de arquivo do lado `app` do pacote
-      `report`, ver
-      [architecture.md, pacote `report`](<architecture.md#pacote-report--desenho-interno>);
-      e o `SessionViewModel` inteiro (estende
-      `androidx.lifecycle.ViewModel`), incluindo `onExitConfirmed` e a
-      função de escrita do relatório que ele recebe como parâmetro, ver
-      [architecture.md, Ligação com o núcleo do motor](<architecture.md#ligação-com-o-núcleo-do-motor>)
-      e [decisions/0023](<../decisions/0023-geracao-do-relatorio-de-saida-antes-de-apagar-a-sessao.md>)
-      — não dá pra testar com `kotlin-test` comum — precisa ou de um
-      aparelho/emulador de verdade (teste instrumentado) ou de uma
-      ferramenta que simule partes do Android dentro do próprio
-      computador (ex.: Robolectric). Nenhuma das duas foi escolhida
-      ainda. Levantada durante a escrita do lado `app` do pacote
-      `connectivity`, testado só por compilação real até agora — mesmo
-      critério aplicado ao lado `app` de `report` e ao
-      `SessionViewModel` inteiro. Lista completa checada contra
-      `architecture.md` em 16-08-2026 (toda ocorrência de "testado só
-      por compilação real") — são só esses três, nenhum outro pedaço
-      de código está nessa mesma situação hoje.
+      *Detalhe técnico:* código que toca API do Android, hoje só
+      testado por compilação real, sem nenhum comportamento checado —
+      três categorias, cinco arquivos/comportamentos concretos dentro
+      delas, cada um exigindo teste próprio:
+
+      - `connectivity` (ver
+        [decisions/0015](<../decisions/0015-fronteira-entre-core-e-app-no-pacote-connectivity.md>)):
+        dois arquivos — `BleAccessoryService.kt` (Bluetooth) e
+        `MainActivity.kt` (NFC).
+      - `report`/`app` (ver
+        [architecture.md, pacote `report`](<architecture.md#pacote-report--desenho-interno>)):
+        dois arquivos — `ReportPdfRenderer.kt` (desenho do PDF) e
+        `ReportFileWriter.kt`/`ReportShareIntent.kt` (escrita e
+        compartilhamento do arquivo).
+      - `SessionViewModel` inteiro (estende
+        `androidx.lifecycle.ViewModel`, ver
+        [architecture.md, Ligação com o núcleo do motor](<architecture.md#ligação-com-o-núcleo-do-motor>)):
+        cobertura da classe inteira, incluindo `onExitConfirmed`
+        (ordem exigida por
+        [decisions/0023](<../decisions/0023-geracao-do-relatorio-de-saida-antes-de-apagar-a-sessao.md>),
+        EI-PAU-04) e o gatilho de ociosidade (`goIdle`,
+        [decisions/0024](<../decisions/0024-mecanismo-do-gatilho-de-ociosidade.md>),
+        EI-PAU-06).
 
 - [ ] **Escrever os testes de unidade, integração, sistema e
       aceitação.**
@@ -525,3 +526,4 @@ como mudança de conteúdo real. -->
 | 0.27.0 | 16-08-2026 | Linha `0.24.0` ganha a informação que faltava: o item resolvido do relatório de saída já incluía a nota de teste desde a criação, não só depois — corrige um registro incompleto do próprio histórico. | Revisão final da tarefa do relatório de saída |
 | 0.28.0 | 16-08-2026 | Pendência "Decidir o gatilho de ociosidade (EI-PAU-06)" resolvida — movida para Resolvidas. | Resolução de [decisions/0024-mecanismo-do-gatilho-de-ociosidade.md](<../decisions/0024-mecanismo-do-gatilho-de-ociosidade.md>) |
 | 0.29.0 | 16-08-2026 | Pendência "Desenhar a aparência visual das telas do motor" corrigida: não cita mais "temporizador" como gatilho ainda pendente de desenho visual — esse gatilho (ociosidade) já está resolvido, independente da aparência; só o gatilho por toque continua pendente. | Checagem mecânica antes de abrir o PR, achado por releitura completa da cadeia de documentos |
+| 0.30.0 | 16-08-2026 | Pendência "Decidir ferramenta de teste pro módulo `app`" detalhada: as três categorias (`connectivity`, `report`/`app`, `SessionViewModel`) explicitadas em cinco arquivos/comportamentos concretos que exigem teste próprio (`BleAccessoryService.kt`, `MainActivity.kt`, `ReportPdfRenderer.kt`, `ReportFileWriter.kt`/`ReportShareIntent.kt`, `onExitConfirmed` e o gatilho de ociosidade dentro de `SessionViewModel`). | Ambiguidade encontrada na auditoria desta mesma pendência, antes de escrever qualquer teste |

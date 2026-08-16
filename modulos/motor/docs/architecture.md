@@ -6,8 +6,8 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Architecture |
-| Versão | 0.22.0 |
-| Data | 15-08-2026 |
+| Versão | 0.24.0 |
+| Data | 16-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
 > Descreve como o módulo é construído por dentro — layout de arquivos,
@@ -781,15 +781,18 @@ a tela ainda vai disparar já têm método próprio no `ViewModel`
 `onExitRequested`, `onExitCancelled`, `onExitConfirmed`) — o efeito de
 cada uma (que `SessionScreen` resulta) está fechado; o gatilho exato
 na tela (toque, temporizador) continua parte do desenho visual
-pendente (ver [tasks.md](tasks.md)). `onExitConfirmed` já apaga o
-estado retomável da sessão (`deleteSessionState`, decisions/0010).
+pendente (ver [tasks.md](tasks.md)). `onExitConfirmed` recebe, como
+parâmetro obrigatório, a função que escreve o relatório de verdade
+(`writeReport: (csv: String, pdfLines: List<String>) -> Unit`) — chama
+essa função com o conteúdo já montado por `core/report`
+(`buildReportCsv`/`buildReportPdfLines`, decisions/0019) antes de
+apagar o estado retomável da sessão (`deleteSessionState`,
+decisions/0010), garantindo por construção a ordem que EI-PAU-04
+exige, mesmo sem a tela de resultado existir ainda — motivo completo
+em [decisions/0023](<../decisions/0023-geracao-do-relatorio-de-saida-antes-de-apagar-a-sessao.md>).
 
-Um ponto fica de fora do que já está escrito: gerar o relatório de
-saída (EI-PAU-04) antes de apagar o estado — mecanismo já fechado em
-decisions/0019, só falta a chamada em si, que é papel da tela de
-resultado (DA-RET-14), ainda não construída. Outro: o gatilho de
-ociosidade (EI-PAU-06) — nenhum temporizador foi decidido ainda,
-`goIdle` (`core/session`) continua sem quem o chame.
+Um ponto fica de fora do que já está escrito: o gatilho de ociosidade
+(EI-PAU-06) — pendência registrada em [tasks.md](tasks.md).
 
 Testado por compilação real (`:app:assembleDebug`), mesmo padrão já
 usado pro resto do lado `app` do módulo.
@@ -940,7 +943,7 @@ com o campo Versão da tabela de cabeçalho, que sempre reflete a
 | 0.7.0 | 14-08-2026 | Acrescentadas as transições de estado do pacote `session` (validar tentativa, pular, dica, sugestão de estudo, encadeamento, pausa/retomada) e o formato de serialização (JSON). | Resolução de [decisions/0011-formato-de-serializacao-do-estado-de-sessao.md](<../decisions/0011-formato-de-serializacao-do-estado-de-sessao.md>) |
 | 0.8.0 | 14-08-2026 | Acrescentado o esqueleto mínimo do módulo `app` (manifesto, `Application`, `Activity` sem tela) e as versões de plataforma/build que ele usa. | Resolução de [decisions/0012-versoes-de-plataforma-e-build-do-modulo-app.md](<../decisions/0012-versoes-de-plataforma-e-build-do-modulo-app.md>) |
 | 0.9.0 | 14-08-2026 | Acrescentado o desenho interno do pacote `content` (nome fixo do manifesto, validação por árvore JSON genérica item a item, regra de fotograma malformado, unicidade de `tag_id` em todo o pacote); removida a menção a `content` como "ainda não desenhado" na seção do pacote `session`. | Resolução de [decisions/0013-desenho-do-pacote-content.md](<../decisions/0013-desenho-do-pacote-content.md>) |
-| 0.10.0 | 14-08-2026 | Seção do pacote `content` revisada: regra de aceitação passa a ser tudo ou nada (qualquer violação recusa o pacote inteiro), substituindo a exclusão item a item descrita na versão anterior. | Revisão de [decisions/0013-desenho-do-pacote-content.md](<../decisions/0013-desenho-do-pacote-content.md>), em conversa direta antes de dar a tarefa como concluída |
+| 0.10.0 | 14-08-2026 | Seção do pacote `content` revisada: regra de aceitação passa a ser tudo ou nada (qualquer violação recusa o pacote inteiro), substituindo a exclusão item a item descrita na versão anterior. | Revisão direta de [decisions/0013-desenho-do-pacote-content.md](<../decisions/0013-desenho-do-pacote-content.md>), antes de dar a tarefa como concluída |
 | 0.11.0 | 14-08-2026 | Acrescentado o quarto ponto do desenho de `search` (comportamento com termo vazio). | Resolução de [decisions/0014-busca-aproximada-com-termo-vazio.md](<../decisions/0014-busca-aproximada-com-termo-vazio.md>) |
 | 0.12.0 | 14-08-2026 | Acrescentado o desenho interno do pacote `connectivity` (contrato puro em `core`, UUIDs do Nordic UART Service, decodificação de identificador físico, formato do dado transmitido pelo acessório) e a fronteira com o `Service`/`Activity` de `app` que hospedam o código real de Bluetooth e NFC; acrescentado pacote `connectivity` na árvore de `app`. | Resolução de [decisions/0015-fronteira-entre-core-e-app-no-pacote-connectivity.md](<../decisions/0015-fronteira-entre-core-e-app-no-pacote-connectivity.md>) e [decisions/0016-formato-do-identificador-na-notificacao-bluetooth.md](<../decisions/0016-formato-do-identificador-na-notificacao-bluetooth.md>) |
 | 0.13.0 | 14-08-2026 | Registrado que a escolha entre os dois caminhos de leitura (NFC direto ou acessório por Bluetooth) é da pessoa, nunca automática do aplicativo — ajustadas as duas citações de DA-LEI-03 em "Núcleo do motor" e na seção `connectivity` que sugeriam o contrário; acrescentada a estratégia de permissão de Bluetooth e NFC (declarações de manifesto, momento do pedido). | Resolução de [decisions/0017-quem-decide-a-tecnologia-de-leitura.md](<../decisions/0017-quem-decide-a-tecnologia-de-leitura.md>) e [decisions/0018-estrategia-de-permissao-de-bluetooth-e-nfc.md](<../decisions/0018-estrategia-de-permissao-de-bluetooth-e-nfc.md>) |
@@ -953,3 +956,5 @@ com o campo Versão da tabela de cabeçalho, que sempre reflete a
 | 0.20.0 | 15-08-2026 | Seção do pacote `summary` ganha a API pública (`buildSkipMessage`, `buildChainSkipSynthesis`, `buildContinuousSynthesis`), que faltava. | Escrita do código-fonte do pacote `summary` |
 | 0.21.0 | 15-08-2026 | Seção do pacote `report` reescrita: dividido entre `core/report/` (dado puro) e `app/report/` (desenho do PDF, escrita no aparelho, atalho de compartilhar), corrigindo a afirmação de que o pacote inteiro ficaria sem depender de Android. | Nota de acompanhamento em [decisions/0019](<../decisions/0019-mecanismo-de-geracao-guarda-e-compartilhamento-do-relatorio.md>), achado [findings.md#2026-08-15-mecanismo-de-pdf-incompativel-com-core](<findings.md#2026-08-15-mecanismo-de-pdf-incompativel-com-core>) |
 | 0.22.0 | 15-08-2026 | Acrescentada `referenceImage` na API do pacote `session` (EI-SES-04); seção "Ligação com o núcleo do motor" reescrita com a API real de `app/ui/SessionViewModel.kt` e `SessionUiState.kt`, substituindo a descrição abstrata do mecanismo; `onExitConfirmed` já apaga o estado retomável da sessão; registrados os dois pontos que ainda faltam escrever (chamar a geração do relatório de saída a partir da tela de resultado, gatilho de ociosidade). | Resolução de [decisions/0022-conteudo-do-estado-exposto-pelo-viewmodel.md](<../decisions/0022-conteudo-do-estado-exposto-pelo-viewmodel.md>); testado por compilação real (`:app:assembleDebug`, `:core:test`) |
+| 0.23.0 | 16-08-2026 | `onExitConfirmed` passa a exigir a função de escrita do relatório (`writeReport`) como parâmetro, chamada com o conteúdo já montado por `core/report` antes de apagar o estado retomável — remove o ponto pendente sobre gerar o relatório de saída, que não dependia mais da tela de resultado existir. | Resolução de [decisions/0023-geracao-do-relatorio-de-saida-antes-de-apagar-a-sessao.md](<../decisions/0023-geracao-do-relatorio-de-saida-antes-de-apagar-a-sessao.md>) |
+| 0.24.0 | 16-08-2026 | Menção ao gatilho de ociosidade (EI-PAU-06), na seção "Ligação com o núcleo do motor", simplificada pra um ponteiro só com link — repetia detalhe que já mora em `tasks.md`, sem nem linkar pra lá, inconsistente com o padrão usado cinco linhas acima no mesmo parágrafo. | Correção direta, durante a revisão final da tarefa do relatório de saída |

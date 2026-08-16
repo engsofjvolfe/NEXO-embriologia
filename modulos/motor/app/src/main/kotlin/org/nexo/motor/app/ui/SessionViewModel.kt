@@ -12,6 +12,8 @@ import org.nexo.motor.core.content.ContentEvent
 import org.nexo.motor.core.content.ContentInstance
 import org.nexo.motor.core.report.EventConfiguration
 import org.nexo.motor.core.report.SessionConfiguration
+import org.nexo.motor.core.report.buildReportCsv
+import org.nexo.motor.core.report.buildReportPdfLines
 import org.nexo.motor.core.session.SessionEvent
 import org.nexo.motor.core.session.SessionState
 import org.nexo.motor.core.session.continueToNextEvent
@@ -106,7 +108,8 @@ class SessionViewModel(
         _uiState.update { it.copy(exitConfirmationRequested = false) }
     }
 
-    fun onExitConfirmed() {
+    fun onExitConfirmed(writeReport: (csv: String, pdfLines: List<String>) -> Unit) {
+        writeReport(buildReportCsv(configuration, sessionState.log), buildReportPdfLines(configuration, sessionState.log))
         pausedStateFile?.let { deleteSessionState(it) }
         _uiState.update { it.copy(exitConfirmationRequested = false) }
     }

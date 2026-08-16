@@ -74,6 +74,9 @@
   ao vivo; os cinco documentos numerados da cascata e o `prompt
   model.txt` continuam como leitura manual obrigatória — ver
   [TASKS.md, Em aberto](<TASKS.md#em-aberto>).
+- Geração do relatório de saída antes de apagar a sessão pausada
+  resolvida (EI-PAU-04) — ver
+  [modulos/motor/docs/handoff.md](modulos/motor/docs/handoff.md).
 - [TASKS.md, Resolvidas](TASKS.md#resolvidas) — pendências já corrigidas.
 
 ## Próximo passo

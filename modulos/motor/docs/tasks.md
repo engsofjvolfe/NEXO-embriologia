@@ -6,7 +6,7 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Tasks |
-| Versão | 0.27.0 |
+| Versão | 0.29.0 |
 | Data | 16-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
@@ -63,21 +63,6 @@ Convenção dos códigos citados aqui:
       Levantada durante a escrita do pacote `content`
       ([decisions/0013](<../decisions/0013-desenho-do-pacote-content.md>)),
       que hoje só sabe importar instância completa.
-
-- [ ] **Decidir o gatilho de ociosidade (EI-PAU-06).**
-
-      *Resumo simples:* a lógica de "a sessão ficou parada tempo
-      demais" já existe pronta (`goIdle`, em `core/session`), mas nada
-      no aplicativo mede esse tempo nem chama essa função — hoje uma
-      sessão nunca fica ociosa sozinha.
-
-      *Detalhe técnico:* `core/session.goIdle(state, timestamp)`
-      pronta e testada; falta decidir o mecanismo de temporizador do
-      lado `app` (`Handler`, corrotina com `delay`, ou outro) que
-      reinicia a cada tentativa e aciona `SessionViewModel` depois do
-      `idleThresholdMillis` configurado
-      (`SessionConfiguration.idleThresholdMillis`, `core/report`) sem
-      nenhuma tentativa nova.
 
 - [ ] **Escrever o firmware do acessório leitor.**
 
@@ -216,9 +201,12 @@ Convenção dos códigos citados aqui:
       tentativa, confirmação de acerto, negativa, dica, sugestão de
       estudo, resumo de evento, mensagem de pulo, síntese de cadeia,
       confirmação de saída) — como agrupar esses estados em telas
-      físicas, e o gatilho exato (toque, temporizador) que move de um
-      pro outro, são parte do próprio desenho visual pendente; o
-      conteúdo de cada um já está fechado
+      físicas, e o gatilho exato por toque que move de um pro outro,
+      são parte do próprio desenho visual pendente (o gatilho por
+      temporizador, usado só pela ociosidade, já está resolvido,
+      independente da aparência — ver
+      [decisions/0024](<../decisions/0024-mecanismo-do-gatilho-de-ociosidade.md>));
+      o conteúdo de cada um já está fechado
       ([decisions/0022](<../decisions/0022-conteudo-do-estado-exposto-pelo-viewmodel.md>)),
       e o `ViewModel` já expõe um método por ação prevista na
       Especificação (pular, reconhecer uma tela transitória, continuar
@@ -450,6 +438,16 @@ Convenção dos códigos citados aqui:
       automatizado, mesma pendência "Decidir ferramenta de teste pro
       módulo `app`" acima (já cobre o `SessionViewModel` inteiro, esta
       função incluída).
+- [x] **Decidir o gatilho de ociosidade (EI-PAU-06).** Resolvido — ver
+      [decisions/0024-mecanismo-do-gatilho-de-ociosidade.md](<../decisions/0024-mecanismo-do-gatilho-de-ociosidade.md>).
+      `SessionViewModel` conta o tempo por corrotina (`viewModelScope`),
+      reiniciada a cada tentativa nova; vencido o `idleThresholdMillis`
+      configurado sem tentativa nova, chama `goIdle` e grava o estado
+      em disco (`saveSessionState`). Testado só por compilação real
+      (`gradlew :app:assembleDebug`, `gradlew :core:test`) — sem teste
+      automatizado, mesma pendência "Decidir ferramenta de teste pro
+      módulo `app`" acima (já cobre o `SessionViewModel` inteiro, este
+      relógio incluído).
 
 ## Referências
 
@@ -525,3 +523,5 @@ como mudança de conteúdo real. -->
 | 0.25.0 | 16-08-2026 | Pendência "Decidir ferramenta de teste pro módulo `app`" passa a citar o `SessionViewModel` (incluindo `onExitConfirmed`), que faltava — checado contra toda ocorrência de "testado só por compilação real" em `architecture.md`, confirmando que são só três pontos afetados hoje (`connectivity`/`app`, `report`/`app`, `SessionViewModel`). Item resolvido do pacote `report` ganha o ponteiro de volta pra essa pendência, que também faltava (mesmo padrão já usado no item do `connectivity`). | Auditoria direta, durante a revisão final da tarefa do relatório de saída |
 | 0.26.0 | 16-08-2026 | Corrigida a direção do ponteiro de volta em três itens resolvidos (`connectivity`, `report`, `ViewModel`): diziam "abaixo", mas a pendência "Decidir ferramenta de teste pro módulo `app`" fica na seção "Em aberto", antes de "Resolvidas" no arquivo — o certo é "acima", já usado corretamente no item novo do relatório de saída. | Correção direta, durante a mesma revisão |
 | 0.27.0 | 16-08-2026 | Linha `0.24.0` ganha a informação que faltava: o item resolvido do relatório de saída já incluía a nota de teste desde a criação, não só depois — corrige um registro incompleto do próprio histórico. | Revisão final da tarefa do relatório de saída |
+| 0.28.0 | 16-08-2026 | Pendência "Decidir o gatilho de ociosidade (EI-PAU-06)" resolvida — movida para Resolvidas. | Resolução de [decisions/0024-mecanismo-do-gatilho-de-ociosidade.md](<../decisions/0024-mecanismo-do-gatilho-de-ociosidade.md>) |
+| 0.29.0 | 16-08-2026 | Pendência "Desenhar a aparência visual das telas do motor" corrigida: não cita mais "temporizador" como gatilho ainda pendente de desenho visual — esse gatilho (ociosidade) já está resolvido, independente da aparência; só o gatilho por toque continua pendente. | Checagem mecânica antes de abrir o PR, achado por releitura completa da cadeia de documentos |

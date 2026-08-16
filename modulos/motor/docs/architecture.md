@@ -6,7 +6,7 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Architecture |
-| Versão | 0.24.0 |
+| Versão | 0.25.0 |
 | Data | 16-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
@@ -780,8 +780,8 @@ a tela ainda vai disparar já têm método próprio no `ViewModel`
 (`onSkipRequested`, `onScreenAcknowledged`, `onContinueRequested`,
 `onExitRequested`, `onExitCancelled`, `onExitConfirmed`) — o efeito de
 cada uma (que `SessionScreen` resulta) está fechado; o gatilho exato
-na tela (toque, temporizador) continua parte do desenho visual
-pendente (ver [tasks.md](tasks.md)). `onExitConfirmed` recebe, como
+na tela (toque) continua parte do desenho visual pendente (ver
+[tasks.md](tasks.md)). `onExitConfirmed` recebe, como
 parâmetro obrigatório, a função que escreve o relatório de verdade
 (`writeReport: (csv: String, pdfLines: List<String>) -> Unit`) — chama
 essa função com o conteúdo já montado por `core/report`
@@ -791,11 +791,17 @@ decisions/0010), garantindo por construção a ordem que EI-PAU-04
 exige, mesmo sem a tela de resultado existir ainda — motivo completo
 em [decisions/0023](<../decisions/0023-geracao-do-relatorio-de-saida-antes-de-apagar-a-sessao.md>).
 
-Um ponto fica de fora do que já está escrito: o gatilho de ociosidade
-(EI-PAU-06) — pendência registrada em [tasks.md](tasks.md).
+O gatilho de ociosidade (EI-PAU-06) também já está escrito: uma
+corrotina em `viewModelScope`, reiniciada a cada tentativa nova, conta
+o `idleThresholdMillis` configurado (`SessionConfiguration`,
+`core/report`) e, ao vencer o prazo, chama `goIdle` e grava o estado
+em disco (`saveSessionState`, mesmo arquivo que `onExitConfirmed` usa
+— que também cancela esse relógio antes de apagar o estado) —
+alternativas consideradas e motivo completo da escolha:
+[decisions/0024](<../decisions/0024-mecanismo-do-gatilho-de-ociosidade.md>).
 
-Testado por compilação real (`:app:assembleDebug`), mesmo padrão já
-usado pro resto do lado `app` do módulo.
+Testado por compilação real (`:app:assembleDebug`, `:core:test`),
+mesmo padrão já usado pro resto do lado `app` do módulo.
 
 #### Esqueleto mínimo e versões de build
 
@@ -958,3 +964,4 @@ com o campo Versão da tabela de cabeçalho, que sempre reflete a
 | 0.22.0 | 15-08-2026 | Acrescentada `referenceImage` na API do pacote `session` (EI-SES-04); seção "Ligação com o núcleo do motor" reescrita com a API real de `app/ui/SessionViewModel.kt` e `SessionUiState.kt`, substituindo a descrição abstrata do mecanismo; `onExitConfirmed` já apaga o estado retomável da sessão; registrados os dois pontos que ainda faltam escrever (chamar a geração do relatório de saída a partir da tela de resultado, gatilho de ociosidade). | Resolução de [decisions/0022-conteudo-do-estado-exposto-pelo-viewmodel.md](<../decisions/0022-conteudo-do-estado-exposto-pelo-viewmodel.md>); testado por compilação real (`:app:assembleDebug`, `:core:test`) |
 | 0.23.0 | 16-08-2026 | `onExitConfirmed` passa a exigir a função de escrita do relatório (`writeReport`) como parâmetro, chamada com o conteúdo já montado por `core/report` antes de apagar o estado retomável — remove o ponto pendente sobre gerar o relatório de saída, que não dependia mais da tela de resultado existir. | Resolução de [decisions/0023-geracao-do-relatorio-de-saida-antes-de-apagar-a-sessao.md](<../decisions/0023-geracao-do-relatorio-de-saida-antes-de-apagar-a-sessao.md>) |
 | 0.24.0 | 16-08-2026 | Menção ao gatilho de ociosidade (EI-PAU-06), na seção "Ligação com o núcleo do motor", simplificada pra um ponteiro só com link — repetia detalhe que já mora em `tasks.md`, sem nem linkar pra lá, inconsistente com o padrão usado cinco linhas acima no mesmo parágrafo. | Correção direta, durante a revisão final da tarefa do relatório de saída |
+| 0.25.0 | 16-08-2026 | Gatilho de ociosidade (EI-PAU-06) escrito: seção "Ligação com o núcleo do motor" descreve o relógio por corrotina (`viewModelScope`), o cancelamento em `onExitConfirmed`, e a gravação em disco do estado ao vencer o prazo — substitui a menção a essa pendência. | Resolução de [decisions/0024-mecanismo-do-gatilho-de-ociosidade.md](<../decisions/0024-mecanismo-do-gatilho-de-ociosidade.md>) |

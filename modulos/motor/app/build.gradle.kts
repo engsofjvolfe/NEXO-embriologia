@@ -23,5 +23,7 @@ android {
 dependencies {
     implementation(project(":core"))
     implementation(libs.androidx.lifecycle.lifecycle.viewmodel)
+    implementation(libs.androidx.lifecycle.lifecycle.viewmodel.ktx)
     implementation(libs.org.jetbrains.kotlinx.kotlinx.coroutines.core)
+    implementation(libs.org.jetbrains.kotlinx.kotlinx.coroutines.android)
 }

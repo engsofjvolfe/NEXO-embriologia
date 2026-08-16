@@ -77,6 +77,8 @@
 - Geração do relatório de saída antes de apagar a sessão pausada
   resolvida (EI-PAU-04) — ver
   [modulos/motor/docs/handoff.md](modulos/motor/docs/handoff.md).
+- Gatilho de ociosidade resolvido (EI-PAU-06) — ver
+  [modulos/motor/docs/handoff.md](modulos/motor/docs/handoff.md).
 - [TASKS.md, Resolvidas](TASKS.md#resolvidas) — pendências já corrigidas.
 
 ## Próximo passo

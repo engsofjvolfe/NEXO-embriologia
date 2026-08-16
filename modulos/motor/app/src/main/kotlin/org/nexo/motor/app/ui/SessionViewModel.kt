@@ -1,10 +1,14 @@
 package org.nexo.motor.app.ui
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import org.nexo.motor.app.connectivity.ConnectionStateListener
 import org.nexo.motor.app.connectivity.PieceReadListener
 import org.nexo.motor.core.connectivity.ConnectionState
@@ -19,9 +23,11 @@ import org.nexo.motor.core.session.SessionState
 import org.nexo.motor.core.session.continueToNextEvent
 import org.nexo.motor.core.session.deleteSessionState
 import org.nexo.motor.core.session.eventComplete
+import org.nexo.motor.core.session.goIdle
 import org.nexo.motor.core.session.hintAvailable
 import org.nexo.motor.core.session.recordAttempt
 import org.nexo.motor.core.session.referenceImage
+import org.nexo.motor.core.session.saveSessionState
 import org.nexo.motor.core.session.showStudySuggestion
 import org.nexo.motor.core.session.skipPosition
 import org.nexo.motor.core.session.studySuggestionAvailable
@@ -43,9 +49,14 @@ class SessionViewModel(
 
     private var sessionState: SessionState = initialState
     private var lastConnectionState: ConnectionState? = null
+    private var idleJob: Job? = null
 
     private val _uiState = MutableStateFlow(SessionUiState(screen = referenceScreenFor(initialState)))
     val uiState: StateFlow<SessionUiState> = _uiState.asStateFlow()
+
+    init {
+        scheduleIdleTimeout()
+    }
 
     override fun onPieceRead(tagId: String) {
         if (_uiState.value.screen !is SessionScreen.AwaitingAttempt) return
@@ -53,6 +64,7 @@ class SessionViewModel(
         val expectedFrame = event.frames[sessionState.expectedPosition - 1]
         val accepted = tagId == expectedFrame.tagId
         sessionState = recordAttempt(sessionState, tagId, expectedFrame.tagId, now())
+        scheduleIdleTimeout()
         setScreen(
             if (accepted) {
                 SessionScreen.AttemptAccepted(confirmationText = expectedFrame.confirmationText)
@@ -109,9 +121,19 @@ class SessionViewModel(
     }
 
     fun onExitConfirmed(writeReport: (csv: String, pdfLines: List<String>) -> Unit) {
+        idleJob?.cancel()
         writeReport(buildReportCsv(configuration, sessionState.log), buildReportPdfLines(configuration, sessionState.log))
         pausedStateFile?.let { deleteSessionState(it) }
         _uiState.update { it.copy(exitConfirmationRequested = false) }
+    }
+
+    private fun scheduleIdleTimeout() {
+        idleJob?.cancel()
+        idleJob = viewModelScope.launch {
+            delay(configuration.idleThresholdMillis)
+            sessionState = goIdle(sessionState, now())
+            pausedStateFile?.let { saveSessionState(sessionState, it) }
+        }
     }
 
     private fun setScreen(screen: SessionScreen) {

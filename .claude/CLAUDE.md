@@ -314,7 +314,15 @@ sozinho, nunca presumir que já está.
 
 ### Passo 8: Deletar worktree
 
+Se a worktree tem um projeto Gradle dentro (caso do módulo `motor`),
+parar o processo de fundo do Gradle antes de remover -- ele continua
+rodando depois de qualquer comando `gradlew`, de propósito (reaproveita
+o processo já ligado no próximo comando, em vez de começar do zero), e
+no Windows isso mantém arquivo dentro da pasta travado, impedindo a
+remoção:
+
 ```bash
+./gradlew --stop  # de dentro da pasta do projeto Gradle, antes de sair da worktree
 git worktree remove .claude/worktrees/nome-da-tarefa
 ```
 

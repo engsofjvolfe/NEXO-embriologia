@@ -6,8 +6,8 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Handoff |
-| Versão | 0.18.0 |
-| Data | 15-08-2026 |
+| Versão | 0.19.0 |
+| Data | 16-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
 > Resumo curto de "onde este módulo está" e "o que fazer a seguir" nele.
@@ -86,6 +86,9 @@
   quem monta o texto de resumo e síntese decidido.
 - [decisions/0022-conteudo-do-estado-exposto-pelo-viewmodel.md](<../decisions/0022-conteudo-do-estado-exposto-pelo-viewmodel.md>) —
   conteúdo do estado exposto pelo `ViewModel` decidido.
+- [decisions/0023-geracao-do-relatorio-de-saida-antes-de-apagar-a-sessao.md](<../decisions/0023-geracao-do-relatorio-de-saida-antes-de-apagar-a-sessao.md>) —
+  geração do relatório de saída antes de apagar a sessão pausada
+  decidida.
 - [findings.md](findings.md) — achados confirmados até agora.
 - [analysis.md](analysis.md) — registro de como cada investigação
   deste módulo foi feita.
@@ -125,3 +128,4 @@ com o campo Versão da tabela de cabeçalho, que sempre reflete a
 | 0.16.0 | 15-08-2026 | Acrescentado ponteiro para decisions/0021. | Quem monta o texto de resumo e síntese decidido (pacote `summary`, com mudança de contrato de dado) |
 | 0.17.0 | 15-08-2026 | Nenhum ponteiro novo (decisions/0008 e 0019 já citadas, `findings.md`/`analysis.md`/`tasks.md` genéricos). | Registro de sessão completado frente a EI-REG-01; `content` atualizado pro contrato `2.0.0`; pacotes `summary` e `report` escritos, `report` dividido entre `core` e `app` |
 | 0.18.0 | 15-08-2026 | Acrescentado ponteiro para decisions/0022. | Correção de decisions/0020 (conteúdo do estado não dependia do desenho visual); conteúdo do estado do `ViewModel` decidido e escrito (`SessionUiState.kt`, `SessionViewModel.kt`, apagando o estado retomável na saída confirmada); gerar o relatório de saída e o gatilho de ociosidade seguem como pendências em `tasks.md` |
+| 0.19.0 | 16-08-2026 | Acrescentado ponteiro para decisions/0023. | Geração do relatório de saída antes de apagar a sessão pausada resolvida (EI-PAU-04): `onExitConfirmed` passa a exigir a função de escrita do relatório como parâmetro; auditoria de consistência em `tasks.md` corrigiu dois pontos que já estavam desatualizados antes desta tarefa (o `SessionViewModel` não constava na pendência "Decidir ferramenta de teste pro módulo `app`", e o item resolvido do pacote `report` não apontava de volta pra ela) |

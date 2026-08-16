@@ -6,8 +6,8 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Tasks |
-| Versão | 0.23.0 |
-| Data | 15-08-2026 |
+| Versão | 0.27.0 |
+| Data | 16-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
 > Lista mutável de pendências só deste módulo. Lida depois de
@@ -63,24 +63,6 @@ Convenção dos códigos citados aqui:
       Levantada durante a escrita do pacote `content`
       ([decisions/0013](<../decisions/0013-desenho-do-pacote-content.md>)),
       que hoje só sabe importar instância completa.
-
-- [ ] **Gerar o relatório de saída antes de apagar a sessão pausada
-      (EI-PAU-04).**
-
-      *Resumo simples:* pedir, cancelar e confirmar a saída já
-      funcionam — confirmar já apaga o estado da sessão pausada. Só
-      falta a parte de montar o relatório daquela sessão antes de
-      apagar, e isso depende de uma tela que ainda não existe.
-
-      *Detalhe técnico:* `SessionViewModel.onExitConfirmed` já chama
-      `deleteSessionState` (`core/session`, decisions/0010). Montar e
-      salvar o relatório em si não é uma decisão em aberto — já está
-      inteiramente fechado em decisions/0019 (`core/report` monta o
-      dado, `app/report` desenha e escreve no aparelho) — só falta
-      escrever a chamada, e isso é papel da tela de resultado
-      (DA-RET-14, ainda não construída): ela precisa acionar a geração
-      do relatório antes de chamar `onExitConfirmed`, na ordem que
-      EI-PAU-04 exige.
 
 - [ ] **Decidir o gatilho de ociosidade (EI-PAU-06).**
 
@@ -264,19 +246,28 @@ Convenção dos códigos citados aqui:
       (`kotlin-test`), mas o `app` não — hoje só é testado compilando
       de verdade, sem checar nenhum comportamento.
 
-      *Detalhe técnico:* código que toca API do Android (o `Service`
-      de Bluetooth, a leitura NFC do pacote `connectivity`, ver
+      *Detalhe técnico:* código que toca API do Android — o `Service`
+      de Bluetooth e a leitura NFC do pacote `connectivity`, ver
       [decisions/0015](<../decisions/0015-fronteira-entre-core-e-app-no-pacote-connectivity.md>);
-      agora também o desenho do PDF e a escrita de arquivo do lado
-      `app` do pacote `report`, ver
-      [architecture.md, pacote `report`](<architecture.md#pacote-report--desenho-interno>))
-      não dá pra testar com `kotlin-test` comum — precisa ou de um
+      o desenho do PDF e a escrita de arquivo do lado `app` do pacote
+      `report`, ver
+      [architecture.md, pacote `report`](<architecture.md#pacote-report--desenho-interno>);
+      e o `SessionViewModel` inteiro (estende
+      `androidx.lifecycle.ViewModel`), incluindo `onExitConfirmed` e a
+      função de escrita do relatório que ele recebe como parâmetro, ver
+      [architecture.md, Ligação com o núcleo do motor](<architecture.md#ligação-com-o-núcleo-do-motor>)
+      e [decisions/0023](<../decisions/0023-geracao-do-relatorio-de-saida-antes-de-apagar-a-sessao.md>)
+      — não dá pra testar com `kotlin-test` comum — precisa ou de um
       aparelho/emulador de verdade (teste instrumentado) ou de uma
       ferramenta que simule partes do Android dentro do próprio
       computador (ex.: Robolectric). Nenhuma das duas foi escolhida
       ainda. Levantada durante a escrita do lado `app` do pacote
       `connectivity`, testado só por compilação real até agora — mesmo
-      critério aplicado ao lado `app` de `report`.
+      critério aplicado ao lado `app` de `report` e ao
+      `SessionViewModel` inteiro. Lista completa checada contra
+      `architecture.md` em 16-08-2026 (toda ocorrência de "testado só
+      por compilação real") — são só esses três, nenhum outro pedaço
+      de código está nessa mesma situação hoje.
 
 - [ ] **Escrever os testes de unidade, integração, sistema e
       aceitação.**
@@ -413,7 +404,7 @@ Convenção dos códigos citados aqui:
       [decisions/0018](<../decisions/0018-estrategia-de-permissao-de-bluetooth-e-nfc.md>).
       Testado só por compilação real (`gradlew :app:assembleDebug`,
       `BUILD SUCCESSFUL`) — sem teste automatizado, ver pendência
-      "Decidir ferramenta de teste pro módulo `app`" abaixo. Uma
+      "Decidir ferramenta de teste pro módulo `app`" acima. Uma
       armadilha de ferramenta encontrada no caminho, ver
       [pitfalls.md](<pitfalls.md#armadilhas>).
 - [x] **Decidir quem monta o texto de resumo/síntese exibido nas
@@ -432,7 +423,9 @@ Convenção dos códigos citados aqui:
       nota de acompanhamento incluída. Dividido entre `core/report/`
       (dado puro, testado com `kotlin-test`) e `app/report/` (desenho
       do PDF, escrita no aparelho, atalho de compartilhar, testado só
-      por compilação real) — achado que motivou essa divisão em
+      por compilação real, sem teste automatizado — ver pendência
+      "Decidir ferramenta de teste pro módulo `app`" acima) — achado
+      que motivou essa divisão em
       [findings.md#2026-08-15-mecanismo-de-pdf-incompativel-com-core](<findings.md#2026-08-15-mecanismo-de-pdf-incompativel-com-core>).
 - [x] **Escrever o código-fonte da ligação entre leitura de peça,
       sessão e tela (`ViewModel`).** Resolvido — ver
@@ -445,8 +438,18 @@ Convenção dos códigos citados aqui:
       por compilação real (`gradlew :app:assembleDebug`,
       `gradlew :core:test`) — sem teste automatizado do `ViewModel` em
       si, mesma pendência "Decidir ferramenta de teste pro módulo
-      `app`" abaixo. Gerar o relatório de saída e o gatilho de
+      `app`" acima. Gerar o relatório de saída e o gatilho de
       ociosidade ficam de fora, viram pendências próprias acima.
+- [x] **Gerar o relatório de saída antes de apagar a sessão pausada
+      (EI-PAU-04).** Resolvido — ver
+      [decisions/0023-geracao-do-relatorio-de-saida-antes-de-apagar-a-sessao.md](<../decisions/0023-geracao-do-relatorio-de-saida-antes-de-apagar-a-sessao.md>).
+      `onExitConfirmed` passa a exigir a função de escrita do relatório
+      como parâmetro, sem depender da tela de resultado (DA-RET-14)
+      existir. Testado só por compilação real (`gradlew
+      :app:assembleDebug`, `gradlew :core:test`) — sem teste
+      automatizado, mesma pendência "Decidir ferramenta de teste pro
+      módulo `app`" acima (já cobre o `SessionViewModel` inteiro, esta
+      função incluída).
 
 ## Referências
 
@@ -518,3 +521,7 @@ como mudança de conteúdo real. -->
 | 0.21.0 | 15-08-2026 | Pendência "Decidir quem monta o texto de resumo/síntese" resolvida — movida para Resolvidas. Pendência nova "Escrever o código-fonte do pacote `summary`, e ajustar `content` pra validar o campo novo `summary_fragment`" acrescentada; `report` e `summary` acrescentados na lista de pacotes da pendência "Explicar a organização de pastas do `core`". | Resolução de [decisions/0021](<../decisions/0021-quem-monta-o-texto-de-resumo-e-sintese.md>) |
 | 0.22.0 | 15-08-2026 | Pendências "Escrever o código-fonte do pacote `report`" e "Escrever o código-fonte do pacote `summary`, e ajustar `content`" resolvidas — movidas para Resolvidas. Pendência "Decidir ferramenta de teste pro módulo `app`" passa a citar também o lado `app` de `report`. | Escrita dos pacotes `summary` e `report`; achado sobre `PdfDocument` incompatível com `core` (`findings.md`) motivou dividir `report` entre `core` e `app` |
 | 0.23.0 | 15-08-2026 | Pendência "Escrever o código-fonte da ligação entre leitura de peça, sessão e tela (`ViewModel`)" resolvida — movida para Resolvidas. Duas pendências novas acrescentadas ("Gerar o relatório de saída antes de apagar a sessão pausada", "Decidir o gatilho de ociosidade"). | Resolução de [decisions/0022](<../decisions/0022-conteudo-do-estado-exposto-pelo-viewmodel.md>); escrita de `SessionUiState.kt`/`SessionViewModel.kt`, incluindo `onExitConfirmed` |
+| 0.24.0 | 16-08-2026 | Pendência "Gerar o relatório de saída antes de apagar a sessão pausada (EI-PAU-04)" resolvida — movida para Resolvidas, já com a nota de teste (testado só por compilação real, sem teste automatizado — mesma pendência "Decidir ferramenta de teste pro módulo `app`"). | Resolução de [decisions/0023](<../decisions/0023-geracao-do-relatorio-de-saida-antes-de-apagar-a-sessao.md>) |
+| 0.25.0 | 16-08-2026 | Pendência "Decidir ferramenta de teste pro módulo `app`" passa a citar o `SessionViewModel` (incluindo `onExitConfirmed`), que faltava — checado contra toda ocorrência de "testado só por compilação real" em `architecture.md`, confirmando que são só três pontos afetados hoje (`connectivity`/`app`, `report`/`app`, `SessionViewModel`). Item resolvido do pacote `report` ganha o ponteiro de volta pra essa pendência, que também faltava (mesmo padrão já usado no item do `connectivity`). | Auditoria direta, durante a revisão final da tarefa do relatório de saída |
+| 0.26.0 | 16-08-2026 | Corrigida a direção do ponteiro de volta em três itens resolvidos (`connectivity`, `report`, `ViewModel`): diziam "abaixo", mas a pendência "Decidir ferramenta de teste pro módulo `app`" fica na seção "Em aberto", antes de "Resolvidas" no arquivo — o certo é "acima", já usado corretamente no item novo do relatório de saída. | Correção direta, durante a mesma revisão |
+| 0.27.0 | 16-08-2026 | Linha `0.24.0` ganha a informação que faltava: o item resolvido do relatório de saída já incluía a nota de teste desde a criação, não só depois — corrige um registro incompleto do próprio histórico. | Revisão final da tarefa do relatório de saída |

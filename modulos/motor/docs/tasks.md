@@ -6,7 +6,7 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Tasks |
-| Versão | 0.22.0 |
+| Versão | 0.23.0 |
 | Data | 15-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
@@ -64,20 +64,38 @@ Convenção dos códigos citados aqui:
       ([decisions/0013](<../decisions/0013-desenho-do-pacote-content.md>)),
       que hoje só sabe importar instância completa.
 
-- [ ] **Escrever o código-fonte da ligação entre leitura de peça,
-      sessão e tela (`ViewModel`).**
+- [ ] **Gerar o relatório de saída antes de apagar a sessão pausada
+      (EI-PAU-04).**
 
-      *Resumo simples:* hoje uma peça lida (por NFC ou Bluetooth) não
-      mexe em nada — falta o pedaço que pergunta pra lógica do jogo se
-      é a peça certa e guarda o resultado pra tela mostrar.
+      *Resumo simples:* pedir, cancelar e confirmar a saída já
+      funcionam — confirmar já apaga o estado da sessão pausada. Só
+      falta a parte de montar o relatório daquela sessão antes de
+      apagar, e isso depende de uma tela que ainda não existe.
 
-      *Detalhe técnico:* `app/ui/SessionViewModel.kt`, mecanismo já
-      desenhado, ver
-      [architecture.md, Ligação com o núcleo do motor](<architecture.md#ligação-com-o-núcleo-do-motor>)
-      e [decisions/0020](<../decisions/0020-ligacao-entre-leitura-de-peca-e-a-tela.md>).
-      Conteúdo exato do estado exposto depende do desenho visual das
-      telas, ainda pendente (ver "Desenhar a aparência visual das
-      telas", abaixo).
+      *Detalhe técnico:* `SessionViewModel.onExitConfirmed` já chama
+      `deleteSessionState` (`core/session`, decisions/0010). Montar e
+      salvar o relatório em si não é uma decisão em aberto — já está
+      inteiramente fechado em decisions/0019 (`core/report` monta o
+      dado, `app/report` desenha e escreve no aparelho) — só falta
+      escrever a chamada, e isso é papel da tela de resultado
+      (DA-RET-14, ainda não construída): ela precisa acionar a geração
+      do relatório antes de chamar `onExitConfirmed`, na ordem que
+      EI-PAU-04 exige.
+
+- [ ] **Decidir o gatilho de ociosidade (EI-PAU-06).**
+
+      *Resumo simples:* a lógica de "a sessão ficou parada tempo
+      demais" já existe pronta (`goIdle`, em `core/session`), mas nada
+      no aplicativo mede esse tempo nem chama essa função — hoje uma
+      sessão nunca fica ociosa sozinha.
+
+      *Detalhe técnico:* `core/session.goIdle(state, timestamp)`
+      pronta e testada; falta decidir o mecanismo de temporizador do
+      lado `app` (`Handler`, corrotina com `delay`, ou outro) que
+      reinicia a cada tentativa e aciona `SessionViewModel` depois do
+      `idleThresholdMillis` configurado
+      (`SessionConfiguration.idleThresholdMillis`, `core/report`) sem
+      nenhuma tentativa nova.
 
 - [ ] **Escrever o firmware do acessório leitor.**
 
@@ -216,8 +234,15 @@ Convenção dos códigos citados aqui:
       tentativa, confirmação de acerto, negativa, dica, sugestão de
       estudo, resumo de evento, mensagem de pulo, síntese de cadeia,
       confirmação de saída) — como agrupar esses estados em telas
-      físicas é parte do próprio desenho visual pendente. Sem
-      responsável definido ainda (designer, ou o próprio usuário).
+      físicas, e o gatilho exato (toque, temporizador) que move de um
+      pro outro, são parte do próprio desenho visual pendente; o
+      conteúdo de cada um já está fechado
+      ([decisions/0022](<../decisions/0022-conteudo-do-estado-exposto-pelo-viewmodel.md>)),
+      e o `ViewModel` já expõe um método por ação prevista na
+      Especificação (pular, reconhecer uma tela transitória, continuar
+      pro próximo evento, pedir/cancelar/confirmar saída — ver
+      [architecture.md, Ligação com o núcleo do motor](<architecture.md#ligação-com-o-núcleo-do-motor>)).
+      Sem responsável definido ainda (designer, ou o próprio usuário).
       Ponto específico a cobrir quando esse desenho acontecer: a tela
       "Aguardando tentativa" (DA-RET-06) precisa mostrar, de algum
       jeito, se o acessório Bluetooth está conectado, procurando, ou
@@ -409,6 +434,19 @@ Convenção dos códigos citados aqui:
       do PDF, escrita no aparelho, atalho de compartilhar, testado só
       por compilação real) — achado que motivou essa divisão em
       [findings.md#2026-08-15-mecanismo-de-pdf-incompativel-com-core](<findings.md#2026-08-15-mecanismo-de-pdf-incompativel-com-core>).
+- [x] **Escrever o código-fonte da ligação entre leitura de peça,
+      sessão e tela (`ViewModel`).** Resolvido — ver
+      [decisions/0020](<../decisions/0020-ligacao-entre-leitura-de-peca-e-a-tela.md>)
+      (mecanismo) e
+      [decisions/0022](<../decisions/0022-conteudo-do-estado-exposto-pelo-viewmodel.md>)
+      (conteúdo do estado). `app/ui/SessionUiState.kt` e
+      `SessionViewModel.kt` escritos; `core/session` ganhou
+      `referenceImage` (EI-SES-04), achado durante a ADR. Testado só
+      por compilação real (`gradlew :app:assembleDebug`,
+      `gradlew :core:test`) — sem teste automatizado do `ViewModel` em
+      si, mesma pendência "Decidir ferramenta de teste pro módulo
+      `app`" abaixo. Gerar o relatório de saída e o gatilho de
+      ociosidade ficam de fora, viram pendências próprias acima.
 
 ## Referências
 
@@ -479,3 +517,4 @@ como mudança de conteúdo real. -->
 | 0.20.0 | 15-08-2026 | Pendência nova "Escrever o código-fonte da ligação entre leitura de peça, sessão e tela (`ViewModel`)" acrescentada. | Resolução de [decisions/0020](<../decisions/0020-ligacao-entre-leitura-de-peca-e-a-tela.md>) |
 | 0.21.0 | 15-08-2026 | Pendência "Decidir quem monta o texto de resumo/síntese" resolvida — movida para Resolvidas. Pendência nova "Escrever o código-fonte do pacote `summary`, e ajustar `content` pra validar o campo novo `summary_fragment`" acrescentada; `report` e `summary` acrescentados na lista de pacotes da pendência "Explicar a organização de pastas do `core`". | Resolução de [decisions/0021](<../decisions/0021-quem-monta-o-texto-de-resumo-e-sintese.md>) |
 | 0.22.0 | 15-08-2026 | Pendências "Escrever o código-fonte do pacote `report`" e "Escrever o código-fonte do pacote `summary`, e ajustar `content`" resolvidas — movidas para Resolvidas. Pendência "Decidir ferramenta de teste pro módulo `app`" passa a citar também o lado `app` de `report`. | Escrita dos pacotes `summary` e `report`; achado sobre `PdfDocument` incompatível com `core` (`findings.md`) motivou dividir `report` entre `core` e `app` |
+| 0.23.0 | 15-08-2026 | Pendência "Escrever o código-fonte da ligação entre leitura de peça, sessão e tela (`ViewModel`)" resolvida — movida para Resolvidas. Duas pendências novas acrescentadas ("Gerar o relatório de saída antes de apagar a sessão pausada", "Decidir o gatilho de ociosidade"). | Resolução de [decisions/0022](<../decisions/0022-conteudo-do-estado-exposto-pelo-viewmodel.md>); escrita de `SessionUiState.kt`/`SessionViewModel.kt`, incluindo `onExitConfirmed` |

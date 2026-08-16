@@ -6,7 +6,7 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Architecture |
-| Versão | 0.21.0 |
+| Versão | 0.22.0 |
 | Data | 15-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
@@ -119,8 +119,8 @@ core/
     summary/        texto de resumo/síntese de fim de evento e de cadeia
 app/
   src/main/kotlin/org/nexo/motor/app/
-    ui/             telas (Activities/Composables) — fluxo funcional definido
-                     na seção Interface, abaixo
+    ui/             telas e o ViewModel que liga sessão à interface — ver
+                     "Interface" e "Ligação com o núcleo do motor", abaixo
     connectivity/   Service de Bluetooth e leitura NFC — ver "Pacote
                      `connectivity` — desenho interno", abaixo
     report/         escrita de verdade do relatório no aparelho — ver
@@ -359,6 +359,10 @@ core/session/
   SessionStatePersistence.kt    saveSessionState(state: SessionState, file: File),
                                  loadSessionState(file: File): SessionState?,
                                  deleteSessionState(file: File)
+  SessionReference.kt            referenceImage(startingPosition: Int, isFirstEventOfSession: Boolean,
+                                 previousFrameImage: String?, zeroMarkImage: String,
+                                 lastFilledImageOfPreviousEvent: String?): String — EI-SES-04 pelas
+                                 próprias palavras (ver decisions/0022, Consequências)
 ```
 
 Todo evento do registro carrega o próprio horário (`timestamp: Long`,
@@ -756,18 +760,39 @@ seguir está registrado aqui.
 
 *Em resumo:* separado da aparência (ainda pendente), o mecanismo que
 liga a leitura de uma peça à lógica de sessão e ao que a tela mostra
-já está decidido.
+já está decidido e escrito — inclusive o conteúdo exato de cada
+situação que a tela precisa mostrar.
 
 *Em detalhe técnico:*
-[decisions/0020](<../decisions/0020-ligacao-entre-leitura-de-peca-e-a-tela.md>):
-um `ViewModel` (`app/ui/SessionViewModel.kt`) guarda o estado da
-sessão em curso, exposto como `StateFlow`; `MainActivity` (ou o que
-vier a substituí-la) continua gerenciando a leitura de NFC e a ligação
-com `BleAccessoryService`, só repassando cada aviso pro `ViewModel`
-por função direta, nunca por referência à tela ou ao `Service`. O
-`ViewModel` é quem chama `session` e `content` pra validar cada
-tentativa. Conteúdo exato do estado exposto (os campos que a tela vai
-mostrar) fica pra quando o desenho visual acima acontecer.
+[decisions/0020](<../decisions/0020-ligacao-entre-leitura-de-peca-e-a-tela.md>)
+e
+[decisions/0022](<../decisions/0022-conteudo-do-estado-exposto-pelo-viewmodel.md>):
+`app/ui/SessionViewModel.kt` implementa `PieceReadListener` e
+`ConnectionStateListener` — `MainActivity` (ou o que vier a
+substituí-la) continua gerenciando a leitura de NFC e a ligação com
+`BleAccessoryService`, só repassando cada aviso pro `ViewModel` por
+função direta, nunca por referência à tela ou ao `Service` — e expõe
+`uiState: StateFlow<SessionUiState>` (`app/ui/SessionUiState.kt`,
+formato fechado em decisions/0022). Internamente chama `session`,
+`content` e `summary` pra transformar cada aviso, pulo, dica, sugestão
+de estudo ou continuação de evento num novo `SessionScreen`. Ações que
+a tela ainda vai disparar já têm método próprio no `ViewModel`
+(`onSkipRequested`, `onScreenAcknowledged`, `onContinueRequested`,
+`onExitRequested`, `onExitCancelled`, `onExitConfirmed`) — o efeito de
+cada uma (que `SessionScreen` resulta) está fechado; o gatilho exato
+na tela (toque, temporizador) continua parte do desenho visual
+pendente (ver [tasks.md](tasks.md)). `onExitConfirmed` já apaga o
+estado retomável da sessão (`deleteSessionState`, decisions/0010).
+
+Um ponto fica de fora do que já está escrito: gerar o relatório de
+saída (EI-PAU-04) antes de apagar o estado — mecanismo já fechado em
+decisions/0019, só falta a chamada em si, que é papel da tela de
+resultado (DA-RET-14), ainda não construída. Outro: o gatilho de
+ociosidade (EI-PAU-06) — nenhum temporizador foi decidido ainda,
+`goIdle` (`core/session`) continua sem quem o chame.
+
+Testado por compilação real (`:app:assembleDebug`), mesmo padrão já
+usado pro resto do lado `app` do módulo.
 
 #### Esqueleto mínimo e versões de build
 
@@ -927,3 +952,4 @@ com o campo Versão da tabela de cabeçalho, que sempre reflete a
 | 0.19.0 | 15-08-2026 | Seção do pacote `session` revisada: `SessionEvent` ganha `timestamp` em toda variante e dois tipos novos (`StudySuggestionShown`, `WentIdle`, ao lado do `Paused` já existente); API pública atualizada com `showStudySuggestion` e `goIdle`. | Nota de acompanhamento em [decisions/0008](<../decisions/0008-representacao-do-estado-da-sessao.md>), achado [findings.md#2026-08-15-registro-de-sessao-incompleto-frente-a-ei-reg-01](<findings.md#2026-08-15-registro-de-sessao-incompleto-frente-a-ei-reg-01>) |
 | 0.20.0 | 15-08-2026 | Seção do pacote `summary` ganha a API pública (`buildSkipMessage`, `buildChainSkipSynthesis`, `buildContinuousSynthesis`), que faltava. | Escrita do código-fonte do pacote `summary` |
 | 0.21.0 | 15-08-2026 | Seção do pacote `report` reescrita: dividido entre `core/report/` (dado puro) e `app/report/` (desenho do PDF, escrita no aparelho, atalho de compartilhar), corrigindo a afirmação de que o pacote inteiro ficaria sem depender de Android. | Nota de acompanhamento em [decisions/0019](<../decisions/0019-mecanismo-de-geracao-guarda-e-compartilhamento-do-relatorio.md>), achado [findings.md#2026-08-15-mecanismo-de-pdf-incompativel-com-core](<findings.md#2026-08-15-mecanismo-de-pdf-incompativel-com-core>) |
+| 0.22.0 | 15-08-2026 | Acrescentada `referenceImage` na API do pacote `session` (EI-SES-04); seção "Ligação com o núcleo do motor" reescrita com a API real de `app/ui/SessionViewModel.kt` e `SessionUiState.kt`, substituindo a descrição abstrata do mecanismo; `onExitConfirmed` já apaga o estado retomável da sessão; registrados os dois pontos que ainda faltam escrever (chamar a geração do relatório de saída a partir da tela de resultado, gatilho de ociosidade). | Resolução de [decisions/0022-conteudo-do-estado-exposto-pelo-viewmodel.md](<../decisions/0022-conteudo-do-estado-exposto-pelo-viewmodel.md>); testado por compilação real (`:app:assembleDebug`, `:core:test`) |

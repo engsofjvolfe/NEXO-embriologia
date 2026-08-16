@@ -6,7 +6,7 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Pitfalls |
-| Versão | 0.5.0 |
+| Versão | 0.6.0 |
 | Data | 15-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
@@ -136,6 +136,27 @@ corpo inteiro — nunca em cima de uma instrução isolada dentro dela.
 Compilação real (`gradlew :app:assembleDebug`), feita depois da
 correção, confirmou que o código corrigido compila sem erro.
 
+### <a id="2026-08-15-local-properties-precisa-de-barra-dupla"></a>2026-08-15 — `sdk.dir` em `local.properties` precisa de barra invertida duplicada no Windows
+
+*Resumo simples:* `local.properties` (o arquivo, por worktree, que
+aponta pro SDK do Android instalado na máquina) segue o formato de
+arquivo `.properties` do Java, que usa barra invertida como caractere
+de escape — um caminho comum do Windows, com uma barra só entre cada
+pasta, não é lido como o caminho pretendido.
+
+*Detalhe técnico:* `sdk.dir=C\:\Android\sdk` (uma barra antes de cada
+pasta, jeito mais natural de escrever um caminho do Windows) faz o
+Gradle falhar com `java.io.IOException: A sintaxe do nome do arquivo,
+do nome do diretório ou do rótulo do volume está incorreta` ao rodar
+qualquer tarefa que dependa do SDK (`:app:compileDebugKotlin`,
+`:app:assembleDebug`) — o parser de `.properties` engole a barra como
+escape do caractere seguinte, entregando um caminho quebrado. Forma
+correta: `sdk.dir=C\:\\Android\\sdk` — barra dupla antes de cada pasta,
+pra cada uma virar uma barra literal depois do parser. Como
+`local.properties` é criado do zero em toda worktree nova (arquivo
+ignorado pelo git, não existe cópia compartilhada), esse erro tende a
+se repetir a cada worktree nova, não é algo resolvido uma vez só.
+
 ## Referências
 
 Fontes citadas nas armadilhas acima, no formato definido pela norma
@@ -168,3 +189,4 @@ reescrever) também conta como mudança de conteúdo real. -->
 | 0.3.0 | 14-08-2026 | Acrescentada a armadilha da versão de Kotlin do `core` precisar bater com o Kotlin embutido no AGP. | Achado durante a compilação do esqueleto mínimo do módulo `app` |
 | 0.4.0 | 14-08-2026 | Acrescentada a armadilha de `booleanOrNull`/`intOrNull` do kotlinx.serialization não checarem `isString`. | Achado durante a escrita do pacote `content` |
 | 0.5.0 | 15-08-2026 | Acrescentada a armadilha de `@Suppress` não valer em cima de uma instrução solta, só de uma declaração. | Achado durante a escrita do lado `app` do pacote `connectivity` |
+| 0.6.0 | 15-08-2026 | Acrescentada a armadilha de `sdk.dir` em `local.properties` precisar de barra invertida duplicada no Windows. | Achado ao configurar `local.properties` numa worktree nova, pela segunda vez nesta tarefa |

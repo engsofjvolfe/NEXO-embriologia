@@ -66,6 +66,14 @@
   que a tela mostra; correção registrada numa decisão anterior que
   tinha adiado o conteúdo do estado sem necessidade — ver
   [modulos/motor/docs/handoff.md](modulos/motor/docs/handoff.md).
+- `CLAUDE.md` reorganizado — leitura obrigatória movida pro início do
+  documento; dezesseis documentos (`TASKS.md`, `HANDOFF.md`,
+  `README.md`, `modulos/README.md`, README da cascata VMODEL,
+  `_template/` inteiro, `handoff.md`/`concept.md` do módulo motor)
+  agora carregam automaticamente em toda sessão, confirmado por teste
+  ao vivo; os cinco documentos numerados da cascata e o `prompt
+  model.txt` continuam como leitura manual obrigatória — ver
+  [TASKS.md, Em aberto](<TASKS.md#em-aberto>).
 - [TASKS.md, Resolvidas](TASKS.md#resolvidas) — pendências já corrigidas.
 
 ## Próximo passo

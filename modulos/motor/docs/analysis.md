@@ -6,8 +6,8 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Analysis |
-| Versão | 0.9.0 |
-| Data | 16-08-2026 |
+| Versão | 0.10.0 |
+| Data | 17-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
 > Registro datado de como uma investigação foi feita neste módulo — o
@@ -484,6 +484,61 @@ de ferramenta, não achado sobre o código do NEXO.
   usa pra API pública — só prosa solta ("exposto por ela"). Corrigido
   em `architecture.md` (0.27.0), confirmado por este teste.
 
+### <a id="2026-08-17-implementacao-do-teste-de-bleaccessoryservice-bluetooth"></a>2026-08-17 — Implementação do teste de `BleAccessoryService.kt` (Bluetooth)
+
+**Levou a:** [pitfalls.md#2026-08-17-scanrecord-parsefrombytes-e-metodo-oculto](<pitfalls.md#2026-08-17-scanrecord-parsefrombytes-e-metodo-oculto>)
+
+*Resumo simples:* segundo teste escrito de verdade da mesma ferramenta
+já decidida em [decisions/0025](<../decisions/0025-ferramenta-de-teste-do-modulo-app.md>):
+prova o mesmo alvo já fundamentado na investigação de 16/08 (EI-VAL-02
+— `onCharacteristicChanged` decodifica o identificador bruto recebido
+por Bluetooth e repassa pro `PieceReadListener`), agora implementado de
+verdade. Diferente do teste de `MainActivity.kt`, a assinatura de duas
+partes específicas — como plugar o escutador, e qual das duas formas
+de `onCharacteristicChanged` a classe implementa — não estava
+disponível em nenhum documento, exigindo abrir o `.kt` só pra confirmar
+essas duas assinaturas (não pra copiar comportamento pro teste).
+
+*Detalhe técnico:*
+- Tentativa inicial, só com o que `architecture.md` já documentava:
+  `service.pieceReadListener = ...` (mesmo padrão de `MainActivity`)
+  falhou na compilação, propriedade privada. Confirmado abrindo
+  `BleAccessoryService.kt`: os dois escutadores têm, cada um, um método
+  público próprio já pronto (`setPieceReadListener`,
+  `setConnectionStateListener`), e o `onCharacteristicChanged`
+  implementado é a versão antiga (dois parâmetros, sem `value`,
+  lendo `characteristic.value`), a mesma que `pitfalls.md` já registra
+  como escolha deliberada deste arquivo (dar suporte a partir do
+  Android 7, antes da versão nova existir).
+- Checado se esse padrão (método público direto no `Service`, `Binder`
+  só devolvendo a instância) é documentado ou improvisado: é o padrão
+  oficial — a mesma fonte já pesquisada em 16/08 ("Bound services
+  overview") diz "clients call public methods in the service", sem
+  distinguir propriedade de método; o exemplo de referência do Google
+  pra "conectar a um servidor GATT" (já citado em `decisions/0015`)
+  usa a mesma estrutura de `Service` vinculado carregando toda a lógica
+  de Bluetooth que este arquivo usa.
+- Montado um `ScanResult` de teste anunciando de verdade o UUID do
+  Nordic UART Service (bytes de propaganda BLE reais, não um resultado
+  qualquer), pra funcionar independente de `startScanAndConnect()`
+  filtrar sozinho ou deixar o sistema filtrar — registrado em
+  `ShadowBluetoothLeScanner` antes de chamar `startScanAndConnect()`,
+  que entrega o resultado assim que `startScan` é chamado.
+- Capturado o `BluetoothGattCallback` real que o `Service` registra
+  (`Shadows.shadowOf(gatt).gattCallback`, depois que
+  `startScanAndConnect()` já disparou a conexão de verdade) — chamado
+  `onCharacteristicChanged` diretamente nele, com a característica TX
+  carregando o identificador bruto.
+- `gradlew :app:testDebugUnitTest --tests
+  "org.nexo.motor.app.connectivity.BleAccessoryServiceTest"` rodado de
+  verdade: `BUILD SUCCESSFUL`, teste passando.
+- Achado à parte, mesma categoria do de `MainActivity`: os dois métodos
+  públicos (`setPieceReadListener`, `setConnectionStateListener`)
+  nunca tinham sido registrados em `architecture.md` com a mesma
+  precisão usada pro resto da API pública — só prosa solta ("avisa o
+  PieceReadListener"). Corrigido em `architecture.md`, confirmado por
+  este teste.
+
 ## Controle de versão
 
 <!-- uma linha por versão publicada deste documento, mais antiga no
@@ -504,3 +559,4 @@ sem reescrever) também conta como mudança de conteúdo real. -->
 | 0.7.0 | 15-08-2026 | Reordenada a investigação do registro de `session` pra depois da investigação ANATEL (ordem cronológica correta — a de `session` aconteceu depois, não antes, na sequência real de trabalho desta rodada). Acrescentada a investigação de incompatibilidade entre `PdfDocument` e o módulo `core` (Kotlin puro), confirmada ao vivo com `gradlew :app:assembleDebug`. | Preparação pro pacote `report`, correção de ordenação notada durante a revisão |
 | 0.8.0 | 16-08-2026 | Acrescentada a investigação de ferramenta de teste pros cinco pontos pendentes do módulo `app` (Bluetooth, NFC, escrita/compartilhamento de arquivo, PDF, `SessionViewModel`). | Resolução da pendência "Decidir ferramenta de teste pro módulo `app`" |
 | 0.9.0 | 16-08-2026 | Acrescentada a investigação da implementação do teste de `MainActivity.kt` (NFC) — duas armadilhas de Robolectric encontradas e resolvidas, achado de precisão em `architecture.md` corrigido. | Escrita do primeiro teste real de `BleAccessoryService.kt`/`MainActivity.kt`/`ReportFileWriter.kt`/`ReportShareIntent.kt`/`SessionViewModel.kt` |
+| 0.10.0 | 17-08-2026 | Acrescentada a investigação da implementação do teste de `BleAccessoryService.kt` (Bluetooth) — armadilha de Robolectric encontrada e resolvida, achado de precisão em `architecture.md` corrigido. | Escrita do segundo teste real do módulo `app` |

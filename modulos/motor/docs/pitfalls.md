@@ -6,8 +6,8 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Pitfalls |
-| Versão | 0.7.0 |
-| Data | 16-08-2026 |
+| Versão | 0.8.0 |
+| Data | 17-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
 > Comportamento não óbvio de ferramenta/mecanismo usado só neste módulo
@@ -196,6 +196,25 @@ mesma técnica de reflexão que o Robolectric usa por dentro
 `id` desejado — ramificando pelos dois formatos de assinatura conforme
 `RuntimeEnvironment.getApiLevel()`, igual o Robolectric já faz.
 
+### <a id="2026-08-17-scanrecord-parsefrombytes-e-metodo-oculto"></a>2026-08-17 — `ScanRecord.parseFromBytes` é método oculto do SDK público do Android
+
+*Resumo simples:* montar um resultado de busca Bluetooth (`ScanResult`)
+de teste, anunciando um serviço específico, exige montar o `ScanRecord`
+a partir dos bytes brutos de propaganda BLE — mas o método que faz
+isso não está disponível pra chamar direto, escondido do SDK público
+do próprio Android.
+
+*Detalhe técnico:* `android.bluetooth.le.ScanRecord.parseFromBytes(byte[])`
+é um método estático oculto (não faz parte do SDK público que o
+compilador enxerga, mesmo existindo de verdade na classe) — tentar
+chamar direto falha com `Unresolved reference: parseFromBytes`.
+Solução, mesma técnica já registrada pro `Tag.createMockTag` do NFC,
+também um método oculto do SDK público: chamar por reflexão
+(`org.robolectric.util.ReflectionHelpers.callStaticMethod`), passando
+os bytes já montados manualmente no formato de estrutura de
+propaganda BLE (tamanho, tipo `0x07` — lista completa de UUID de 128
+bits —, UUID em ordem de byte invertida).
+
 ## Referências
 
 Fontes citadas nas armadilhas acima, no formato definido pela norma
@@ -230,3 +249,4 @@ reescrever) também conta como mudança de conteúdo real. -->
 | 0.5.0 | 15-08-2026 | Acrescentada a armadilha de `@Suppress` não valer em cima de uma instrução solta, só de uma declaração. | Achado durante a escrita do lado `app` do pacote `connectivity` |
 | 0.6.0 | 15-08-2026 | Acrescentada a armadilha de `sdk.dir` em `local.properties` precisar de barra invertida duplicada no Windows. | Achado ao configurar `local.properties` numa worktree nova, pela segunda vez nesta tarefa |
 | 0.7.0 | 16-08-2026 | Acrescentadas duas armadilhas do Robolectric: `NfcAdapter.getDefaultAdapter()` volta nulo sem declarar a característica de hardware NFC no `PackageManager` simulado; `ShadowNfcAdapter.createMockTag()` não aceita o identificador da etiqueta como parâmetro. | Achado ao escrever e rodar de verdade o teste de `MainActivity.kt` (leitura NFC) |
+| 0.8.0 | 17-08-2026 | Acrescentada a armadilha de `ScanRecord.parseFromBytes` ser método oculto do SDK público do Android. | Achado ao escrever e rodar de verdade o teste de `BleAccessoryService.kt` (Bluetooth) |

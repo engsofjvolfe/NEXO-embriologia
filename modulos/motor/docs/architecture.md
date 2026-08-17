@@ -6,8 +6,8 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Architecture |
-| Versão | 0.27.0 |
-| Data | 16-08-2026 |
+| Versão | 0.28.0 |
+| Data | 17-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
 > Descreve como o módulo é construído por dentro — layout de arquivos,
@@ -582,10 +582,14 @@ app/connectivity/
   BluetoothPermissions.kt      requiredBluetoothPermissions(), hasBluetoothPermissions(context) —
                                 lista as permissões exigidas pela versão do Android em uso
                                 (decisions/0018), num lugar só
-  BleAccessoryService.kt       Service vinculado (LocalBinder); startScanAndConnect() procura
-                                por perto um aparelho anunciando o Nordic UART Service e conecta
-                                no primeiro encontrado (só costuma existir um por ambiente — não
-                                há tela de escolha entre vários, pendência ainda em aberto se
+  BleAccessoryService.kt       Service vinculado (LocalBinder); quem se conecta usa
+                                setPieceReadListener(listener)/setConnectionStateListener(listener),
+                                métodos públicos direto na instância devolvida pelo Binder
+                                (mesmo padrão do exemplo de referência oficial do Android pra
+                                Service vinculado no mesmo processo do cliente); startScanAndConnect()
+                                procura por perto um aparelho anunciando o Nordic UART Service e
+                                conecta no primeiro encontrado (só costuma existir um por ambiente —
+                                não há tela de escolha entre vários, pendência ainda em aberto se
                                 algum dia isso deixar de valer); avisa o ConnectionStateListener
                                 a cada mudança de estado (procurando, conectado, desconectado) e
                                 o PieceReadListener a cada leitura — o único lugar que muda os
@@ -969,3 +973,4 @@ com o campo Versão da tabela de cabeçalho, que sempre reflete a
 | 0.25.0 | 16-08-2026 | Gatilho de ociosidade (EI-PAU-06) escrito: seção "Ligação com o núcleo do motor" descreve o relógio por corrotina (`viewModelScope`), o cancelamento em `onExitConfirmed`, e a gravação em disco do estado ao vencer o prazo — substitui a menção a essa pendência. | Resolução de [decisions/0024-mecanismo-do-gatilho-de-ociosidade.md](<../decisions/0024-mecanismo-do-gatilho-de-ociosidade.md>) |
 | 0.26.0 | 16-08-2026 | Três pontos que citavam "testado só por compilação real"/pendência atualizados: pacote `connectivity`/`app` (Bluetooth e NFC), pacote `report`/`app` (PDF e escrita de arquivo) e `SessionViewModel` — cada um agora aponta pra ferramenta de teste decidida. | Resolução de [decisions/0025-ferramenta-de-teste-do-modulo-app.md](<../decisions/0025-ferramenta-de-teste-do-modulo-app.md>) |
 | 0.27.0 | 16-08-2026 | Precisada a exposição do `PieceReadListener` por `MainActivity`: nome e tipo exatos da propriedade (`pieceReadListener: PieceReadListener?`), que antes só estava descrita em prosa solta, sem o nível de precisão que o resto do documento usa pra API pública. | Confirmado ao escrever e rodar de verdade o teste de `MainActivity.kt` |
+| 0.28.0 | 17-08-2026 | Precisada a exposição dos escutadores por `BleAccessoryService`: `setPieceReadListener`/`setConnectionStateListener` são métodos públicos direto na instância, mesmo padrão do exemplo de referência oficial do Android — antes só descritos em prosa solta ("avisa o PieceReadListener"), sem dizer como um escutador chega até ali de fora. | Confirmado ao escrever e rodar de verdade o teste de `BleAccessoryService.kt` |

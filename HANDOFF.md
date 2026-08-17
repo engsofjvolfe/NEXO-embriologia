@@ -41,8 +41,8 @@
   [modulos/motor/decisions/0014](<modulos/motor/decisions/0014-busca-aproximada-com-termo-vazio.md>).
 - Pacote `connectivity` completo (lado `core` e lado `app`) — lê a
   peça física direto pela antena do celular ou pelo acessório externo
-  por Bluetooth; testado por teste automático (`core`) e, por
-  enquanto, só por compilação real (`app`) — ver
+  por Bluetooth; testado por teste automático dos dois lados (`core`
+  desde o início, `app` desde 17-08-2026) — ver
   [modulos/motor/decisions/0015](<modulos/motor/decisions/0015-fronteira-entre-core-e-app-no-pacote-connectivity.md>)
   a
   [modulos/motor/decisions/0018](<modulos/motor/decisions/0018-estrategia-de-permissao-de-bluetooth-e-nfc.md>).
@@ -83,6 +83,10 @@
   compartilhamento de relatório, `ViewModel`, PDF) — escrita dos
   testes em si segue como pendência própria — ver
   [modulos/motor/decisions/0025](<modulos/motor/decisions/0025-ferramenta-de-teste-do-modulo-app.md>).
+- Dois desses cinco pontos já testados de verdade (Bluetooth, NFC) —
+  os três restantes (escrita/compartilhamento de relatório, `ViewModel`,
+  PDF) seguem como pendência — ver
+  [modulos/motor/docs/tasks.md, Em aberto](<modulos/motor/docs/tasks.md#em-aberto>).
 - [TASKS.md, Resolvidas](TASKS.md#resolvidas) — pendências já corrigidas.
 
 ## Próximo passo

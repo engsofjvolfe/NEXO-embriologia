@@ -6,8 +6,8 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Handoff |
-| Versão | 0.21.0 |
-| Data | 16-08-2026 |
+| Versão | 0.22.0 |
+| Data | 17-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
 > Resumo curto de "onde este módulo está" e "o que fazer a seguir" nele.
@@ -136,3 +136,4 @@ com o campo Versão da tabela de cabeçalho, que sempre reflete a
 | 0.19.0 | 16-08-2026 | Acrescentado ponteiro para decisions/0023. | Geração do relatório de saída antes de apagar a sessão pausada resolvida (EI-PAU-04): `onExitConfirmed` passa a exigir a função de escrita do relatório como parâmetro; auditoria de consistência em `tasks.md` corrigiu dois pontos que já estavam desatualizados antes desta tarefa (o `SessionViewModel` não constava na pendência "Decidir ferramenta de teste pro módulo `app`", e o item resolvido do pacote `report` não apontava de volta pra ela) |
 | 0.20.0 | 16-08-2026 | Acrescentado ponteiro para decisions/0024. | Gatilho de ociosidade (EI-PAU-06) resolvido: `SessionViewModel` conta o tempo por corrotina (`viewModelScope`), reiniciada a cada tentativa nova; vencido o prazo sem tentativa, chama `goIdle` e grava o estado em disco, com `onExitConfirmed` cancelando esse relógio antes de apagar o estado retomável |
 | 0.21.0 | 16-08-2026 | Acrescentado ponteiro para decisions/0025. | Ferramenta de teste dos cinco pontos pendentes do módulo `app` decidida; escrita dos testes em si segue como pendências próprias em `tasks.md` |
+| 0.22.0 | 17-08-2026 | Nenhum ponteiro novo (`tasks.md`/`pitfalls.md`/`analysis.md` já citados). | Primeiros dois testes reais do módulo `app` escritos e rodados (`MainActivity.kt`, NFC; `BleAccessoryService.kt`, Bluetooth) — dois pontos restantes (`ReportFileWriter.kt`/`ReportShareIntent.kt`, `SessionViewModel.kt`) seguem como pendência em `tasks.md` |

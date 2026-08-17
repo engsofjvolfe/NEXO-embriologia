@@ -6,7 +6,7 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Tasks |
-| Versão | 0.31.0 |
+| Versão | 0.32.0 |
 | Data | 16-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
@@ -229,12 +229,14 @@ Convenção dos códigos citados aqui:
       compita com essa regra.
 
 - [ ] **Escrever os testes de `BleAccessoryService.kt`,
-      `MainActivity.kt`, `ReportFileWriter.kt`/`ReportShareIntent.kt`
-      e `SessionViewModel.kt`.**
+      `ReportFileWriter.kt`/`ReportShareIntent.kt` e
+      `SessionViewModel.kt`.**
 
       *Resumo simples:* a ferramenta já foi escolhida pra cada um
-      desses quatro pontos do módulo `app` — falta escrever o teste em
+      desses três pontos do módulo `app` — falta escrever o teste em
       si, um por ponto. Nenhum precisa de aparelho nem emulador ligado.
+      `MainActivity.kt` (NFC), quarto ponto do mesmo grupo original,
+      já está resolvido — ver Resolvidas.
 
       *Detalhe técnico:* ver
       [decisions/0025](<../decisions/0025-ferramenta-de-teste-do-modulo-app.md>)
@@ -467,8 +469,20 @@ Convenção dos códigos citados aqui:
 - [x] **Decidir ferramenta de teste pro módulo `app`.** Resolvido —
       ver
       [decisions/0025-ferramenta-de-teste-do-modulo-app.md](<../decisions/0025-ferramenta-de-teste-do-modulo-app.md>).
-      Escrita dos testes em si segue como três pendências próprias,
-      acima.
+      Escrita dos testes em si segue como pendências próprias, acima
+      (uma delas, sobre `BleAccessoryService.kt`, revelou lacuna de
+      decisão nova, também registrada acima).
+- [x] **Escrever o teste de `MainActivity.kt` (leitura NFC).**
+      Resolvido — prova EI-VAL-02: `onTagDiscovered` decodifica o
+      identificador bruto da etiqueta e repassa pro `PieceReadListener`.
+      Ferramenta: Robolectric ([decisions/0025](<../decisions/0025-ferramenta-de-teste-do-modulo-app.md>)).
+      Duas armadilhas de Robolectric encontradas e resolvidas, ver
+      [pitfalls.md](<pitfalls.md#armadilhas>); investigação completa em
+      [analysis.md](<analysis.md#2026-08-16-implementacao-do-teste-de-mainactivity-nfc>);
+      lacuna de precisão em `architecture.md` (nome exato da propriedade
+      que expõe o `PieceReadListener`) corrigida no caminho. Testado ao
+      vivo: `gradlew :app:testDebugUnitTest --tests
+      "org.nexo.motor.app.MainActivityTest"`, `BUILD SUCCESSFUL`.
 
 ## Referências
 
@@ -548,3 +562,4 @@ como mudança de conteúdo real. -->
 | 0.29.0 | 16-08-2026 | Pendência "Desenhar a aparência visual das telas do motor" corrigida: não cita mais "temporizador" como gatilho ainda pendente de desenho visual — esse gatilho (ociosidade) já está resolvido, independente da aparência; só o gatilho por toque continua pendente. | Checagem mecânica antes de abrir o PR, achado por releitura completa da cadeia de documentos |
 | 0.30.0 | 16-08-2026 | Pendência "Decidir ferramenta de teste pro módulo `app`" detalhada: as três categorias (`connectivity`, `report`/`app`, `SessionViewModel`) explicitadas em cinco arquivos/comportamentos concretos que exigem teste próprio (`BleAccessoryService.kt`, `MainActivity.kt`, `ReportPdfRenderer.kt`, `ReportFileWriter.kt`/`ReportShareIntent.kt`, `onExitConfirmed` e o gatilho de ociosidade dentro de `SessionViewModel`). | Ambiguidade encontrada na auditoria desta mesma pendência, antes de escrever qualquer teste |
 | 0.31.0 | 16-08-2026 | Pendência "Decidir ferramenta de teste pro módulo `app`" resolvida — movida para Resolvidas. Três pendências novas acrescentadas: "Escrever os testes de `BleAccessoryService.kt`, `MainActivity.kt`, `ReportFileWriter.kt`/`ReportShareIntent.kt` e `SessionViewModel.kt`" (sem aparelho nem emulador), "Escrever o teste instrumentado de `ReportPdfRenderer.kt`" (exige aparelho ou emulador ligado) e "Avaliar isolar `BleAccessoryService.kt`/`MainActivity.kt` atrás de interface" (reforma de arquitetura considerada na ADR, não escolhida por não ser necessária pra decidir ferramenta). | Resolução de [decisions/0025-ferramenta-de-teste-do-modulo-app.md](<../decisions/0025-ferramenta-de-teste-do-modulo-app.md>) |
+| 0.32.0 | 16-08-2026 | Pendência "Escrever o teste de `MainActivity.kt`" resolvida — movida para Resolvidas, separada da pendência dos outros três pontos. Pendência nova acrescentada: "Decidir como um `PieceReadListener`/`ConnectionStateListener` externo se pluga num `Service` vinculado (`BleAccessoryService.kt`)" — lacuna descoberta ao tentar escrever o teste desse ponto, confirmada não estar decidida em nenhuma das seis ADRs candidatas (0003, 0015, 0016, 0017, 0018, 0020), lidas por completo. | Primeiro teste real do módulo `app` escrito e rodado (NFC); investigação em [analysis.md](<analysis.md#2026-08-16-implementacao-do-teste-de-mainactivity-nfc>) |

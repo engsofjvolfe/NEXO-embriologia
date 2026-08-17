@@ -6,7 +6,7 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Analysis |
-| Versão | 0.8.0 |
+| Versão | 0.9.0 |
 | Data | 16-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
@@ -425,6 +425,65 @@ exigindo teste instrumentado.
   já aceitas, já resolvem sozinhas que nenhuma classe do Android está
   envolvida.
 
+### <a id="2026-08-16-implementacao-do-teste-de-mainactivity-nfc"></a>2026-08-16 — Implementação do teste de `MainActivity.kt` (NFC)
+
+**Levou a:** [pitfalls.md#2026-08-16-nfcadapter-getdefaultadapter-nulo-sem-feature-nfc](<pitfalls.md#2026-08-16-nfcadapter-getdefaultadapter-nulo-sem-feature-nfc>),
+[pitfalls.md#2026-08-16-shadownfcadapter-createmocktag-nao-aceita-id](<pitfalls.md#2026-08-16-shadownfcadapter-createmocktag-nao-aceita-id>)
+
+*Resumo simples:* primeiro teste escrito de verdade, a partir da
+ferramenta já decidida em [decisions/0025](<../decisions/0025-ferramenta-de-teste-do-modulo-app.md>):
+prova que a leitura NFC de `MainActivity.kt` decodifica o identificador
+bruto da etiqueta e repassa pro `PieceReadListener`, conforme já
+documentado. A assinatura de cada função chamada veio só de
+`architecture.md` (nunca do `.kt` de implementação); a montagem em si
+esbarrou duas vezes em comportamento não óbvio do Robolectric, as duas
+resolvidas conferindo o código-fonte oficial da ferramenta, nunca o do
+NEXO — registradas em `pitfalls.md`, não aqui, por serem comportamento
+de ferramenta, não achado sobre o código do NEXO.
+
+*Detalhe técnico:*
+- Alvo do teste fundamentado direto no requisito: EI-VAL-02 (documento
+  3) já mora e já é testada dentro de `session`; o que faltava provar
+  aqui, especificamente, é que `onTagDiscovered` chama `tagIdFromBytes`
+  com o dado certo da etiqueta e repassa o resultado certo pro
+  `PieceReadListener` — mesmo raciocínio já registrado na investigação
+  de 16/08 sobre a ferramenta de teste, agora aplicado na escrita real.
+- `testOptions { unitTests { isIncludeAndroidResources = true } }`
+  acrescentado a `app/build.gradle.kts`, e `junit:junit`/`org.robolectric:robolectric`
+  acrescentados a `gradle/libs.versions.toml` e como `testImplementation`
+  — nenhum dos dois existia antes desta tarefa (decisions/0025 só
+  decidiu a ferramenta, não configurou o build).
+- Primeira tentativa de compilação falhou em três pontos: import de
+  `kotlin.test` (não existe no classpath de teste do `app`, só em
+  `core` — corrigido pra `org.junit.Assert`); `ShadowNfcAdapter.createMockTag()`
+  chamado com um argumento que ele não aceita (assinatura real
+  confirmada lendo `ShadowNfcAdapter.java` direto do repositório oficial
+  do Robolectric, `gh api`, branch `master` — não aceita identificador
+  nenhum, sempre cria com `id` vazio).
+- Corrigido chamando o método estático oculto por trás dele
+  (`android.nfc.Tag.createMockTag`) diretamente, pela mesma técnica de
+  reflexão que o próprio Robolectric usa por dentro
+  (`ReflectionHelpers.callStaticMethod`), com o `id` desejado — a
+  assinatura desse método muda a partir da versão de Android seguinte
+  ao Tiramisu (parâmetro `cookie` novo), tratado com a mesma
+  ramificação por `RuntimeEnvironment.getApiLevel()` que o Robolectric
+  usa.
+- Segunda falha, em tempo de execução, não de compilação:
+  `NfcAdapter.getDefaultAdapter(activity)` devolvendo `null`. Rastreado
+  até o `PackageManager` simulado do Robolectric não considerar a
+  característica de hardware NFC presente só por ela estar declarada
+  `android:required="false"` no manifesto — precisa ser ligada
+  explicitamente no teste (`Shadows.shadowOf(packageManager).setSystemFeature(...)`).
+- Depois das duas correções, `gradlew :app:testDebugUnitTest --tests
+  MainActivityTest` rodado de verdade: `BUILD SUCCESSFUL`, teste
+  passando.
+- Achado à parte, fora do escopo de teste em si: o nome exato da
+  propriedade que expõe o `PieceReadListener` em `MainActivity`
+  (`pieceReadListener: PieceReadListener?`) nunca tinha sido registrado
+  em `architecture.md` com a mesma precisão que o resto do documento
+  usa pra API pública — só prosa solta ("exposto por ela"). Corrigido
+  em `architecture.md` (0.27.0), confirmado por este teste.
+
 ## Controle de versão
 
 <!-- uma linha por versão publicada deste documento, mais antiga no
@@ -444,3 +503,4 @@ sem reescrever) também conta como mudança de conteúdo real. -->
 | 0.6.0 | 15-08-2026 | Acrescentada a investigação do registro interno de `session` contra EI-REG-01, revelando três lacunas (horário ausente, sugestão de estudo exibida nunca registrada, pausa e ociosidade não distinguíveis). | Preparação pro pacote `report`, que depende desse registro estar completo |
 | 0.7.0 | 15-08-2026 | Reordenada a investigação do registro de `session` pra depois da investigação ANATEL (ordem cronológica correta — a de `session` aconteceu depois, não antes, na sequência real de trabalho desta rodada). Acrescentada a investigação de incompatibilidade entre `PdfDocument` e o módulo `core` (Kotlin puro), confirmada ao vivo com `gradlew :app:assembleDebug`. | Preparação pro pacote `report`, correção de ordenação notada durante a revisão |
 | 0.8.0 | 16-08-2026 | Acrescentada a investigação de ferramenta de teste pros cinco pontos pendentes do módulo `app` (Bluetooth, NFC, escrita/compartilhamento de arquivo, PDF, `SessionViewModel`). | Resolução da pendência "Decidir ferramenta de teste pro módulo `app`" |
+| 0.9.0 | 16-08-2026 | Acrescentada a investigação da implementação do teste de `MainActivity.kt` (NFC) — duas armadilhas de Robolectric encontradas e resolvidas, achado de precisão em `architecture.md` corrigido. | Escrita do primeiro teste real de `BleAccessoryService.kt`/`MainActivity.kt`/`ReportFileWriter.kt`/`ReportShareIntent.kt`/`SessionViewModel.kt` |

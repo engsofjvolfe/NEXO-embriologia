@@ -6,8 +6,8 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Pitfalls |
-| Versão | 0.6.0 |
-| Data | 15-08-2026 |
+| Versão | 0.7.0 |
+| Data | 16-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
 > Comportamento não óbvio de ferramenta/mecanismo usado só neste módulo
@@ -157,6 +157,45 @@ pra cada uma virar uma barra literal depois do parser. Como
 ignorado pelo git, não existe cópia compartilhada), esse erro tende a
 se repetir a cada worktree nova, não é algo resolvido uma vez só.
 
+### <a id="2026-08-16-nfcadapter-getdefaultadapter-nulo-sem-feature-nfc"></a>2026-08-16 — `NfcAdapter.getDefaultAdapter()` volta nulo no Robolectric sem declarar a característica de hardware NFC
+
+*Resumo simples:* num teste Robolectric, pedir o adaptador NFC padrão
+devolve `null` — mesmo o `AndroidManifest.xml` já declarando NFC como
+hardware opcional — até o teste avisar, explicitamente, o gerenciador
+de pacotes simulado de que o aparelho "tem" NFC.
+
+*Detalhe técnico:* `ShadowNfcAdapter.getDefaultAdapter(Context)`
+delega pro método real (`@Direct`) de `android.nfc.NfcAdapter`, que
+consulta `PackageManager.hasSystemFeature(FEATURE_NFC)` — o
+`PackageManager` simulado do Robolectric não ativa uma característica
+de hardware sozinho só por ela estar declarada `android:required="false"`
+no manifesto. Sem isso, `NfcAdapter.getDefaultAdapter(activity)` no
+teste devolve `null`, e qualquer uso dele (`Shadows.shadowOf(null)`)
+lança `NullPointerException`. Correção: no teste, antes de tudo,
+`Shadows.shadowOf(application.packageManager).setSystemFeature(PackageManager.FEATURE_NFC, true)`.
+
+### <a id="2026-08-16-shadownfcadapter-createmocktag-nao-aceita-id"></a>2026-08-16 — `ShadowNfcAdapter.createMockTag()` não aceita o identificador da etiqueta como parâmetro
+
+*Resumo simples:* o método pronto do Robolectric pra criar uma
+etiqueta NFC de teste não deixa escolher qual identificador ela carrega
+— sempre cria com identificador vazio — então não serve sozinho pra
+testar que um identificador específico chega decodificado do outro
+lado.
+
+*Detalhe técnico:* lendo o código-fonte oficial
+(`shadows/framework/.../ShadowNfcAdapter.java`, branch `master`),
+`createMockTag()` chama, por reflexão, o método estático oculto
+`android.nfc.Tag.createMockTag(byte[] id, int[] techList, Bundle[]
+techListExtras[, long cookie])` sempre com `id = new byte[0]` — sem
+jeito de passar um `id` próprio por fora. O quarto parâmetro (`cookie`)
+só existe a partir da versão de Android seguinte ao Tiramisu (API 33);
+em API igual ou anterior a essa, o método tem só os três primeiros
+parâmetros. Solução: chamar o mesmo método oculto diretamente, pela
+mesma técnica de reflexão que o Robolectric usa por dentro
+(`org.robolectric.util.ReflectionHelpers.callStaticMethod`), passando o
+`id` desejado — ramificando pelos dois formatos de assinatura conforme
+`RuntimeEnvironment.getApiLevel()`, igual o Robolectric já faz.
+
 ## Referências
 
 Fontes citadas nas armadilhas acima, no formato definido pela norma
@@ -190,3 +229,4 @@ reescrever) também conta como mudança de conteúdo real. -->
 | 0.4.0 | 14-08-2026 | Acrescentada a armadilha de `booleanOrNull`/`intOrNull` do kotlinx.serialization não checarem `isString`. | Achado durante a escrita do pacote `content` |
 | 0.5.0 | 15-08-2026 | Acrescentada a armadilha de `@Suppress` não valer em cima de uma instrução solta, só de uma declaração. | Achado durante a escrita do lado `app` do pacote `connectivity` |
 | 0.6.0 | 15-08-2026 | Acrescentada a armadilha de `sdk.dir` em `local.properties` precisar de barra invertida duplicada no Windows. | Achado ao configurar `local.properties` numa worktree nova, pela segunda vez nesta tarefa |
+| 0.7.0 | 16-08-2026 | Acrescentadas duas armadilhas do Robolectric: `NfcAdapter.getDefaultAdapter()` volta nulo sem declarar a característica de hardware NFC no `PackageManager` simulado; `ShadowNfcAdapter.createMockTag()` não aceita o identificador da etiqueta como parâmetro. | Achado ao escrever e rodar de verdade o teste de `MainActivity.kt` (leitura NFC) |

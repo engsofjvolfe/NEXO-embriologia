@@ -6,7 +6,7 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Architecture |
-| Versão | 0.26.0 |
+| Versão | 0.27.0 |
 | Data | 16-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
@@ -599,7 +599,11 @@ app/connectivity/
 implementa `NfcAdapter.ReaderCallback` e liga/desliga o modo leitor em
 `onResume`/`onPause`; `onTagDiscovered` decodifica o identificador bruto
 da etiqueta com a mesma `tagIdFromBytes` e entrega pro
-`PieceReadListener` exposto por ela. Nem `MainActivity` nem
+`PieceReadListener` exposto por ela através da propriedade gravável
+`pieceReadListener: PieceReadListener?` (confirmada ao escrever o
+teste desta classe, ver
+[analysis.md](<analysis.md#2026-08-16-implementacao-do-teste-de-mainactivity-nfc>)).
+Nem `MainActivity` nem
 `BleAccessoryService` decidem o que fazer com uma leitura além de
 entregá-la — quem consome esse aviso é o `ViewModel` descrito em
 ["Interface", abaixo](#interface), ver
@@ -964,3 +968,4 @@ com o campo Versão da tabela de cabeçalho, que sempre reflete a
 | 0.24.0 | 16-08-2026 | Menção ao gatilho de ociosidade (EI-PAU-06), na seção "Ligação com o núcleo do motor", simplificada pra um ponteiro só com link — repetia detalhe que já mora em `tasks.md`, sem nem linkar pra lá, inconsistente com o padrão usado cinco linhas acima no mesmo parágrafo. | Correção direta, durante a revisão final da tarefa do relatório de saída |
 | 0.25.0 | 16-08-2026 | Gatilho de ociosidade (EI-PAU-06) escrito: seção "Ligação com o núcleo do motor" descreve o relógio por corrotina (`viewModelScope`), o cancelamento em `onExitConfirmed`, e a gravação em disco do estado ao vencer o prazo — substitui a menção a essa pendência. | Resolução de [decisions/0024-mecanismo-do-gatilho-de-ociosidade.md](<../decisions/0024-mecanismo-do-gatilho-de-ociosidade.md>) |
 | 0.26.0 | 16-08-2026 | Três pontos que citavam "testado só por compilação real"/pendência atualizados: pacote `connectivity`/`app` (Bluetooth e NFC), pacote `report`/`app` (PDF e escrita de arquivo) e `SessionViewModel` — cada um agora aponta pra ferramenta de teste decidida. | Resolução de [decisions/0025-ferramenta-de-teste-do-modulo-app.md](<../decisions/0025-ferramenta-de-teste-do-modulo-app.md>) |
+| 0.27.0 | 16-08-2026 | Precisada a exposição do `PieceReadListener` por `MainActivity`: nome e tipo exatos da propriedade (`pieceReadListener: PieceReadListener?`), que antes só estava descrita em prosa solta, sem o nível de precisão que o resto do documento usa pra API pública. | Confirmado ao escrever e rodar de verdade o teste de `MainActivity.kt` |

@@ -6,8 +6,8 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Analysis |
-| Versão | 0.7.0 |
-| Data | 15-08-2026 |
+| Versão | 0.8.0 |
+| Data | 16-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
 > Registro datado de como uma investigação foi feita neste módulo — o
@@ -329,6 +329,102 @@ classe exclusiva do Android, e `core` é montado sem nada de Android.
   [decisions/0019](<../decisions/0019-mecanismo-de-geracao-guarda-e-compartilhamento-do-relatorio.md>),
   nunca uma ADR nova.
 
+### <a id="2026-08-16-pesquisa-de-ferramenta-de-teste-pro-modulo-app"></a>2026-08-16 — Pesquisa de ferramenta de teste pros cinco pontos pendentes do módulo `app`
+
+**Levou a:** [decisions/0025-ferramenta-de-teste-do-modulo-app.md](<../decisions/0025-ferramenta-de-teste-do-modulo-app.md>)
+
+*Resumo simples:* investigação sobre como testar de verdade os cinco
+pontos que `tasks.md` já lista como pendentes (`BleAccessoryService.kt`,
+`MainActivity.kt`, `ReportPdfRenderer.kt`,
+`ReportFileWriter.kt`/`ReportShareIntent.kt`, `SessionViewModel.kt`).
+Três dos cinco têm simulação pronta no Robolectric, confirmada lendo o
+código-fonte oficial dele, arquivo por arquivo. `SessionViewModel.kt`
+não precisa de nenhuma simulação de Android — não toca em nenhuma
+classe do Android, então roda com `kotlin-test-junit` puro. Só o
+desenho do PDF (`ReportPdfRenderer.kt`) continua sem nenhuma simulação,
+exigindo teste instrumentado.
+
+*Detalhe técnico:*
+- JUnit e versão de build, checados de novo, sem presumir a resposta:
+  o guia oficial de início rápido do Robolectric
+  (`robolectric.org/getting-started/`) usa `junit:junit:4.13.2` como
+  exemplo de dependência; a tabela de compatibilidade oficial
+  (`robolectric.org/compatibility_table/`) lista a versão estável mais
+  recente (4.16) testada contra AGP 8.12.0 e Gradle 8.14.3 — mais
+  antigos que os 9.3.0/9.7.0 já usados neste projeto
+  ([decisions/0012](<../decisions/0012-versoes-de-plataforma-e-build-do-modulo-app.md>)).
+  Lançamentos mais novos checados direto na API do GitHub
+  (`gh api repos/robolectric/robolectric/releases`): a estável mais
+  recente é 4.16.1 (21 jan. 2026), com 4.17-beta-1/2 já em teste (jul.
+  2026) — nenhum dos dois traz nota de lançamento sobre AGP 9.x.
+  Mitigado, não eliminado, confirmando ao vivo, hoje, o catálogo de
+  versão real do "Now in Android" (`gradle/libs.versions.toml`,
+  repositório oficial do time do Android,
+  `github.com/android/nowinandroid`): usa Robolectric 4.16 junto com
+  AGP 9.0.0 e Kotlin 2.3.0, em produção, agora.
+- `BleAccessoryService.kt` (Bluetooth): `ShadowBluetoothGatt.java` e
+  `ShadowBluetoothLeScanner.java` existem na pasta de shadows oficial
+  do Robolectric.
+- `MainActivity.kt` (NFC): `ShadowNfcAdapter.java` existe, com dois
+  métodos que resolvem exatamente o problema que faltava — o de como
+  montar uma etiqueta de teste, nunca resolvido antes: `public static
+  Tag createMockTag()` e `public void dispatchTagDiscovered(Tag tag)`.
+- Conferido o contrato real de `BleAccessoryService.kt`/`MainActivity.kt`
+  contra
+  [decisions/0015](<../decisions/0015-fronteira-entre-core-e-app-no-pacote-connectivity.md>)/[decisions/0016](<../decisions/0016-formato-do-identificador-na-notificacao-bluetooth.md>)
+  e `architecture.md`, em vez de presumir que "o Robolectric roda contra
+  essas classes" já bastava: o contrato das duas não é validar a
+  tentativa (`EI-VAL-02`, já testada dentro de `session`) — é decodificar
+  o aviso bruto recebido e repassar pro `PieceReadListener`. Conferido
+  também que a decodificação em si (`tagIdFromBytes`) já está isolada
+  numa função pura, em `core/connectivity`, com teste próprio. Conclusão:
+  falta provar só que `onCharacteristicChanged`/`onTagDiscovered` chamam
+  `tagIdFromBytes` com o dado certo e repassam o resultado certo pro
+  `PieceReadListener`, simulando uma notificação/etiqueta de verdade
+  chegando. Considerada a alternativa de isolar as duas classes atrás de
+  uma interface (injeção de dependência) — não necessária pra esta ADR,
+  porque não mudaria esse alvo (a parte que decodifica já está separada
+  e testada, só mudaria onde o teste chama a simulação do Android);
+  continua válida por outro motivo (reduzir acoplamento com classe do
+  Android, já recomendado em decisions/0015), registrada como pendência
+  própria em `tasks.md`, pra outro momento.
+- `ReportFileWriter.kt` (escrita/compartilhamento de arquivo, nunca
+  pesquisado antes): `ShadowContentResolver.java` tem
+  `registerOutputStream(Uri, OutputStream)` e
+  `registerOutputStreamSupplier(Uri, Supplier<OutputStream>)` — cobre o
+  caminho novo (`MediaStore.Downloads`, Android 10+). `ShadowEnvironment.java`
+  tem `setExternalStoragePublicDirectory(Path)` — cobre o caminho
+  antigo (Android 7 a 9,
+  [decisions/0019](<../decisions/0019-mecanismo-de-geracao-guarda-e-compartilhamento-do-relatorio.md>)).
+  `ReportShareIntent.kt` só monta um `Intent`/`Uri` comum — classes já
+  simuladas por padrão em qualquer teste Robolectric, sem exigir
+  pesquisa própria. Conferido, mesma lógica do bullet acima, o que os
+  dois arquivos precisam provar segundo documento 4 (DA-ARM-01,
+  DA-ARM-02, checados direto na fonte): que o conteúdo termina só no
+  armazenamento local do aparelho (DA-ARM-01), e que
+  `buildReportShareIntent` nunca dispara nada sozinho, só monta e
+  devolve o `Intent` — quem decide se e quando ele é usado é sempre a
+  pessoa (DA-ARM-02). Confirmado que
+  `registerOutputStream`/`registerOutputStreamSupplier` (Robolectric)
+  permitem checar exatamente o conteúdo que chegou no destino local
+  simulado, sem precisar de nada externo, cobrindo a primeira exigência;
+  a segunda já é garantida pela própria forma da função (devolve
+  `Intent`, nunca chama `startActivity`), sem depender de nenhuma
+  simulação pra ser verdade.
+- `ReportPdfRenderer.kt` (PDF): `ShadowPdfDocument.java` não existe —
+  confirmado direto, pedindo o arquivo pela API do GitHub e recebendo
+  `404 Not Found`. Continua precisando de teste instrumentado (aparelho
+  ou emulador real) — versão estável atual das três bibliotecas que
+  isso exige, checada na página oficial de lançamentos do Android
+  Jetpack (`developer.android.com/jetpack/androidx/releases/test`):
+  `androidx.test:core` 1.7.0, `androidx.test.ext:junit` 1.3.0,
+  `androidx.test:runner` 1.7.0.
+- `SessionViewModel.kt` (`onExitConfirmed`, gatilho de ociosidade): sem
+  pesquisa nova — [decisions/0020](<../decisions/0020-ligacao-entre-leitura-de-peca-e-a-tela.md>)
+  e [decisions/0023](<../decisions/0023-geracao-do-relatorio-de-saida-antes-de-apagar-a-sessao.md>),
+  já aceitas, já resolvem sozinhas que nenhuma classe do Android está
+  envolvida.
+
 ## Controle de versão
 
 <!-- uma linha por versão publicada deste documento, mais antiga no
@@ -347,3 +443,4 @@ sem reescrever) também conta como mudança de conteúdo real. -->
 | 0.5.0 | 15-08-2026 | Acrescentada a investigação da exigência de homologação ANATEL pro acessório leitor (Bluetooth + NFC), com três fontes legais e a norma ISO/IEC/IEEE 29148:2018 como enquadramento metodológico. | Achado revelado durante a pesquisa sobre substituição do chip PN532; pendência nova em `tasks.md` |
 | 0.6.0 | 15-08-2026 | Acrescentada a investigação do registro interno de `session` contra EI-REG-01, revelando três lacunas (horário ausente, sugestão de estudo exibida nunca registrada, pausa e ociosidade não distinguíveis). | Preparação pro pacote `report`, que depende desse registro estar completo |
 | 0.7.0 | 15-08-2026 | Reordenada a investigação do registro de `session` pra depois da investigação ANATEL (ordem cronológica correta — a de `session` aconteceu depois, não antes, na sequência real de trabalho desta rodada). Acrescentada a investigação de incompatibilidade entre `PdfDocument` e o módulo `core` (Kotlin puro), confirmada ao vivo com `gradlew :app:assembleDebug`. | Preparação pro pacote `report`, correção de ordenação notada durante a revisão |
+| 0.8.0 | 16-08-2026 | Acrescentada a investigação de ferramenta de teste pros cinco pontos pendentes do módulo `app` (Bluetooth, NFC, escrita/compartilhamento de arquivo, PDF, `SessionViewModel`). | Resolução da pendência "Decidir ferramenta de teste pro módulo `app`" |

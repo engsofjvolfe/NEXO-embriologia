@@ -6,7 +6,7 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Tasks |
-| Versão | 0.30.0 |
+| Versão | 0.31.0 |
 | Data | 16-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
@@ -228,35 +228,47 @@ Convenção dos códigos citados aqui:
       precisa ser discreto, nunca virar uma explicação ou aviso que
       compita com essa regra.
 
-- [ ] **Decidir ferramenta de teste pro módulo `app`.**
+- [ ] **Escrever os testes de `BleAccessoryService.kt`,
+      `MainActivity.kt`, `ReportFileWriter.kt`/`ReportShareIntent.kt`
+      e `SessionViewModel.kt`.**
 
-      *Resumo simples:* o `core` já tem ferramenta de teste fixada
-      (`kotlin-test`), mas o `app` não — hoje só é testado compilando
-      de verdade, sem checar nenhum comportamento.
+      *Resumo simples:* a ferramenta já foi escolhida pra cada um
+      desses quatro pontos do módulo `app` — falta escrever o teste em
+      si, um por ponto. Nenhum precisa de aparelho nem emulador ligado.
 
-      *Detalhe técnico:* código que toca API do Android, hoje só
-      testado por compilação real, sem nenhum comportamento checado —
-      três categorias, cinco arquivos/comportamentos concretos dentro
-      delas, cada um exigindo teste próprio:
+      *Detalhe técnico:* ver
+      [decisions/0025](<../decisions/0025-ferramenta-de-teste-do-modulo-app.md>)
+      pra ferramenta de cada ponto. Nenhum arquivo de teste escrito
+      ainda.
 
-      - `connectivity` (ver
-        [decisions/0015](<../decisions/0015-fronteira-entre-core-e-app-no-pacote-connectivity.md>)):
-        dois arquivos — `BleAccessoryService.kt` (Bluetooth) e
-        `MainActivity.kt` (NFC).
-      - `report`/`app` (ver
-        [architecture.md, pacote `report`](<architecture.md#pacote-report--desenho-interno>)):
-        dois arquivos — `ReportPdfRenderer.kt` (desenho do PDF) e
-        `ReportFileWriter.kt`/`ReportShareIntent.kt` (escrita e
-        compartilhamento do arquivo).
-      - `SessionViewModel` inteiro (estende
-        `androidx.lifecycle.ViewModel`, ver
-        [architecture.md, Ligação com o núcleo do motor](<architecture.md#ligação-com-o-núcleo-do-motor>)):
-        cobertura da classe inteira, incluindo `onExitConfirmed`
-        (ordem exigida por
-        [decisions/0023](<../decisions/0023-geracao-do-relatorio-de-saida-antes-de-apagar-a-sessao.md>),
-        EI-PAU-04) e o gatilho de ociosidade (`goIdle`,
-        [decisions/0024](<../decisions/0024-mecanismo-do-gatilho-de-ociosidade.md>),
-        EI-PAU-06).
+- [ ] **Escrever o teste instrumentado de `ReportPdfRenderer.kt`.**
+
+      *Resumo simples:* diferente dos outros quatro pontos do módulo
+      `app`, este exige um aparelho ou emulador Android de verdade
+      ligado pra rodar — nenhuma ferramenta simula essa classe.
+
+      *Detalhe técnico:* ver
+      [decisions/0025](<../decisions/0025-ferramenta-de-teste-do-modulo-app.md>).
+      Nenhum arquivo de teste escrito ainda.
+
+- [ ] **Avaliar isolar `BleAccessoryService.kt`/`MainActivity.kt` atrás
+      de uma interface trocável por implementação falsa no teste
+      (injeção de dependência).**
+
+      *Resumo simples:* reduziria o quanto de código dessas duas
+      classes depende de simulação de Android, seguindo a mesma
+      recomendação oficial já citada em `decisions/0015` — mas exige
+      refatorar as duas classes, reforma de arquitetura, não escolha de
+      ferramenta de teste.
+
+      *Detalhe técnico:* considerada em
+      [decisions/0025](<../decisions/0025-ferramenta-de-teste-do-modulo-app.md>)
+      e não necessária pra decidir a ferramenta de teste desta tarefa —
+      a parte que decodifica o identificador (`tagIdFromBytes`) já está
+      isolada numa função pura, com teste próprio. A ideia continua
+      válida por outro motivo (reduzir acoplamento com classe do
+      Android), registrada aqui como pendência própria, sem desenho nem
+      decisão ainda.
 
 - [ ] **Escrever os testes de unidade, integração, sistema e
       aceitação.**
@@ -392,8 +404,8 @@ Convenção dos códigos citados aqui:
       e
       [decisions/0018](<../decisions/0018-estrategia-de-permissao-de-bluetooth-e-nfc.md>).
       Testado só por compilação real (`gradlew :app:assembleDebug`,
-      `BUILD SUCCESSFUL`) — sem teste automatizado, ver pendência
-      "Decidir ferramenta de teste pro módulo `app`" acima. Uma
+      `BUILD SUCCESSFUL`) — sem teste automatizado ainda, ver pendência
+      "Escrever os testes de `BleAccessoryService.kt`..." acima. Uma
       armadilha de ferramenta encontrada no caminho, ver
       [pitfalls.md](<pitfalls.md#armadilhas>).
 - [x] **Decidir quem monta o texto de resumo/síntese exibido nas
@@ -412,9 +424,11 @@ Convenção dos códigos citados aqui:
       nota de acompanhamento incluída. Dividido entre `core/report/`
       (dado puro, testado com `kotlin-test`) e `app/report/` (desenho
       do PDF, escrita no aparelho, atalho de compartilhar, testado só
-      por compilação real, sem teste automatizado — ver pendência
-      "Decidir ferramenta de teste pro módulo `app`" acima) — achado
-      que motivou essa divisão em
+      por compilação real, sem teste automatizado ainda — desenho do
+      PDF e escrita/compartilhamento viraram pendências separadas
+      acima, ver "Escrever o teste instrumentado de
+      `ReportPdfRenderer.kt`" e "Escrever os testes de
+      `BleAccessoryService.kt`...") — achado que motivou essa divisão em
       [findings.md#2026-08-15-mecanismo-de-pdf-incompativel-com-core](<findings.md#2026-08-15-mecanismo-de-pdf-incompativel-com-core>).
 - [x] **Escrever o código-fonte da ligação entre leitura de peça,
       sessão e tela (`ViewModel`).** Resolvido — ver
@@ -426,9 +440,10 @@ Convenção dos códigos citados aqui:
       `referenceImage` (EI-SES-04), achado durante a ADR. Testado só
       por compilação real (`gradlew :app:assembleDebug`,
       `gradlew :core:test`) — sem teste automatizado do `ViewModel` em
-      si, mesma pendência "Decidir ferramenta de teste pro módulo
-      `app`" acima. Gerar o relatório de saída e o gatilho de
-      ociosidade ficam de fora, viram pendências próprias acima.
+      si ainda, mesma pendência "Escrever os testes de
+      `BleAccessoryService.kt`..." acima. Gerar o relatório de saída
+      e o gatilho de ociosidade ficam de fora, viram pendências
+      próprias acima.
 - [x] **Gerar o relatório de saída antes de apagar a sessão pausada
       (EI-PAU-04).** Resolvido — ver
       [decisions/0023-geracao-do-relatorio-de-saida-antes-de-apagar-a-sessao.md](<../decisions/0023-geracao-do-relatorio-de-saida-antes-de-apagar-a-sessao.md>).
@@ -436,9 +451,9 @@ Convenção dos códigos citados aqui:
       como parâmetro, sem depender da tela de resultado (DA-RET-14)
       existir. Testado só por compilação real (`gradlew
       :app:assembleDebug`, `gradlew :core:test`) — sem teste
-      automatizado, mesma pendência "Decidir ferramenta de teste pro
-      módulo `app`" acima (já cobre o `SessionViewModel` inteiro, esta
-      função incluída).
+      automatizado ainda, mesma pendência "Escrever os testes de
+      `BleAccessoryService.kt`..." acima (já cobre o
+      `SessionViewModel` inteiro, esta função incluída).
 - [x] **Decidir o gatilho de ociosidade (EI-PAU-06).** Resolvido — ver
       [decisions/0024-mecanismo-do-gatilho-de-ociosidade.md](<../decisions/0024-mecanismo-do-gatilho-de-ociosidade.md>).
       `SessionViewModel` conta o tempo por corrotina (`viewModelScope`),
@@ -446,9 +461,14 @@ Convenção dos códigos citados aqui:
       configurado sem tentativa nova, chama `goIdle` e grava o estado
       em disco (`saveSessionState`). Testado só por compilação real
       (`gradlew :app:assembleDebug`, `gradlew :core:test`) — sem teste
-      automatizado, mesma pendência "Decidir ferramenta de teste pro
-      módulo `app`" acima (já cobre o `SessionViewModel` inteiro, este
-      relógio incluído).
+      automatizado ainda, mesma pendência "Escrever os testes de
+      `BleAccessoryService.kt`..." acima (já cobre o
+      `SessionViewModel` inteiro, este relógio incluído).
+- [x] **Decidir ferramenta de teste pro módulo `app`.** Resolvido —
+      ver
+      [decisions/0025-ferramenta-de-teste-do-modulo-app.md](<../decisions/0025-ferramenta-de-teste-do-modulo-app.md>).
+      Escrita dos testes em si segue como três pendências próprias,
+      acima.
 
 ## Referências
 
@@ -527,3 +547,4 @@ como mudança de conteúdo real. -->
 | 0.28.0 | 16-08-2026 | Pendência "Decidir o gatilho de ociosidade (EI-PAU-06)" resolvida — movida para Resolvidas. | Resolução de [decisions/0024-mecanismo-do-gatilho-de-ociosidade.md](<../decisions/0024-mecanismo-do-gatilho-de-ociosidade.md>) |
 | 0.29.0 | 16-08-2026 | Pendência "Desenhar a aparência visual das telas do motor" corrigida: não cita mais "temporizador" como gatilho ainda pendente de desenho visual — esse gatilho (ociosidade) já está resolvido, independente da aparência; só o gatilho por toque continua pendente. | Checagem mecânica antes de abrir o PR, achado por releitura completa da cadeia de documentos |
 | 0.30.0 | 16-08-2026 | Pendência "Decidir ferramenta de teste pro módulo `app`" detalhada: as três categorias (`connectivity`, `report`/`app`, `SessionViewModel`) explicitadas em cinco arquivos/comportamentos concretos que exigem teste próprio (`BleAccessoryService.kt`, `MainActivity.kt`, `ReportPdfRenderer.kt`, `ReportFileWriter.kt`/`ReportShareIntent.kt`, `onExitConfirmed` e o gatilho de ociosidade dentro de `SessionViewModel`). | Ambiguidade encontrada na auditoria desta mesma pendência, antes de escrever qualquer teste |
+| 0.31.0 | 16-08-2026 | Pendência "Decidir ferramenta de teste pro módulo `app`" resolvida — movida para Resolvidas. Três pendências novas acrescentadas: "Escrever os testes de `BleAccessoryService.kt`, `MainActivity.kt`, `ReportFileWriter.kt`/`ReportShareIntent.kt` e `SessionViewModel.kt`" (sem aparelho nem emulador), "Escrever o teste instrumentado de `ReportPdfRenderer.kt`" (exige aparelho ou emulador ligado) e "Avaliar isolar `BleAccessoryService.kt`/`MainActivity.kt` atrás de interface" (reforma de arquitetura considerada na ADR, não escolhida por não ser necessária pra decidir ferramenta). | Resolução de [decisions/0025-ferramenta-de-teste-do-modulo-app.md](<../decisions/0025-ferramenta-de-teste-do-modulo-app.md>) |

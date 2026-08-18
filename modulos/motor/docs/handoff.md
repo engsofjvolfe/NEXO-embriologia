@@ -6,7 +6,7 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Handoff |
-| Versão | 0.24.0 |
+| Versão | 0.25.0 |
 | Data | 17-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
@@ -139,3 +139,4 @@ com o campo Versão da tabela de cabeçalho, que sempre reflete a
 | 0.22.0 | 17-08-2026 | Nenhum ponteiro novo (`tasks.md`/`pitfalls.md`/`analysis.md` já citados). | Primeiros dois testes reais do módulo `app` escritos e rodados (`MainActivity.kt`, NFC; `BleAccessoryService.kt`, Bluetooth) — dois pontos restantes (`ReportFileWriter.kt`/`ReportShareIntent.kt`, `SessionViewModel.kt`) seguem como pendência em `tasks.md` |
 | 0.23.0 | 17-08-2026 | Nenhum ponteiro novo (`decisions/0025`/`findings.md`/`tasks.md` já citados). | Caminho antigo de `ReportFileWriter.kt` (Android 7 a 9) confirmado exigir teste instrumentado, mesma categoria de `ReportPdfRenderer.kt` — nota de acompanhamento em `decisions/0025`, pendência ajustada em `tasks.md` |
 | 0.24.0 | 17-08-2026 | Nenhum ponteiro novo (`tasks.md`/`analysis.md` já citados). | Terceiro teste real do módulo `app` escrito e rodado (`ReportFileWriter.kt`/`ReportShareIntent.kt`, caminho novo) — só `SessionViewModel.kt` segue como pendência sem aparelho em `tasks.md` |
+| 0.25.0 | 17-08-2026 | Nenhum ponteiro novo (`tasks.md`/`analysis.md` já citados). | Tentativa de escrever o teste de `SessionViewModel.kt` revelou que a forma exata de `SessionState` e dos tipos de `content` nunca foi decidida em documento nenhum — pendência nova em `tasks.md`, bloqueando o teste até uma ADR própria resolver isso |

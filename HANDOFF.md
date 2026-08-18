@@ -83,9 +83,15 @@
   compartilhamento de relatório, `ViewModel`, PDF) — escrita dos
   testes em si segue como pendência própria — ver
   [modulos/motor/decisions/0025](<modulos/motor/decisions/0025-ferramenta-de-teste-do-modulo-app.md>).
-- Dois desses cinco pontos já testados de verdade (Bluetooth, NFC) —
-  os três restantes (escrita/compartilhamento de relatório, `ViewModel`,
-  PDF) seguem como pendência — ver
+- Três desses cinco pontos já testados de verdade (Bluetooth, NFC,
+  escrita/compartilhamento de relatório no caminho novo) — o desenho
+  do PDF e o caminho antigo de escrita de relatório (Android 7 a 9)
+  exigem aparelho ou emulador ligado, seguem como pendência. O teste
+  da peça que liga leitura de peça, sessão e tela (`ViewModel`) ficou
+  bloqueado: tentar escrevê-lo revelou que a forma exata de duas
+  partes internas do código (o "andamento da sessão" e o "conteúdo
+  carregado") nunca foi anotada em documento nenhum — precisa de uma
+  decisão própria antes — ver
   [modulos/motor/docs/tasks.md, Em aberto](<modulos/motor/docs/tasks.md#em-aberto>).
 - [TASKS.md, Resolvidas](TASKS.md#resolvidas) — pendências já corrigidas.
 

@@ -6,7 +6,7 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Analysis |
-| Versão | 0.11.0 |
+| Versão | 0.12.0 |
 | Data | 17-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
@@ -601,6 +601,70 @@ Confirmado por três fontes independentes, não por suposição.
   `BUILD SUCCESSFUL`, os dois testes passando. Suíte completa do
   módulo `app` rodada de novo depois, sem quebra.
 
+### <a id="2026-08-17-lacuna-na-forma-de-sessionstate-e-dos-tipos-de-content"></a>2026-08-17 — Lacuna na forma exata de `SessionState`, dos tipos de `content` e do construtor de `SessionViewModel`
+
+**Levou a:** [tasks.md, Em aberto](<tasks.md#em-aberto>) (pendência
+nova, ainda sem decisão)
+
+*Resumo simples:* pra montar, dentro de um teste automático, um
+exemplo de "sessão de jogo em andamento" e de "conteúdo já carregado",
+seria preciso saber exatamente como essas duas coisas são guardadas
+por dentro do programa. Isso nunca foi escrito em nenhum documento de
+decisão do projeto, só decidido direto no código, faz tempo. Essa
+descrição que falta precisa virar uma tarefa própria, decidida com
+calma, antes do teste da peça que liga a leitura de uma peça física à
+tela do jogo poder ser escrito.
+
+*Detalhe técnico:*
+- Primeira tentativa: abrir `SessionViewModel.kt` inteiro pra resolver
+  a dúvida. Errada por método — a regra do módulo não é "quanto código
+  foi lido", é "de onde a decisão nasceu"; mesmo um fato pequeno, se
+  vem do código em vez do documento, já inverte a ordem que
+  `modulos/README.md` (Como navegar) fixa. Revertida — nenhum campo,
+  assinatura ou trecho de lógica visto ali entrou em qualquer decisão
+  posterior.
+- Segunda tentativa: escrever a forma de `SessionState`/`content`/
+  `SessionViewModel` direto em `architecture.md`, sem ADR, citando as
+  ADRs já existentes (decisions/0008, 0013, 0020, 0022, 0023, 0024)
+  como se fosse desenho derivado delas. Também errada, por um motivo
+  mais sutil: parte dessas ADRs decide o *conceito* (retrato imutável,
+  campos diretos, registro interno), mas nenhuma delas fixa nome de
+  campo — a "derivação" era, na prática, um palpite com citação de ADR
+  em volta. Prova concreta: ao compilar contra esse palpite, o mesmo
+  erro (`ordering` faltando em `ContentEvent`/`ContentTheme`) apareceu
+  de novo, idêntico ao da primeira tentativa — mostrando que o segundo
+  palpite não era mais fundamentado que o primeiro, só mais bem
+  escrito. Revertida por completo (`git reset --hard` até o commit
+  anterior, arquivo de teste novo apagado).
+- Reconhecido, só depois dessas duas tentativas, que o problema não é
+  de método de pesquisa — é que não existe alternativa real a
+  comparar pra "qual o nome de um campo de uma classe Kotlin já
+  escrita": não é o tipo de decisão que tem fonte externa ou
+  precedente de mercado (diferente de decisions/0008, que comparou
+  duas fontes reais — Android "state holder" e Microsoft "event
+  sourcing" — antes de decidir). A decisão sobre esses nomes já foi
+  tomada por quem escreveu o código, e nunca passou por ADR nenhuma —
+  ou seja, pelas próprias regras deste projeto, nunca foi decidida de
+  verdade, mesmo o código já existindo. "Código que já existe, mas
+  nunca passou pela documentação" não vira motivo pra pular a
+  documentação — vira pendência pra fazer a documentação nascer agora,
+  com o código corrigido depois se divergir do que for decidido, nunca
+  o contrário (mesma regra já fixada em `modulos/README.md`).
+- Caminho identificado, sem ainda decidir nada, pra quando essa tarefa
+  acontecer: pelo menos a parte de `content` tem uma saída sem
+  depender de conhecer o construtor de `ContentInstance` — a função já
+  documentada `importContentPackage(manifestJson: String)` aceita
+  texto no formato já 100% fixado em
+  [concept.md, Contrato de dado](<concept.md#contrato-de-dado>) e
+  devolve a instância pronta; não resolve `SessionState`, que não tem
+  nenhuma função equivalente documentada pra montar o primeiro retrato
+  de uma sessão.
+- Nenhum arquivo de código ou de `architecture.md` ficou modificado
+  depois desta investigação — os dois `git reset --hard` devolveram a
+  worktree exatamente ao estado do commit anterior (terceiro teste,
+  `ReportFileWriter`/`ReportShareIntent`) antes de qualquer commit
+  novo.
+
 ## Controle de versão
 
 <!-- uma linha por versão publicada deste documento, mais antiga no
@@ -623,3 +687,4 @@ sem reescrever) também conta como mudança de conteúdo real. -->
 | 0.9.0 | 16-08-2026 | Acrescentada a investigação da implementação do teste de `MainActivity.kt` (NFC) — duas armadilhas de Robolectric encontradas e resolvidas, achado de precisão em `architecture.md` corrigido. | Escrita do primeiro teste real de `BleAccessoryService.kt`/`MainActivity.kt`/`ReportFileWriter.kt`/`ReportShareIntent.kt`/`SessionViewModel.kt` |
 | 0.10.0 | 17-08-2026 | Acrescentada a investigação da implementação do teste de `BleAccessoryService.kt` (Bluetooth) — armadilha de Robolectric encontrada e resolvida, achado de precisão em `architecture.md` corrigido. | Escrita do segundo teste real do módulo `app` |
 | 0.11.0 | 17-08-2026 | Acrescentada a investigação de teste de `ReportFileWriter.kt`/`ReportShareIntent.kt` — caminho antigo (Android 7 a 9) confirmado não testável com a ferramenta já escolhida, achado registrado; caminho novo testado de verdade (`writeReportCsv`, `buildReportShareIntent`). | Terceiro teste real do módulo `app` escrito e rodado |
+| 0.12.0 | 17-08-2026 | Acrescentada a investigação da lacuna na forma exata de `SessionState`, dos tipos de `content` e do construtor de `SessionViewModel` — duas tentativas de contornar sem ADR própria, feitas e revertidas nesta mesma investigação. | Tentativa de escrever o teste de `SessionViewModel.kt`; pendência nova em `tasks.md` |

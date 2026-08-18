@@ -6,7 +6,7 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Handoff |
-| Versão | 0.27.0 |
+| Versão | 0.29.0 |
 | Data | 18-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
@@ -99,6 +99,9 @@
   `ViewModel`, e do construtor de `SessionViewModel` decidida.
 - [decisions/0027-sessionstate-referencia-o-evento-atual-pelo-nome.md](<../decisions/0027-sessionstate-referencia-o-evento-atual-pelo-nome.md>) —
   campo do evento em curso de `SessionState` corrigido.
+- [decisions/0028-combinacao-do-recorte-de-temas-e-eventos-numa-sessao.md](<../decisions/0028-combinacao-do-recorte-de-temas-e-eventos-numa-sessao.md>) —
+  combinação do recorte de temas e de eventos numa sessão multi-tema
+  decidida.
 - [findings.md](findings.md) — achados confirmados até agora.
 - [analysis.md](analysis.md) — registro de como cada investigação
   deste módulo foi feita.
@@ -147,3 +150,5 @@ com o campo Versão da tabela de cabeçalho, que sempre reflete a
 | 0.25.0 | 17-08-2026 | Nenhum ponteiro novo (`tasks.md`/`analysis.md` já citados). | Tentativa de escrever o teste de `SessionViewModel.kt` revelou que a forma exata de `SessionState` e dos tipos de `content` nunca foi decidida em documento nenhum — pendência nova em `tasks.md`, bloqueando o teste até uma ADR própria resolver isso |
 | 0.26.0 | 18-08-2026 | Acrescentado ponteiro para decisions/0026. | Forma exata de `SessionState`, dos tipos de `content` usados pelo `ViewModel`, e do construtor de `SessionViewModel` decidida — desbloqueia o teste de `SessionViewModel.kt`; um ponto (sessão atravessando mais de um tema) ficou de fora, vira pendência nova em `tasks.md` |
 | 0.27.0 | 18-08-2026 | Acrescentado ponteiro para decisions/0027. | Quarto e último teste real do módulo `app` escrito e rodado (`SessionViewModel.kt`, dez testes) — divergência real entre a ADR 0026 e o código encontrada ao rodar o teste, corrigida via decisions/0027 (código já estava certo, a ADR que precisava se ajustar) |
+| 0.28.0 | 18-08-2026 | Acrescentado ponteiro para decisions/0028. | Combinação do recorte de temas e de eventos numa sessão multi-tema decidida — escrita do código (`sessionEventNames`) e do teste seguem como pendência própria em `tasks.md` |
+| 0.29.0 | 18-08-2026 | Nenhum ponteiro novo (decisions/0028 já citada). | `sessionEventNames` implementada e testada (quatro testes) — pendência de código e teste, aberta na versão anterior, resolvida |

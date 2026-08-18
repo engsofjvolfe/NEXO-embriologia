@@ -6,7 +6,7 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Tasks |
-| Versão | 0.38.0 |
+| Versão | 0.40.0 |
 | Data | 18-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
@@ -228,28 +228,6 @@ Convenção dos códigos citados aqui:
       precisa ser discreto, nunca virar uma explicação ou aviso que
       compita com essa regra.
 
-- [ ] **Decidir, via ADR, como combinar o recorte de temas com o
-      recorte de eventos de cada tema numa única lista plana de
-      eventos, pra uma sessão que atravessa mais de um tema.**
-
-      *Resumo simples:* uma sessão pode passar por mais de um tema, não
-      só por mais de um evento dentro do mesmo tema — mas nenhum
-      documento ainda diz como isso vira, na prática, a lista única e
-      ordenada de eventos que a sessão vai percorrer do início ao fim.
-
-      *Detalhe técnico:* achado durante
-      [decisions/0026](<../decisions/0026-forma-de-sessionstate-tipos-de-content-e-construtor-do-viewmodel.md>)
-      — `SessionConfiguration.eventNames` (`core/report`), que
-      `SessionState`/`SessionViewModel` já presumem pronta e plana
-      (ver [decisions/0027](<../decisions/0027-sessionstate-referencia-o-evento-atual-pelo-nome.md>)),
-      não tem, em nenhum documento, a regra de como é montada quando a
-      sessão atravessa mais de um tema.
-      [decisions/0009](<../decisions/0009-calculo-do-recorte-continuo-de-sessao.md>)
-      resolve o recorte contíguo dentro de um grupo só (temas de uma
-      instância, ou eventos de um tema), nunca os dois níveis
-      combinados. Não bloqueia nenhuma pendência hoje — o teste já
-      escrito de `SessionViewModel.kt` (ver Resolvidas) usa uma sessão
-      de um tema só, sem precisar dessa combinação.
 
 - [ ] **Escrever os testes instrumentados de `ReportPdfRenderer.kt` e
       do caminho antigo de `ReportFileWriter.kt` (Android 7 a 9).**
@@ -529,8 +507,8 @@ Convenção dos códigos citados aqui:
       [decisions/0027](<../decisions/0027-sessionstate-referencia-o-evento-atual-pelo-nome.md>).
       Desbloqueou a pendência "Escrever o teste de
       `SessionViewModel.kt`", já resolvida abaixo. Um ponto ficou de
-      fora, virando pendência própria ("Decidir, via ADR, como
-      combinar o recorte de temas..."), acima.
+      fora, virando pendência própria, também já resolvida abaixo
+      ("Decidir, via ADR, como combinar o recorte de temas...").
 - [x] **Escrever o teste de `SessionViewModel.kt`.** Resolvido — prova
       EI-VAL-01/02 (aceitar/rejeitar tentativa), EI-RET-01/02
       (referência e negativa), EI-PAU-03 (pedido/cancelamento de
@@ -551,6 +529,26 @@ Convenção dos códigos citados aqui:
       "org.nexo.motor.app.ui.SessionViewModelTest"`, `BUILD
       SUCCESSFUL`, 10 testes; suíte completa (`:app:testDebugUnitTest
       :core:test`) rodada de novo, sem quebra.
+- [x] **Decidir, via ADR, como combinar o recorte de temas com o
+      recorte de eventos de cada tema numa única lista plana de
+      eventos, pra uma sessão que atravessa mais de um tema.**
+      Resolvido — ver
+      [decisions/0028](<../decisions/0028-combinacao-do-recorte-de-temas-e-eventos-numa-sessao.md>).
+- [x] **Escrever o código e o teste de `sessionEventNames`
+      (combinação do recorte de temas e de eventos numa sessão que
+      atravessa mais de um tema).** Resolvido — prova EI-SES-06/07
+      (sessão dentro de um tema só, sessão atravessando dois temas sem
+      tema no meio, sessão atravessando três temas com o do meio
+      inteiro, sessão cobrindo do primeiro ao último evento). Escrito
+      só a partir de `decisions/0028`, sem abrir nenhum arquivo de
+      `src/main` antes de rodar; implementação escrita só depois do
+      teste já existir, sem overfit num sentido nem no outro.
+      Investigação completa em
+      [analysis.md](<analysis.md#2026-08-18-combinacao-do-recorte-de-temas-e-eventos-numa-sessao-multitema>).
+      Testado ao vivo: `gradlew :core:test --tests
+      "org.nexo.motor.core.session.SessionScopeTest"`, `BUILD
+      SUCCESSFUL`; suíte completa (`:core:test :app:testDebugUnitTest`)
+      rodada de novo, sem quebra.
 
 ## Referências
 
@@ -637,3 +635,5 @@ como mudança de conteúdo real. -->
 | 0.36.0 | 17-08-2026 | Pendência nova "Formalizar, via ADR, a forma exata de `SessionState`, dos tipos de `content` usados pelo `ViewModel`, e do construtor de `SessionViewModel`" acrescentada, bloqueando "Escrever o teste de `SessionViewModel.kt`". | Achado durante a tentativa de escrever esse teste — investigação em [analysis.md](<analysis.md#2026-08-17-lacuna-na-forma-de-sessionstate-e-dos-tipos-de-content>) |
 | 0.37.0 | 18-08-2026 | Pendência "Formalizar, via ADR, a forma exata de `SessionState`..." resolvida — movida para Resolvidas, desbloqueando "Escrever o teste de `SessionViewModel.kt`". Pendência nova "Decidir, via ADR, como combinar o recorte de temas com o recorte de eventos..." acrescentada. | Resolução de [decisions/0026](<../decisions/0026-forma-de-sessionstate-tipos-de-content-e-construtor-do-viewmodel.md>) |
 | 0.38.0 | 18-08-2026 | Pendência "Escrever o teste de `SessionViewModel.kt`" resolvida — movida para Resolvidas, dez testes escritos e rodados. Ponteiro do item "Formalizar, via ADR, a forma exata de `SessionState`..." atualizado com a correção de `decisions/0027`. | Quarto e último teste real do módulo `app` escrito e rodado; achado durante a escrita levou a [decisions/0027](<../decisions/0027-sessionstate-referencia-o-evento-atual-pelo-nome.md>) |
+| 0.39.0 | 18-08-2026 | Pendência "Decidir, via ADR, como combinar o recorte de temas..." resolvida — movida para Resolvidas. Pendência nova "Escrever o código e o teste de `sessionEventNames`" acrescentada em seu lugar. | Resolução de [decisions/0028](<../decisions/0028-combinacao-do-recorte-de-temas-e-eventos-numa-sessao.md>) |
+| 0.40.0 | 18-08-2026 | Pendência "Escrever o código e o teste de `sessionEventNames`" resolvida — movida para Resolvidas, quatro testes escritos e rodados. | `sessionEventNames` implementada e testada, sem quebra na suíte completa |

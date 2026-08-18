@@ -6,7 +6,7 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Architecture |
-| Versão | 0.31.0 |
+| Versão | 0.32.0 |
 | Data | 18-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
@@ -315,10 +315,12 @@ saída). A regra de qual referência mostrar antes de cada tentativa
 Especificação, sem alternativa de desenho — vira código direto, sem
 exigir ADR.
 
-Quatro pontos que a cascata de documentação não desce a esse nível de
+Cinco pontos que a cascata de documentação não desce a esse nível de
 detalhe ficam registrados em
 [decisions/0008](<../decisions/0008-representacao-do-estado-da-sessao.md>),
-[decisions/0009](<../decisions/0009-calculo-do-recorte-continuo-de-sessao.md>),
+[decisions/0009](<../decisions/0009-calculo-do-recorte-continuo-de-sessao.md>)
+(combinação de tema e evento numa sessão multi-tema em
+[decisions/0028](<../decisions/0028-combinacao-do-recorte-de-temas-e-eventos-numa-sessao.md>)),
 [decisions/0010](<../decisions/0010-persistencia-do-estado-de-sessao-pausada.md>)
 e
 [decisions/0026](<../decisions/0026-forma-de-sessionstate-tipos-de-content-e-construtor-do-viewmodel.md>)
@@ -339,6 +341,14 @@ e
   trecho calculado a partir de um ponto de início, percorrendo a lista
   já ordenada que `hierarchy` garante sem buraco nem repetição (ver
   [findings.md](<findings.md#2026-08-14-posicao-com-buraco-nao-detectada>)).
+- **Combinação de tema e evento numa sessão multi-tema:** quando a
+  sessão atravessa mais de um tema, o recorte de temas e o recorte de
+  eventos de cada tema não são dois cálculos independentes — um tema
+  que a sessão só atravessa (nem o primeiro, nem o último da lista)
+  entra sempre com todos os seus eventos com ordem; só o primeiro e o
+  último tema da sessão podem ficar parciais. Nunca uma regra própria
+  — é a mesma proibição de pular item no meio de um grupo (EI-SES-06),
+  aplicada um nível acima duas vezes.
 - **Persistência da sessão pausada:** gravar e ler o estado de uma
   sessão pausada usa só `java.io.File`, nunca uma API de armazenamento
   do Android — o caminho do arquivo é recebido como parâmetro; decidir
@@ -369,7 +379,11 @@ core/session/
                                 — derivados do registro; forma exata de cada campo em
                                 decisions/0026, campo do evento em curso corrigido em
                                 decisions/0027
-  SessionScope.kt               sessionScope<T>(siblings: List<T>, ordering: (T) -> Ordering, from: T, until: T): List<T>
+  SessionScope.kt               sessionScope<T>(siblings: List<T>, ordering: (T) -> Ordering, from: T, until: T): List<T>;
+                                 sessionEventNames<Theme, Event>(themes, themeOrdering, eventsOf,
+                                 eventOrdering, eventName, fromTheme, fromEvent, untilTheme,
+                                 untilEvent): List<String> — combina os dois níveis, genérico,
+                                 sem depender de content (decisions/0028)
   SessionTransitions.kt         recordAttempt, skipPosition, hintAvailable, useHint,
                                  studySuggestionAvailable, showStudySuggestion, eventComplete,
                                  continueToNextEvent, pause, goIdle, resume — cada uma devolve um
@@ -1018,3 +1032,4 @@ com o campo Versão da tabela de cabeçalho, que sempre reflete a
 | 0.29.0 | 17-08-2026 | Ferramenta de teste do lado `app` do pacote `report` separada por arquivo: `ReportPdfRenderer.kt` e o caminho antigo de `ReportFileWriter.kt` exigem teste instrumentado; o caminho novo de `ReportFileWriter.kt` e `ReportShareIntent.kt` usam Robolectric — antes os três apareciam juntos como "Robolectric + JUnit 4", impreciso desde a resolução de decisions/0025. | Nota de acompanhamento em [decisions/0025](<../decisions/0025-ferramenta-de-teste-do-modulo-app.md>) |
 | 0.30.0 | 18-08-2026 | Forma exata dos campos de `SessionState`, `SessionEvent`, dos tipos de `content` (`Frame`, `ContentEvent`, `ContentTheme`, `ContentInstance`) e do construtor de `SessionViewModel` acrescentada às seções dos pacotes `session`, `content` e "Ligação com o núcleo do motor" — antes só o nome dos tipos estava registrado, nunca os campos. | Resolução de [decisions/0026](<../decisions/0026-forma-de-sessionstate-tipos-de-content-e-construtor-do-viewmodel.md>) |
 | 0.31.0 | 18-08-2026 | Seção do pacote `session` corrigida: `SessionState` carrega `expectedEventName`, não `sessionEvents`/`currentEventIndex` — corrige uma duplicação de dado já registrada em `SessionConfiguration.eventNames`. Seção "Ligação com o núcleo do motor" corrigida com os nomes reais do construtor (`instance`, `pausedStateFile`, `now`). | Resolução de [decisions/0027](<../decisions/0027-sessionstate-referencia-o-evento-atual-pelo-nome.md>); achado ao rodar o teste de `SessionViewModel.kt` contra o código real |
+| 0.32.0 | 18-08-2026 | Acrescentado o mecanismo que combina o recorte de temas com o recorte de eventos de cada tema numa sessão que atravessa mais de um tema (`sessionEventNames`, `SessionScope.kt`) — antes só o recorte de um nível só estava documentado. | Resolução de [decisions/0028](<../decisions/0028-combinacao-do-recorte-de-temas-e-eventos-numa-sessao.md>) |

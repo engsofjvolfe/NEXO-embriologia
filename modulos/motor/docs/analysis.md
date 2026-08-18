@@ -6,7 +6,7 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Analysis |
-| Versão | 0.14.0 |
+| Versão | 0.15.0 |
 | Data | 18-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
@@ -751,6 +751,54 @@ ADR nova (`decisions/0027`) formaliza a forma já existente, com fonte externa p
   "org.nexo.motor.app.ui.SessionViewModelTest"`, `BUILD SUCCESSFUL`, dez testes. Suíte completa
   (`gradlew :app:testDebugUnitTest :core:test`) rodada de novo, sem quebra.
 
+### <a id="2026-08-18-combinacao-do-recorte-de-temas-e-eventos-numa-sessao-multitema"></a>2026-08-18 — Combinação do recorte de temas e de eventos numa sessão multi-tema
+
+**Levou a:** [decisions/0028-combinacao-do-recorte-de-temas-e-eventos-numa-sessao.md](<../decisions/0028-combinacao-do-recorte-de-temas-e-eventos-numa-sessao.md>)
+
+*Resumo simples:* releitura completa do Documento de Conceito (seção 10) e da Especificação
+(EI-SES-06 a EI-SES-08), sem abrir nenhum arquivo de código, pra decidir como uma sessão que
+atravessa mais de um tema vira uma lista única e plana de nomes de evento. A conversa passou por
+duas correções antes de fechar no desenho certo — as duas registradas aqui, não escondidas,
+porque o raciocínio errado também é parte de como se chegou à resposta certa.
+
+*Detalhe técnico:*
+- Primeira leitura, isolada: "atravessar um tema inteiro" (Conceito §10, repetida em EI-SES-07)
+  interpretada como uma categoria própria — "tema do meio é sempre inteiro, tema do primeiro e do
+  último podem ser parciais". Essa framing (com uma distinção explícita "primeiro/meio/último")
+  gerou confusão ao ser explicada — não porque estivesse tecnicamente errada no resultado, mas
+  porque tratava como regra separada algo que é consequência de uma regra só.
+- Segunda leitura, corrigindo a primeira longe demais: ao simplificar pra "um único ponto de
+  início e um único ponto de fim, andando em linha reta", cheguei a dizer que não haveria mais
+  nenhuma distinção de tema "sempre inteiro" — o que também não estava certo, porque descartava a
+  proibição de "1 e 3 sem o 2" (EI-SES-06) aplicada um nível acima.
+- Terceira leitura, a que fechou: as duas primeiras eram, na prática, a mesma coisa, só explicadas
+  de dois jeitos que pareciam contraditórios — as duas descreviam o mesmo mecanismo por ângulos
+  diferentes, sem que nenhuma das duas estivesse de fato errada no resultado. Conclusão final, com
+  o raciocínio completo, registrada só em
+  [decisions/0028, Contexto](<../decisions/0028-combinacao-do-recorte-de-temas-e-eventos-numa-sessao.md>) —
+  não repetida aqui.
+- Checado, antes de fechar a decisão, se o caso de tema/evento avulso (declarado individualmente
+  por quem monta o conteúdo, na criação — Conceito §2) já estava coberto: estava, por
+  [decisions/0009](<../decisions/0009-calculo-do-recorte-continuo-de-sessao.md>), decisão 2 — um
+  item avulso nunca participa de recorte combinado, sozinho ou não. Não precisou de decisão nova.
+- Desenho final: uma função nova, genérica sobre tema/evento (mesmo padrão de `sessionScope`),
+  que reaproveita `sessionScope` duas vezes — uma pra lista de temas, outra pra lista de eventos de
+  cada tema — sem nunca fazer `core/session` depender de `core/content` (RNF-MOD-01). Nenhum
+  arquivo de código aberto em nenhum momento desta investigação; código e teste seguem como
+  pendência própria em `tasks.md`.
+- Pesquisa externa tentada pra uma pergunta diferente da regra em si (essa já vinha do texto
+  aprovado, sem precisar de fonte de fora): a escolha de implementação de reaproveitar
+  `sessionScope` duas vezes, em vez de escrever um algoritmo novo que percorra os dois níveis numa
+  passada só. Três buscas — duas sobre "achatar" (flatten) intervalos aninhados, sem trazer fonte
+  oficial diretamente aplicável, e uma sobre o princípio *Don't Repeat Yourself* (DRY) — não
+  chegaram a uma fonte que passasse no mesmo padrão já usado nas outras citações deste módulo
+  (site oficial ou artigo academicamente validável): o resultado da terceira busca misturava
+  Wikipedia, um artigo do LinkedIn e um post de blog não-oficial na mesma resposta, sem
+  confirmação direta na fonte primária (o livro em si). Descartada — o argumento fica só na lógica
+  interna já registrada em `decisions/0028` (evitar duplicar a mesma regra em dois lugares, com
+  risco real de as cópias divergirem depois), sem precisar de nome de princípio nem citação
+  externa pra se sustentar — mesmo caso de `decisions/0009`, que também não usou fonte externa.
+
 ## Controle de versão
 
 <!-- uma linha por versão publicada deste documento, mais antiga no
@@ -776,3 +824,4 @@ sem reescrever) também conta como mudança de conteúdo real. -->
 | 0.12.0 | 17-08-2026 | Acrescentada a investigação da lacuna na forma exata de `SessionState`, dos tipos de `content` e do construtor de `SessionViewModel` — duas tentativas de contornar sem ADR própria, feitas e revertidas nesta mesma investigação. | Tentativa de escrever o teste de `SessionViewModel.kt`; pendência nova em `tasks.md` |
 | 0.13.0 | 18-08-2026 | Acrescentada a investigação que formaliza a forma de `SessionState`, `content` e do construtor de `SessionViewModel` — releitura completa sem código, mais pesquisa externa nova (guia oficial de arquitetura do Android). | Resolução de [decisions/0026](<../decisions/0026-forma-de-sessionstate-tipos-de-content-e-construtor-do-viewmodel.md>) |
 | 0.14.0 | 18-08-2026 | Acrescentada a investigação da escrita do teste de `SessionViewModel.kt` — divergência real encontrada ao rodar contra o código, comparação dos dois desenhos de `SessionState`, correção via `decisions/0027`. | Quarto e último teste real do módulo `app` escrito e rodado |
+| 0.15.0 | 18-08-2026 | Acrescentada a investigação da combinação do recorte de temas e de eventos numa sessão multi-tema, incluindo as duas leituras corrigidas antes de fechar no desenho certo (conclusão final só apontada, não repetida — está em `decisions/0028`, Contexto) e a tentativa de pesquisa externa pra decisão de reaproveitar `sessionScope`, descartada por não ter fonte no mesmo padrão das demais citações do módulo. | Resolução de [decisions/0028](<../decisions/0028-combinacao-do-recorte-de-temas-e-eventos-numa-sessao.md>) |

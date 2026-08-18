@@ -98,6 +98,10 @@
   lugar) — corrigida via
   [modulos/motor/decisions/0027](<modulos/motor/decisions/0027-sessionstate-referencia-o-evento-atual-pelo-nome.md>),
   não revertendo o código pra bater com a decisão errada.
+- Mecanismo que combina o recorte de temas com o recorte de eventos de
+  cada tema, pra uma sessão que atravessa mais de um assunto, decidido
+  e já escrito, com teste rodado de verdade — ver
+  [modulos/motor/decisions/0028](<modulos/motor/decisions/0028-combinacao-do-recorte-de-temas-e-eventos-numa-sessao.md>).
 - [TASKS.md, Resolvidas](TASKS.md#resolvidas) — pendências já corrigidas.
 
 ## Próximo passo

@@ -6,8 +6,8 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Handoff |
-| Versão | 0.20.0 |
-| Data | 16-08-2026 |
+| Versão | 0.25.0 |
+| Data | 17-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
 > Resumo curto de "onde este módulo está" e "o que fazer a seguir" nele.
@@ -91,6 +91,9 @@
   decidida.
 - [decisions/0024-mecanismo-do-gatilho-de-ociosidade.md](<../decisions/0024-mecanismo-do-gatilho-de-ociosidade.md>) —
   mecanismo do gatilho de ociosidade (EI-PAU-06) decidido.
+- [decisions/0025-ferramenta-de-teste-do-modulo-app.md](<../decisions/0025-ferramenta-de-teste-do-modulo-app.md>) —
+  ferramenta de teste dos cinco pontos pendentes do módulo `app`
+  decidida.
 - [findings.md](findings.md) — achados confirmados até agora.
 - [analysis.md](analysis.md) — registro de como cada investigação
   deste módulo foi feita.
@@ -132,3 +135,8 @@ com o campo Versão da tabela de cabeçalho, que sempre reflete a
 | 0.18.0 | 15-08-2026 | Acrescentado ponteiro para decisions/0022. | Correção de decisions/0020 (conteúdo do estado não dependia do desenho visual); conteúdo do estado do `ViewModel` decidido e escrito (`SessionUiState.kt`, `SessionViewModel.kt`, apagando o estado retomável na saída confirmada); gerar o relatório de saída e o gatilho de ociosidade seguem como pendências em `tasks.md` |
 | 0.19.0 | 16-08-2026 | Acrescentado ponteiro para decisions/0023. | Geração do relatório de saída antes de apagar a sessão pausada resolvida (EI-PAU-04): `onExitConfirmed` passa a exigir a função de escrita do relatório como parâmetro; auditoria de consistência em `tasks.md` corrigiu dois pontos que já estavam desatualizados antes desta tarefa (o `SessionViewModel` não constava na pendência "Decidir ferramenta de teste pro módulo `app`", e o item resolvido do pacote `report` não apontava de volta pra ela) |
 | 0.20.0 | 16-08-2026 | Acrescentado ponteiro para decisions/0024. | Gatilho de ociosidade (EI-PAU-06) resolvido: `SessionViewModel` conta o tempo por corrotina (`viewModelScope`), reiniciada a cada tentativa nova; vencido o prazo sem tentativa, chama `goIdle` e grava o estado em disco, com `onExitConfirmed` cancelando esse relógio antes de apagar o estado retomável |
+| 0.21.0 | 16-08-2026 | Acrescentado ponteiro para decisions/0025. | Ferramenta de teste dos cinco pontos pendentes do módulo `app` decidida; escrita dos testes em si segue como pendências próprias em `tasks.md` |
+| 0.22.0 | 17-08-2026 | Nenhum ponteiro novo (`tasks.md`/`pitfalls.md`/`analysis.md` já citados). | Primeiros dois testes reais do módulo `app` escritos e rodados (`MainActivity.kt`, NFC; `BleAccessoryService.kt`, Bluetooth) — dois pontos restantes (`ReportFileWriter.kt`/`ReportShareIntent.kt`, `SessionViewModel.kt`) seguem como pendência em `tasks.md` |
+| 0.23.0 | 17-08-2026 | Nenhum ponteiro novo (`decisions/0025`/`findings.md`/`tasks.md` já citados). | Caminho antigo de `ReportFileWriter.kt` (Android 7 a 9) confirmado exigir teste instrumentado, mesma categoria de `ReportPdfRenderer.kt` — nota de acompanhamento em `decisions/0025`, pendência ajustada em `tasks.md` |
+| 0.24.0 | 17-08-2026 | Nenhum ponteiro novo (`tasks.md`/`analysis.md` já citados). | Terceiro teste real do módulo `app` escrito e rodado (`ReportFileWriter.kt`/`ReportShareIntent.kt`, caminho novo) — só `SessionViewModel.kt` segue como pendência sem aparelho em `tasks.md` |
+| 0.25.0 | 17-08-2026 | Nenhum ponteiro novo (`tasks.md`/`analysis.md` já citados). | Tentativa de escrever o teste de `SessionViewModel.kt` revelou que a forma exata de `SessionState` e dos tipos de `content` nunca foi decidida em documento nenhum — pendência nova em `tasks.md`, bloqueando o teste até uma ADR própria resolver isso |

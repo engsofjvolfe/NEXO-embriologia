@@ -41,9 +41,8 @@
   [modulos/motor/decisions/0014](<modulos/motor/decisions/0014-busca-aproximada-com-termo-vazio.md>).
 - Pacote `connectivity` completo (lado `core` e lado `app`) — lê a
   peça física direto pela antena do celular ou pelo acessório externo
-  por Bluetooth; testado por teste automático (`core`) e por
-  compilação real (`app`, que ainda não tem ferramenta de teste
-  configurada) — ver
+  por Bluetooth; testado por teste automático dos dois lados (`core`
+  desde o início, `app` desde 17-08-2026) — ver
   [modulos/motor/decisions/0015](<modulos/motor/decisions/0015-fronteira-entre-core-e-app-no-pacote-connectivity.md>)
   a
   [modulos/motor/decisions/0018](<modulos/motor/decisions/0018-estrategia-de-permissao-de-bluetooth-e-nfc.md>).
@@ -79,6 +78,21 @@
   [modulos/motor/docs/handoff.md](modulos/motor/docs/handoff.md).
 - Gatilho de ociosidade resolvido (EI-PAU-06) — ver
   [modulos/motor/docs/handoff.md](modulos/motor/docs/handoff.md).
+- Ferramenta de teste decidida para os cinco pontos do módulo `app`
+  ainda sem comportamento checado (Bluetooth, NFC, escrita/
+  compartilhamento de relatório, `ViewModel`, PDF) — escrita dos
+  testes em si segue como pendência própria — ver
+  [modulos/motor/decisions/0025](<modulos/motor/decisions/0025-ferramenta-de-teste-do-modulo-app.md>).
+- Três desses cinco pontos já testados de verdade (Bluetooth, NFC,
+  escrita/compartilhamento de relatório no caminho novo) — o desenho
+  do PDF e o caminho antigo de escrita de relatório (Android 7 a 9)
+  exigem aparelho ou emulador ligado, seguem como pendência. O teste
+  da peça que liga leitura de peça, sessão e tela (`ViewModel`) ficou
+  bloqueado: tentar escrevê-lo revelou que a forma exata de duas
+  partes internas do código (o "andamento da sessão" e o "conteúdo
+  carregado") nunca foi anotada em documento nenhum — precisa de uma
+  decisão própria antes — ver
+  [modulos/motor/docs/tasks.md, Em aberto](<modulos/motor/docs/tasks.md#em-aberto>).
 - [TASKS.md, Resolvidas](TASKS.md#resolvidas) — pendências já corrigidas.
 
 ## Próximo passo

@@ -6,8 +6,8 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Analysis |
-| Versão | 0.7.0 |
-| Data | 15-08-2026 |
+| Versão | 0.12.0 |
+| Data | 17-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
 > Registro datado de como uma investigação foi feita neste módulo — o
@@ -329,6 +329,342 @@ classe exclusiva do Android, e `core` é montado sem nada de Android.
   [decisions/0019](<../decisions/0019-mecanismo-de-geracao-guarda-e-compartilhamento-do-relatorio.md>),
   nunca uma ADR nova.
 
+### <a id="2026-08-16-pesquisa-de-ferramenta-de-teste-pro-modulo-app"></a>2026-08-16 — Pesquisa de ferramenta de teste pros cinco pontos pendentes do módulo `app`
+
+**Levou a:** [decisions/0025-ferramenta-de-teste-do-modulo-app.md](<../decisions/0025-ferramenta-de-teste-do-modulo-app.md>)
+
+*Resumo simples:* investigação sobre como testar de verdade os cinco
+pontos que `tasks.md` já lista como pendentes (`BleAccessoryService.kt`,
+`MainActivity.kt`, `ReportPdfRenderer.kt`,
+`ReportFileWriter.kt`/`ReportShareIntent.kt`, `SessionViewModel.kt`).
+Três dos cinco têm simulação pronta no Robolectric, confirmada lendo o
+código-fonte oficial dele, arquivo por arquivo. `SessionViewModel.kt`
+não precisa de nenhuma simulação de Android — não toca em nenhuma
+classe do Android, então roda com `kotlin-test-junit` puro. Só o
+desenho do PDF (`ReportPdfRenderer.kt`) continua sem nenhuma simulação,
+exigindo teste instrumentado.
+
+*Detalhe técnico:*
+- JUnit e versão de build, checados de novo, sem presumir a resposta:
+  o guia oficial de início rápido do Robolectric
+  (`robolectric.org/getting-started/`) usa `junit:junit:4.13.2` como
+  exemplo de dependência; a tabela de compatibilidade oficial
+  (`robolectric.org/compatibility_table/`) lista a versão estável mais
+  recente (4.16) testada contra AGP 8.12.0 e Gradle 8.14.3 — mais
+  antigos que os 9.3.0/9.7.0 já usados neste projeto
+  ([decisions/0012](<../decisions/0012-versoes-de-plataforma-e-build-do-modulo-app.md>)).
+  Lançamentos mais novos checados direto na API do GitHub
+  (`gh api repos/robolectric/robolectric/releases`): a estável mais
+  recente é 4.16.1 (21 jan. 2026), com 4.17-beta-1/2 já em teste (jul.
+  2026) — nenhum dos dois traz nota de lançamento sobre AGP 9.x.
+  Mitigado, não eliminado, confirmando ao vivo, hoje, o catálogo de
+  versão real do "Now in Android" (`gradle/libs.versions.toml`,
+  repositório oficial do time do Android,
+  `github.com/android/nowinandroid`): usa Robolectric 4.16 junto com
+  AGP 9.0.0 e Kotlin 2.3.0, em produção, agora.
+- `BleAccessoryService.kt` (Bluetooth): `ShadowBluetoothGatt.java` e
+  `ShadowBluetoothLeScanner.java` existem na pasta de shadows oficial
+  do Robolectric.
+- `MainActivity.kt` (NFC): `ShadowNfcAdapter.java` existe, com dois
+  métodos que resolvem exatamente o problema que faltava — o de como
+  montar uma etiqueta de teste, nunca resolvido antes: `public static
+  Tag createMockTag()` e `public void dispatchTagDiscovered(Tag tag)`.
+- Conferido o contrato real de `BleAccessoryService.kt`/`MainActivity.kt`
+  contra
+  [decisions/0015](<../decisions/0015-fronteira-entre-core-e-app-no-pacote-connectivity.md>)/[decisions/0016](<../decisions/0016-formato-do-identificador-na-notificacao-bluetooth.md>)
+  e `architecture.md`, em vez de presumir que "o Robolectric roda contra
+  essas classes" já bastava: o contrato das duas não é validar a
+  tentativa (`EI-VAL-02`, já testada dentro de `session`) — é decodificar
+  o aviso bruto recebido e repassar pro `PieceReadListener`. Conferido
+  também que a decodificação em si (`tagIdFromBytes`) já está isolada
+  numa função pura, em `core/connectivity`, com teste próprio. Conclusão:
+  falta provar só que `onCharacteristicChanged`/`onTagDiscovered` chamam
+  `tagIdFromBytes` com o dado certo e repassam o resultado certo pro
+  `PieceReadListener`, simulando uma notificação/etiqueta de verdade
+  chegando. Considerada a alternativa de isolar as duas classes atrás de
+  uma interface (injeção de dependência) — não necessária pra esta ADR,
+  porque não mudaria esse alvo (a parte que decodifica já está separada
+  e testada, só mudaria onde o teste chama a simulação do Android);
+  continua válida por outro motivo (reduzir acoplamento com classe do
+  Android, já recomendado em decisions/0015), registrada como pendência
+  própria em `tasks.md`, pra outro momento.
+- `ReportFileWriter.kt` (escrita/compartilhamento de arquivo, nunca
+  pesquisado antes): `ShadowContentResolver.java` tem
+  `registerOutputStream(Uri, OutputStream)` e
+  `registerOutputStreamSupplier(Uri, Supplier<OutputStream>)` — cobre o
+  caminho novo (`MediaStore.Downloads`, Android 10+). `ShadowEnvironment.java`
+  tem `setExternalStoragePublicDirectory(Path)` — cobre o caminho
+  antigo (Android 7 a 9,
+  [decisions/0019](<../decisions/0019-mecanismo-de-geracao-guarda-e-compartilhamento-do-relatorio.md>)).
+  `ReportShareIntent.kt` só monta um `Intent`/`Uri` comum — classes já
+  simuladas por padrão em qualquer teste Robolectric, sem exigir
+  pesquisa própria. Conferido, mesma lógica do bullet acima, o que os
+  dois arquivos precisam provar segundo documento 4 (DA-ARM-01,
+  DA-ARM-02, checados direto na fonte): que o conteúdo termina só no
+  armazenamento local do aparelho (DA-ARM-01), e que
+  `buildReportShareIntent` nunca dispara nada sozinho, só monta e
+  devolve o `Intent` — quem decide se e quando ele é usado é sempre a
+  pessoa (DA-ARM-02). Confirmado que
+  `registerOutputStream`/`registerOutputStreamSupplier` (Robolectric)
+  permitem checar exatamente o conteúdo que chegou no destino local
+  simulado, sem precisar de nada externo, cobrindo a primeira exigência;
+  a segunda já é garantida pela própria forma da função (devolve
+  `Intent`, nunca chama `startActivity`), sem depender de nenhuma
+  simulação pra ser verdade.
+- `ReportPdfRenderer.kt` (PDF): `ShadowPdfDocument.java` não existe —
+  confirmado direto, pedindo o arquivo pela API do GitHub e recebendo
+  `404 Not Found`. Continua precisando de teste instrumentado (aparelho
+  ou emulador real) — versão estável atual das três bibliotecas que
+  isso exige, checada na página oficial de lançamentos do Android
+  Jetpack (`developer.android.com/jetpack/androidx/releases/test`):
+  `androidx.test:core` 1.7.0, `androidx.test.ext:junit` 1.3.0,
+  `androidx.test:runner` 1.7.0.
+- `SessionViewModel.kt` (`onExitConfirmed`, gatilho de ociosidade): sem
+  pesquisa nova — [decisions/0020](<../decisions/0020-ligacao-entre-leitura-de-peca-e-a-tela.md>)
+  e [decisions/0023](<../decisions/0023-geracao-do-relatorio-de-saida-antes-de-apagar-a-sessao.md>),
+  já aceitas, já resolvem sozinhas que nenhuma classe do Android está
+  envolvida.
+
+### <a id="2026-08-16-implementacao-do-teste-de-mainactivity-nfc"></a>2026-08-16 — Implementação do teste de `MainActivity.kt` (NFC)
+
+**Levou a:** [pitfalls.md#2026-08-16-nfcadapter-getdefaultadapter-nulo-sem-feature-nfc](<pitfalls.md#2026-08-16-nfcadapter-getdefaultadapter-nulo-sem-feature-nfc>),
+[pitfalls.md#2026-08-16-shadownfcadapter-createmocktag-nao-aceita-id](<pitfalls.md#2026-08-16-shadownfcadapter-createmocktag-nao-aceita-id>)
+
+*Resumo simples:* primeiro teste escrito de verdade, a partir da
+ferramenta já decidida em [decisions/0025](<../decisions/0025-ferramenta-de-teste-do-modulo-app.md>):
+prova que a leitura NFC de `MainActivity.kt` decodifica o identificador
+bruto da etiqueta e repassa pro `PieceReadListener`, conforme já
+documentado. A assinatura de cada função chamada veio só de
+`architecture.md` (nunca do `.kt` de implementação); a montagem em si
+esbarrou duas vezes em comportamento não óbvio do Robolectric, as duas
+resolvidas conferindo o código-fonte oficial da ferramenta, nunca o do
+NEXO — registradas em `pitfalls.md`, não aqui, por serem comportamento
+de ferramenta, não achado sobre o código do NEXO.
+
+*Detalhe técnico:*
+- Alvo do teste fundamentado direto no requisito: EI-VAL-02 (documento
+  3) já mora e já é testada dentro de `session`; o que faltava provar
+  aqui, especificamente, é que `onTagDiscovered` chama `tagIdFromBytes`
+  com o dado certo da etiqueta e repassa o resultado certo pro
+  `PieceReadListener` — mesmo raciocínio já registrado na investigação
+  de 16/08 sobre a ferramenta de teste, agora aplicado na escrita real.
+- `testOptions { unitTests { isIncludeAndroidResources = true } }`
+  acrescentado a `app/build.gradle.kts`, e `junit:junit`/`org.robolectric:robolectric`
+  acrescentados a `gradle/libs.versions.toml` e como `testImplementation`
+  — nenhum dos dois existia antes desta tarefa (decisions/0025 só
+  decidiu a ferramenta, não configurou o build).
+- Primeira tentativa de compilação falhou em três pontos: import de
+  `kotlin.test` (não existe no classpath de teste do `app`, só em
+  `core` — corrigido pra `org.junit.Assert`); `ShadowNfcAdapter.createMockTag()`
+  chamado com um argumento que ele não aceita (assinatura real
+  confirmada lendo `ShadowNfcAdapter.java` direto do repositório oficial
+  do Robolectric, `gh api`, branch `master` — não aceita identificador
+  nenhum, sempre cria com `id` vazio).
+- Corrigido chamando o método estático oculto por trás dele
+  (`android.nfc.Tag.createMockTag`) diretamente, pela mesma técnica de
+  reflexão que o próprio Robolectric usa por dentro
+  (`ReflectionHelpers.callStaticMethod`), com o `id` desejado — a
+  assinatura desse método muda a partir da versão de Android seguinte
+  ao Tiramisu (parâmetro `cookie` novo), tratado com a mesma
+  ramificação por `RuntimeEnvironment.getApiLevel()` que o Robolectric
+  usa.
+- Segunda falha, em tempo de execução, não de compilação:
+  `NfcAdapter.getDefaultAdapter(activity)` devolvendo `null`. Rastreado
+  até o `PackageManager` simulado do Robolectric não considerar a
+  característica de hardware NFC presente só por ela estar declarada
+  `android:required="false"` no manifesto — precisa ser ligada
+  explicitamente no teste (`Shadows.shadowOf(packageManager).setSystemFeature(...)`).
+- Depois das duas correções, `gradlew :app:testDebugUnitTest --tests
+  MainActivityTest` rodado de verdade: `BUILD SUCCESSFUL`, teste
+  passando.
+- Achado à parte, fora do escopo de teste em si: o nome exato da
+  propriedade que expõe o `PieceReadListener` em `MainActivity`
+  (`pieceReadListener: PieceReadListener?`) nunca tinha sido registrado
+  em `architecture.md` com a mesma precisão que o resto do documento
+  usa pra API pública — só prosa solta ("exposto por ela"). Corrigido
+  em `architecture.md` (0.27.0), confirmado por este teste.
+
+### <a id="2026-08-17-implementacao-do-teste-de-bleaccessoryservice-bluetooth"></a>2026-08-17 — Implementação do teste de `BleAccessoryService.kt` (Bluetooth)
+
+**Levou a:** [pitfalls.md#2026-08-17-scanrecord-parsefrombytes-e-metodo-oculto](<pitfalls.md#2026-08-17-scanrecord-parsefrombytes-e-metodo-oculto>)
+
+*Resumo simples:* segundo teste escrito de verdade da mesma ferramenta
+já decidida em [decisions/0025](<../decisions/0025-ferramenta-de-teste-do-modulo-app.md>):
+prova o mesmo alvo já fundamentado na investigação de 16/08 (EI-VAL-02
+— `onCharacteristicChanged` decodifica o identificador bruto recebido
+por Bluetooth e repassa pro `PieceReadListener`), agora implementado de
+verdade. Diferente do teste de `MainActivity.kt`, a assinatura de duas
+partes específicas — como plugar o escutador, e qual das duas formas
+de `onCharacteristicChanged` a classe implementa — não estava
+disponível em nenhum documento, exigindo abrir o `.kt` só pra confirmar
+essas duas assinaturas (não pra copiar comportamento pro teste).
+
+*Detalhe técnico:*
+- Tentativa inicial, só com o que `architecture.md` já documentava:
+  `service.pieceReadListener = ...` (mesmo padrão de `MainActivity`)
+  falhou na compilação, propriedade privada. Confirmado abrindo
+  `BleAccessoryService.kt`: os dois escutadores têm, cada um, um método
+  público próprio já pronto (`setPieceReadListener`,
+  `setConnectionStateListener`), e o `onCharacteristicChanged`
+  implementado é a versão antiga (dois parâmetros, sem `value`,
+  lendo `characteristic.value`), a mesma que `pitfalls.md` já registra
+  como escolha deliberada deste arquivo (dar suporte a partir do
+  Android 7, antes da versão nova existir).
+- Checado se esse padrão (método público direto no `Service`, `Binder`
+  só devolvendo a instância) é documentado ou improvisado: é o padrão
+  oficial — a mesma fonte já pesquisada em 16/08 ("Bound services
+  overview") diz "clients call public methods in the service", sem
+  distinguir propriedade de método; o exemplo de referência do Google
+  pra "conectar a um servidor GATT" (já citado em `decisions/0015`)
+  usa a mesma estrutura de `Service` vinculado carregando toda a lógica
+  de Bluetooth que este arquivo usa.
+- Montado um `ScanResult` de teste anunciando de verdade o UUID do
+  Nordic UART Service (bytes de propaganda BLE reais, não um resultado
+  qualquer), pra funcionar independente de `startScanAndConnect()`
+  filtrar sozinho ou deixar o sistema filtrar — registrado em
+  `ShadowBluetoothLeScanner` antes de chamar `startScanAndConnect()`,
+  que entrega o resultado assim que `startScan` é chamado.
+- Capturado o `BluetoothGattCallback` real que o `Service` registra
+  (`Shadows.shadowOf(gatt).gattCallback`, depois que
+  `startScanAndConnect()` já disparou a conexão de verdade) — chamado
+  `onCharacteristicChanged` diretamente nele, com a característica TX
+  carregando o identificador bruto.
+- `gradlew :app:testDebugUnitTest --tests
+  "org.nexo.motor.app.connectivity.BleAccessoryServiceTest"` rodado de
+  verdade: `BUILD SUCCESSFUL`, teste passando.
+- Achado à parte, mesma categoria do de `MainActivity`: os dois métodos
+  públicos (`setPieceReadListener`, `setConnectionStateListener`)
+  nunca tinham sido registrados em `architecture.md` com a mesma
+  precisão usada pro resto da API pública — só prosa solta ("avisa o
+  PieceReadListener"). Corrigido em `architecture.md`, confirmado por
+  este teste.
+
+### <a id="2026-08-17-investigacao-de-teste-de-reportfilewriter-e-reportshareintent"></a>2026-08-17 — Investigação de teste de `ReportFileWriter.kt`/`ReportShareIntent.kt`
+
+**Levou a:** [findings.md#2026-08-17-caminho-antigo-de-reportfilewriter-nao-testavel-com-robolectric](<findings.md#2026-08-17-caminho-antigo-de-reportfilewriter-nao-testavel-com-robolectric>)
+
+*Resumo simples:* dos dois caminhos técnicos que `decisions/0019`
+já decidiu pra escrever o relatório (um pra Android 10 em diante,
+outro pra Android 7 a 9), só o mais novo dá pra testar com a
+ferramenta já escolhida em `decisions/0025` — o mais antigo depende
+de um retorno do sistema Android que a ferramenta nunca dispara.
+Confirmado por três fontes independentes, não por suposição.
+
+*Detalhe técnico:*
+- Guia oficial do Android sobre escrever no `MediaStore` (já citado em
+  `decisions/0019`, lido por completo agora): confirma que inserir e
+  escrever um item novo é sempre direto — devolve o endereço na hora,
+  sem retorno assíncrono no meio; em tradução livre, "dá pra testar com
+  chamadas diretas, sem espera".
+- Código-fonte oficial do `ShadowContentResolver` (Robolectric):
+  `insert()` sem nenhum provedor de conteúdo registrado não falha —
+  devolve um endereço próprio, previsível; `openOutputStream()`
+  entrega o fluxo já registrado por `registerOutputStream()` pra esse
+  mesmo endereço. O caminho novo (Android 10+) é testável assim, sem
+  precisar simular nenhum provedor completo.
+- Código-fonte oficial do `ShadowMediaScannerConnection` (Robolectric),
+  lido por completo: `scanFile()` só grava os caminhos recebidos, nunca
+  chama o retorno (`OnScanCompletedListener`) que entrega o endereço
+  final. O caminho antigo (Android 7 a 9) depende desse retorno pra
+  saber o endereço do arquivo — sem ele, não dá pra confirmar esse
+  passo.
+- Considerada a possibilidade de outra ferramenta resolver isso: o
+  próprio Robolectric tem um "modo de gráficos nativo", com mais de 60
+  arquivos de teste próprios cobrindo `Canvas`, `Bitmap`, `Paint`,
+  tipografia — nenhum cobrindo `PdfDocument` (achado relacionado,
+  reforçando que o ponto já decidido em `decisions/0025` sobre o
+  desenho do PDF precisar de aparelho continua correto, com evidência
+  mais forte que antes).
+- Busca nos problemas já relatados por outras pessoas no repositório
+  oficial do Robolectric (`gh api search/issues`), pelos termos
+  `PdfDocument` e `MediaScannerConnection`: nenhum resultado nos dois —
+  confirmado que a busca em si funciona, testando antes com um termo
+  garantido (`Bitmap`, 154 resultados).
+- Nenhuma alternativa de ferramenta encontrada que resolva sem
+  aparelho — `Paparazzi` (outra ferramenta de teste sem aparelho,
+  focada em tela) não tem confirmação de cobrir `PdfDocument`, e usar
+  um substituto simulado (mock) só provaria o próprio substituto, não
+  o desenho real do PDF.
+- Escrito o teste do caminho novo: `writeReportCsv` (prova DA-ARM-01)
+  e `buildReportShareIntent` (prova DA-ARM-02). `writeReportPdf` fica
+  de fora deste teste — recebe um `PdfDocument` já pronto como
+  parâmetro, e só existe um `PdfDocument` de verdade através do teste
+  instrumentado de `ReportPdfRenderer.kt`, ainda não escrito; o
+  mecanismo de escrita em si (mesmo usado pelas duas funções) já fica
+  provado através de `writeReportCsv`.
+- `ShadowContentResolver.insert()` sem provedor registrado devolve um
+  endereço próprio, previsível (endereço base + contador, começando em
+  1 num teste novo) — usado pra registrar, com antecedência, o fluxo
+  de saída que o teste depois confere.
+- `gradlew :app:testDebugUnitTest --tests
+  "org.nexo.motor.app.report.ReportFileWriterTest"` rodado de verdade:
+  `BUILD SUCCESSFUL`, os dois testes passando. Suíte completa do
+  módulo `app` rodada de novo depois, sem quebra.
+
+### <a id="2026-08-17-lacuna-na-forma-de-sessionstate-e-dos-tipos-de-content"></a>2026-08-17 — Lacuna na forma exata de `SessionState`, dos tipos de `content` e do construtor de `SessionViewModel`
+
+**Levou a:** [tasks.md, Em aberto](<tasks.md#em-aberto>) (pendência
+nova, ainda sem decisão)
+
+*Resumo simples:* pra montar, dentro de um teste automático, um
+exemplo de "sessão de jogo em andamento" e de "conteúdo já carregado",
+seria preciso saber exatamente como essas duas coisas são guardadas
+por dentro do programa. Isso nunca foi escrito em nenhum documento de
+decisão do projeto, só decidido direto no código, faz tempo. Essa
+descrição que falta precisa virar uma tarefa própria, decidida com
+calma, antes do teste da peça que liga a leitura de uma peça física à
+tela do jogo poder ser escrito.
+
+*Detalhe técnico:*
+- Primeira tentativa: abrir `SessionViewModel.kt` inteiro pra resolver
+  a dúvida. Errada por método — a regra do módulo não é "quanto código
+  foi lido", é "de onde a decisão nasceu"; mesmo um fato pequeno, se
+  vem do código em vez do documento, já inverte a ordem que
+  `modulos/README.md` (Como navegar) fixa. Revertida — nenhum campo,
+  assinatura ou trecho de lógica visto ali entrou em qualquer decisão
+  posterior.
+- Segunda tentativa: escrever a forma de `SessionState`/`content`/
+  `SessionViewModel` direto em `architecture.md`, sem ADR, citando as
+  ADRs já existentes (decisions/0008, 0013, 0020, 0022, 0023, 0024)
+  como se fosse desenho derivado delas. Também errada, por um motivo
+  mais sutil: parte dessas ADRs decide o *conceito* (retrato imutável,
+  campos diretos, registro interno), mas nenhuma delas fixa nome de
+  campo — a "derivação" era, na prática, um palpite com citação de ADR
+  em volta. Prova concreta: ao compilar contra esse palpite, o mesmo
+  erro (`ordering` faltando em `ContentEvent`/`ContentTheme`) apareceu
+  de novo, idêntico ao da primeira tentativa — mostrando que o segundo
+  palpite não era mais fundamentado que o primeiro, só mais bem
+  escrito. Revertida por completo (`git reset --hard` até o commit
+  anterior, arquivo de teste novo apagado).
+- Reconhecido, só depois dessas duas tentativas, que o problema não é
+  de método de pesquisa — é que não existe alternativa real a
+  comparar pra "qual o nome de um campo de uma classe Kotlin já
+  escrita": não é o tipo de decisão que tem fonte externa ou
+  precedente de mercado (diferente de decisions/0008, que comparou
+  duas fontes reais — Android "state holder" e Microsoft "event
+  sourcing" — antes de decidir). A decisão sobre esses nomes já foi
+  tomada por quem escreveu o código, e nunca passou por ADR nenhuma —
+  ou seja, pelas próprias regras deste projeto, nunca foi decidida de
+  verdade, mesmo o código já existindo. "Código que já existe, mas
+  nunca passou pela documentação" não vira motivo pra pular a
+  documentação — vira pendência pra fazer a documentação nascer agora,
+  com o código corrigido depois se divergir do que for decidido, nunca
+  o contrário (mesma regra já fixada em `modulos/README.md`).
+- Caminho identificado, sem ainda decidir nada, pra quando essa tarefa
+  acontecer: pelo menos a parte de `content` tem uma saída sem
+  depender de conhecer o construtor de `ContentInstance` — a função já
+  documentada `importContentPackage(manifestJson: String)` aceita
+  texto no formato já 100% fixado em
+  [concept.md, Contrato de dado](<concept.md#contrato-de-dado>) e
+  devolve a instância pronta; não resolve `SessionState`, que não tem
+  nenhuma função equivalente documentada pra montar o primeiro retrato
+  de uma sessão.
+- Nenhum arquivo de código ou de `architecture.md` ficou modificado
+  depois desta investigação — os dois `git reset --hard` devolveram a
+  worktree exatamente ao estado do commit anterior (terceiro teste,
+  `ReportFileWriter`/`ReportShareIntent`) antes de qualquer commit
+  novo.
+
 ## Controle de versão
 
 <!-- uma linha por versão publicada deste documento, mais antiga no
@@ -347,3 +683,8 @@ sem reescrever) também conta como mudança de conteúdo real. -->
 | 0.5.0 | 15-08-2026 | Acrescentada a investigação da exigência de homologação ANATEL pro acessório leitor (Bluetooth + NFC), com três fontes legais e a norma ISO/IEC/IEEE 29148:2018 como enquadramento metodológico. | Achado revelado durante a pesquisa sobre substituição do chip PN532; pendência nova em `tasks.md` |
 | 0.6.0 | 15-08-2026 | Acrescentada a investigação do registro interno de `session` contra EI-REG-01, revelando três lacunas (horário ausente, sugestão de estudo exibida nunca registrada, pausa e ociosidade não distinguíveis). | Preparação pro pacote `report`, que depende desse registro estar completo |
 | 0.7.0 | 15-08-2026 | Reordenada a investigação do registro de `session` pra depois da investigação ANATEL (ordem cronológica correta — a de `session` aconteceu depois, não antes, na sequência real de trabalho desta rodada). Acrescentada a investigação de incompatibilidade entre `PdfDocument` e o módulo `core` (Kotlin puro), confirmada ao vivo com `gradlew :app:assembleDebug`. | Preparação pro pacote `report`, correção de ordenação notada durante a revisão |
+| 0.8.0 | 16-08-2026 | Acrescentada a investigação de ferramenta de teste pros cinco pontos pendentes do módulo `app` (Bluetooth, NFC, escrita/compartilhamento de arquivo, PDF, `SessionViewModel`). | Resolução da pendência "Decidir ferramenta de teste pro módulo `app`" |
+| 0.9.0 | 16-08-2026 | Acrescentada a investigação da implementação do teste de `MainActivity.kt` (NFC) — duas armadilhas de Robolectric encontradas e resolvidas, achado de precisão em `architecture.md` corrigido. | Escrita do primeiro teste real de `BleAccessoryService.kt`/`MainActivity.kt`/`ReportFileWriter.kt`/`ReportShareIntent.kt`/`SessionViewModel.kt` |
+| 0.10.0 | 17-08-2026 | Acrescentada a investigação da implementação do teste de `BleAccessoryService.kt` (Bluetooth) — armadilha de Robolectric encontrada e resolvida, achado de precisão em `architecture.md` corrigido. | Escrita do segundo teste real do módulo `app` |
+| 0.11.0 | 17-08-2026 | Acrescentada a investigação de teste de `ReportFileWriter.kt`/`ReportShareIntent.kt` — caminho antigo (Android 7 a 9) confirmado não testável com a ferramenta já escolhida, achado registrado; caminho novo testado de verdade (`writeReportCsv`, `buildReportShareIntent`). | Terceiro teste real do módulo `app` escrito e rodado |
+| 0.12.0 | 17-08-2026 | Acrescentada a investigação da lacuna na forma exata de `SessionState`, dos tipos de `content` e do construtor de `SessionViewModel` — duas tentativas de contornar sem ADR própria, feitas e revertidas nesta mesma investigação. | Tentativa de escrever o teste de `SessionViewModel.kt`; pendência nova em `tasks.md` |

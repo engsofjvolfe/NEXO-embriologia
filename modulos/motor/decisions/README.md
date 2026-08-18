@@ -6,8 +6,8 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Decisions — Índice |
-| Versão | 0.15.0 |
-| Data | 14-08-2026 |
+| Versão | 0.16.0 |
+| Data | 16-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
 > Decisões (ADR) específicas deste módulo — um arquivo por decisão,
@@ -63,6 +63,9 @@
 | [0020](0020-ligacao-entre-leitura-de-peca-e-a-tela.md) | Ligação entre leitura de peça, lógica de sessão e tela |
 | [0021](0021-quem-monta-o-texto-de-resumo-e-sintese.md) | Quem monta o texto de resumo e síntese exibido nas telas |
 | [0022](0022-conteudo-do-estado-exposto-pelo-viewmodel.md) | Conteúdo do estado exposto pelo ViewModel |
+| [0023](0023-geracao-do-relatorio-de-saida-antes-de-apagar-a-sessao.md) | Geração do relatório de saída antes de apagar a sessão pausada |
+| [0024](0024-mecanismo-do-gatilho-de-ociosidade.md) | Mecanismo do gatilho de ociosidade |
+| [0025](0025-ferramenta-de-teste-do-modulo-app.md) | Ferramenta de teste dos cinco pontos pendentes do módulo app |
 
 ## Controle de versão
 
@@ -92,3 +95,4 @@ pelo ADR-NNNN). -->
 | 0.13.0 | 14-08-2026 | ADR 0017 acrescentada à lista. | Estratégia de permissão de Bluetooth e NFC do pacote `connectivity` |
 | 0.14.0 | 14-08-2026 | ADR 0017 renomeada de "Estratégia de permissão..." para "Quem decide a tecnologia de leitura" (o assunto real dela); ADR 0018 acrescentada à lista, herdando o título e o assunto de permissão que a 0017 tinha antes. | Correção de escopo: a automação de escolha entre NFC e Bluetooth foi questionada e revertida antes do commit inicial da 0017 |
 | 0.15.0 | 15-08-2026 | ADRs 0019, 0020, 0021 e 0022 acrescentadas ao índice, as três primeiras retroativamente — já existiam como arquivo, mas nunca tinham entrado nesta lista. | Checagem mecânica ao abrir este arquivo pra acrescentar a ADR 0022 |
+| 0.16.0 | 16-08-2026 | ADRs 0023 e 0024 acrescentadas ao índice, retroativamente — já existiam como arquivo, mas nunca tinham entrado nesta lista. ADR 0025 acrescentada. | Checagem mecânica ao abrir este arquivo pra acrescentar a ADR 0025 |

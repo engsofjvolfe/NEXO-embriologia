@@ -6,8 +6,8 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Tasks |
-| Versão | 0.30.0 |
-| Data | 16-08-2026 |
+| Versão | 0.36.0 |
+| Data | 17-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
 > Lista mutável de pendências só deste módulo. Lida depois de
@@ -228,35 +228,87 @@ Convenção dos códigos citados aqui:
       precisa ser discreto, nunca virar uma explicação ou aviso que
       compita com essa regra.
 
-- [ ] **Decidir ferramenta de teste pro módulo `app`.**
+- [ ] **Formalizar, via ADR, a forma exata de `SessionState`, dos tipos
+      do pacote `content` usados pelo `ViewModel`, e do construtor de
+      `SessionViewModel`.**
 
-      *Resumo simples:* o `core` já tem ferramenta de teste fixada
-      (`kotlin-test`), mas o `app` não — hoje só é testado compilando
-      de verdade, sem checar nenhum comportamento.
+      *Resumo simples:* existem partes do programa — a "ficha" que
+      guarda o andamento de uma sessão de jogo enquanto ela acontece,
+      e o conteúdo já carregado (temas, eventos, imagens) — que já
+      foram escritas no código, mas cuja forma exata nunca foi anotada
+      em nenhum documento de decisão do projeto, só decidida direto no
+      código, na hora de escrever. Sem essa anotação, não dá pra montar
+      um teste automático da peça que liga a leitura de uma peça física
+      à tela do jogo sem simplesmente chutar como essas partes foram
+      montadas por dentro — coisa que este projeto não permite.
 
-      *Detalhe técnico:* código que toca API do Android, hoje só
-      testado por compilação real, sem nenhum comportamento checado —
-      três categorias, cinco arquivos/comportamentos concretos dentro
-      delas, cada um exigindo teste próprio:
+      *Detalhe técnico:* achado durante a tentativa de escrever o
+      teste de `SessionViewModel.kt` (pendência abaixo, agora
+      bloqueada por esta) — duas tentativas de preencher essa lacuna
+      direto em `architecture.md`, sem ADR própria, foram revertidas
+      por não terem alternativa real comparada por trás, só um
+      palpite com formatação de documento em cima; investigação
+      completa em
+      [analysis.md](<analysis.md#2026-08-17-lacuna-na-forma-de-sessionstate-e-dos-tipos-de-content>).
+      decisions/0008 já decidiu o conceito de `SessionState` (retrato
+      imutável, campos diretos pra posição esperada e pausa, registro
+      interno) mas nunca desceu a nome de campo; decisions/0013 (pacote
+      `content`) e o próprio contrato de dado
+      ([concept.md](<concept.md#contrato-de-dado>)) tampouco. Fica pra
+      uma tarefa própria, numa worktree própria — decidir isso corretamente
+      exige reler a cascata e as ADRs já citadas com calma, nunca
+      abrindo o código já existente pra adivinhar a resposta; se o
+      código que já existe divergir do que essa ADR decidir, quem
+      corrige é o código, nunca a ADR reescrita pra bater com ele.
 
-      - `connectivity` (ver
-        [decisions/0015](<../decisions/0015-fronteira-entre-core-e-app-no-pacote-connectivity.md>)):
-        dois arquivos — `BleAccessoryService.kt` (Bluetooth) e
-        `MainActivity.kt` (NFC).
-      - `report`/`app` (ver
-        [architecture.md, pacote `report`](<architecture.md#pacote-report--desenho-interno>)):
-        dois arquivos — `ReportPdfRenderer.kt` (desenho do PDF) e
-        `ReportFileWriter.kt`/`ReportShareIntent.kt` (escrita e
-        compartilhamento do arquivo).
-      - `SessionViewModel` inteiro (estende
-        `androidx.lifecycle.ViewModel`, ver
-        [architecture.md, Ligação com o núcleo do motor](<architecture.md#ligação-com-o-núcleo-do-motor>)):
-        cobertura da classe inteira, incluindo `onExitConfirmed`
-        (ordem exigida por
-        [decisions/0023](<../decisions/0023-geracao-do-relatorio-de-saida-antes-de-apagar-a-sessao.md>),
-        EI-PAU-04) e o gatilho de ociosidade (`goIdle`,
-        [decisions/0024](<../decisions/0024-mecanismo-do-gatilho-de-ociosidade.md>),
-        EI-PAU-06).
+- [ ] **Escrever o teste de `SessionViewModel.kt`.**
+
+      *Resumo simples:* a ferramenta já foi escolhida pra esse ponto
+      do módulo `app` — falta escrever o teste em si. Não precisa de
+      aparelho nem emulador ligado. Os outros três pontos do mesmo
+      grupo original (`MainActivity.kt`, `BleAccessoryService.kt`,
+      `ReportFileWriter.kt`/`ReportShareIntent.kt`) já estão
+      resolvidos — ver Resolvidas.
+
+      *Detalhe técnico:* ver
+      [decisions/0025](<../decisions/0025-ferramenta-de-teste-do-modulo-app.md>)
+      pra ferramenta. Bloqueada pela pendência acima — sem a forma
+      exata de `SessionState`/`content`/construtor decidida, não dá
+      pra montar as peças de teste sem adivinhar. Nenhum arquivo de
+      teste escrito ainda.
+
+- [ ] **Escrever os testes instrumentados de `ReportPdfRenderer.kt` e
+      do caminho antigo de `ReportFileWriter.kt` (Android 7 a 9).**
+
+      *Resumo simples:* os dois exigem um aparelho ou emulador Android
+      de verdade ligado pra rodar — nenhuma ferramenta sem aparelho
+      simula o desenho do PDF nem o retorno que o Android dá quando o
+      arquivo termina de ser escrito nesses aparelhos mais antigos.
+
+      *Detalhe técnico:* ver
+      [decisions/0025](<../decisions/0025-ferramenta-de-teste-do-modulo-app.md>),
+      nota de acompanhamento, e
+      [findings.md#2026-08-17-caminho-antigo-de-reportfilewriter-nao-testavel-com-robolectric](<findings.md#2026-08-17-caminho-antigo-de-reportfilewriter-nao-testavel-com-robolectric>).
+      Nenhum arquivo de teste escrito ainda.
+
+- [ ] **Avaliar isolar `BleAccessoryService.kt`/`MainActivity.kt` atrás
+      de uma interface trocável por implementação falsa no teste
+      (injeção de dependência).**
+
+      *Resumo simples:* reduziria o quanto de código dessas duas
+      classes depende de simulação de Android, seguindo a mesma
+      recomendação oficial já citada em `decisions/0015` — mas exige
+      refatorar as duas classes, reforma de arquitetura, não escolha de
+      ferramenta de teste.
+
+      *Detalhe técnico:* considerada em
+      [decisions/0025](<../decisions/0025-ferramenta-de-teste-do-modulo-app.md>)
+      e não necessária pra decidir a ferramenta de teste desta tarefa —
+      a parte que decodifica o identificador (`tagIdFromBytes`) já está
+      isolada numa função pura, com teste próprio. A ideia continua
+      válida por outro motivo (reduzir acoplamento com classe do
+      Android), registrada aqui como pendência própria, sem desenho nem
+      decisão ainda.
 
 - [ ] **Escrever os testes de unidade, integração, sistema e
       aceitação.**
@@ -391,10 +443,11 @@ Convenção dos códigos citados aqui:
       [decisions/0017](<../decisions/0017-quem-decide-a-tecnologia-de-leitura.md>)
       e
       [decisions/0018](<../decisions/0018-estrategia-de-permissao-de-bluetooth-e-nfc.md>).
-      Testado só por compilação real (`gradlew :app:assembleDebug`,
-      `BUILD SUCCESSFUL`) — sem teste automatizado, ver pendência
-      "Decidir ferramenta de teste pro módulo `app`" acima. Uma
-      armadilha de ferramenta encontrada no caminho, ver
+      Testado por compilação real (`gradlew :app:assembleDebug`,
+      `BUILD SUCCESSFUL`) e, depois, por teste automatizado — ver
+      "Escrever o teste de `MainActivity.kt` (leitura NFC)" e
+      "Escrever o teste de `BleAccessoryService.kt` (Bluetooth)" abaixo.
+      Uma armadilha de ferramenta encontrada no caminho, ver
       [pitfalls.md](<pitfalls.md#armadilhas>).
 - [x] **Decidir quem monta o texto de resumo/síntese exibido nas
       telas de fim de evento e de cadeia.** Resolvido — ver
@@ -411,11 +464,13 @@ Convenção dos códigos citados aqui:
       [decisions/0019-mecanismo-de-geracao-guarda-e-compartilhamento-do-relatorio.md](<../decisions/0019-mecanismo-de-geracao-guarda-e-compartilhamento-do-relatorio.md>),
       nota de acompanhamento incluída. Dividido entre `core/report/`
       (dado puro, testado com `kotlin-test`) e `app/report/` (desenho
-      do PDF, escrita no aparelho, atalho de compartilhar, testado só
-      por compilação real, sem teste automatizado — ver pendência
-      "Decidir ferramenta de teste pro módulo `app`" acima) — achado
-      que motivou essa divisão em
+      do PDF, escrita no aparelho, atalho de compartilhar) — achado que
+      motivou essa divisão em
       [findings.md#2026-08-15-mecanismo-de-pdf-incompativel-com-core](<findings.md#2026-08-15-mecanismo-de-pdf-incompativel-com-core>).
+      `ReportFileWriter.kt`/`ReportShareIntent.kt` já testados (caminho
+      novo) — ver Resolvidas. `ReportPdfRenderer.kt` e o caminho antigo
+      de `ReportFileWriter.kt` seguem como pendência de teste
+      instrumentado, acima.
 - [x] **Escrever o código-fonte da ligação entre leitura de peça,
       sessão e tela (`ViewModel`).** Resolvido — ver
       [decisions/0020](<../decisions/0020-ligacao-entre-leitura-de-peca-e-a-tela.md>)
@@ -426,9 +481,10 @@ Convenção dos códigos citados aqui:
       `referenceImage` (EI-SES-04), achado durante a ADR. Testado só
       por compilação real (`gradlew :app:assembleDebug`,
       `gradlew :core:test`) — sem teste automatizado do `ViewModel` em
-      si, mesma pendência "Decidir ferramenta de teste pro módulo
-      `app`" acima. Gerar o relatório de saída e o gatilho de
-      ociosidade ficam de fora, viram pendências próprias acima.
+      si ainda, mesma pendência "Escrever o teste de
+      `SessionViewModel.kt`" acima. Gerar o relatório de saída
+      e o gatilho de ociosidade ficam de fora, viram pendências
+      próprias acima.
 - [x] **Gerar o relatório de saída antes de apagar a sessão pausada
       (EI-PAU-04).** Resolvido — ver
       [decisions/0023-geracao-do-relatorio-de-saida-antes-de-apagar-a-sessao.md](<../decisions/0023-geracao-do-relatorio-de-saida-antes-de-apagar-a-sessao.md>).
@@ -436,9 +492,9 @@ Convenção dos códigos citados aqui:
       como parâmetro, sem depender da tela de resultado (DA-RET-14)
       existir. Testado só por compilação real (`gradlew
       :app:assembleDebug`, `gradlew :core:test`) — sem teste
-      automatizado, mesma pendência "Decidir ferramenta de teste pro
-      módulo `app`" acima (já cobre o `SessionViewModel` inteiro, esta
-      função incluída).
+      automatizado ainda, mesma pendência "Escrever o teste de
+      `SessionViewModel.kt`" acima (já cobre o `SessionViewModel`
+      inteiro, esta função incluída).
 - [x] **Decidir o gatilho de ociosidade (EI-PAU-06).** Resolvido — ver
       [decisions/0024-mecanismo-do-gatilho-de-ociosidade.md](<../decisions/0024-mecanismo-do-gatilho-de-ociosidade.md>).
       `SessionViewModel` conta o tempo por corrotina (`viewModelScope`),
@@ -446,9 +502,51 @@ Convenção dos códigos citados aqui:
       configurado sem tentativa nova, chama `goIdle` e grava o estado
       em disco (`saveSessionState`). Testado só por compilação real
       (`gradlew :app:assembleDebug`, `gradlew :core:test`) — sem teste
-      automatizado, mesma pendência "Decidir ferramenta de teste pro
-      módulo `app`" acima (já cobre o `SessionViewModel` inteiro, este
-      relógio incluído).
+      automatizado ainda, mesma pendência "Escrever o teste de
+      `SessionViewModel.kt`" acima (já cobre o `SessionViewModel`
+      inteiro, este relógio incluído).
+- [x] **Decidir ferramenta de teste pro módulo `app`.** Resolvido —
+      ver
+      [decisions/0025-ferramenta-de-teste-do-modulo-app.md](<../decisions/0025-ferramenta-de-teste-do-modulo-app.md>).
+      Escrita dos testes em si segue como pendências próprias, acima.
+- [x] **Escrever o teste de `MainActivity.kt` (leitura NFC).**
+      Resolvido — prova EI-VAL-02: `onTagDiscovered` decodifica o
+      identificador bruto da etiqueta e repassa pro `PieceReadListener`.
+      Ferramenta: Robolectric ([decisions/0025](<../decisions/0025-ferramenta-de-teste-do-modulo-app.md>)).
+      Duas armadilhas de ferramenta encontradas e resolvidas, ver
+      [pitfalls.md](<pitfalls.md#armadilhas>); investigação completa em
+      [analysis.md](<analysis.md#2026-08-16-implementacao-do-teste-de-mainactivity-nfc>);
+      lacuna de precisão em `architecture.md` (nome exato da propriedade
+      que expõe o `PieceReadListener`) corrigida no caminho. Testado ao
+      vivo: `gradlew :app:testDebugUnitTest --tests
+      "org.nexo.motor.app.MainActivityTest"`, `BUILD SUCCESSFUL`.
+- [x] **Escrever o teste de `BleAccessoryService.kt` (Bluetooth).**
+      Resolvido — prova EI-VAL-02: `onCharacteristicChanged` decodifica
+      o identificador bruto recebido por Bluetooth e repassa pro
+      `PieceReadListener`. Ferramenta: Robolectric
+      ([decisions/0025](<../decisions/0025-ferramenta-de-teste-do-modulo-app.md>)).
+      Uma armadilha de ferramenta encontrada e resolvida, ver
+      [pitfalls.md](<pitfalls.md#armadilhas>); investigação completa em
+      [analysis.md](<analysis.md#2026-08-17-implementacao-do-teste-de-bleaccessoryservice-bluetooth>);
+      lacuna de precisão em `architecture.md` (nomes exatos dos métodos
+      que expõem os dois escutadores) corrigida no caminho. Testado ao
+      vivo: `gradlew :app:testDebugUnitTest --tests
+      "org.nexo.motor.app.connectivity.BleAccessoryServiceTest"`,
+      `BUILD SUCCESSFUL`.
+- [x] **Escrever o teste de `ReportFileWriter.kt`/`ReportShareIntent.kt`
+      (caminho novo, Android 10 em diante).** Resolvido — prova
+      DA-ARM-01 (`writeReportCsv` escreve o conteúdo no armazenamento
+      local) e DA-ARM-02 (`buildReportShareIntent` só monta e devolve o
+      `Intent`, nunca dispara nada sozinho). Ferramenta: Robolectric
+      ([decisions/0025](<../decisions/0025-ferramenta-de-teste-do-modulo-app.md>)).
+      Caminho antigo (Android 7 a 9) confirmado exigir teste
+      instrumentado — ver
+      [findings.md#2026-08-17-caminho-antigo-de-reportfilewriter-nao-testavel-com-robolectric](<findings.md#2026-08-17-caminho-antigo-de-reportfilewriter-nao-testavel-com-robolectric>)
+      e pendência acima. Investigação completa em
+      [analysis.md](<analysis.md#2026-08-17-investigacao-de-teste-de-reportfilewriter-e-reportshareintent>).
+      Testado ao vivo: `gradlew :app:testDebugUnitTest --tests
+      "org.nexo.motor.app.report.ReportFileWriterTest"`,
+      `BUILD SUCCESSFUL`.
 
 ## Referências
 
@@ -527,3 +625,9 @@ como mudança de conteúdo real. -->
 | 0.28.0 | 16-08-2026 | Pendência "Decidir o gatilho de ociosidade (EI-PAU-06)" resolvida — movida para Resolvidas. | Resolução de [decisions/0024-mecanismo-do-gatilho-de-ociosidade.md](<../decisions/0024-mecanismo-do-gatilho-de-ociosidade.md>) |
 | 0.29.0 | 16-08-2026 | Pendência "Desenhar a aparência visual das telas do motor" corrigida: não cita mais "temporizador" como gatilho ainda pendente de desenho visual — esse gatilho (ociosidade) já está resolvido, independente da aparência; só o gatilho por toque continua pendente. | Checagem mecânica antes de abrir o PR, achado por releitura completa da cadeia de documentos |
 | 0.30.0 | 16-08-2026 | Pendência "Decidir ferramenta de teste pro módulo `app`" detalhada: as três categorias (`connectivity`, `report`/`app`, `SessionViewModel`) explicitadas em cinco arquivos/comportamentos concretos que exigem teste próprio (`BleAccessoryService.kt`, `MainActivity.kt`, `ReportPdfRenderer.kt`, `ReportFileWriter.kt`/`ReportShareIntent.kt`, `onExitConfirmed` e o gatilho de ociosidade dentro de `SessionViewModel`). | Ambiguidade encontrada na auditoria desta mesma pendência, antes de escrever qualquer teste |
+| 0.31.0 | 16-08-2026 | Pendência "Decidir ferramenta de teste pro módulo `app`" resolvida — movida para Resolvidas. Três pendências novas acrescentadas: "Escrever os testes de `BleAccessoryService.kt`, `MainActivity.kt`, `ReportFileWriter.kt`/`ReportShareIntent.kt` e `SessionViewModel.kt`" (sem aparelho nem emulador), "Escrever o teste instrumentado de `ReportPdfRenderer.kt`" (exige aparelho ou emulador ligado) e "Avaliar isolar `BleAccessoryService.kt`/`MainActivity.kt` atrás de interface" (reforma de arquitetura considerada na ADR, não escolhida por não ser necessária pra decidir ferramenta). | Resolução de [decisions/0025-ferramenta-de-teste-do-modulo-app.md](<../decisions/0025-ferramenta-de-teste-do-modulo-app.md>) |
+| 0.32.0 | 16-08-2026 | Pendência "Escrever o teste de `MainActivity.kt`" resolvida — movida para Resolvidas, separada da pendência dos outros três pontos. | Primeiro teste real do módulo `app` escrito e rodado (NFC); investigação em [analysis.md](<analysis.md#2026-08-16-implementacao-do-teste-de-mainactivity-nfc>) |
+| 0.33.0 | 17-08-2026 | Pendência "Escrever o teste de `BleAccessoryService.kt`" resolvida — movida para Resolvidas, separada da pendência dos dois pontos restantes (`ReportFileWriter.kt`/`ReportShareIntent.kt`, `SessionViewModel.kt`). Ponteiros desatualizados corrigidos em cinco itens já resolvidos que citavam o nome antigo da pendência. | Segundo teste real do módulo `app` escrito e rodado (Bluetooth); investigação em [analysis.md](<analysis.md#2026-08-17-implementacao-do-teste-de-bleaccessoryservice-bluetooth>) |
+| 0.34.0 | 17-08-2026 | Pendência "Escrever os testes de `ReportFileWriter.kt`/`ReportShareIntent.kt` e `SessionViewModel.kt`" restrita ao caminho novo de `ReportFileWriter.kt` (Android 10 em diante). Pendência "Escrever o teste instrumentado de `ReportPdfRenderer.kt`" passa a incluir também o caminho antigo de `ReportFileWriter.kt` (Android 7 a 9), que se revelou exigir aparelho pelo mesmo motivo. | Achado [findings.md#2026-08-17-caminho-antigo-de-reportfilewriter-nao-testavel-com-robolectric](<findings.md#2026-08-17-caminho-antigo-de-reportfilewriter-nao-testavel-com-robolectric>), nota de acompanhamento em [decisions/0025](<../decisions/0025-ferramenta-de-teste-do-modulo-app.md>) |
+| 0.35.0 | 17-08-2026 | Pendência "Escrever o teste de `ReportFileWriter.kt`/`ReportShareIntent.kt` (caminho novo)" resolvida — movida para Resolvidas, restando só `SessionViewModel.kt` na pendência aberta. Ponteiros desatualizados corrigidos em quatro itens já resolvidos que citavam o nome antigo da pendência. | Terceiro teste real do módulo `app` escrito e rodado; investigação em [analysis.md](<analysis.md#2026-08-17-investigacao-de-teste-de-reportfilewriter-e-reportshareintent>) |
+| 0.36.0 | 17-08-2026 | Pendência nova "Formalizar, via ADR, a forma exata de `SessionState`, dos tipos de `content` usados pelo `ViewModel`, e do construtor de `SessionViewModel`" acrescentada, bloqueando "Escrever o teste de `SessionViewModel.kt`". | Achado durante a tentativa de escrever esse teste — investigação em [analysis.md](<analysis.md#2026-08-17-lacuna-na-forma-de-sessionstate-e-dos-tipos-de-content>) |

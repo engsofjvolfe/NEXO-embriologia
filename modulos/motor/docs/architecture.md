@@ -6,8 +6,8 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Architecture |
-| Versão | 0.25.0 |
-| Data | 16-08-2026 |
+| Versão | 0.29.0 |
+| Data | 17-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
 > Descreve como o módulo é construído por dentro — layout de arquivos,
@@ -582,10 +582,14 @@ app/connectivity/
   BluetoothPermissions.kt      requiredBluetoothPermissions(), hasBluetoothPermissions(context) —
                                 lista as permissões exigidas pela versão do Android em uso
                                 (decisions/0018), num lugar só
-  BleAccessoryService.kt       Service vinculado (LocalBinder); startScanAndConnect() procura
-                                por perto um aparelho anunciando o Nordic UART Service e conecta
-                                no primeiro encontrado (só costuma existir um por ambiente — não
-                                há tela de escolha entre vários, pendência ainda em aberto se
+  BleAccessoryService.kt       Service vinculado (LocalBinder); quem se conecta usa
+                                setPieceReadListener(listener)/setConnectionStateListener(listener),
+                                métodos públicos direto na instância devolvida pelo Binder
+                                (mesmo padrão do exemplo de referência oficial do Android pra
+                                Service vinculado no mesmo processo do cliente); startScanAndConnect()
+                                procura por perto um aparelho anunciando o Nordic UART Service e
+                                conecta no primeiro encontrado (só costuma existir um por ambiente —
+                                não há tela de escolha entre vários, pendência ainda em aberto se
                                 algum dia isso deixar de valer); avisa o ConnectionStateListener
                                 a cada mudança de estado (procurando, conectado, desconectado) e
                                 o PieceReadListener a cada leitura — o único lugar que muda os
@@ -599,16 +603,18 @@ app/connectivity/
 implementa `NfcAdapter.ReaderCallback` e liga/desliga o modo leitor em
 `onResume`/`onPause`; `onTagDiscovered` decodifica o identificador bruto
 da etiqueta com a mesma `tagIdFromBytes` e entrega pro
-`PieceReadListener` exposto por ela. Nem `MainActivity` nem
+`PieceReadListener` exposto por ela através da propriedade gravável
+`pieceReadListener: PieceReadListener?` (confirmada ao escrever o
+teste desta classe, ver
+[analysis.md](<analysis.md#2026-08-16-implementacao-do-teste-de-mainactivity-nfc>)).
+Nem `MainActivity` nem
 `BleAccessoryService` decidem o que fazer com uma leitura além de
 entregá-la — quem consome esse aviso é o `ViewModel` descrito em
 ["Interface", abaixo](#interface), ver
 [decisions/0020](<../decisions/0020-ligacao-entre-leitura-de-peca-e-a-tela.md>).
 
-Testado só por compilação real (`gradlew :app:assembleDebug`) — sem
-teste automatizado, porque o módulo `app` não tem ferramenta de teste
-configurada ainda pra código que toca API do Android (diferente do
-`core`); ver pendência em [tasks.md](tasks.md).
+Ferramenta de teste: Robolectric + JUnit 4
+([decisions/0025](<../decisions/0025-ferramenta-de-teste-do-modulo-app.md>)).
 
 #### Pacote `report` — desenho interno
 
@@ -669,10 +675,17 @@ telas acontecer (ver [`tasks.md`](tasks.md)), mesma situação que
 
 Lado `core` testável com `kotlin-test` + JUnit Jupiter
 ([decisions/0005](<../decisions/0005-abordagem-de-teste-do-nucleo-do-motor.md>)),
-mesma ferramenta de todo pacote de `core`. Lado `app` testado só por
-compilação real (`gradlew :app:assembleDebug`), mesmo padrão já usado
-em `app/connectivity`, porque `app` ainda não tem ferramenta de teste
-configurada pra código que toca API do Android (ver [`tasks.md`](tasks.md)).
+mesma ferramenta de todo pacote de `core`. Lado `app`, ferramenta de
+teste por arquivo
+([decisions/0025](<../decisions/0025-ferramenta-de-teste-do-modulo-app.md>)):
+`ReportPdfRenderer.kt` exige teste instrumentado (aparelho ou
+emulador); `ReportFileWriter.kt` usa Robolectric + JUnit 4 só no
+caminho novo (`MediaStore.Downloads`, Android 10 em diante) — o
+caminho antigo (`getExternalStoragePublicDirectory` +
+`MediaScannerConnection.scanFile`, Android 7 a 9) também exige teste
+instrumentado, mesma categoria de `ReportPdfRenderer.kt`;
+`ReportShareIntent.kt` usa Robolectric + JUnit 4 nos dois casos, sem
+depender de nenhum dos dois caminhos.
 
 #### Pacote `summary` — desenho interno
 
@@ -800,8 +813,9 @@ em disco (`saveSessionState`, mesmo arquivo que `onExitConfirmed` usa
 alternativas consideradas e motivo completo da escolha:
 [decisions/0024](<../decisions/0024-mecanismo-do-gatilho-de-ociosidade.md>).
 
-Testado por compilação real (`:app:assembleDebug`, `:core:test`),
-mesmo padrão já usado pro resto do lado `app` do módulo.
+Ferramenta de teste: `kotlin-test-junit`, sem Robolectric — nenhuma
+classe do Android envolvida
+([decisions/0025](<../decisions/0025-ferramenta-de-teste-do-modulo-app.md>)).
 
 #### Esqueleto mínimo e versões de build
 
@@ -965,3 +979,7 @@ com o campo Versão da tabela de cabeçalho, que sempre reflete a
 | 0.23.0 | 16-08-2026 | `onExitConfirmed` passa a exigir a função de escrita do relatório (`writeReport`) como parâmetro, chamada com o conteúdo já montado por `core/report` antes de apagar o estado retomável — remove o ponto pendente sobre gerar o relatório de saída, que não dependia mais da tela de resultado existir. | Resolução de [decisions/0023-geracao-do-relatorio-de-saida-antes-de-apagar-a-sessao.md](<../decisions/0023-geracao-do-relatorio-de-saida-antes-de-apagar-a-sessao.md>) |
 | 0.24.0 | 16-08-2026 | Menção ao gatilho de ociosidade (EI-PAU-06), na seção "Ligação com o núcleo do motor", simplificada pra um ponteiro só com link — repetia detalhe que já mora em `tasks.md`, sem nem linkar pra lá, inconsistente com o padrão usado cinco linhas acima no mesmo parágrafo. | Correção direta, durante a revisão final da tarefa do relatório de saída |
 | 0.25.0 | 16-08-2026 | Gatilho de ociosidade (EI-PAU-06) escrito: seção "Ligação com o núcleo do motor" descreve o relógio por corrotina (`viewModelScope`), o cancelamento em `onExitConfirmed`, e a gravação em disco do estado ao vencer o prazo — substitui a menção a essa pendência. | Resolução de [decisions/0024-mecanismo-do-gatilho-de-ociosidade.md](<../decisions/0024-mecanismo-do-gatilho-de-ociosidade.md>) |
+| 0.26.0 | 16-08-2026 | Três pontos que citavam "testado só por compilação real"/pendência atualizados: pacote `connectivity`/`app` (Bluetooth e NFC), pacote `report`/`app` (PDF e escrita de arquivo) e `SessionViewModel` — cada um agora aponta pra ferramenta de teste decidida. | Resolução de [decisions/0025-ferramenta-de-teste-do-modulo-app.md](<../decisions/0025-ferramenta-de-teste-do-modulo-app.md>) |
+| 0.27.0 | 16-08-2026 | Precisada a exposição do `PieceReadListener` por `MainActivity`: nome e tipo exatos da propriedade (`pieceReadListener: PieceReadListener?`), que antes só estava descrita em prosa solta, sem o nível de precisão que o resto do documento usa pra API pública. | Confirmado ao escrever e rodar de verdade o teste de `MainActivity.kt` |
+| 0.28.0 | 17-08-2026 | Precisada a exposição dos escutadores por `BleAccessoryService`: `setPieceReadListener`/`setConnectionStateListener` são métodos públicos direto na instância, mesmo padrão do exemplo de referência oficial do Android — antes só descritos em prosa solta ("avisa o PieceReadListener"), sem dizer como um escutador chega até ali de fora. | Confirmado ao escrever e rodar de verdade o teste de `BleAccessoryService.kt` |
+| 0.29.0 | 17-08-2026 | Ferramenta de teste do lado `app` do pacote `report` separada por arquivo: `ReportPdfRenderer.kt` e o caminho antigo de `ReportFileWriter.kt` exigem teste instrumentado; o caminho novo de `ReportFileWriter.kt` e `ReportShareIntent.kt` usam Robolectric — antes os três apareciam juntos como "Robolectric + JUnit 4", impreciso desde a resolução de decisions/0025. | Nota de acompanhamento em [decisions/0025](<../decisions/0025-ferramenta-de-teste-do-modulo-app.md>) |

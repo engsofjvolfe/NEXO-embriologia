@@ -83,20 +83,21 @@
   compartilhamento de relatório, `ViewModel`, PDF) — escrita dos
   testes em si segue como pendência própria — ver
   [modulos/motor/decisions/0025](<modulos/motor/decisions/0025-ferramenta-de-teste-do-modulo-app.md>).
-- Três desses cinco pontos já testados de verdade (Bluetooth, NFC,
-  escrita/compartilhamento de relatório no caminho novo) — o desenho
-  do PDF e o caminho antigo de escrita de relatório (Android 7 a 9)
-  exigem aparelho ou emulador ligado, seguem como pendência. O teste
-  da peça que liga leitura de peça, sessão e tela (`ViewModel`) ficou
-  bloqueado: tentar escrevê-lo revelou que a forma exata de duas
-  partes internas do código (o "andamento da sessão" e o "conteúdo
-  carregado") nunca foi anotada em documento nenhum — precisa de uma
-  decisão própria antes — ver
-  [modulos/motor/docs/tasks.md, Em aberto](<modulos/motor/docs/tasks.md#em-aberto>).
-- Forma exata de `SessionState`, dos tipos de `content` usados pelo
-  `ViewModel`, e do construtor de `SessionViewModel` decidida — o
-  teste bloqueado acima já pode ser escrito — ver
-  [modulos/motor/decisions/0026](<modulos/motor/decisions/0026-forma-de-sessionstate-tipos-de-content-e-construtor-do-viewmodel.md>).
+- Os quatro pontos do módulo `app` que não exigem aparelho ou emulador
+  (Bluetooth, NFC, escrita/compartilhamento de relatório no caminho
+  novo, `ViewModel`) já testados de verdade — só o desenho do PDF e o
+  caminho antigo de escrita de relatório (Android 7 a 9) seguem como
+  pendência, por exigirem aparelho. O teste do `ViewModel` (a peça que
+  liga leitura de peça, sessão e tela) tinha ficado bloqueado por
+  faltar decidir a forma exata de duas partes internas do código —
+  resolvido em
+  [modulos/motor/decisions/0026](<modulos/motor/decisions/0026-forma-de-sessionstate-tipos-de-content-e-construtor-do-viewmodel.md>);
+  ao escrever o teste só a partir do que ficou decidido, sem abrir
+  código, uma divergência real apareceu (o código já usava uma forma
+  melhor que a decidida — sem duplicar dado que já existe em outro
+  lugar) — corrigida via
+  [modulos/motor/decisions/0027](<modulos/motor/decisions/0027-sessionstate-referencia-o-evento-atual-pelo-nome.md>),
+  não revertendo o código pra bater com a decisão errada.
 - [TASKS.md, Resolvidas](TASKS.md#resolvidas) — pendências já corrigidas.
 
 ## Próximo passo

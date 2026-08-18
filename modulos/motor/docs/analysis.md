@@ -6,7 +6,7 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Analysis |
-| Versão | 0.13.0 |
+| Versão | 0.14.0 |
 | Data | 18-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
@@ -701,6 +701,56 @@ diferente, maior, e essa sim tem fonte oficial — nunca consultada nas duas ten
   (decisions/0009) resolve só um grupo por vez. Virou pendência nova em `tasks.md`, não resposta
   chutada dentro desta ADR.
 
+### <a id="2026-08-18-escrita-do-teste-de-sessionviewmodel-e-correcao-da-forma-de-sessionstate"></a>2026-08-18 — Escrita do teste de `SessionViewModel.kt` e correção da forma de `SessionState`
+
+**Levou a:** [decisions/0027-sessionstate-referencia-o-evento-atual-pelo-nome.md](<../decisions/0027-sessionstate-referencia-o-evento-atual-pelo-nome.md>)
+
+*Resumo simples:* o teste foi escrito só a partir do que `architecture.md`/`decisions/0026` já
+documentavam — nenhum arquivo de `src/main` foi aberto antes de rodar o teste pela primeira vez.
+A primeira rodada não compilou: o código real usa `SessionState.expectedEventName: String`, não
+`sessionEvents`/`currentEventIndex` como `decisions/0026` tinha decidido, e o construtor de
+`SessionViewModel` tem três nomes de parâmetro diferentes. Comparando os dois desenhos de
+`SessionState`, o do código já existente não duplica a lista de eventos da sessão (que já mora em
+`SessionConfiguration.eventNames`) — por isso a correção seguiu pro código, e não o contrário: uma
+ADR nova (`decisions/0027`) formaliza a forma já existente, com fonte externa própria.
+
+*Detalhe técnico:*
+- Teste escrito com dez casos, cobrindo a tela inicial (referência, EI-SES-04), a passagem pra
+  aguardar tentativa, aceitar/rejeitar uma peça (EI-VAL-01/02), mudança de estado de conexão sem
+  interromper a tela de jogo, pedido/cancelamento/confirmação de saída (EI-PAU-03/04,
+  `decisions/0023` — relatório escrito antes do estado ser apagado) e o gatilho de ociosidade, com
+  e sem reinício por uma tentativa recente (EI-PAU-01/06, `decisions/0024`).
+- Primeira rodada (`gradlew :app:testDebugUnitTest --tests SessionViewModelTest`): falha de
+  compilação, não de asserção — `No parameter with name 'sessionEvents' found`,
+  `No value passed for parameter 'expectedEventName'`, `No parameter with name 'content' found`,
+  `No value passed for parameter 'instance'`, `No parameter with name 'stateFile' found`.
+- Comparação dos dois desenhos de `SessionState`, sem adotar o do código só porque já existe:
+  `expectedEventName: String` (código) não duplica dado nenhum — `continueToNextEvent` já recebe
+  o próximo nome como parâmetro explícito, buscado em `SessionConfiguration.eventNames`, que já
+  existe. `sessionEvents: List<String>` + `currentEventIndex: Int` (`decisions/0026`) duplicava
+  essa mesma lista dentro de `SessionState`. Fonte externa nova, específica pra este ponto (não a
+  mesma citação reaproveitada de `decisions/0026`): o guia oficial de arquitetura do Android define
+  o princípio de "fonte única de verdade" (*Single Source of Truth*) — em tradução livre, "quando
+  um tipo de dado novo é definido no seu aplicativo, atribua uma única fonte de verdade a ele...
+  centraliza toda mudança de um tipo de dado num lugar só" (GOOGLE, [s.d.]). `decisions/0026` já
+  tinha citado a mesma família de fonte (guia de arquitetura do Android), mas por outro princípio
+  dela (juntar campos relacionados num objeto só) — usado, sem perceber, pra justificar o oposto do
+  que este princípio mais específico recomenda. Registrado como correção de raciocínio, não como
+  leitura nova por acaso.
+- As outras três diferenças (`instance`/`content`, `pausedStateFile` opcional/`stateFile`
+  obrigatório, parâmetro `now: () -> Long` a mais) não competiam com nenhuma alternativa de desenho
+  considerada em `decisions/0026` — corrigidas como nota de acompanhamento factual na própria ADR,
+  sem ADR nova.
+- Teste corrigido pra usar os nomes reais (`expectedEventName`, `instance`, `pausedStateFile`);
+  segunda rodada: nove de dez testes passaram, um falhou por engano de fixture do próprio teste,
+  não do código — `File.createTempFile` cria um arquivo vazio, mas `loadSessionState` só devolve
+  `null` quando o arquivo *não existe*; um arquivo vazio-mas-existente não representa nenhuma
+  sessão real (o caminho de `app`, `context.filesDir`, nunca existe antes da primeira gravação).
+  Corrigido apagando o arquivo temporário logo depois de reservar o nome.
+- Terceira rodada: `gradlew :app:testDebugUnitTest --tests
+  "org.nexo.motor.app.ui.SessionViewModelTest"`, `BUILD SUCCESSFUL`, dez testes. Suíte completa
+  (`gradlew :app:testDebugUnitTest :core:test`) rodada de novo, sem quebra.
+
 ## Controle de versão
 
 <!-- uma linha por versão publicada deste documento, mais antiga no
@@ -725,3 +775,4 @@ sem reescrever) também conta como mudança de conteúdo real. -->
 | 0.11.0 | 17-08-2026 | Acrescentada a investigação de teste de `ReportFileWriter.kt`/`ReportShareIntent.kt` — caminho antigo (Android 7 a 9) confirmado não testável com a ferramenta já escolhida, achado registrado; caminho novo testado de verdade (`writeReportCsv`, `buildReportShareIntent`). | Terceiro teste real do módulo `app` escrito e rodado |
 | 0.12.0 | 17-08-2026 | Acrescentada a investigação da lacuna na forma exata de `SessionState`, dos tipos de `content` e do construtor de `SessionViewModel` — duas tentativas de contornar sem ADR própria, feitas e revertidas nesta mesma investigação. | Tentativa de escrever o teste de `SessionViewModel.kt`; pendência nova em `tasks.md` |
 | 0.13.0 | 18-08-2026 | Acrescentada a investigação que formaliza a forma de `SessionState`, `content` e do construtor de `SessionViewModel` — releitura completa sem código, mais pesquisa externa nova (guia oficial de arquitetura do Android). | Resolução de [decisions/0026](<../decisions/0026-forma-de-sessionstate-tipos-de-content-e-construtor-do-viewmodel.md>) |
+| 0.14.0 | 18-08-2026 | Acrescentada a investigação da escrita do teste de `SessionViewModel.kt` — divergência real encontrada ao rodar contra o código, comparação dos dois desenhos de `SessionState`, correção via `decisions/0027`. | Quarto e último teste real do módulo `app` escrito e rodado |

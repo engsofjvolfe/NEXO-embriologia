@@ -6,7 +6,7 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Architecture |
-| Versão | 0.30.0 |
+| Versão | 0.31.0 |
 | Data | 18-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
@@ -321,7 +321,9 @@ detalhe ficam registrados em
 [decisions/0009](<../decisions/0009-calculo-do-recorte-continuo-de-sessao.md>),
 [decisions/0010](<../decisions/0010-persistencia-do-estado-de-sessao-pausada.md>)
 e
-[decisions/0026](<../decisions/0026-forma-de-sessionstate-tipos-de-content-e-construtor-do-viewmodel.md>):
+[decisions/0026](<../decisions/0026-forma-de-sessionstate-tipos-de-content-e-construtor-do-viewmodel.md>)
+(campo do evento em curso corrigido por
+[decisions/0027](<../decisions/0027-sessionstate-referencia-o-evento-atual-pelo-nome.md>)):
 
 - **Representação do estado:** o estado de uma sessão em curso é um
   único objeto imutável, substituído a cada transição (tentativa,
@@ -342,16 +344,19 @@ e
   do Android — o caminho do arquivo é recebido como parâmetro; decidir
   esse caminho de verdade (`context.filesDir`) é responsabilidade do
   módulo `app`, não de `core`.
-- **Forma exata dos campos:** o retrato carrega a lista de nomes de
-  evento da sessão (`sessionEvents`), o índice do evento em curso
-  (`currentEventIndex`), a posição esperada dentro dele
-  (`expectedPosition`), se a sessão está pausada (`paused`) e o
+- **Forma exata dos campos:** o retrato carrega o nome do evento em
+  curso agora (`expectedEventName`) — nunca a lista inteira de eventos
+  da sessão, que já mora em `SessionConfiguration.eventNames`
+  (`core/report`) e não é duplicada aqui —, a posição esperada dentro
+  dele (`expectedPosition`), se a sessão está pausada (`paused`) e o
   registro interno (`log`); cada variante de `SessionEvent` carrega
   evento, posição e horário. Configuração por evento (limiar de dica,
   disponibilidade de pular) nunca é campo do retrato — entra como
   parâmetro direto em cada função de transição que precisa dela, para
   não fazer `session` depender de `report` (que já depende de
-  `session`).
+  `session`); avançar pro próximo evento (`continueToNextEvent`)
+  recebe o próximo nome como parâmetro explícito, buscado por quem
+  chama em `SessionConfiguration.eventNames`.
 
 API pública:
 
@@ -362,7 +367,8 @@ core/session/
                                 StudySuggestionShown, PositionSkipped, Paused, WentIdle — cada
                                 uma com timestamp próprio), errorCount(event), consecutiveAttempts(position)
                                 — derivados do registro; forma exata de cada campo em
-                                decisions/0026
+                                decisions/0026, campo do evento em curso corrigido em
+                                decisions/0027
   SessionScope.kt               sessionScope<T>(siblings: List<T>, ordering: (T) -> Ordering, from: T, until: T): List<T>
   SessionTransitions.kt         recordAttempt, skipPosition, hintAvailable, useHint,
                                  studySuggestionAvailable, showStudySuggestion, eventComplete,
@@ -828,11 +834,17 @@ alternativas consideradas e motivo completo da escolha:
 [decisions/0024](<../decisions/0024-mecanismo-do-gatilho-de-ociosidade.md>).
 
 O construtor de `SessionViewModel` recebe o primeiro retrato da
-sessão, a `ContentInstance` já importada, a `SessionConfiguration`
-(mesmo tipo já citado acima, `core/report`) e o arquivo onde
-`SessionStatePersistence` grava/lê o estado pausado — nunca `Context`,
-`Service` ou a tela em si, mesmo limite já fixado acima; forma exata
-em [decisions/0026](<../decisions/0026-forma-de-sessionstate-tipos-de-content-e-construtor-do-viewmodel.md>).
+sessão, a `ContentInstance` já importada (parâmetro `instance`), a
+`SessionConfiguration` (mesmo tipo já citado acima, `core/report`), o
+arquivo onde `SessionStatePersistence` grava/lê o estado pausado
+(`pausedStateFile: File?`, opcional — permite montar o `ViewModel` sem
+persistência) e uma função que devolve o horário atual (`now: () ->
+Long`, injetada em vez de lida direto do relógio do sistema, mesma
+lógica de parâmetro explícito já usada em toda parte de `session`) —
+nunca `Context`, `Service` ou a tela em si, mesmo limite já fixado
+acima; forma exata em
+[decisions/0026](<../decisions/0026-forma-de-sessionstate-tipos-de-content-e-construtor-do-viewmodel.md>),
+nomes de parâmetro corrigidos em nota de acompanhamento lá mesma.
 
 Ferramenta de teste: `kotlin-test-junit`, sem Robolectric — nenhuma
 classe do Android envolvida
@@ -1005,3 +1017,4 @@ com o campo Versão da tabela de cabeçalho, que sempre reflete a
 | 0.28.0 | 17-08-2026 | Precisada a exposição dos escutadores por `BleAccessoryService`: `setPieceReadListener`/`setConnectionStateListener` são métodos públicos direto na instância, mesmo padrão do exemplo de referência oficial do Android — antes só descritos em prosa solta ("avisa o PieceReadListener"), sem dizer como um escutador chega até ali de fora. | Confirmado ao escrever e rodar de verdade o teste de `BleAccessoryService.kt` |
 | 0.29.0 | 17-08-2026 | Ferramenta de teste do lado `app` do pacote `report` separada por arquivo: `ReportPdfRenderer.kt` e o caminho antigo de `ReportFileWriter.kt` exigem teste instrumentado; o caminho novo de `ReportFileWriter.kt` e `ReportShareIntent.kt` usam Robolectric — antes os três apareciam juntos como "Robolectric + JUnit 4", impreciso desde a resolução de decisions/0025. | Nota de acompanhamento em [decisions/0025](<../decisions/0025-ferramenta-de-teste-do-modulo-app.md>) |
 | 0.30.0 | 18-08-2026 | Forma exata dos campos de `SessionState`, `SessionEvent`, dos tipos de `content` (`Frame`, `ContentEvent`, `ContentTheme`, `ContentInstance`) e do construtor de `SessionViewModel` acrescentada às seções dos pacotes `session`, `content` e "Ligação com o núcleo do motor" — antes só o nome dos tipos estava registrado, nunca os campos. | Resolução de [decisions/0026](<../decisions/0026-forma-de-sessionstate-tipos-de-content-e-construtor-do-viewmodel.md>) |
+| 0.31.0 | 18-08-2026 | Seção do pacote `session` corrigida: `SessionState` carrega `expectedEventName`, não `sessionEvents`/`currentEventIndex` — corrige uma duplicação de dado já registrada em `SessionConfiguration.eventNames`. Seção "Ligação com o núcleo do motor" corrigida com os nomes reais do construtor (`instance`, `pausedStateFile`, `now`). | Resolução de [decisions/0027](<../decisions/0027-sessionstate-referencia-o-evento-atual-pelo-nome.md>); achado ao rodar o teste de `SessionViewModel.kt` contra o código real |

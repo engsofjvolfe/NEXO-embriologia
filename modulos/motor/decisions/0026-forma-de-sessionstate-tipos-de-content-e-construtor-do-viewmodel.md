@@ -217,6 +217,33 @@ dele numa lista única e plana. Este ponto não precisa de resposta pra fechar a
 em si (que só exige a lista já pronta, qualquer que seja o jeito de montá-la) — fica pra ADR própria,
 apontada em `tasks.md`.
 
+**Nota de acompanhamento (18-08-2026):**
+
+*Resumo simples:* ao escrever o teste de `SessionViewModel.kt` só a partir do que esta ADR
+documenta, sem abrir código, duas partes da decisão 2 e 4 não bateram com o código real. A
+decisão 2 (forma de `SessionState`) estava errada de verdade — corrigida por
+[decisions/0027](0027-sessionstate-referencia-o-evento-atual-pelo-nome.md), que substitui só essa
+parte. A decisão 4 (construtor do `ViewModel`) tinha três diferenças de nome sem princípio de
+desenho concorrente por trás — corrigidas aqui, como correção factual, sem precisar de ADR
+própria.
+
+*Detalhe técnico:*
+- **Decisão 2 (`SessionState`): substituída por
+  [decisions/0027](0027-sessionstate-referencia-o-evento-atual-pelo-nome.md).** O campo
+  `sessionEvents: List<String>` + `currentEventIndex: Int` duplicava a lista de eventos que já
+  mora em `SessionConfiguration.eventNames` — o código já existente usa só
+  `expectedEventName: String`, forma que `decisions/0027` explica e adota.
+- **Decisão 4 (construtor de `SessionViewModel`): três nomes corrigidos, mesmo formato geral.**
+  O parâmetro `content: ContentInstance` chama-se, no código, `instance`; `stateFile: File`
+  (obrigatório) é, no código, `pausedStateFile: File? = null` (opcional, permite montar o
+  `ViewModel` sem persistência, por exemplo pra teste ou pré-visualização); existe um quinto
+  parâmetro, `now: () -> Long = { System.currentTimeMillis() }`, que fornece o horário de cada
+  evento do registro — mesma lógica de injeção explícita já usada em toda parte de `session`
+  (o `ViewModel` nunca lê relógio de sistema escondido dentro de uma função sem receber essa
+  possibilidade como parâmetro trocável). Nenhuma das três é uma escolha de desenho concorrente
+  com alguma alternativa considerada nesta ADR — por isso entram como correção factual, não como
+  ADR nova.
+
 ## Referências
 
 Fonte externa citada no Contexto, no formato definido pela norma ABNT NBR 6023 (Informação e

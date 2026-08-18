@@ -6,7 +6,7 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Tasks |
-| Versão | 0.37.0 |
+| Versão | 0.38.0 |
 | Data | 18-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
@@ -228,23 +228,6 @@ Convenção dos códigos citados aqui:
       precisa ser discreto, nunca virar uma explicação ou aviso que
       compita com essa regra.
 
-- [ ] **Escrever o teste de `SessionViewModel.kt`.**
-
-      *Resumo simples:* a ferramenta já foi escolhida pra esse ponto
-      do módulo `app` — falta escrever o teste em si. Não precisa de
-      aparelho nem emulador ligado. Os outros três pontos do mesmo
-      grupo original (`MainActivity.kt`, `BleAccessoryService.kt`,
-      `ReportFileWriter.kt`/`ReportShareIntent.kt`) já estão
-      resolvidos — ver Resolvidas.
-
-      *Detalhe técnico:* ver
-      [decisions/0025](<../decisions/0025-ferramenta-de-teste-do-modulo-app.md>)
-      pra ferramenta. Já desbloqueada — a forma exata de
-      `SessionState`/`content`/construtor de `SessionViewModel` está
-      decidida em
-      [decisions/0026](<../decisions/0026-forma-de-sessionstate-tipos-de-content-e-construtor-do-viewmodel.md>).
-      Nenhum arquivo de teste escrito ainda.
-
 - [ ] **Decidir, via ADR, como combinar o recorte de temas com o
       recorte de eventos de cada tema numa única lista plana de
       eventos, pra uma sessão que atravessa mais de um tema.**
@@ -256,14 +239,17 @@ Convenção dos códigos citados aqui:
 
       *Detalhe técnico:* achado durante
       [decisions/0026](<../decisions/0026-forma-de-sessionstate-tipos-de-content-e-construtor-do-viewmodel.md>)
-      — `SessionState.sessionEvents` presume essa lista já pronta, sem
-      decidir como ela é montada.
+      — `SessionConfiguration.eventNames` (`core/report`), que
+      `SessionState`/`SessionViewModel` já presumem pronta e plana
+      (ver [decisions/0027](<../decisions/0027-sessionstate-referencia-o-evento-atual-pelo-nome.md>)),
+      não tem, em nenhum documento, a regra de como é montada quando a
+      sessão atravessa mais de um tema.
       [decisions/0009](<../decisions/0009-calculo-do-recorte-continuo-de-sessao.md>)
       resolve o recorte contíguo dentro de um grupo só (temas de uma
       instância, ou eventos de um tema), nunca os dois níveis
-      combinados. Não bloqueia nenhuma pendência hoje — o teste de
-      `SessionViewModel.kt` (acima) não depende de sessão multi-tema
-      pra existir.
+      combinados. Não bloqueia nenhuma pendência hoje — o teste já
+      escrito de `SessionViewModel.kt` (ver Resolvidas) usa uma sessão
+      de um tema só, sem precisar dessa combinação.
 
 - [ ] **Escrever os testes instrumentados de `ReportPdfRenderer.kt` e
       do caminho antigo de `ReportFileWriter.kt` (Android 7 a 9).**
@@ -538,11 +524,33 @@ Convenção dos códigos citados aqui:
 - [x] **Formalizar, via ADR, a forma exata de `SessionState`, dos tipos
       do pacote `content` usados pelo `ViewModel`, e do construtor de
       `SessionViewModel`.** Resolvido — ver
-      [decisions/0026](<../decisions/0026-forma-de-sessionstate-tipos-de-content-e-construtor-do-viewmodel.md>).
-      Desbloqueia a pendência "Escrever o teste de
-      `SessionViewModel.kt`", acima. Um ponto ficou de fora, virando
-      pendência nova ("Decidir, via ADR, como combinar o recorte de
-      temas..."), acima.
+      [decisions/0026](<../decisions/0026-forma-de-sessionstate-tipos-de-content-e-construtor-do-viewmodel.md>),
+      forma de `SessionState` corrigida em
+      [decisions/0027](<../decisions/0027-sessionstate-referencia-o-evento-atual-pelo-nome.md>).
+      Desbloqueou a pendência "Escrever o teste de
+      `SessionViewModel.kt`", já resolvida abaixo. Um ponto ficou de
+      fora, virando pendência própria ("Decidir, via ADR, como
+      combinar o recorte de temas..."), acima.
+- [x] **Escrever o teste de `SessionViewModel.kt`.** Resolvido — prova
+      EI-VAL-01/02 (aceitar/rejeitar tentativa), EI-RET-01/02
+      (referência e negativa), EI-PAU-03 (pedido/cancelamento de
+      saída), EI-PAU-04 (relatório escrito antes de apagar o estado
+      retomável, decisions/0023) e EI-PAU-01/06 (gatilho de
+      ociosidade, com e sem reinício pelo tempo de uma tentativa nova,
+      decisions/0024). Ferramenta: `kotlin-test-junit` +
+      `kotlinx-coroutines-test`, sem Robolectric
+      ([decisions/0025](<../decisions/0025-ferramenta-de-teste-do-modulo-app.md>)).
+      Escrito só a partir do que `architecture.md`/`decisions/0026`
+      já documentavam, sem abrir nenhum arquivo de `src/main` antes
+      de rodar — a primeira rodada não compilou contra o código real,
+      revelando a divergência resolvida em
+      [decisions/0027](<../decisions/0027-sessionstate-referencia-o-evento-atual-pelo-nome.md>);
+      investigação completa em
+      [analysis.md](<analysis.md#2026-08-18-escrita-do-teste-de-sessionviewmodel-e-correcao-da-forma-de-sessionstate>).
+      Testado ao vivo: `gradlew :app:testDebugUnitTest --tests
+      "org.nexo.motor.app.ui.SessionViewModelTest"`, `BUILD
+      SUCCESSFUL`, 10 testes; suíte completa (`:app:testDebugUnitTest
+      :core:test`) rodada de novo, sem quebra.
 
 ## Referências
 
@@ -628,3 +636,4 @@ como mudança de conteúdo real. -->
 | 0.35.0 | 17-08-2026 | Pendência "Escrever o teste de `ReportFileWriter.kt`/`ReportShareIntent.kt` (caminho novo)" resolvida — movida para Resolvidas, restando só `SessionViewModel.kt` na pendência aberta. Ponteiros desatualizados corrigidos em quatro itens já resolvidos que citavam o nome antigo da pendência. | Terceiro teste real do módulo `app` escrito e rodado; investigação em [analysis.md](<analysis.md#2026-08-17-investigacao-de-teste-de-reportfilewriter-e-reportshareintent>) |
 | 0.36.0 | 17-08-2026 | Pendência nova "Formalizar, via ADR, a forma exata de `SessionState`, dos tipos de `content` usados pelo `ViewModel`, e do construtor de `SessionViewModel`" acrescentada, bloqueando "Escrever o teste de `SessionViewModel.kt`". | Achado durante a tentativa de escrever esse teste — investigação em [analysis.md](<analysis.md#2026-08-17-lacuna-na-forma-de-sessionstate-e-dos-tipos-de-content>) |
 | 0.37.0 | 18-08-2026 | Pendência "Formalizar, via ADR, a forma exata de `SessionState`..." resolvida — movida para Resolvidas, desbloqueando "Escrever o teste de `SessionViewModel.kt`". Pendência nova "Decidir, via ADR, como combinar o recorte de temas com o recorte de eventos..." acrescentada. | Resolução de [decisions/0026](<../decisions/0026-forma-de-sessionstate-tipos-de-content-e-construtor-do-viewmodel.md>) |
+| 0.38.0 | 18-08-2026 | Pendência "Escrever o teste de `SessionViewModel.kt`" resolvida — movida para Resolvidas, dez testes escritos e rodados. Ponteiro do item "Formalizar, via ADR, a forma exata de `SessionState`..." atualizado com a correção de `decisions/0027`. | Quarto e último teste real do módulo `app` escrito e rodado; achado durante a escrita levou a [decisions/0027](<../decisions/0027-sessionstate-referencia-o-evento-atual-pelo-nome.md>) |

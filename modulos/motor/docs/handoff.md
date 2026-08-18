@@ -6,8 +6,8 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Handoff |
-| Versão | 0.25.0 |
-| Data | 17-08-2026 |
+| Versão | 0.26.0 |
+| Data | 18-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
 > Resumo curto de "onde este módulo está" e "o que fazer a seguir" nele.
@@ -94,6 +94,9 @@
 - [decisions/0025-ferramenta-de-teste-do-modulo-app.md](<../decisions/0025-ferramenta-de-teste-do-modulo-app.md>) —
   ferramenta de teste dos cinco pontos pendentes do módulo `app`
   decidida.
+- [decisions/0026-forma-de-sessionstate-tipos-de-content-e-construtor-do-viewmodel.md](<../decisions/0026-forma-de-sessionstate-tipos-de-content-e-construtor-do-viewmodel.md>) —
+  forma exata de `SessionState`, dos tipos de `content` usados pelo
+  `ViewModel`, e do construtor de `SessionViewModel` decidida.
 - [findings.md](findings.md) — achados confirmados até agora.
 - [analysis.md](analysis.md) — registro de como cada investigação
   deste módulo foi feita.
@@ -140,3 +143,4 @@ com o campo Versão da tabela de cabeçalho, que sempre reflete a
 | 0.23.0 | 17-08-2026 | Nenhum ponteiro novo (`decisions/0025`/`findings.md`/`tasks.md` já citados). | Caminho antigo de `ReportFileWriter.kt` (Android 7 a 9) confirmado exigir teste instrumentado, mesma categoria de `ReportPdfRenderer.kt` — nota de acompanhamento em `decisions/0025`, pendência ajustada em `tasks.md` |
 | 0.24.0 | 17-08-2026 | Nenhum ponteiro novo (`tasks.md`/`analysis.md` já citados). | Terceiro teste real do módulo `app` escrito e rodado (`ReportFileWriter.kt`/`ReportShareIntent.kt`, caminho novo) — só `SessionViewModel.kt` segue como pendência sem aparelho em `tasks.md` |
 | 0.25.0 | 17-08-2026 | Nenhum ponteiro novo (`tasks.md`/`analysis.md` já citados). | Tentativa de escrever o teste de `SessionViewModel.kt` revelou que a forma exata de `SessionState` e dos tipos de `content` nunca foi decidida em documento nenhum — pendência nova em `tasks.md`, bloqueando o teste até uma ADR própria resolver isso |
+| 0.26.0 | 18-08-2026 | Acrescentado ponteiro para decisions/0026. | Forma exata de `SessionState`, dos tipos de `content` usados pelo `ViewModel`, e do construtor de `SessionViewModel` decidida — desbloqueia o teste de `SessionViewModel.kt`; um ponto (sessão atravessando mais de um tema) ficou de fora, vira pendência nova em `tasks.md` |

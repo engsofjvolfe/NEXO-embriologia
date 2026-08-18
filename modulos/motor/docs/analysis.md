@@ -6,8 +6,8 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Analysis |
-| Versão | 0.12.0 |
-| Data | 17-08-2026 |
+| Versão | 0.13.0 |
+| Data | 18-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
 > Registro datado de como uma investigação foi feita neste módulo — o
@@ -665,6 +665,42 @@ tela do jogo poder ser escrito.
   `ReportFileWriter`/`ReportShareIntent`) antes de qualquer commit
   novo.
 
+### <a id="2026-08-18-formalizacao-da-forma-de-sessionstate-content-e-construtor-do-viewmodel"></a>2026-08-18 — Formalização da forma de `SessionState`, `content` e do construtor de `SessionViewModel`
+
+**Levou a:** [decisions/0026-forma-de-sessionstate-tipos-de-content-e-construtor-do-viewmodel.md](<../decisions/0026-forma-de-sessionstate-tipos-de-content-e-construtor-do-viewmodel.md>)
+
+*Resumo simples:* releitura completa da cascata e das ADRs já citadas pela investigação de 17/08
+(decisions/0007, 0008, 0009, 0013, 0020, 0022), sem abrir nenhum arquivo `.kt` em nenhum momento, mais
+uma busca externa nova, pra derivar a forma exata que faltava. Achado principal: a pergunta "que nome
+dar a um campo" não tem fonte externa (confirmado de novo, mesma conclusão de 17/08), mas a pergunta
+"os dados relacionados de uma tela/sessão devem ficar num objeto só, ou espalhados" é uma pergunta
+diferente, maior, e essa sim tem fonte oficial — nunca consultada nas duas tentativas anteriores.
+
+*Detalhe técnico:*
+- Leitura completa, nesta ordem, numa worktree própria (`adr-sessionstate-content-viewmodel`, criada
+  a partir de `develop`, corrigida depois de nascer da branch padrão errada — mesmo comportamento já
+  registrado em memória de sessão sobre `EnterWorktree`): `tasks.md` (pendência exata),
+  `decisions/0008`, `0013`, `0020`, `0022` (na íntegra, não só o resumo), `architecture.md` (na
+  íntegra, incluindo o trecho que tinha ficado de fora numa leitura anterior cortada pela ferramenta),
+  `findings.md`, `decisions/README.md`.
+- Pesquisa externa, em duas buscas e uma leitura de página oficial: confirmado que não existe fonte
+  de mercado ou documentação oficial pra decidir o nome de um campo específico (mesma conclusão da
+  investigação de 17/08); encontrada, sim, fonte oficial pra uma pergunta diferente — se dados
+  relacionados de uma tela/sessão devem ficar bundlados num objeto só ou espalhados — no guia oficial
+  de arquitetura do Android (`developer.android.com/topic/architecture/ui-layer`), que reforça, de
+  fora, a mesma direção que `decisions/0008` já tinha tomado.
+- Ponto de desenho real encontrado e resolvido sem abrir código: onde a configuração de sessão
+  (limiar de dica, disponibilidade de pular) deveria morar — campo do próprio `SessionState`, ou
+  parâmetro explícito passado pelo `ViewModel` a cada função de transição. A segunda opção foi
+  escolhida por evitar que `session` passe a depender de `report` (que já depende de `session`, pelo
+  registro `SessionEvent`) — uma dependência nos dois sentidos entre os mesmos dois pacotes, o que
+  `architecture.md` já registra implicitamente ao mostrar que o `ViewModel` já lê `SessionConfiguration`
+  (`core/report`) direto pro gatilho de ociosidade.
+- Um ponto ficou fora de propósito, sem resposta forçada: como combinar o recorte de temas com o
+  recorte de eventos de cada tema, pra uma sessão que atravessa mais de um tema — `sessionScope`
+  (decisions/0009) resolve só um grupo por vez. Virou pendência nova em `tasks.md`, não resposta
+  chutada dentro desta ADR.
+
 ## Controle de versão
 
 <!-- uma linha por versão publicada deste documento, mais antiga no
@@ -688,3 +724,4 @@ sem reescrever) também conta como mudança de conteúdo real. -->
 | 0.10.0 | 17-08-2026 | Acrescentada a investigação da implementação do teste de `BleAccessoryService.kt` (Bluetooth) — armadilha de Robolectric encontrada e resolvida, achado de precisão em `architecture.md` corrigido. | Escrita do segundo teste real do módulo `app` |
 | 0.11.0 | 17-08-2026 | Acrescentada a investigação de teste de `ReportFileWriter.kt`/`ReportShareIntent.kt` — caminho antigo (Android 7 a 9) confirmado não testável com a ferramenta já escolhida, achado registrado; caminho novo testado de verdade (`writeReportCsv`, `buildReportShareIntent`). | Terceiro teste real do módulo `app` escrito e rodado |
 | 0.12.0 | 17-08-2026 | Acrescentada a investigação da lacuna na forma exata de `SessionState`, dos tipos de `content` e do construtor de `SessionViewModel` — duas tentativas de contornar sem ADR própria, feitas e revertidas nesta mesma investigação. | Tentativa de escrever o teste de `SessionViewModel.kt`; pendência nova em `tasks.md` |
+| 0.13.0 | 18-08-2026 | Acrescentada a investigação que formaliza a forma de `SessionState`, `content` e do construtor de `SessionViewModel` — releitura completa sem código, mais pesquisa externa nova (guia oficial de arquitetura do Android). | Resolução de [decisions/0026](<../decisions/0026-forma-de-sessionstate-tipos-de-content-e-construtor-do-viewmodel.md>) |

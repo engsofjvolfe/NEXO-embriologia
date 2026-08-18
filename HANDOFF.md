@@ -93,6 +93,10 @@
   carregado") nunca foi anotada em documento nenhum — precisa de uma
   decisão própria antes — ver
   [modulos/motor/docs/tasks.md, Em aberto](<modulos/motor/docs/tasks.md#em-aberto>).
+- Forma exata de `SessionState`, dos tipos de `content` usados pelo
+  `ViewModel`, e do construtor de `SessionViewModel` decidida — o
+  teste bloqueado acima já pode ser escrito — ver
+  [modulos/motor/decisions/0026](<modulos/motor/decisions/0026-forma-de-sessionstate-tipos-de-content-e-construtor-do-viewmodel.md>).
 - [TASKS.md, Resolvidas](TASKS.md#resolvidas) — pendências já corrigidas.
 
 ## Próximo passo

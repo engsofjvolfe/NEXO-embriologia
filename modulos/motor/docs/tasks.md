@@ -6,7 +6,7 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Tasks |
-| Versão | 0.33.0 |
+| Versão | 0.35.0 |
 | Data | 17-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
@@ -228,29 +228,31 @@ Convenção dos códigos citados aqui:
       precisa ser discreto, nunca virar uma explicação ou aviso que
       compita com essa regra.
 
-- [ ] **Escrever os testes de `ReportFileWriter.kt`/`ReportShareIntent.kt`
-      e `SessionViewModel.kt`.**
+- [ ] **Escrever o teste de `SessionViewModel.kt`.**
 
-      *Resumo simples:* a ferramenta já foi escolhida pra cada um
-      desses dois pontos do módulo `app` — falta escrever o teste em
-      si, um por ponto. Nenhum precisa de aparelho nem emulador ligado.
-      `MainActivity.kt` (NFC) e `BleAccessoryService.kt` (Bluetooth),
-      os outros dois pontos do mesmo grupo original, já estão
+      *Resumo simples:* a ferramenta já foi escolhida pra esse ponto
+      do módulo `app` — falta escrever o teste em si. Não precisa de
+      aparelho nem emulador ligado. Os outros três pontos do mesmo
+      grupo original (`MainActivity.kt`, `BleAccessoryService.kt`,
+      `ReportFileWriter.kt`/`ReportShareIntent.kt`) já estão
       resolvidos — ver Resolvidas.
 
       *Detalhe técnico:* ver
       [decisions/0025](<../decisions/0025-ferramenta-de-teste-do-modulo-app.md>)
-      pra ferramenta de cada ponto. Nenhum arquivo de teste escrito
-      ainda.
+      pra ferramenta. Nenhum arquivo de teste escrito ainda.
 
-- [ ] **Escrever o teste instrumentado de `ReportPdfRenderer.kt`.**
+- [ ] **Escrever os testes instrumentados de `ReportPdfRenderer.kt` e
+      do caminho antigo de `ReportFileWriter.kt` (Android 7 a 9).**
 
-      *Resumo simples:* diferente dos outros quatro pontos do módulo
-      `app`, este exige um aparelho ou emulador Android de verdade
-      ligado pra rodar — nenhuma ferramenta simula essa classe.
+      *Resumo simples:* os dois exigem um aparelho ou emulador Android
+      de verdade ligado pra rodar — nenhuma ferramenta sem aparelho
+      simula o desenho do PDF nem o retorno que o Android dá quando o
+      arquivo termina de ser escrito nesses aparelhos mais antigos.
 
       *Detalhe técnico:* ver
-      [decisions/0025](<../decisions/0025-ferramenta-de-teste-do-modulo-app.md>).
+      [decisions/0025](<../decisions/0025-ferramenta-de-teste-do-modulo-app.md>),
+      nota de acompanhamento, e
+      [findings.md#2026-08-17-caminho-antigo-de-reportfilewriter-nao-testavel-com-robolectric](<findings.md#2026-08-17-caminho-antigo-de-reportfilewriter-nao-testavel-com-robolectric>).
       Nenhum arquivo de teste escrito ainda.
 
 - [ ] **Avaliar isolar `BleAccessoryService.kt`/`MainActivity.kt` atrás
@@ -426,14 +428,13 @@ Convenção dos códigos citados aqui:
       [decisions/0019-mecanismo-de-geracao-guarda-e-compartilhamento-do-relatorio.md](<../decisions/0019-mecanismo-de-geracao-guarda-e-compartilhamento-do-relatorio.md>),
       nota de acompanhamento incluída. Dividido entre `core/report/`
       (dado puro, testado com `kotlin-test`) e `app/report/` (desenho
-      do PDF, escrita no aparelho, atalho de compartilhar, testado só
-      por compilação real, sem teste automatizado ainda — desenho do
-      PDF e escrita/compartilhamento viraram pendências separadas
-      acima, ver "Escrever o teste instrumentado de
-      `ReportPdfRenderer.kt`" e "Escrever os testes de
-      `ReportFileWriter.kt`/`ReportShareIntent.kt` e
-      `SessionViewModel.kt`") — achado que motivou essa divisão em
+      do PDF, escrita no aparelho, atalho de compartilhar) — achado que
+      motivou essa divisão em
       [findings.md#2026-08-15-mecanismo-de-pdf-incompativel-com-core](<findings.md#2026-08-15-mecanismo-de-pdf-incompativel-com-core>).
+      `ReportFileWriter.kt`/`ReportShareIntent.kt` já testados (caminho
+      novo) — ver Resolvidas. `ReportPdfRenderer.kt` e o caminho antigo
+      de `ReportFileWriter.kt` seguem como pendência de teste
+      instrumentado, acima.
 - [x] **Escrever o código-fonte da ligação entre leitura de peça,
       sessão e tela (`ViewModel`).** Resolvido — ver
       [decisions/0020](<../decisions/0020-ligacao-entre-leitura-de-peca-e-a-tela.md>)
@@ -444,8 +445,7 @@ Convenção dos códigos citados aqui:
       `referenceImage` (EI-SES-04), achado durante a ADR. Testado só
       por compilação real (`gradlew :app:assembleDebug`,
       `gradlew :core:test`) — sem teste automatizado do `ViewModel` em
-      si ainda, mesma pendência "Escrever os testes de
-      `ReportFileWriter.kt`/`ReportShareIntent.kt` e
+      si ainda, mesma pendência "Escrever o teste de
       `SessionViewModel.kt`" acima. Gerar o relatório de saída
       e o gatilho de ociosidade ficam de fora, viram pendências
       próprias acima.
@@ -456,8 +456,7 @@ Convenção dos códigos citados aqui:
       como parâmetro, sem depender da tela de resultado (DA-RET-14)
       existir. Testado só por compilação real (`gradlew
       :app:assembleDebug`, `gradlew :core:test`) — sem teste
-      automatizado ainda, mesma pendência "Escrever os testes de
-      `ReportFileWriter.kt`/`ReportShareIntent.kt` e
+      automatizado ainda, mesma pendência "Escrever o teste de
       `SessionViewModel.kt`" acima (já cobre o `SessionViewModel`
       inteiro, esta função incluída).
 - [x] **Decidir o gatilho de ociosidade (EI-PAU-06).** Resolvido — ver
@@ -467,8 +466,7 @@ Convenção dos códigos citados aqui:
       configurado sem tentativa nova, chama `goIdle` e grava o estado
       em disco (`saveSessionState`). Testado só por compilação real
       (`gradlew :app:assembleDebug`, `gradlew :core:test`) — sem teste
-      automatizado ainda, mesma pendência "Escrever os testes de
-      `ReportFileWriter.kt`/`ReportShareIntent.kt` e
+      automatizado ainda, mesma pendência "Escrever o teste de
       `SessionViewModel.kt`" acima (já cobre o `SessionViewModel`
       inteiro, este relógio incluído).
 - [x] **Decidir ferramenta de teste pro módulo `app`.** Resolvido —
@@ -498,6 +496,20 @@ Convenção dos códigos citados aqui:
       que expõem os dois escutadores) corrigida no caminho. Testado ao
       vivo: `gradlew :app:testDebugUnitTest --tests
       "org.nexo.motor.app.connectivity.BleAccessoryServiceTest"`,
+      `BUILD SUCCESSFUL`.
+- [x] **Escrever o teste de `ReportFileWriter.kt`/`ReportShareIntent.kt`
+      (caminho novo, Android 10 em diante).** Resolvido — prova
+      DA-ARM-01 (`writeReportCsv` escreve o conteúdo no armazenamento
+      local) e DA-ARM-02 (`buildReportShareIntent` só monta e devolve o
+      `Intent`, nunca dispara nada sozinho). Ferramenta: Robolectric
+      ([decisions/0025](<../decisions/0025-ferramenta-de-teste-do-modulo-app.md>)).
+      Caminho antigo (Android 7 a 9) confirmado exigir teste
+      instrumentado — ver
+      [findings.md#2026-08-17-caminho-antigo-de-reportfilewriter-nao-testavel-com-robolectric](<findings.md#2026-08-17-caminho-antigo-de-reportfilewriter-nao-testavel-com-robolectric>)
+      e pendência acima. Investigação completa em
+      [analysis.md](<analysis.md#2026-08-17-investigacao-de-teste-de-reportfilewriter-e-reportshareintent>).
+      Testado ao vivo: `gradlew :app:testDebugUnitTest --tests
+      "org.nexo.motor.app.report.ReportFileWriterTest"`,
       `BUILD SUCCESSFUL`.
 
 ## Referências
@@ -580,3 +592,5 @@ como mudança de conteúdo real. -->
 | 0.31.0 | 16-08-2026 | Pendência "Decidir ferramenta de teste pro módulo `app`" resolvida — movida para Resolvidas. Três pendências novas acrescentadas: "Escrever os testes de `BleAccessoryService.kt`, `MainActivity.kt`, `ReportFileWriter.kt`/`ReportShareIntent.kt` e `SessionViewModel.kt`" (sem aparelho nem emulador), "Escrever o teste instrumentado de `ReportPdfRenderer.kt`" (exige aparelho ou emulador ligado) e "Avaliar isolar `BleAccessoryService.kt`/`MainActivity.kt` atrás de interface" (reforma de arquitetura considerada na ADR, não escolhida por não ser necessária pra decidir ferramenta). | Resolução de [decisions/0025-ferramenta-de-teste-do-modulo-app.md](<../decisions/0025-ferramenta-de-teste-do-modulo-app.md>) |
 | 0.32.0 | 16-08-2026 | Pendência "Escrever o teste de `MainActivity.kt`" resolvida — movida para Resolvidas, separada da pendência dos outros três pontos. | Primeiro teste real do módulo `app` escrito e rodado (NFC); investigação em [analysis.md](<analysis.md#2026-08-16-implementacao-do-teste-de-mainactivity-nfc>) |
 | 0.33.0 | 17-08-2026 | Pendência "Escrever o teste de `BleAccessoryService.kt`" resolvida — movida para Resolvidas, separada da pendência dos dois pontos restantes (`ReportFileWriter.kt`/`ReportShareIntent.kt`, `SessionViewModel.kt`). Ponteiros desatualizados corrigidos em cinco itens já resolvidos que citavam o nome antigo da pendência. | Segundo teste real do módulo `app` escrito e rodado (Bluetooth); investigação em [analysis.md](<analysis.md#2026-08-17-implementacao-do-teste-de-bleaccessoryservice-bluetooth>) |
+| 0.34.0 | 17-08-2026 | Pendência "Escrever os testes de `ReportFileWriter.kt`/`ReportShareIntent.kt` e `SessionViewModel.kt`" restrita ao caminho novo de `ReportFileWriter.kt` (Android 10 em diante). Pendência "Escrever o teste instrumentado de `ReportPdfRenderer.kt`" passa a incluir também o caminho antigo de `ReportFileWriter.kt` (Android 7 a 9), que se revelou exigir aparelho pelo mesmo motivo. | Achado [findings.md#2026-08-17-caminho-antigo-de-reportfilewriter-nao-testavel-com-robolectric](<findings.md#2026-08-17-caminho-antigo-de-reportfilewriter-nao-testavel-com-robolectric>), nota de acompanhamento em [decisions/0025](<../decisions/0025-ferramenta-de-teste-do-modulo-app.md>) |
+| 0.35.0 | 17-08-2026 | Pendência "Escrever o teste de `ReportFileWriter.kt`/`ReportShareIntent.kt` (caminho novo)" resolvida — movida para Resolvidas, restando só `SessionViewModel.kt` na pendência aberta. Ponteiros desatualizados corrigidos em quatro itens já resolvidos que citavam o nome antigo da pendência. | Terceiro teste real do módulo `app` escrito e rodado; investigação em [analysis.md](<analysis.md#2026-08-17-investigacao-de-teste-de-reportfilewriter-e-reportshareintent>) |

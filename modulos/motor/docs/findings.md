@@ -6,8 +6,8 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Findings |
-| Versão | 0.5.0 |
-| Data | 15-08-2026 |
+| Versão | 0.6.0 |
+| Data | 17-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
 > Achados confirmados (por leitura de código, teste ao vivo, ou os dois)
@@ -174,6 +174,26 @@ que é montado sem nada de Android.
   a ferramenta escolhida (`PdfDocument`) não muda, só onde o código que
   a usa mora.
 
+### <a id="2026-08-17-caminho-antigo-de-reportfilewriter-nao-testavel-com-robolectric"></a>2026-08-17 — Caminho antigo de `ReportFileWriter.kt` não testável com Robolectric
+
+**Confirmado por:** leitura de código
+
+*Resumo simples:* `decisions/0025` escolheu Robolectric pra testar
+`ReportFileWriter.kt`/`ReportShareIntent.kt` inteiros — mas dos dois
+caminhos que `decisions/0019` já fixou (um por versão do Android), só
+o mais novo (Android 10 em diante) dá pra testar assim. O mais antigo
+(Android 7 a 9) depende de um retorno do Android que o Robolectric
+nunca dispara.
+
+*Detalhe técnico:*
+- Raciocínio completo, com as três fontes que confirmam isso — em
+  [analysis.md#2026-08-17-investigacao-de-teste-de-reportfilewriter-e-reportshareintent](<analysis.md#2026-08-17-investigacao-de-teste-de-reportfilewriter-e-reportshareintent>);
+  não repetido aqui.
+- Nota de acompanhamento acrescentada em
+  [decisions/0025](<../decisions/0025-ferramenta-de-teste-do-modulo-app.md>) —
+  a ferramenta escolhida (Robolectric) não muda pro caminho novo, só o
+  alcance da decisão original, que presumia cobrir os dois caminhos.
+
 ## Controle de versão
 
 <!-- uma linha por versão publicada deste documento, mais antiga no
@@ -190,3 +210,4 @@ reescrever) também conta como mudança de conteúdo real. -->
 | 0.3.0 | 14-08-2026 | Achado "Violação de hierarquia era relatada, mas o pacote inteiro ainda ficava disponível pra jogo" acrescentado. | Revisão do desenho do pacote `content`, em conversa direta antes de dar a tarefa como concluída |
 | 0.4.0 | 15-08-2026 | Achado "Registro interno de `session` incompleto frente a EI-REG-01" acrescentado. | Revisão do registro de sessão antes de escrever o pacote `report` |
 | 0.5.0 | 15-08-2026 | Achado "Mecanismo de PDF de decisions/0019 incompatível com o módulo core" acrescentado. | Revisão do mecanismo de PDF antes de escrever o pacote `report` |
+| 0.6.0 | 17-08-2026 | Achado "Caminho antigo de `ReportFileWriter.kt` não testável com Robolectric" acrescentado. | Tentativa de escrever o teste de `ReportFileWriter.kt`/`ReportShareIntent.kt` |

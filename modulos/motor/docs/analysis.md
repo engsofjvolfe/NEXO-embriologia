@@ -6,7 +6,7 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Analysis |
-| Versão | 0.10.0 |
+| Versão | 0.11.0 |
 | Data | 17-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
@@ -539,6 +539,68 @@ essas duas assinaturas (não pra copiar comportamento pro teste).
   PieceReadListener"). Corrigido em `architecture.md`, confirmado por
   este teste.
 
+### <a id="2026-08-17-investigacao-de-teste-de-reportfilewriter-e-reportshareintent"></a>2026-08-17 — Investigação de teste de `ReportFileWriter.kt`/`ReportShareIntent.kt`
+
+**Levou a:** [findings.md#2026-08-17-caminho-antigo-de-reportfilewriter-nao-testavel-com-robolectric](<findings.md#2026-08-17-caminho-antigo-de-reportfilewriter-nao-testavel-com-robolectric>)
+
+*Resumo simples:* dos dois caminhos técnicos que `decisions/0019`
+já decidiu pra escrever o relatório (um pra Android 10 em diante,
+outro pra Android 7 a 9), só o mais novo dá pra testar com a
+ferramenta já escolhida em `decisions/0025` — o mais antigo depende
+de um retorno do sistema Android que a ferramenta nunca dispara.
+Confirmado por três fontes independentes, não por suposição.
+
+*Detalhe técnico:*
+- Guia oficial do Android sobre escrever no `MediaStore` (já citado em
+  `decisions/0019`, lido por completo agora): confirma que inserir e
+  escrever um item novo é sempre direto — devolve o endereço na hora,
+  sem retorno assíncrono no meio; em tradução livre, "dá pra testar com
+  chamadas diretas, sem espera".
+- Código-fonte oficial do `ShadowContentResolver` (Robolectric):
+  `insert()` sem nenhum provedor de conteúdo registrado não falha —
+  devolve um endereço próprio, previsível; `openOutputStream()`
+  entrega o fluxo já registrado por `registerOutputStream()` pra esse
+  mesmo endereço. O caminho novo (Android 10+) é testável assim, sem
+  precisar simular nenhum provedor completo.
+- Código-fonte oficial do `ShadowMediaScannerConnection` (Robolectric),
+  lido por completo: `scanFile()` só grava os caminhos recebidos, nunca
+  chama o retorno (`OnScanCompletedListener`) que entrega o endereço
+  final. O caminho antigo (Android 7 a 9) depende desse retorno pra
+  saber o endereço do arquivo — sem ele, não dá pra confirmar esse
+  passo.
+- Considerada a possibilidade de outra ferramenta resolver isso: o
+  próprio Robolectric tem um "modo de gráficos nativo", com mais de 60
+  arquivos de teste próprios cobrindo `Canvas`, `Bitmap`, `Paint`,
+  tipografia — nenhum cobrindo `PdfDocument` (achado relacionado,
+  reforçando que o ponto já decidido em `decisions/0025` sobre o
+  desenho do PDF precisar de aparelho continua correto, com evidência
+  mais forte que antes).
+- Busca nos problemas já relatados por outras pessoas no repositório
+  oficial do Robolectric (`gh api search/issues`), pelos termos
+  `PdfDocument` e `MediaScannerConnection`: nenhum resultado nos dois —
+  confirmado que a busca em si funciona, testando antes com um termo
+  garantido (`Bitmap`, 154 resultados).
+- Nenhuma alternativa de ferramenta encontrada que resolva sem
+  aparelho — `Paparazzi` (outra ferramenta de teste sem aparelho,
+  focada em tela) não tem confirmação de cobrir `PdfDocument`, e usar
+  um substituto simulado (mock) só provaria o próprio substituto, não
+  o desenho real do PDF.
+- Escrito o teste do caminho novo: `writeReportCsv` (prova DA-ARM-01)
+  e `buildReportShareIntent` (prova DA-ARM-02). `writeReportPdf` fica
+  de fora deste teste — recebe um `PdfDocument` já pronto como
+  parâmetro, e só existe um `PdfDocument` de verdade através do teste
+  instrumentado de `ReportPdfRenderer.kt`, ainda não escrito; o
+  mecanismo de escrita em si (mesmo usado pelas duas funções) já fica
+  provado através de `writeReportCsv`.
+- `ShadowContentResolver.insert()` sem provedor registrado devolve um
+  endereço próprio, previsível (endereço base + contador, começando em
+  1 num teste novo) — usado pra registrar, com antecedência, o fluxo
+  de saída que o teste depois confere.
+- `gradlew :app:testDebugUnitTest --tests
+  "org.nexo.motor.app.report.ReportFileWriterTest"` rodado de verdade:
+  `BUILD SUCCESSFUL`, os dois testes passando. Suíte completa do
+  módulo `app` rodada de novo depois, sem quebra.
+
 ## Controle de versão
 
 <!-- uma linha por versão publicada deste documento, mais antiga no
@@ -560,3 +622,4 @@ sem reescrever) também conta como mudança de conteúdo real. -->
 | 0.8.0 | 16-08-2026 | Acrescentada a investigação de ferramenta de teste pros cinco pontos pendentes do módulo `app` (Bluetooth, NFC, escrita/compartilhamento de arquivo, PDF, `SessionViewModel`). | Resolução da pendência "Decidir ferramenta de teste pro módulo `app`" |
 | 0.9.0 | 16-08-2026 | Acrescentada a investigação da implementação do teste de `MainActivity.kt` (NFC) — duas armadilhas de Robolectric encontradas e resolvidas, achado de precisão em `architecture.md` corrigido. | Escrita do primeiro teste real de `BleAccessoryService.kt`/`MainActivity.kt`/`ReportFileWriter.kt`/`ReportShareIntent.kt`/`SessionViewModel.kt` |
 | 0.10.0 | 17-08-2026 | Acrescentada a investigação da implementação do teste de `BleAccessoryService.kt` (Bluetooth) — armadilha de Robolectric encontrada e resolvida, achado de precisão em `architecture.md` corrigido. | Escrita do segundo teste real do módulo `app` |
+| 0.11.0 | 17-08-2026 | Acrescentada a investigação de teste de `ReportFileWriter.kt`/`ReportShareIntent.kt` — caminho antigo (Android 7 a 9) confirmado não testável com a ferramenta já escolhida, achado registrado; caminho novo testado de verdade (`writeReportCsv`, `buildReportShareIntent`). | Terceiro teste real do módulo `app` escrito e rodado |

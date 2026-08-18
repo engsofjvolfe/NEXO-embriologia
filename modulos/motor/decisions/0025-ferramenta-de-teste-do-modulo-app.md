@@ -2,11 +2,13 @@
 
 Resumo em linguagem simples: decide qual ferramenta testa cada um dos
 cinco pontos do `app` que hoje só são "testados" por compilação real,
-sem nenhum comportamento checado. A escolha pra quatro deles é
+sem nenhum comportamento checado. A escolha pra quase todos é
 Robolectric (ou `kotlin-test` puro, onde não existe nenhuma
-dependência de Android) — só o desenho do PDF (`ReportPdfRenderer.kt`)
-precisa de teste instrumentado, num aparelho ou emulador de verdade,
-porque nenhuma ferramenta simula essa classe hoje.
+dependência de Android) — o desenho do PDF (`ReportPdfRenderer.kt`) e
+o caminho antigo de `ReportFileWriter.kt` (Android 7 a 9, ver nota de
+acompanhamento) precisam de teste instrumentado, num aparelho ou
+emulador de verdade, porque nenhuma ferramenta sem aparelho simula
+esses dois comportamentos hoje.
 
 **Status:** aceito
 
@@ -52,14 +54,15 @@ registrada como pendência própria em `tasks.md`, pra outro momento.
    conforme a própria documentação do Robolectric, pra carregar
    recurso do manifesto durante o teste.
 2. `ReportFileWriter.kt`/`ReportShareIntent.kt` (escrita e
-   compartilhamento de arquivo) — Robolectric também, mesma versão:
-   `ShadowContentResolver`/`ShadowEnvironment` cobrem os dois caminhos
-   que
+   compartilhamento de arquivo) — Robolectric também, mesma versão, só
+   pro caminho novo que
    [decisions/0019](<0019-mecanismo-de-geracao-guarda-e-compartilhamento-do-relatorio.md>)
-   já fixou (`MediaStore.Downloads` a partir do Android 10;
-   `Environment.getExternalStoragePublicDirectory` antes disso). O que
-   o teste precisa provar, segundo DA-ARM-01/DA-ARM-02 (documento 4):
-   que o conteúdo termina no armazenamento local simulado
+   já fixou (`MediaStore.Downloads` a partir do Android 10) — o
+   `ShadowContentResolver` cobre esse caminho; o caminho antigo
+   (`Environment.getExternalStoragePublicDirectory`, antes do Android
+   10) não é coberto, ver nota de acompanhamento. O que o teste precisa
+   provar, segundo DA-ARM-01/DA-ARM-02 (documento 4): que o conteúdo
+   termina no armazenamento local simulado
    (`registerOutputStream`/`registerOutputStreamSupplier`) — nunca só
    que a função rodou sem erro.
 3. `SessionViewModel.kt` inteiro (incluindo `onExitConfirmed` e o
@@ -95,6 +98,22 @@ não estão declaradas em `gradle/libs.versions.toml` nem em
 `app/build.gradle.kts` — declarar essas dependências é parte da
 implementação de cada teste, pendência própria em `tasks.md`, fora do
 escopo desta ADR.
+
+**Nota de acompanhamento (17-08-2026):**
+
+*Resumo simples:* o ponto 2 desta decisão presumia que Robolectric
+cobria `ReportFileWriter.kt`/`ReportShareIntent.kt` inteiros — não
+cobre. Dos dois caminhos que `decisions/0019` já fixou pra escrever o
+relatório, só o mais novo (Android 10 em diante) é testável assim; o
+mais antigo (Android 7 a 9) depende de um retorno do Android que a
+ferramenta nunca dispara.
+
+*Detalhe técnico:* achado completo, com as três fontes que confirmam
+isso, em
+[findings.md#2026-08-17-caminho-antigo-de-reportfilewriter-nao-testavel-com-robolectric](<../docs/findings.md#2026-08-17-caminho-antigo-de-reportfilewriter-nao-testavel-com-robolectric>) —
+não repetido aqui. O ponto 2 passa a valer só pro caminho novo; o
+caminho antigo entra na mesma categoria do ponto 4 (`ReportPdfRenderer.kt`),
+exigindo teste instrumentado — pendência registrada em `tasks.md`.
 
 ## Referências
 

@@ -6,8 +6,8 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Decisions — Índice |
-| Versão | 0.16.0 |
-| Data | 16-08-2026 |
+| Versão | 0.18.0 |
+| Data | 18-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
 > Decisões (ADR) específicas deste módulo — um arquivo por decisão,
@@ -66,6 +66,8 @@
 | [0023](0023-geracao-do-relatorio-de-saida-antes-de-apagar-a-sessao.md) | Geração do relatório de saída antes de apagar a sessão pausada |
 | [0024](0024-mecanismo-do-gatilho-de-ociosidade.md) | Mecanismo do gatilho de ociosidade |
 | [0025](0025-ferramenta-de-teste-do-modulo-app.md) | Ferramenta de teste dos cinco pontos pendentes do módulo app |
+| [0026](0026-forma-de-sessionstate-tipos-de-content-e-construtor-do-viewmodel.md) | Forma de SessionState, tipos de content usados pelo ViewModel, e construtor de SessionViewModel |
+| [0027](0027-sessionstate-referencia-o-evento-atual-pelo-nome.md) | SessionState referencia o evento atual pelo nome, não guarda a lista da sessão duplicada |
 
 ## Controle de versão
 
@@ -96,3 +98,5 @@ pelo ADR-NNNN). -->
 | 0.14.0 | 14-08-2026 | ADR 0017 renomeada de "Estratégia de permissão..." para "Quem decide a tecnologia de leitura" (o assunto real dela); ADR 0018 acrescentada à lista, herdando o título e o assunto de permissão que a 0017 tinha antes. | Correção de escopo: a automação de escolha entre NFC e Bluetooth foi questionada e revertida antes do commit inicial da 0017 |
 | 0.15.0 | 15-08-2026 | ADRs 0019, 0020, 0021 e 0022 acrescentadas ao índice, as três primeiras retroativamente — já existiam como arquivo, mas nunca tinham entrado nesta lista. | Checagem mecânica ao abrir este arquivo pra acrescentar a ADR 0022 |
 | 0.16.0 | 16-08-2026 | ADRs 0023 e 0024 acrescentadas ao índice, retroativamente — já existiam como arquivo, mas nunca tinham entrado nesta lista. ADR 0025 acrescentada. | Checagem mecânica ao abrir este arquivo pra acrescentar a ADR 0025 |
+| 0.17.0 | 18-08-2026 | ADR 0026 acrescentada à lista. | Formalização da forma de `SessionState`, dos tipos de `content` usados pelo `ViewModel`, e do construtor de `SessionViewModel` |
+| 0.18.0 | 18-08-2026 | ADR 0027 acrescentada à lista. | Correção da forma de `SessionState` (decisão 2 de decisions/0026), achada ao rodar o teste de `SessionViewModel.kt` contra o código real |

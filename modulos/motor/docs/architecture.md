@@ -6,7 +6,7 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Architecture |
-| Versão | 0.32.0 |
+| Versão | 0.33.0 |
 | Data | 18-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
@@ -766,7 +766,8 @@ já que não depende de nenhuma classe do Android.
 
 *Em resumo:* as telas — o que mostra o estado que o núcleo decide,
 nunca decide nada por conta própria. Continua dentro do módulo motor,
-não um módulo separado (ver decisão registrada em `tasks.md`).
+não um módulo separado — motivo completo em
+[decisions/0029](<../decisions/0029-aparencia-visual-das-telas-mora-no-motor.md>).
 
 *Em detalhe técnico:* o fluxo funcional de cada tela (quais existem, o
 que cada uma mostra) já está fixado no
@@ -1033,3 +1034,4 @@ com o campo Versão da tabela de cabeçalho, que sempre reflete a
 | 0.30.0 | 18-08-2026 | Forma exata dos campos de `SessionState`, `SessionEvent`, dos tipos de `content` (`Frame`, `ContentEvent`, `ContentTheme`, `ContentInstance`) e do construtor de `SessionViewModel` acrescentada às seções dos pacotes `session`, `content` e "Ligação com o núcleo do motor" — antes só o nome dos tipos estava registrado, nunca os campos. | Resolução de [decisions/0026](<../decisions/0026-forma-de-sessionstate-tipos-de-content-e-construtor-do-viewmodel.md>) |
 | 0.31.0 | 18-08-2026 | Seção do pacote `session` corrigida: `SessionState` carrega `expectedEventName`, não `sessionEvents`/`currentEventIndex` — corrige uma duplicação de dado já registrada em `SessionConfiguration.eventNames`. Seção "Ligação com o núcleo do motor" corrigida com os nomes reais do construtor (`instance`, `pausedStateFile`, `now`). | Resolução de [decisions/0027](<../decisions/0027-sessionstate-referencia-o-evento-atual-pelo-nome.md>); achado ao rodar o teste de `SessionViewModel.kt` contra o código real |
 | 0.32.0 | 18-08-2026 | Acrescentado o mecanismo que combina o recorte de temas com o recorte de eventos de cada tema numa sessão que atravessa mais de um tema (`sessionEventNames`, `SessionScope.kt`) — antes só o recorte de um nível só estava documentado. | Resolução de [decisions/0028](<../decisions/0028-combinacao-do-recorte-de-temas-e-eventos-numa-sessao.md>) |
+| 0.33.0 | 18-08-2026 | Seção "Interface" ganha ponteiro pra ADR: "não vira módulo separado" passa a apontar pra [decisions/0029](<../decisions/0029-aparencia-visual-das-telas-mora-no-motor.md>), no lugar do ponteiro solto pra `tasks.md`. | Resolução de [decisions/0029](<../decisions/0029-aparencia-visual-das-telas-mora-no-motor.md>) |

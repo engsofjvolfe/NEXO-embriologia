@@ -102,6 +102,9 @@
   cada tema, pra uma sessão que atravessa mais de um assunto, decidido
   e já escrito, com teste rodado de verdade — ver
   [modulos/motor/decisions/0028](<modulos/motor/decisions/0028-combinacao-do-recorte-de-temas-e-eventos-numa-sessao.md>).
+- Jetpack Compose decidido como ferramenta de desenho de tela do
+  módulo `app`, destravando o desenho visual das telas — ver
+  [modulos/motor/decisions/0031](<modulos/motor/decisions/0031-jetpack-compose-como-ferramenta-de-desenho-de-tela.md>).
 - [TASKS.md, Resolvidas](TASKS.md#resolvidas) — pendências já corrigidas.
 
 ## Próximo passo

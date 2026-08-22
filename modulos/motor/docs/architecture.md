@@ -6,8 +6,8 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Architecture |
-| Versão | 0.33.0 |
-| Data | 18-08-2026 |
+| Versão | 0.36.0 |
+| Data | 22-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
 > Descreve como o módulo é construído por dentro — layout de arquivos,
@@ -801,8 +801,21 @@ reconhecido fora deste projeto, chamado design centrado no usuário
 4. Protótipo navegável e avaliação contra as heurísticas de
    usabilidade (NIELSEN, 1994) antes de virar código de verdade.
 
-Nenhuma dessas quatro etapas foi executada ainda — só o método a
-seguir está registrado aqui.
+Nenhuma dessas quatro etapas foi concluída ainda. Dentro do passo 2
+(wireframe), um ponto já está decidido: o padrão de navegação entre
+instância, tema e evento usa expansão em acordeão (tocar num item
+abre a lista do nível seguinte embaixo dele, sem trocar de tela),
+igual em celular e tablet — ver
+[decisions/0030](<../decisions/0030-padrao-de-navegacao-hierarquica-de-conteudo.md>).
+O restante do wireframe (as outras 16 entradas de tela, mais como
+indicar o estado de conexão do acessório) segue pendente, ver
+[`tasks.md`](tasks.md). "Ponto de início" e "Configuração da sessão"
+já são a mesma tela — a própria Especificação (`EI-NAV-05`) já diz que
+essa configuração "é feita uma única vez, na tela de início... todos
+são decididos nessa mesma tela, no mesmo momento"; não é uma pergunta
+em aberto. O botão de pausar também já está decidido — `EI-PAU-03` só
+exige confirmação pra sair, nunca pra pausar; falta só o método novo
+em `SessionViewModel.kt` (ver [`tasks.md`](tasks.md)), não desenho.
 
 ##### Ligação com o núcleo do motor
 
@@ -1035,3 +1048,6 @@ com o campo Versão da tabela de cabeçalho, que sempre reflete a
 | 0.31.0 | 18-08-2026 | Seção do pacote `session` corrigida: `SessionState` carrega `expectedEventName`, não `sessionEvents`/`currentEventIndex` — corrige uma duplicação de dado já registrada em `SessionConfiguration.eventNames`. Seção "Ligação com o núcleo do motor" corrigida com os nomes reais do construtor (`instance`, `pausedStateFile`, `now`). | Resolução de [decisions/0027](<../decisions/0027-sessionstate-referencia-o-evento-atual-pelo-nome.md>); achado ao rodar o teste de `SessionViewModel.kt` contra o código real |
 | 0.32.0 | 18-08-2026 | Acrescentado o mecanismo que combina o recorte de temas com o recorte de eventos de cada tema numa sessão que atravessa mais de um tema (`sessionEventNames`, `SessionScope.kt`) — antes só o recorte de um nível só estava documentado. | Resolução de [decisions/0028](<../decisions/0028-combinacao-do-recorte-de-temas-e-eventos-numa-sessao.md>) |
 | 0.33.0 | 18-08-2026 | Seção "Interface" ganha ponteiro pra ADR: "não vira módulo separado" passa a apontar pra [decisions/0029](<../decisions/0029-aparencia-visual-das-telas-mora-no-motor.md>), no lugar do ponteiro solto pra `tasks.md`. | Resolução de [decisions/0029](<../decisions/0029-aparencia-visual-das-telas-mora-no-motor.md>) |
+| 0.34.0 | 22-08-2026 | Seção "Interface" precisada: dentro do passo 2 (wireframe), o padrão de navegação entre instância, tema e evento (expansão em acordeão, igual em celular e tablet) já está decidido, substituindo a afirmação de que nenhuma das quatro etapas tinha sido executada. | Resolução de [decisions/0030](<../decisions/0030-padrao-de-navegacao-hierarquica-de-conteudo.md>) |
+| 0.35.0 | 22-08-2026 | Seção "Interface" registra que "Ponto de início" e "Configuração da sessão" já são a mesma tela — a Especificação (`EI-NAV-05`) já diz isso direto ("a tela de início... todos são decididos nessa mesma tela, no mesmo momento"). | Leitura direta da Especificação, ao revisar o padrão de navegação de decisions/0030 |
+| 0.36.0 | 22-08-2026 | Seção "Interface" registra que o botão de pausar já não precisa de confirmação nenhuma (`EI-PAU-03` só exige isso pra sair) — falta só o método novo em `SessionViewModel.kt`, não desenho. | Leitura direta da Especificação e do Documento de Conceito, seção 12 |

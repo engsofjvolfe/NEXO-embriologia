@@ -6,8 +6,8 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Handoff |
-| Versão | 0.30.0 |
-| Data | 18-08-2026 |
+| Versão | 0.31.0 |
+| Data | 22-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
 > Resumo curto de "onde este módulo está" e "o que fazer a seguir" nele.
@@ -104,6 +104,9 @@
   decidida.
 - [decisions/0029-aparencia-visual-das-telas-mora-no-motor.md](<../decisions/0029-aparencia-visual-das-telas-mora-no-motor.md>) —
   responsabilidade pela aparência visual das telas decidida.
+- [decisions/0030-padrao-de-navegacao-hierarquica-de-conteudo.md](<../decisions/0030-padrao-de-navegacao-hierarquica-de-conteudo.md>) —
+  padrão de navegação hierárquica (acordeão) entre instância, tema e
+  evento decidido.
 - [findings.md](findings.md) — achados confirmados até agora.
 - [analysis.md](analysis.md) — registro de como cada investigação
   deste módulo foi feita.
@@ -155,3 +158,4 @@ com o campo Versão da tabela de cabeçalho, que sempre reflete a
 | 0.28.0 | 18-08-2026 | Acrescentado ponteiro para decisions/0028. | Combinação do recorte de temas e de eventos numa sessão multi-tema decidida — escrita do código (`sessionEventNames`) e do teste seguem como pendência própria em `tasks.md` |
 | 0.29.0 | 18-08-2026 | Nenhum ponteiro novo (decisions/0028 já citada). | `sessionEventNames` implementada e testada (quatro testes) — pendência de código e teste, aberta na versão anterior, resolvida |
 | 0.30.0 | 18-08-2026 | Acrescentado ponteiro para decisions/0029. | Responsabilidade pela aparência visual das telas decidida — `concept.md`, `architecture.md` e `tasks.md` passam a apontar pra essa ADR; desenho visual em si segue como pendência própria em `tasks.md` |
+| 0.31.0 | 22-08-2026 | Acrescentado ponteiro para decisions/0030. | Padrão de navegação hierárquica (acordeão) entre instância, tema e evento decidido, incluindo o caso de um nível com muitas entradas (resolvido pela busca aproximada já existente); `architecture.md` e `tasks.md` passam a apontar pra essa ADR; pendência nova em `tasks.md` sobre qual ferramenta de tela o módulo `app` usa; desenho visual das demais telas segue como pendência própria em `tasks.md` |

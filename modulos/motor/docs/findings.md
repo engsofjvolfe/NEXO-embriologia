@@ -6,8 +6,8 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Findings |
-| Versão | 0.6.0 |
-| Data | 17-08-2026 |
+| Versão | 0.7.0 |
+| Data | 18-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
 > Achados confirmados (por leitura de código, teste ao vivo, ou os dois)
@@ -194,6 +194,29 @@ nunca dispara.
   a ferramenta escolhida (Robolectric) não muda pro caminho novo, só o
   alcance da decisão original, que presumia cobrir os dois caminhos.
 
+### <a id="2026-08-18-sessionviewmodel-sem-acao-de-pausar-manual"></a>2026-08-18 — `SessionViewModel.kt` não tem ação de pausar por toque da pessoa
+
+**Confirmado por:** leitura de código
+
+*Resumo simples:* o Documento de Conceito, seção 12, exige dois
+gatilhos distintos pro mesmo efeito de interrupção — um período sem
+interação (ociosidade) e "uma ação explícita de pausar", acionada por
+um controle que a pessoa aperta quando quiser. `SessionViewModel.kt`
+já implementa o primeiro (`scheduleIdleTimeout`, automático, por
+tempo), mas não expõe nenhum método equivalente pro segundo.
+
+*Detalhe técnico:* `app/ui/SessionViewModel.kt` expõe `onSkipRequested`,
+`onScreenAcknowledged`, `onContinueRequested`, `onExitRequested`,
+`onExitCancelled`, `onExitConfirmed` — nenhum deles tem o efeito de
+pausa manual (guardar o estado, sem apagar nada, sem confirmação,
+diferente de `onExitConfirmed`). O único caminho que leva a `goIdle` +
+`saveSessionState` hoje é `scheduleIdleTimeout`, disparado sozinho
+depois de `configuration.idleThresholdMillis` sem tentativa nova —
+nunca por um pedido direto da pessoa. Raciocínio completo de como essa
+lacuna foi encontrada (releitura do Documento de Conceito contra os
+documentos derivados) em
+[analysis.md#2026-08-18-arquitetura-de-informacao-das-telas-do-motor](<analysis.md#2026-08-18-arquitetura-de-informacao-das-telas-do-motor>).
+
 ## Controle de versão
 
 <!-- uma linha por versão publicada deste documento, mais antiga no
@@ -211,3 +234,4 @@ reescrever) também conta como mudança de conteúdo real. -->
 | 0.4.0 | 15-08-2026 | Achado "Registro interno de `session` incompleto frente a EI-REG-01" acrescentado. | Revisão do registro de sessão antes de escrever o pacote `report` |
 | 0.5.0 | 15-08-2026 | Achado "Mecanismo de PDF de decisions/0019 incompatível com o módulo core" acrescentado. | Revisão do mecanismo de PDF antes de escrever o pacote `report` |
 | 0.6.0 | 17-08-2026 | Achado "Caminho antigo de `ReportFileWriter.kt` não testável com Robolectric" acrescentado. | Tentativa de escrever o teste de `ReportFileWriter.kt`/`ReportShareIntent.kt` |
+| 0.7.0 | 18-08-2026 | Achado "`SessionViewModel.kt` não tem ação de pausar por toque da pessoa" acrescentado. | Montagem da arquitetura de informação das telas do motor, releitura do Documento de Conceito contra os documentos derivados |

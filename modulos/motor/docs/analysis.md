@@ -6,7 +6,7 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Analysis |
-| Versão | 0.15.0 |
+| Versão | 0.16.0 |
 | Data | 18-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
@@ -799,6 +799,39 @@ porque o raciocínio errado também é parte de como se chegou à resposta certa
   risco real de as cópias divergirem depois), sem precisar de nome de princípio nem citação
   externa pra se sustentar — mesmo caso de `decisions/0009`, que também não usou fonte externa.
 
+### <a id="2026-08-18-arquitetura-de-informacao-das-telas-do-motor"></a>2026-08-18 — Arquitetura de informação das telas do motor
+
+**Levou a:** [findings.md#2026-08-18-sessionviewmodel-sem-acao-de-pausar-manual](<findings.md#2026-08-18-sessionviewmodel-sem-acao-de-pausar-manual>)
+
+*Resumo simples:* pra montar o passo 1 do método de desenho visual já registrado em
+`architecture.md` (arquitetura de informação — o que precisa existir em cada uma das 17 telas), a
+primeira lista foi montada a partir da tabela de telas do Projeto Arquitetônico (seção 6.6) e das
+variantes de `SessionScreen` já fechadas em `decisions/0022` — documentos derivados, não a fonte
+raiz. Reler o Documento de Conceito inteiro, do início ao fim, revelou duas coisas que os
+documentos derivados não cobriam.
+
+*Detalhe técnico:*
+- Primeira montagem: 17 entradas da tabela DA-RET, mais os campos exatos de cada situação de jogo
+  já decididos em `decisions/0022` — sem abrir nenhum arquivo de código.
+- Releitura completa do Documento de Conceito (não só as seções já citadas pelos documentos
+  derivados) encontrou duas lacunas:
+  1. Seção 12 exige "uma ação explícita de pausar", distinta do gatilho automático de ociosidade —
+     sem entrada correspondente na tabela DA-RET nem nas ações do `ViewModel` já documentadas em
+     `architecture.md`.
+  2. Seção 10 ("composição de uma sessão") — a escolha de até onde uma sessão vai, que a primeira
+     versão da lista só citava como justificativa de fundo, sem registrar como um elemento que a
+     pessoa realmente vê e escolhe na tela de navegação.
+- Ponto 2 não precisou de pendência nova: o mecanismo que calcula até onde a sessão pode ir já
+  estava decidido — `decisions/0009` (recorte dentro de um tema) e `decisions/0028` (recorte
+  atravessando temas) — e já virou código testado (`sessionScope`/`sessionEventNames`,
+  `core/session/SessionScope.kt`). Bastou corrigir a entrada da tela de navegação pra citar esse
+  mecanismo em vez da regra em linguagem solta.
+- Ponto 1 foi conferido contra o código real antes de virar achado — não bastava a suspeita: abri
+  `app/ui/SessionViewModel.kt` (único arquivo lido nesta investigação) e confirmei que ele não
+  expõe nenhum método de pausa manual, só o relógio automático. Essa checagem por leitura de código
+  é exigida pela própria regra deste documento: um achado em `findings.md` só existe confirmado por
+  leitura de código ou teste ao vivo, nunca por dedução a partir de outro documento.
+
 ## Controle de versão
 
 <!-- uma linha por versão publicada deste documento, mais antiga no
@@ -825,3 +858,4 @@ sem reescrever) também conta como mudança de conteúdo real. -->
 | 0.13.0 | 18-08-2026 | Acrescentada a investigação que formaliza a forma de `SessionState`, `content` e do construtor de `SessionViewModel` — releitura completa sem código, mais pesquisa externa nova (guia oficial de arquitetura do Android). | Resolução de [decisions/0026](<../decisions/0026-forma-de-sessionstate-tipos-de-content-e-construtor-do-viewmodel.md>) |
 | 0.14.0 | 18-08-2026 | Acrescentada a investigação da escrita do teste de `SessionViewModel.kt` — divergência real encontrada ao rodar contra o código, comparação dos dois desenhos de `SessionState`, correção via `decisions/0027`. | Quarto e último teste real do módulo `app` escrito e rodado |
 | 0.15.0 | 18-08-2026 | Acrescentada a investigação da combinação do recorte de temas e de eventos numa sessão multi-tema, incluindo as duas leituras corrigidas antes de fechar no desenho certo (conclusão final só apontada, não repetida — está em `decisions/0028`, Contexto) e a tentativa de pesquisa externa pra decisão de reaproveitar `sessionScope`, descartada por não ter fonte no mesmo padrão das demais citações do módulo. | Resolução de [decisions/0028](<../decisions/0028-combinacao-do-recorte-de-temas-e-eventos-numa-sessao.md>) |
+| 0.16.0 | 18-08-2026 | Acrescentada a investigação da arquitetura de informação das telas do motor — duas lacunas encontradas ao reler o Documento de Conceito contra os documentos derivados, uma resolvida por citação (mecanismo já existente) e outra confirmada como achado de verdade por leitura de código. | Montagem do passo 1 do método de desenho visual já registrado em `architecture.md`; achado novo em `findings.md` |

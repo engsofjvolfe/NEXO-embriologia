@@ -6,8 +6,8 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Tasks |
-| Versão | 0.41.0 |
-| Data | 18-08-2026 |
+| Versão | 0.43.0 |
+| Data | 22-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
 > Lista mutável de pendências só deste módulo. Lida depois de
@@ -171,6 +171,29 @@ Convenção dos códigos citados aqui:
       terceiro (ANATEL), pode mudar — reconfirmar na fonte oficial
       antes de agir (comprar homologação, iniciar processo).
 
+- [ ] **Decidir a ferramenta de desenho de tela do módulo `app`
+      (Jetpack Compose ou Views tradicionais).**
+
+      *Resumo simples:* nenhum documento do projeto escolheu ainda com
+      qual das duas famílias de ferramenta do Android as telas do
+      aplicativo são desenhadas de verdade.
+
+      *Detalhe técnico:*
+      [decisions/0003](<../decisions/0003-estrutura-de-modulos-do-aplicativo.md>)
+      registra "telas (Activities/Composables)" sem decidir entre as
+      duas;
+      [decisions/0012](<../decisions/0012-versoes-de-plataforma-e-build-do-modulo-app.md>)
+      fixa só versões de SDK e do Android Gradle Plugin, sem tocar
+      nisso. Revelada durante a escrita de
+      [decisions/0030](<../decisions/0030-padrao-de-navegacao-hierarquica-de-conteudo.md>)
+      (padrão de navegação em acordeão): essa ADR já decide que a
+      estrutura precisa renderizar de forma preguiçosa (sem desenhar
+      tudo de uma vez conforme mais níveis abrem), mas o nome exato da
+      peça que faz isso depende desta escolha, ainda não feita. Sem
+      ela, `MainActivity.kt` (hoje sem nenhuma chamada de tela, ver
+      decisions/0012) e qualquer tela nova continuam sem fundação pra
+      começar.
+
 - [ ] **Desenhar a aparência visual das telas do motor.**
 
       *Resumo simples:* o fluxo funcional de cada tela já está
@@ -204,8 +227,14 @@ Convenção dos códigos citados aqui:
       são parte do próprio desenho visual pendente (o gatilho por
       temporizador, usado só pela ociosidade, já está resolvido,
       independente da aparência — ver
-      [decisions/0024](<../decisions/0024-mecanismo-do-gatilho-de-ociosidade.md>));
-      o conteúdo de cada um já está fechado
+      [decisions/0024](<../decisions/0024-mecanismo-do-gatilho-de-ociosidade.md>)).
+      Dentro disso, o padrão de navegação entre instância, tema e
+      evento — expansão em acordeão, nunca troca de tela inteira,
+      igual em celular e tablet, incluindo o caso de um nível com
+      muitas entradas (resolvido pela busca aproximada já existente,
+      sem pendência nova) — já está decidido, ver
+      [decisions/0030](<../decisions/0030-padrao-de-navegacao-hierarquica-de-conteudo.md>).
+      O conteúdo de cada estado já está fechado
       ([decisions/0022](<../decisions/0022-conteudo-do-estado-exposto-pelo-viewmodel.md>)),
       e o `ViewModel` já expõe um método por ação prevista na
       Especificação (pular, reconhecer uma tela transitória, continuar
@@ -226,6 +255,16 @@ Convenção dos códigos citados aqui:
       seção 8 ("a tela... confirma, não anuncia") — esse indicador
       precisa ser discreto, nunca virar uma explicação ou aviso que
       compita com essa regra.
+
+      O botão de pausar (Documento de Conceito, seção 12 — "uma ação
+      explícita de pausar", distinta do gatilho automático de
+      ociosidade) depende de código que ainda não existe:
+      `SessionViewModel.kt` hoje só implementa o gatilho automático,
+      sem nenhum método equivalente pra um pedido direto da pessoa —
+      achado confirmado em
+      [findings.md](<findings.md#2026-08-18-sessionviewmodel-sem-acao-de-pausar-manual>).
+      O desenho visual desse controle não tem o que chamar enquanto
+      esse método não for escrito.
 
 
 - [ ] **Escrever os testes instrumentados de `ReportPdfRenderer.kt` e
@@ -637,3 +676,5 @@ como mudança de conteúdo real. -->
 | 0.39.0 | 18-08-2026 | Pendência "Decidir, via ADR, como combinar o recorte de temas..." resolvida — movida para Resolvidas. Pendência nova "Escrever o código e o teste de `sessionEventNames`" acrescentada em seu lugar. | Resolução de [decisions/0028](<../decisions/0028-combinacao-do-recorte-de-temas-e-eventos-numa-sessao.md>) |
 | 0.40.0 | 18-08-2026 | Pendência "Escrever o código e o teste de `sessionEventNames`" resolvida — movida para Resolvidas, quatro testes escritos e rodados. | `sessionEventNames` implementada e testada, sem quebra na suíte completa |
 | 0.41.0 | 18-08-2026 | Pendência "Desenhar a aparência visual das telas do motor" ganha ponteiro pra ADR: o trecho "já decidido... não há fronteira real que justifique separar" passa a apontar pra [decisions/0029](<../decisions/0029-aparencia-visual-das-telas-mora-no-motor.md>), no lugar da frase solta sem análise registrada. | Resolução de [decisions/0029](<../decisions/0029-aparencia-visual-das-telas-mora-no-motor.md>) |
+| 0.42.0 | 22-08-2026 | Pendência "Desenhar a aparência visual das telas do motor" ganha ponteiro pra ADR nova (padrão de navegação por acordeão, incluindo o caso de um nível com muitas entradas, resolvido pela busca aproximada já existente, sem pendência própria), e ponteiro pro achado já registrado sobre o botão de pausar ainda sem código correspondente, que não constava aqui. | Resolução de [decisions/0030](<../decisions/0030-padrao-de-navegacao-hierarquica-de-conteudo.md>) |
+| 0.43.0 | 22-08-2026 | Pendência nova "Decidir a ferramenta de desenho de tela do módulo `app` (Jetpack Compose ou Views tradicionais)" acrescentada — revelada ao decidir que o acordeão de `decisions/0030` precisa renderizar de forma preguiçosa, mecanismo cujo nome exato depende dessa escolha, ainda não feita em nenhum documento. | Achado durante a escrita de [decisions/0030](<../decisions/0030-padrao-de-navegacao-hierarquica-de-conteudo.md>) |

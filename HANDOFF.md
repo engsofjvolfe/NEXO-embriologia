@@ -108,6 +108,10 @@
   [modulos/motor/decisions/0029](<modulos/motor/decisions/0029-aparencia-visual-das-telas-mora-no-motor.md>).
   O desenho de fato dessa aparência (cor, fonte, layout de cada tela)
   segue como pendência própria.
+- Padrão de navegação hierárquica das telas do motor (instância, tema,
+  evento) decidido — expansão em acordeão, igual em celular e tablet,
+  ver
+  [modulos/motor/decisions/0030](<modulos/motor/decisions/0030-padrao-de-navegacao-hierarquica-de-conteudo.md>).
 - [TASKS.md, Resolvidas](TASKS.md#resolvidas) — pendências já corrigidas.
 
 ## Próximo passo

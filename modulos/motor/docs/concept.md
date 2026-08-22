@@ -6,8 +6,8 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Concept |
-| Versão | 0.4.0 |
-| Data | 18-08-2026 |
+| Versão | 0.6.0 |
+| Data | 22-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
 > Descreve o desenho pretendido do módulo — o que ele deve ser e como
@@ -83,6 +83,12 @@ e adiadas:
 [decisions/0029](<../decisions/0029-aparencia-visual-das-telas-mora-no-motor.md>).
 O valor exato da aparência (cor, fonte, posição de cada elemento)
 continua sem decisão, registrado como pendência em [`tasks.md`](tasks.md).
+O agrupamento das 17 entradas em telas físicas já está parcialmente
+resolvido: as 10 que são variações de conteúdo dentro da sessão em jogo
+formam uma tela só (`SessionScreen`, tipo fechado — ver
+[decisions/0022](<../decisions/0022-conteudo-do-estado-exposto-pelo-viewmodel.md>));
+só as outras 7 (páginas de navegação de fato) seguem sem agrupamento
+físico decidido.
 
 Fora do escopo: o texto legal do termo de consentimento
 (explicitamente fora da cascata do motor, ver Projeto Detalhado §2.2),
@@ -271,3 +277,4 @@ com o campo Versão da tabela de cabeçalho, que sempre reflete a
 | 0.2.0 | 14-08-2026 | `schema_version` do contrato de dado sobe de `0.1.0` para `1.0.0`, cumprindo a condição já registrada na versão anterior deste documento. | Escrita do pacote `content`, primeiro código a validar pacotes de conteúdo reais contra este contrato |
 | 0.3.0 | 15-08-2026 | `schema_version` do contrato de dado sobe de `1.0.0` para `2.0.0`: campo novo `summary_fragment`, obrigatório, em `frame` — mudança que quebra compatibilidade com pacotes de conteúdo já válidos na versão anterior. | Resolução de [decisions/0021](<../decisions/0021-quem-monta-o-texto-de-resumo-e-sintese.md>) |
 | 0.4.0 | 18-08-2026 | Escopo corrigido: a aparência visual das telas passa de "fora do escopo" para "dentro do escopo" deste módulo — casca única, compartilhada por toda instância, nunca desenhada por instância nem em módulo separado; motivo completo em [decisions/0029](<../decisions/0029-aparencia-visual-das-telas-mora-no-motor.md>). | Resolução de [decisions/0029](<../decisions/0029-aparencia-visual-das-telas-mora-no-motor.md>) |
+| 0.6.0 | 22-08-2026 | Precisado o agrupamento das 17 entradas de tela: 10 delas (variações de conteúdo dentro da sessão em jogo) já têm o agrupamento em telas físicas fechado desde [decisions/0022](<../decisions/0022-conteudo-do-estado-exposto-pelo-viewmodel.md>); só as outras 7 seguem sem essa decisão. | Revisão da pendência de desenho visual, na mesma sessão de [decisions/0030](<../decisions/0030-padrao-de-navegacao-hierarquica-de-conteudo.md>) |

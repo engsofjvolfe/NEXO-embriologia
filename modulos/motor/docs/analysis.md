@@ -6,7 +6,7 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Analysis |
-| Versão | 0.17.0 |
+| Versão | 0.20.0 |
 | Data | 22-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
@@ -883,6 +883,26 @@ resolvidas por documentos existentes, nunca conectadas antes — nenhuma delas e
   início/configuração, telas físicas do Grupo B) — em nenhum dos três havia de fato uma escolha
   entre alternativas reais a fazer; a documentação já respondia, só não tinha sido lida com
   atenção antes de listar como pendência.
+- O achado sobre o Grupo B (`decisions/0022`, 15-08-2026, já fecha o agrupamento de 10 das 17
+  entradas de tela) não estava isolado em `tasks.md` — a mesma frase, tratando o agrupamento das
+  17 entradas como inteiramente em aberto, sobrevivia em mais quatro lugares. O critério pra
+  decidir entre corrigir direto ou acrescentar nota de acompanhamento numa ADR não é "já foi
+  mesclada"/"já foi revisada" — é se a informação que falta já existia no momento em que aquele
+  texto foi escrito. `decisions/0003` (13-08-2026) e a seção "Layout" de `architecture.md` (mesma
+  data) são de antes de `decisions/0022` existir — a afirmação era razoável quando escrita, só
+  ficou desatualizada depois; nota de acompanhamento datada é o tratamento certo, sem tocar no
+  texto original. Já `decisions/0029` (18-08-2026) e `decisions/0031` (22-08-2026) — e o trecho
+  correspondente de `concept.md` — foram escritos depois de `decisions/0022` já existir: a
+  informação certa já estava disponível, só não foi checada antes de escrever. Isso é erro de
+  nascença, não fato novo surgido depois — corrigidos direto, sem nota de acompanhamento nem
+  palavra "corrigido" no changelog, mesmo tratamento já dado a "Ponto de início"/botão de pausar
+  mais cedo nesta sessão. `decisions/0031` tinha ganhado nota de acompanhamento numa primeira
+  tentativa, corrigida depois que a data de `decisions/0022` foi checada de verdade contra a data
+  da própria ADR. Mesmo padrão já visto três vezes antes nesta mesma tarefa (busca aproximada,
+  "Ponto de início", Grupo B): tratar como pendência ou como decisão nova algo que já tinha
+  resposta, por não conferir contra o que já existia. Confirmado por leitura direta de cada
+  arquivo (`grep` pela frase exata) e checagem de data por commit (`git log`), não por suposição
+  de que toda ocorrência pedia o mesmo tratamento.
 
 ## Controle de versão
 
@@ -912,3 +932,4 @@ sem reescrever) também conta como mudança de conteúdo real. -->
 | 0.15.0 | 18-08-2026 | Acrescentada a investigação da combinação do recorte de temas e de eventos numa sessão multi-tema, incluindo as duas leituras corrigidas antes de fechar no desenho certo (conclusão final só apontada, não repetida — está em `decisions/0028`, Contexto) e a tentativa de pesquisa externa pra decisão de reaproveitar `sessionScope`, descartada por não ter fonte no mesmo padrão das demais citações do módulo. | Resolução de [decisions/0028](<../decisions/0028-combinacao-do-recorte-de-temas-e-eventos-numa-sessao.md>) |
 | 0.16.0 | 18-08-2026 | Acrescentada a investigação da arquitetura de informação das telas do motor — duas lacunas encontradas ao reler o Documento de Conceito contra os documentos derivados, uma resolvida por citação (mecanismo já existente) e outra confirmada como achado de verdade por leitura de código. | Montagem do passo 1 do método de desenho visual já registrado em `architecture.md`; achado novo em `findings.md` |
 | 0.17.0 | 22-08-2026 | Acrescentada a investigação do padrão de navegação hierárquica — decisão apoiada só em lógica interna, tentativa de fonte externa descartada por peso insuficiente, e três pendências de tela que já estavam resolvidas em outros documentos, nunca conectadas antes. | Resolução de [decisions/0030](<../decisions/0030-padrao-de-navegacao-hierarquica-de-conteudo.md>) |
+| 0.20.0 | 22-08-2026 | Estendida a mesma investigação: o achado sobre o Grupo B não estava isolado em `tasks.md` — a mesma frase imprecisa se repetia em mais quatro lugares. Critério corrigido: o que separa nota de acompanhamento de correção direta é a data (a informação certa já existia antes daquele texto ser escrito?), não se a worktree já foi mesclada — `decisions/0031` tinha ganhado nota de acompanhamento por engano, corrigido depois de checar a data de verdade. | Auditoria completa por `grep` da frase exata e checagem de data por commit, ao reconciliar esta worktree com `develop` |

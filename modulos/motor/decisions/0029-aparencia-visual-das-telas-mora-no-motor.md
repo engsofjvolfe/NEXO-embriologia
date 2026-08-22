@@ -91,7 +91,11 @@ O valor exato da aparência (cor, fonte, layout de cada tela) continua sem decis
 resolve só de quem é a responsabilidade, não o desenho em si. Esse desenho segue como pendência
 própria em `tasks.md`, pelo método já registrado em `architecture.md` (arquitetura de informação,
 wireframe, aplicação do sistema visual, protótipo com avaliação de usabilidade) — nenhuma das
-quatro etapas foi executada ainda.
+quatro etapas foi executada ainda. Dentro disso, o agrupamento das 17 entradas de tela em telas
+físicas já está parcialmente resolvido, à parte desta ADR: as 10 que são variações de conteúdo
+dentro da sessão em jogo formam uma tela só
+([decisions/0022](0022-conteudo-do-estado-exposto-pelo-viewmodel.md), `SessionScreen`, tipo
+fechado); só as outras 7 (páginas de navegação de fato) seguem sem agrupamento físico decidido.
 
 Nenhuma fonte externa foi necessária pra esta decisão — resolvida inteiramente com o que a cascata
 de documentos e o `README.md` já estabelecem.

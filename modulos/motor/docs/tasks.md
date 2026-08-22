@@ -6,7 +6,7 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Tasks |
-| Versão | 0.43.0 |
+| Versão | 0.44.0 |
 | Data | 22-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
@@ -222,11 +222,14 @@ Convenção dos códigos citados aqui:
       conteúdo dentro da tela principal de jogo (referência, aguardando
       tentativa, confirmação de acerto, negativa, dica, sugestão de
       estudo, resumo de evento, mensagem de pulo, síntese de cadeia,
-      confirmação de saída) — como agrupar esses estados em telas
-      físicas, e o gatilho exato por toque que move de um pro outro,
-      são parte do próprio desenho visual pendente (o gatilho por
-      temporizador, usado só pela ociosidade, já está resolvido,
-      independente da aparência — ver
+      confirmação de saída) — como esses estados se agrupam já está
+      decidido
+      ([decisions/0022](<../decisions/0022-conteudo-do-estado-exposto-pelo-viewmodel.md>):
+      `SessionScreen` é um tipo fechado, uma variante por entrada da
+      tabela DA-RET — uma tela só, mudando de conteúdo por dentro); só
+      o gatilho exato por toque que move de um pro outro segue
+      pendente (o gatilho por temporizador, usado só pela ociosidade,
+      já está resolvido, independente da aparência — ver
       [decisions/0024](<../decisions/0024-mecanismo-do-gatilho-de-ociosidade.md>)).
       Dentro disso, o padrão de navegação entre instância, tema e
       evento — expansão em acordeão, nunca troca de tela inteira,
@@ -678,3 +681,4 @@ como mudança de conteúdo real. -->
 | 0.41.0 | 18-08-2026 | Pendência "Desenhar a aparência visual das telas do motor" ganha ponteiro pra ADR: o trecho "já decidido... não há fronteira real que justifique separar" passa a apontar pra [decisions/0029](<../decisions/0029-aparencia-visual-das-telas-mora-no-motor.md>), no lugar da frase solta sem análise registrada. | Resolução de [decisions/0029](<../decisions/0029-aparencia-visual-das-telas-mora-no-motor.md>) |
 | 0.42.0 | 22-08-2026 | Pendência "Desenhar a aparência visual das telas do motor" ganha ponteiro pra ADR nova (padrão de navegação por acordeão, incluindo o caso de um nível com muitas entradas, resolvido pela busca aproximada já existente, sem pendência própria), e ponteiro pro achado já registrado sobre o botão de pausar ainda sem código correspondente, que não constava aqui. | Resolução de [decisions/0030](<../decisions/0030-padrao-de-navegacao-hierarquica-de-conteudo.md>) |
 | 0.43.0 | 22-08-2026 | Pendência nova "Decidir a ferramenta de desenho de tela do módulo `app` (Jetpack Compose ou Views tradicionais)" acrescentada — revelada ao decidir que o acordeão de `decisions/0030` precisa renderizar de forma preguiçosa, mecanismo cujo nome exato depende dessa escolha, ainda não feita em nenhum documento. | Achado durante a escrita de [decisions/0030](<../decisions/0030-padrao-de-navegacao-hierarquica-de-conteudo.md>) |
+| 0.44.0 | 22-08-2026 | Corrigido: o trecho "como agrupar esses estados em telas físicas... parte do desenho visual pendente" estava desatualizado desde 15-08-2026 — `decisions/0022` já resolve isso (`SessionScreen`, tipo fechado, uma variante por entrada da tabela DA-RET, uma tela só) e nunca tinha sido conectado aqui. | Achado ao revisar a pendência por completo, na mesma sessão da ADR 0030 |

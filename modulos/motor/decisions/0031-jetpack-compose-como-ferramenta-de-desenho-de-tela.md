@@ -86,8 +86,12 @@ Motivo, com fonte oficial (Google/Android Developers) pra cada ponto:
 **Consequências:** esta decisão fixa só a tecnologia de renderização —
 não decide cor, fonte, layout, nem como as 17 entradas de tela do
 Projeto Arquitetônico (seção 6.6) se agrupam em telas físicas; esse
-desenho continua pendente, ver [`tasks.md`](<../docs/tasks.md>),
-"Desenhar a aparência visual das telas do motor". Nenhum código já
+desenho continua pendente pra 7 delas (páginas de navegação de fato),
+ver [`tasks.md`](<../docs/tasks.md>), "Desenhar a aparência visual das
+telas do motor" — as outras 10 (variações de conteúdo dentro da sessão
+em jogo) já têm esse agrupamento fechado desde
+[decisions/0022](<0022-conteudo-do-estado-exposto-pelo-viewmodel.md>)
+(`SessionScreen`, tipo fechado, uma tela só). Nenhum código já
 escrito em `core` ou `app` precisa mudar — nenhum dos dois desenha
 tela hoje. Existe interoperabilidade oficial entre Compose e Views
 (`views-in-compose`/`compose-in-views`), mas ela não é exigida aqui,

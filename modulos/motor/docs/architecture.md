@@ -6,7 +6,7 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Architecture |
-| Versão | 0.33.0 |
+| Versão | 0.38.0 |
 | Data | 22-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
@@ -131,7 +131,11 @@ O módulo `app` ainda não é desmembrado em módulos de funcionalidade
 menores — como as 17 entradas de tela do
 [Projeto Arquitetônico](<../../../docs/docs-VMODEL-visao-geral/4 - projeto-arquitetonico.md>),
 seção 6.6, se agrupam em telas físicas é parte do desenho visual ainda
-pendente (ver [`tasks.md`](tasks.md)).
+pendente (ver [`tasks.md`](tasks.md)) pra 7 delas — as outras 10 já têm
+esse agrupamento fechado (`SessionScreen`, tipo fechado, ver
+[decisions/0022](<../decisions/0022-conteudo-do-estado-exposto-pelo-viewmodel.md>)),
+sem que isso mude a conclusão desta seção (o módulo `app` continua sem
+desmembrar).
 
 #### Núcleo do motor
 
@@ -766,7 +770,8 @@ já que não depende de nenhuma classe do Android.
 
 *Em resumo:* as telas — o que mostra o estado que o núcleo decide,
 nunca decide nada por conta própria. Continua dentro do módulo motor,
-não um módulo separado (ver decisão registrada em `tasks.md`).
+não um módulo separado — motivo completo em
+[decisions/0029](<../decisions/0029-aparencia-visual-das-telas-mora-no-motor.md>).
 
 *Em detalhe técnico:* o fluxo funcional de cada tela (quais existem, o
 que cada uma mostra) já está fixado no
@@ -803,8 +808,21 @@ reconhecido fora deste projeto, chamado design centrado no usuário
 4. Protótipo navegável e avaliação contra as heurísticas de
    usabilidade (NIELSEN, 1994) antes de virar código de verdade.
 
-Nenhuma dessas quatro etapas foi executada ainda — só o método a
-seguir está registrado aqui.
+Nenhuma dessas quatro etapas foi concluída ainda. Dentro do passo 2
+(wireframe), um ponto já está decidido: o padrão de navegação entre
+instância, tema e evento usa expansão em acordeão (tocar num item
+abre a lista do nível seguinte embaixo dele, sem trocar de tela),
+igual em celular e tablet — ver
+[decisions/0030](<../decisions/0030-padrao-de-navegacao-hierarquica-de-conteudo.md>).
+O restante do wireframe (as outras 16 entradas de tela, mais como
+indicar o estado de conexão do acessório) segue pendente, ver
+[`tasks.md`](tasks.md). "Ponto de início" e "Configuração da sessão"
+já são a mesma tela — a própria Especificação (`EI-NAV-05`) já diz que
+essa configuração "é feita uma única vez, na tela de início... todos
+são decididos nessa mesma tela, no mesmo momento"; não é uma pergunta
+em aberto. O botão de pausar também já está decidido — `EI-PAU-03` só
+exige confirmação pra sair, nunca pra pausar; falta só o método novo
+em `SessionViewModel.kt` (ver [`tasks.md`](tasks.md)), não desenho.
 
 ##### Ligação com o núcleo do motor
 
@@ -1036,4 +1054,9 @@ com o campo Versão da tabela de cabeçalho, que sempre reflete a
 | 0.30.0 | 18-08-2026 | Forma exata dos campos de `SessionState`, `SessionEvent`, dos tipos de `content` (`Frame`, `ContentEvent`, `ContentTheme`, `ContentInstance`) e do construtor de `SessionViewModel` acrescentada às seções dos pacotes `session`, `content` e "Ligação com o núcleo do motor" — antes só o nome dos tipos estava registrado, nunca os campos. | Resolução de [decisions/0026](<../decisions/0026-forma-de-sessionstate-tipos-de-content-e-construtor-do-viewmodel.md>) |
 | 0.31.0 | 18-08-2026 | Seção do pacote `session` corrigida: `SessionState` carrega `expectedEventName`, não `sessionEvents`/`currentEventIndex` — corrige uma duplicação de dado já registrada em `SessionConfiguration.eventNames`. Seção "Ligação com o núcleo do motor" corrigida com os nomes reais do construtor (`instance`, `pausedStateFile`, `now`). | Resolução de [decisions/0027](<../decisions/0027-sessionstate-referencia-o-evento-atual-pelo-nome.md>); achado ao rodar o teste de `SessionViewModel.kt` contra o código real |
 | 0.32.0 | 18-08-2026 | Acrescentado o mecanismo que combina o recorte de temas com o recorte de eventos de cada tema numa sessão que atravessa mais de um tema (`sessionEventNames`, `SessionScope.kt`) — antes só o recorte de um nível só estava documentado. | Resolução de [decisions/0028](<../decisions/0028-combinacao-do-recorte-de-temas-e-eventos-numa-sessao.md>) |
-| 0.33.0 | 22-08-2026 | Seção "Interface" ganha a tecnologia de renderização decidida (Jetpack Compose), separada da aparência visual em si, que continua pendente. | Resolução de [decisions/0031](<../decisions/0031-jetpack-compose-como-ferramenta-de-desenho-de-tela.md>) |
+| 0.33.0 | 18-08-2026 | Seção "Interface" ganha ponteiro pra ADR: "não vira módulo separado" passa a apontar pra [decisions/0029](<../decisions/0029-aparencia-visual-das-telas-mora-no-motor.md>), no lugar do ponteiro solto pra `tasks.md`. | Resolução de [decisions/0029](<../decisions/0029-aparencia-visual-das-telas-mora-no-motor.md>) |
+| 0.34.0 | 22-08-2026 | Seção "Interface" precisada: dentro do passo 2 (wireframe), o padrão de navegação entre instância, tema e evento (expansão em acordeão, igual em celular e tablet) já está decidido, substituindo a afirmação de que nenhuma das quatro etapas tinha sido executada. | Resolução de [decisions/0030](<../decisions/0030-padrao-de-navegacao-hierarquica-de-conteudo.md>) |
+| 0.35.0 | 22-08-2026 | Seção "Interface" registra que "Ponto de início" e "Configuração da sessão" já são a mesma tela — a Especificação (`EI-NAV-05`) já diz isso direto ("a tela de início... todos são decididos nessa mesma tela, no mesmo momento"). | Leitura direta da Especificação, ao revisar o padrão de navegação de decisions/0030 |
+| 0.36.0 | 22-08-2026 | Seção "Interface" registra que o botão de pausar já não precisa de confirmação nenhuma (`EI-PAU-03` só exige isso pra sair) — falta só o método novo em `SessionViewModel.kt`, não desenho. | Leitura direta da Especificação e do Documento de Conceito, seção 12 |
+| 0.37.0 | 22-08-2026 | Seção "Interface" ganha a tecnologia de renderização decidida (Jetpack Compose), separada da aparência visual em si, que continua pendente. | Resolução de [decisions/0031](<../decisions/0031-jetpack-compose-como-ferramenta-de-desenho-de-tela.md>) |
+| 0.38.0 | 22-08-2026 | Corrigido: a seção "Layout" tratava o agrupamento das 17 entradas de tela em telas físicas como inteiramente pendente — 10 delas (variações de conteúdo dentro da sessão em jogo) já têm esse agrupamento fechado desde [decisions/0022](<../decisions/0022-conteudo-do-estado-exposto-pelo-viewmodel.md>); só as outras 7 seguem sem essa decisão. | Achado ao revisar a pendência de desenho visual por completo, na mesma sessão de [decisions/0030](<../decisions/0030-padrao-de-navegacao-hierarquica-de-conteudo.md>) |

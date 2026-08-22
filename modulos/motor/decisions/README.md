@@ -6,8 +6,8 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Decisions — Índice |
-| Versão | 0.19.0 |
-| Data | 18-08-2026 |
+| Versão | 0.20.0 |
+| Data | 22-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
 > Decisões (ADR) específicas deste módulo — um arquivo por decisão,
@@ -69,6 +69,8 @@
 | [0026](0026-forma-de-sessionstate-tipos-de-content-e-construtor-do-viewmodel.md) | Forma de SessionState, tipos de content usados pelo ViewModel, e construtor de SessionViewModel |
 | [0027](0027-sessionstate-referencia-o-evento-atual-pelo-nome.md) | SessionState referencia o evento atual pelo nome, não guarda a lista da sessão duplicada |
 | [0028](0028-combinacao-do-recorte-de-temas-e-eventos-numa-sessao.md) | Combinação do recorte de temas e de eventos numa sessão que atravessa mais de um tema |
+| [0029](0029-aparencia-visual-das-telas-mora-no-motor.md) | Aparência visual das telas mora no módulo motor |
+| [0030](0030-padrao-de-navegacao-hierarquica-de-conteudo.md) | Padrão de navegação hierárquica de conteúdo |
 
 ## Controle de versão
 
@@ -102,3 +104,4 @@ pelo ADR-NNNN). -->
 | 0.17.0 | 18-08-2026 | ADR 0026 acrescentada à lista. | Formalização da forma de `SessionState`, dos tipos de `content` usados pelo `ViewModel`, e do construtor de `SessionViewModel` |
 | 0.18.0 | 18-08-2026 | ADR 0027 acrescentada à lista. | Correção da forma de `SessionState` (decisão 2 de decisions/0026), achada ao rodar o teste de `SessionViewModel.kt` contra o código real |
 | 0.19.0 | 18-08-2026 | ADR 0028 acrescentada à lista. | Combinação do recorte de temas e de eventos numa sessão que atravessa mais de um tema |
+| 0.20.0 | 22-08-2026 | ADRs 0029 e 0030 acrescentadas ao índice, a primeira retroativamente — já existia como arquivo desde a tarefa que a criou, mas nunca tinha entrado nesta lista. | Checagem mecânica ao abrir este arquivo pra acrescentar a ADR 0030 |

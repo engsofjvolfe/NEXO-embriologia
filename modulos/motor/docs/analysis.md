@@ -6,8 +6,8 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Analysis |
-| Versão | 0.15.0 |
-| Data | 18-08-2026 |
+| Versão | 0.20.0 |
+| Data | 22-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
 > Registro datado de como uma investigação foi feita neste módulo — o
@@ -799,6 +799,111 @@ porque o raciocínio errado também é parte de como se chegou à resposta certa
   risco real de as cópias divergirem depois), sem precisar de nome de princípio nem citação
   externa pra se sustentar — mesmo caso de `decisions/0009`, que também não usou fonte externa.
 
+### <a id="2026-08-18-arquitetura-de-informacao-das-telas-do-motor"></a>2026-08-18 — Arquitetura de informação das telas do motor
+
+**Levou a:** [findings.md#2026-08-18-sessionviewmodel-sem-acao-de-pausar-manual](<findings.md#2026-08-18-sessionviewmodel-sem-acao-de-pausar-manual>)
+
+*Resumo simples:* pra montar o passo 1 do método de desenho visual já registrado em
+`architecture.md` (arquitetura de informação — o que precisa existir em cada uma das 17 telas), a
+primeira lista foi montada a partir da tabela de telas do Projeto Arquitetônico (seção 6.6) e das
+variantes de `SessionScreen` já fechadas em `decisions/0022` — documentos derivados, não a fonte
+raiz. Reler o Documento de Conceito inteiro, do início ao fim, revelou duas coisas que os
+documentos derivados não cobriam.
+
+*Detalhe técnico:*
+- Primeira montagem: 17 entradas da tabela DA-RET, mais os campos exatos de cada situação de jogo
+  já decididos em `decisions/0022` — sem abrir nenhum arquivo de código.
+- Releitura completa do Documento de Conceito (não só as seções já citadas pelos documentos
+  derivados) encontrou duas lacunas:
+  1. Seção 12 exige "uma ação explícita de pausar", distinta do gatilho automático de ociosidade —
+     sem entrada correspondente na tabela DA-RET nem nas ações do `ViewModel` já documentadas em
+     `architecture.md`.
+  2. Seção 10 ("composição de uma sessão") — a escolha de até onde uma sessão vai, que a primeira
+     versão da lista só citava como justificativa de fundo, sem registrar como um elemento que a
+     pessoa realmente vê e escolhe na tela de navegação.
+- Ponto 2 não precisou de pendência nova: o mecanismo que calcula até onde a sessão pode ir já
+  estava decidido — `decisions/0009` (recorte dentro de um tema) e `decisions/0028` (recorte
+  atravessando temas) — e já virou código testado (`sessionScope`/`sessionEventNames`,
+  `core/session/SessionScope.kt`). Bastou corrigir a entrada da tela de navegação pra citar esse
+  mecanismo em vez da regra em linguagem solta.
+- Ponto 1 foi conferido contra o código real antes de virar achado — não bastava a suspeita: abri
+  `app/ui/SessionViewModel.kt` (único arquivo lido nesta investigação) e confirmei que ele não
+  expõe nenhum método de pausa manual, só o relógio automático. Essa checagem por leitura de código
+  é exigida pela própria regra deste documento: um achado em `findings.md` só existe confirmado por
+  leitura de código ou teste ao vivo, nunca por dedução a partir de outro documento.
+
+### <a id="2026-08-22-padrao-de-navegacao-hierarquica-e-revisao-das-pendencias-de-tela"></a>2026-08-22 — Padrão de navegação hierárquica e revisão das pendências de tela
+
+**Levou a:** [decisions/0030-padrao-de-navegacao-hierarquica-de-conteudo.md](<../decisions/0030-padrao-de-navegacao-hierarquica-de-conteudo.md>)
+
+*Resumo simples:* decisão de como a navegação entre instância, tema e evento se comporta
+(expansão em acordeão, não troca de tela inteira) — resolvida só com a lógica interna da
+Especificação, sem fonte externa. No processo de revisar as pendências de desenho visual
+relacionadas, três delas ("Ponto de início"/"Configuração da sessão" serem a mesma tela; quantas
+telas físicas o Grupo B vira; se o botão de pausar precisa de confirmação) se revelaram já
+resolvidas por documentos existentes, nunca conectadas antes — nenhuma delas exigiu decisão nova.
+
+*Detalhe técnico:*
+- Duas alternativas reais comparadas pro padrão de navegação: troca de tela inteira a cada nível,
+  ou acordeão (expandir em vez de trocar). Decisão pelo acordeão apoiada em duas exigências já
+  fixadas na Especificação — `EI-NAV-03` (a escolha de alcance da sessão precisa ficar presa
+  visualmente ao item que a originou) e `DA-NAV-02`/`DA-NAV-03` (busca única, que o pacote
+  `search` já implementa de forma genérica sobre qualquer lista) — sem precisar de fonte externa.
+- Tentativa de embasar com fonte externa (Nielsen Norman Group, citando dois estudos acadêmicos)
+  pra um ponto secundário (padrão de navegação hierárquica em geral) — descartada depois de
+  checar o peso de cada fonte: um dos dois estudos citados pelo NN/g era, na verdade, um
+  relatório técnico da Universidade de Maryland (1999), nunca publicado em revista revisada por
+  pares, apesar de citado como se fosse; o outro (Puerta Melguizo et al., 2012, Behaviour &
+  Information Technology) tinha dado bibliográfico sólido, mas o texto literal do resumo nunca foi
+  confirmado (cinco tentativas de acesso, todas bloqueadas). Decisão final não usa nenhuma citação
+  externa — só a lógica interna já registrada acima.
+- Um achado revelou uma pendência maior, fora do escopo desta ADR: o acordeão precisa renderizar
+  de forma preguiçosa (sem desenhar tudo de uma vez conforme mais níveis abrem), mas o nome exato
+  da peça que faz isso depende de qual ferramenta de tela o módulo `app` usa (Jetpack Compose ou
+  Views tradicionais) — decisão que nenhum documento do projeto tinha tomado ainda
+  (`decisions/0003` registra as duas opções, sem escolher). Virou pendência nova em `tasks.md`,
+  fora desta ADR e desta worktree (mesmo porte de `decisions/0001`, linguagem do aplicativo).
+- Releitura direta da Especificação (`EI-NAV-05`) revelou que "Ponto de início" e "Configuração
+  da sessão" já são a mesma tela — "todos são decididos nessa mesma tela, no mesmo momento" — sem
+  nenhuma ambiguidade. Essa pergunta já vinha registrada como pendência aberta desde antes desta
+  sessão (rascunho de trabalho, nunca commitado), sem que ninguém tivesse conectado a resposta já
+  existente.
+- Releitura de `decisions/0022` (já aceita, de 15-08-2026) confirmou que "quantas telas físicas o
+  Grupo B vira" também já tinha resposta: `SessionScreen` é um tipo fechado, uma variante por
+  entrada da tabela DA-RET — uma tela só, mudando de conteúdo por dentro. Essa mesma frase
+  desatualizada tinha sobrevivido em `tasks.md` desde 15-08-2026 (parte do commit que decidiu
+  `decisions/0029`), nunca corrigida até esta revisão — achado registrado com commit próprio,
+  separado do resto desta tarefa, por se tratar de conteúdo real anterior, não rascunho do dia.
+- Releitura do Documento de Conceito (seção 12) e de `EI-PAU-03` confirmou que o botão de pausar
+  também já tinha resposta: só "sair" exige confirmação explícita, porque apaga algo irreversível;
+  pausar não apaga nada, então age direto, sem confirmação. Único ponto genuíno que sobrou sem
+  resposta em documento nenhum, entre as pendências de tela revisadas: o indicador de conexão
+  Bluetooth/NFC (`DA-RET-06`).
+- Padrão repetido três vezes na mesma tarefa (muitas entradas do acordeão, mesma tela de
+  início/configuração, telas físicas do Grupo B) — em nenhum dos três havia de fato uma escolha
+  entre alternativas reais a fazer; a documentação já respondia, só não tinha sido lida com
+  atenção antes de listar como pendência.
+- O achado sobre o Grupo B (`decisions/0022`, 15-08-2026, já fecha o agrupamento de 10 das 17
+  entradas de tela) não estava isolado em `tasks.md` — a mesma frase, tratando o agrupamento das
+  17 entradas como inteiramente em aberto, sobrevivia em mais quatro lugares. O critério pra
+  decidir entre corrigir direto ou acrescentar nota de acompanhamento numa ADR não é "já foi
+  mesclada"/"já foi revisada" — é se a informação que falta já existia no momento em que aquele
+  texto foi escrito. `decisions/0003` (13-08-2026) e a seção "Layout" de `architecture.md` (mesma
+  data) são de antes de `decisions/0022` existir — a afirmação era razoável quando escrita, só
+  ficou desatualizada depois; nota de acompanhamento datada é o tratamento certo, sem tocar no
+  texto original. Já `decisions/0029` (18-08-2026) e `decisions/0031` (22-08-2026) — e o trecho
+  correspondente de `concept.md` — foram escritos depois de `decisions/0022` já existir: a
+  informação certa já estava disponível, só não foi checada antes de escrever. Isso é erro de
+  nascença, não fato novo surgido depois — corrigidos direto, sem nota de acompanhamento nem
+  palavra "corrigido" no changelog, mesmo tratamento já dado a "Ponto de início"/botão de pausar
+  mais cedo nesta sessão. `decisions/0031` tinha ganhado nota de acompanhamento numa primeira
+  tentativa, corrigida depois que a data de `decisions/0022` foi checada de verdade contra a data
+  da própria ADR. Mesmo padrão já visto três vezes antes nesta mesma tarefa (busca aproximada,
+  "Ponto de início", Grupo B): tratar como pendência ou como decisão nova algo que já tinha
+  resposta, por não conferir contra o que já existia. Confirmado por leitura direta de cada
+  arquivo (`grep` pela frase exata) e checagem de data por commit (`git log`), não por suposição
+  de que toda ocorrência pedia o mesmo tratamento.
+
 ## Controle de versão
 
 <!-- uma linha por versão publicada deste documento, mais antiga no
@@ -825,3 +930,6 @@ sem reescrever) também conta como mudança de conteúdo real. -->
 | 0.13.0 | 18-08-2026 | Acrescentada a investigação que formaliza a forma de `SessionState`, `content` e do construtor de `SessionViewModel` — releitura completa sem código, mais pesquisa externa nova (guia oficial de arquitetura do Android). | Resolução de [decisions/0026](<../decisions/0026-forma-de-sessionstate-tipos-de-content-e-construtor-do-viewmodel.md>) |
 | 0.14.0 | 18-08-2026 | Acrescentada a investigação da escrita do teste de `SessionViewModel.kt` — divergência real encontrada ao rodar contra o código, comparação dos dois desenhos de `SessionState`, correção via `decisions/0027`. | Quarto e último teste real do módulo `app` escrito e rodado |
 | 0.15.0 | 18-08-2026 | Acrescentada a investigação da combinação do recorte de temas e de eventos numa sessão multi-tema, incluindo as duas leituras corrigidas antes de fechar no desenho certo (conclusão final só apontada, não repetida — está em `decisions/0028`, Contexto) e a tentativa de pesquisa externa pra decisão de reaproveitar `sessionScope`, descartada por não ter fonte no mesmo padrão das demais citações do módulo. | Resolução de [decisions/0028](<../decisions/0028-combinacao-do-recorte-de-temas-e-eventos-numa-sessao.md>) |
+| 0.16.0 | 18-08-2026 | Acrescentada a investigação da arquitetura de informação das telas do motor — duas lacunas encontradas ao reler o Documento de Conceito contra os documentos derivados, uma resolvida por citação (mecanismo já existente) e outra confirmada como achado de verdade por leitura de código. | Montagem do passo 1 do método de desenho visual já registrado em `architecture.md`; achado novo em `findings.md` |
+| 0.17.0 | 22-08-2026 | Acrescentada a investigação do padrão de navegação hierárquica — decisão apoiada só em lógica interna, tentativa de fonte externa descartada por peso insuficiente, e três pendências de tela que já estavam resolvidas em outros documentos, nunca conectadas antes. | Resolução de [decisions/0030](<../decisions/0030-padrao-de-navegacao-hierarquica-de-conteudo.md>) |
+| 0.20.0 | 22-08-2026 | Estendida a mesma investigação: o achado sobre o Grupo B não estava isolado em `tasks.md` — a mesma frase imprecisa se repetia em mais quatro lugares. Critério corrigido: o que separa nota de acompanhamento de correção direta é a data (a informação certa já existia antes daquele texto ser escrito?), não se a worktree já foi mesclada — `decisions/0031` tinha ganhado nota de acompanhamento por engano, corrigido depois de checar a data de verdade. | Auditoria completa por `grep` da frase exata e checagem de data por commit, ao reconciliar esta worktree com `develop` |

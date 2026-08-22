@@ -150,6 +150,22 @@ desmembrar o módulo `app` em módulos de funcionalidade menores, quando o
 desenho visual das telas (pendência em `tasks.md`) definir como as 17
 entradas de tela se agrupam fisicamente.
 
+**Nota de acompanhamento (22-08-2026):**
+
+*Resumo simples:* o trecho acima trata o agrupamento das 17 entradas de
+tela como inteiramente em aberto — não é mais o caso pra 10 delas.
+
+*Detalhe técnico:*
+[decisions/0022](<0022-conteudo-do-estado-exposto-pelo-viewmodel.md>)
+já fecha essa pergunta pras 10 entradas que são variações de conteúdo
+dentro da sessão em jogo (DA-RET-05, 06, 07, 08, 09, 10, 11, 12, 13 e
+15): `SessionScreen` é um tipo fechado, uma variante por entrada, uma
+tela só — nenhum agrupamento novo a decidir aí. Só as outras 7
+entradas (páginas de navegação de fato) continuam de fato sem
+agrupamento físico decidido. Não muda a decisão desta ADR (o módulo
+`app` continua sem desmembrar), só precisa a extensão real da
+pendência que a motivava.
+
 ## Referências
 
 Fontes externas citadas no Contexto e na Decisão, no formato definido

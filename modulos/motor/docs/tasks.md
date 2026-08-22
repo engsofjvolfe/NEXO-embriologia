@@ -6,7 +6,7 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Tasks |
-| Versão | 0.41.0 |
+| Versão | 0.46.0 |
 | Data | 22-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
@@ -183,13 +183,12 @@ Convenção dos códigos citados aqui:
       cá, porque agora existe um módulo de verdade a que ela pertence
       — antes disso, era a única exclusão de escopo da cascata do
       motor sem nenhum documento apontando pra onde ela deveria ser
-      resolvida. Já decidido: essa camada mora dentro do módulo motor,
-      como uma seção própria em `architecture.md`
+      resolvida. Essa camada mora dentro do módulo motor, como uma
+      seção própria em `architecture.md`
       ("[Interface](architecture.md#interface)"), separada do "núcleo
-      do motor" — não vira módulo separado, porque a única coisa que
-      varia de fato entre instâncias é o conteúdo (fotogramas, textos),
-      não a aparência das telas; existindo só uma aparência
-      compartilhada, não há fronteira real que justifique separar.
+      do motor" — não vira módulo separado; motivo completo,
+      alternativas descartadas e adiadas em
+      [decisions/0029](<../decisions/0029-aparencia-visual-das-telas-mora-no-motor.md>).
       Direção provável pra essa aparência, ainda não pesquisada nem
       decidida de verdade: uma casca única, neutra, no padrão Material
       Design do Google — decisão de fato (mockup, o que for necessário)
@@ -200,13 +199,22 @@ Convenção dos códigos citados aqui:
       conteúdo dentro da tela principal de jogo (referência, aguardando
       tentativa, confirmação de acerto, negativa, dica, sugestão de
       estudo, resumo de evento, mensagem de pulo, síntese de cadeia,
-      confirmação de saída) — como agrupar esses estados em telas
-      físicas, e o gatilho exato por toque que move de um pro outro,
-      são parte do próprio desenho visual pendente (o gatilho por
-      temporizador, usado só pela ociosidade, já está resolvido,
-      independente da aparência — ver
-      [decisions/0024](<../decisions/0024-mecanismo-do-gatilho-de-ociosidade.md>));
-      o conteúdo de cada um já está fechado
+      confirmação de saída) — como esses estados se agrupam já está
+      decidido
+      ([decisions/0022](<../decisions/0022-conteudo-do-estado-exposto-pelo-viewmodel.md>):
+      `SessionScreen` é um tipo fechado, uma variante por entrada da
+      tabela DA-RET — uma tela só, mudando de conteúdo por dentro); só
+      o gatilho exato por toque que move de um pro outro segue
+      pendente (o gatilho por temporizador, usado só pela ociosidade,
+      já está resolvido, independente da aparência — ver
+      [decisions/0024](<../decisions/0024-mecanismo-do-gatilho-de-ociosidade.md>)).
+      Dentro disso, o padrão de navegação entre instância, tema e
+      evento — expansão em acordeão, nunca troca de tela inteira,
+      igual em celular e tablet, incluindo o caso de um nível com
+      muitas entradas (resolvido pela busca aproximada já existente,
+      sem pendência nova) — já está decidido, ver
+      [decisions/0030](<../decisions/0030-padrao-de-navegacao-hierarquica-de-conteudo.md>).
+      O conteúdo de cada estado já está fechado
       ([decisions/0022](<../decisions/0022-conteudo-do-estado-exposto-pelo-viewmodel.md>)),
       e o `ViewModel` já expõe um método por ação prevista na
       Especificação (pular, reconhecer uma tela transitória, continuar
@@ -227,6 +235,16 @@ Convenção dos códigos citados aqui:
       seção 8 ("a tela... confirma, não anuncia") — esse indicador
       precisa ser discreto, nunca virar uma explicação ou aviso que
       compita com essa regra.
+
+      O botão de pausar (Documento de Conceito, seção 12 — "uma ação
+      explícita de pausar", distinta do gatilho automático de
+      ociosidade) depende de código que ainda não existe:
+      `SessionViewModel.kt` hoje só implementa o gatilho automático,
+      sem nenhum método equivalente pra um pedido direto da pessoa —
+      achado confirmado em
+      [findings.md](<findings.md#2026-08-18-sessionviewmodel-sem-acao-de-pausar-manual>).
+      O desenho visual desse controle não tem o que chamar enquanto
+      esse método não for escrito.
 
 
 - [ ] **Escrever os testes instrumentados de `ReportPdfRenderer.kt` e
@@ -645,4 +663,9 @@ como mudança de conteúdo real. -->
 | 0.38.0 | 18-08-2026 | Pendência "Escrever o teste de `SessionViewModel.kt`" resolvida — movida para Resolvidas, dez testes escritos e rodados. Ponteiro do item "Formalizar, via ADR, a forma exata de `SessionState`..." atualizado com a correção de `decisions/0027`. | Quarto e último teste real do módulo `app` escrito e rodado; achado durante a escrita levou a [decisions/0027](<../decisions/0027-sessionstate-referencia-o-evento-atual-pelo-nome.md>) |
 | 0.39.0 | 18-08-2026 | Pendência "Decidir, via ADR, como combinar o recorte de temas..." resolvida — movida para Resolvidas. Pendência nova "Escrever o código e o teste de `sessionEventNames`" acrescentada em seu lugar. | Resolução de [decisions/0028](<../decisions/0028-combinacao-do-recorte-de-temas-e-eventos-numa-sessao.md>) |
 | 0.40.0 | 18-08-2026 | Pendência "Escrever o código e o teste de `sessionEventNames`" resolvida — movida para Resolvidas, quatro testes escritos e rodados. | `sessionEventNames` implementada e testada, sem quebra na suíte completa |
-| 0.41.0 | 22-08-2026 | Pendência nova "Decidir a ferramenta de desenho de tela do módulo `app`" acrescentada já resolvida, movida direto para Resolvidas — nunca existiu aqui como "Em aberto", porque foi identificada numa worktree separada, ainda não mesclada nesta. | Resolução de [decisions/0031](<../decisions/0031-jetpack-compose-como-ferramenta-de-desenho-de-tela.md>) |
+| 0.41.0 | 18-08-2026 | Pendência "Desenhar a aparência visual das telas do motor" ganha ponteiro pra ADR: o trecho "já decidido... não há fronteira real que justifique separar" passa a apontar pra [decisions/0029](<../decisions/0029-aparencia-visual-das-telas-mora-no-motor.md>), no lugar da frase solta sem análise registrada. | Resolução de [decisions/0029](<../decisions/0029-aparencia-visual-das-telas-mora-no-motor.md>) |
+| 0.42.0 | 22-08-2026 | Pendência "Desenhar a aparência visual das telas do motor" ganha ponteiro pra ADR nova (padrão de navegação por acordeão, incluindo o caso de um nível com muitas entradas, resolvido pela busca aproximada já existente, sem pendência própria), e ponteiro pro achado já registrado sobre o botão de pausar ainda sem código correspondente, que não constava aqui. | Resolução de [decisions/0030](<../decisions/0030-padrao-de-navegacao-hierarquica-de-conteudo.md>) |
+| 0.43.0 | 22-08-2026 | Pendência nova "Decidir a ferramenta de desenho de tela do módulo `app` (Jetpack Compose ou Views tradicionais)" acrescentada — revelada ao decidir que o acordeão de `decisions/0030` precisa renderizar de forma preguiçosa, mecanismo cujo nome exato depende dessa escolha, ainda não feita em nenhum documento. | Achado durante a escrita de [decisions/0030](<../decisions/0030-padrao-de-navegacao-hierarquica-de-conteudo.md>) |
+| 0.44.0 | 22-08-2026 | Corrigido: o trecho "como agrupar esses estados em telas físicas... parte do desenho visual pendente" estava desatualizado desde 15-08-2026 — `decisions/0022` já resolve isso (`SessionScreen`, tipo fechado, uma variante por entrada da tabela DA-RET, uma tela só) e nunca tinha sido conectado aqui. | Achado ao revisar a pendência por completo, na mesma sessão da ADR 0030 |
+| 0.45.0 | 22-08-2026 | Pendência nova "Decidir a ferramenta de desenho de tela do módulo `app`" acrescentada já resolvida, movida direto para Resolvidas — nunca existiu aqui como "Em aberto", porque foi identificada numa worktree separada, ainda não mesclada nesta. | Resolução de [decisions/0031](<../decisions/0031-jetpack-compose-como-ferramenta-de-desenho-de-tela.md>) |
+| 0.46.0 | 22-08-2026 | Corrigida a duplicidade que a mescla de `develop` trouxe: o item "Decidir a ferramenta de desenho de tela do módulo `app`" acrescentado na linha `0.43.0` desta mesma tabela saiu de "Em aberto" — já resolvido em `develop` (linha `0.45.0`), enquanto essa worktree ainda não tinha essa informação. | Reconciliação ao mesclar `develop` (`decisions/0031`) nesta worktree |

@@ -102,6 +102,16 @@
   cada tema, pra uma sessão que atravessa mais de um assunto, decidido
   e já escrito, com teste rodado de verdade — ver
   [modulos/motor/decisions/0028](<modulos/motor/decisions/0028-combinacao-do-recorte-de-temas-e-eventos-numa-sessao.md>).
+- Responsabilidade pela aparência visual das telas do motor decidida —
+  mora dentro do próprio módulo, numa casca única compartilhada por
+  toda instância, nunca num módulo separado — ver
+  [modulos/motor/decisions/0029](<modulos/motor/decisions/0029-aparencia-visual-das-telas-mora-no-motor.md>).
+  O desenho de fato dessa aparência (cor, fonte, layout de cada tela)
+  segue como pendência própria.
+- Padrão de navegação hierárquica das telas do motor (instância, tema,
+  evento) decidido — expansão em acordeão, igual em celular e tablet,
+  ver
+  [modulos/motor/decisions/0030](<modulos/motor/decisions/0030-padrao-de-navegacao-hierarquica-de-conteudo.md>).
 - Jetpack Compose decidido como ferramenta de desenho de tela do
   módulo `app`, destravando o desenho visual das telas — ver
   [modulos/motor/decisions/0031](<modulos/motor/decisions/0031-jetpack-compose-como-ferramenta-de-desenho-de-tela.md>).

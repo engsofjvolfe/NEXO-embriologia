@@ -6,8 +6,8 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Architecture |
-| Versão | 0.32.0 |
-| Data | 18-08-2026 |
+| Versão | 0.33.0 |
+| Data | 22-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
 > Descreve como o módulo é construído por dentro — layout de arquivos,
@@ -771,7 +771,10 @@ não um módulo separado (ver decisão registrada em `tasks.md`).
 *Em detalhe técnico:* o fluxo funcional de cada tela (quais existem, o
 que cada uma mostra) já está fixado no
 [Projeto Arquitetônico](<../../../docs/docs-VMODEL-visao-geral/4 - projeto-arquitetonico.md>),
-seção 6.6. A aparência visual (cor, fonte, layout) não está decidida —
+seção 6.6. A tecnologia usada pra desenhar essa interface é Jetpack
+Compose, não o sistema de Views tradicional — ver
+[decisions/0031](<../decisions/0031-jetpack-compose-como-ferramenta-de-desenho-de-tela.md>).
+A aparência visual em si (cor, fonte, layout) continua sem decisão —
 pendência registrada em [`tasks.md`](tasks.md). Direção provável,
 ainda não pesquisada nem decidida de verdade: uma casca única,
 neutra, no padrão Material Design do Google — reaproveitada por toda
@@ -1033,3 +1036,4 @@ com o campo Versão da tabela de cabeçalho, que sempre reflete a
 | 0.30.0 | 18-08-2026 | Forma exata dos campos de `SessionState`, `SessionEvent`, dos tipos de `content` (`Frame`, `ContentEvent`, `ContentTheme`, `ContentInstance`) e do construtor de `SessionViewModel` acrescentada às seções dos pacotes `session`, `content` e "Ligação com o núcleo do motor" — antes só o nome dos tipos estava registrado, nunca os campos. | Resolução de [decisions/0026](<../decisions/0026-forma-de-sessionstate-tipos-de-content-e-construtor-do-viewmodel.md>) |
 | 0.31.0 | 18-08-2026 | Seção do pacote `session` corrigida: `SessionState` carrega `expectedEventName`, não `sessionEvents`/`currentEventIndex` — corrige uma duplicação de dado já registrada em `SessionConfiguration.eventNames`. Seção "Ligação com o núcleo do motor" corrigida com os nomes reais do construtor (`instance`, `pausedStateFile`, `now`). | Resolução de [decisions/0027](<../decisions/0027-sessionstate-referencia-o-evento-atual-pelo-nome.md>); achado ao rodar o teste de `SessionViewModel.kt` contra o código real |
 | 0.32.0 | 18-08-2026 | Acrescentado o mecanismo que combina o recorte de temas com o recorte de eventos de cada tema numa sessão que atravessa mais de um tema (`sessionEventNames`, `SessionScope.kt`) — antes só o recorte de um nível só estava documentado. | Resolução de [decisions/0028](<../decisions/0028-combinacao-do-recorte-de-temas-e-eventos-numa-sessao.md>) |
+| 0.33.0 | 22-08-2026 | Seção "Interface" ganha a tecnologia de renderização decidida (Jetpack Compose), separada da aparência visual em si, que continua pendente. | Resolução de [decisions/0031](<../decisions/0031-jetpack-compose-como-ferramenta-de-desenho-de-tela.md>) |

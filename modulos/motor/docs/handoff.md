@@ -6,8 +6,8 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Handoff |
-| Versão | 0.29.0 |
-| Data | 18-08-2026 |
+| Versão | 0.30.0 |
+| Data | 22-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
 > Resumo curto de "onde este módulo está" e "o que fazer a seguir" nele.
@@ -102,6 +102,9 @@
 - [decisions/0028-combinacao-do-recorte-de-temas-e-eventos-numa-sessao.md](<../decisions/0028-combinacao-do-recorte-de-temas-e-eventos-numa-sessao.md>) —
   combinação do recorte de temas e de eventos numa sessão multi-tema
   decidida.
+- [decisions/0031-jetpack-compose-como-ferramenta-de-desenho-de-tela.md](<../decisions/0031-jetpack-compose-como-ferramenta-de-desenho-de-tela.md>) —
+  Jetpack Compose escolhido como ferramenta de desenho de tela do
+  módulo `app`.
 - [findings.md](findings.md) — achados confirmados até agora.
 - [analysis.md](analysis.md) — registro de como cada investigação
   deste módulo foi feita.
@@ -152,3 +155,4 @@ com o campo Versão da tabela de cabeçalho, que sempre reflete a
 | 0.27.0 | 18-08-2026 | Acrescentado ponteiro para decisions/0027. | Quarto e último teste real do módulo `app` escrito e rodado (`SessionViewModel.kt`, dez testes) — divergência real entre a ADR 0026 e o código encontrada ao rodar o teste, corrigida via decisions/0027 (código já estava certo, a ADR que precisava se ajustar) |
 | 0.28.0 | 18-08-2026 | Acrescentado ponteiro para decisions/0028. | Combinação do recorte de temas e de eventos numa sessão multi-tema decidida — escrita do código (`sessionEventNames`) e do teste seguem como pendência própria em `tasks.md` |
 | 0.29.0 | 18-08-2026 | Nenhum ponteiro novo (decisions/0028 já citada). | `sessionEventNames` implementada e testada (quatro testes) — pendência de código e teste, aberta na versão anterior, resolvida |
+| 0.30.0 | 22-08-2026 | Acrescentado ponteiro para decisions/0031. | Jetpack Compose decidido como ferramenta de desenho de tela do módulo `app`, com fonte oficial pra cada ponto — não decide aparência visual em si, que segue pendente em `tasks.md` |

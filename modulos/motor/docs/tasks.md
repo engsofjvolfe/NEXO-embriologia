@@ -6,8 +6,8 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Tasks |
-| Versão | 0.40.0 |
-| Data | 18-08-2026 |
+| Versão | 0.41.0 |
+| Data | 22-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
 > Lista mutável de pendências só deste módulo. Lida depois de
@@ -549,6 +549,14 @@ Convenção dos códigos citados aqui:
       "org.nexo.motor.core.session.SessionScopeTest"`, `BUILD
       SUCCESSFUL`; suíte completa (`:core:test :app:testDebugUnitTest`)
       rodada de novo, sem quebra.
+- [x] **Decidir a ferramenta de desenho de tela do módulo `app`
+      (Jetpack Compose ou Views tradicionais).** Resolvido — ver
+      [decisions/0031](<../decisions/0031-jetpack-compose-como-ferramenta-de-desenho-de-tela.md>).
+      Pendência identificada durante o desenho do padrão de navegação
+      hierárquica de conteúdo, numa worktree separada (ainda não
+      mesclada em `develop` no momento em que esta foi resolvida) —
+      por isso nunca chegou a aparecer aqui como "Em aberto" antes de
+      já vir riscada.
 
 ## Referências
 
@@ -637,3 +645,4 @@ como mudança de conteúdo real. -->
 | 0.38.0 | 18-08-2026 | Pendência "Escrever o teste de `SessionViewModel.kt`" resolvida — movida para Resolvidas, dez testes escritos e rodados. Ponteiro do item "Formalizar, via ADR, a forma exata de `SessionState`..." atualizado com a correção de `decisions/0027`. | Quarto e último teste real do módulo `app` escrito e rodado; achado durante a escrita levou a [decisions/0027](<../decisions/0027-sessionstate-referencia-o-evento-atual-pelo-nome.md>) |
 | 0.39.0 | 18-08-2026 | Pendência "Decidir, via ADR, como combinar o recorte de temas..." resolvida — movida para Resolvidas. Pendência nova "Escrever o código e o teste de `sessionEventNames`" acrescentada em seu lugar. | Resolução de [decisions/0028](<../decisions/0028-combinacao-do-recorte-de-temas-e-eventos-numa-sessao.md>) |
 | 0.40.0 | 18-08-2026 | Pendência "Escrever o código e o teste de `sessionEventNames`" resolvida — movida para Resolvidas, quatro testes escritos e rodados. | `sessionEventNames` implementada e testada, sem quebra na suíte completa |
+| 0.41.0 | 22-08-2026 | Pendência nova "Decidir a ferramenta de desenho de tela do módulo `app`" acrescentada já resolvida, movida direto para Resolvidas — nunca existiu aqui como "Em aberto", porque foi identificada numa worktree separada, ainda não mesclada nesta. | Resolução de [decisions/0031](<../decisions/0031-jetpack-compose-como-ferramenta-de-desenho-de-tela.md>) |

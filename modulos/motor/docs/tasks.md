@@ -6,7 +6,7 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Tasks |
-| Versão | 0.44.0 |
+| Versão | 0.46.0 |
 | Data | 22-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
@@ -170,29 +170,6 @@ Convenção dos códigos citados aqui:
       usada no Projeto Detalhado (PD-IMP-05, PD-IMP-07): é regra de
       terceiro (ANATEL), pode mudar — reconfirmar na fonte oficial
       antes de agir (comprar homologação, iniciar processo).
-
-- [ ] **Decidir a ferramenta de desenho de tela do módulo `app`
-      (Jetpack Compose ou Views tradicionais).**
-
-      *Resumo simples:* nenhum documento do projeto escolheu ainda com
-      qual das duas famílias de ferramenta do Android as telas do
-      aplicativo são desenhadas de verdade.
-
-      *Detalhe técnico:*
-      [decisions/0003](<../decisions/0003-estrutura-de-modulos-do-aplicativo.md>)
-      registra "telas (Activities/Composables)" sem decidir entre as
-      duas;
-      [decisions/0012](<../decisions/0012-versoes-de-plataforma-e-build-do-modulo-app.md>)
-      fixa só versões de SDK e do Android Gradle Plugin, sem tocar
-      nisso. Revelada durante a escrita de
-      [decisions/0030](<../decisions/0030-padrao-de-navegacao-hierarquica-de-conteudo.md>)
-      (padrão de navegação em acordeão): essa ADR já decide que a
-      estrutura precisa renderizar de forma preguiçosa (sem desenhar
-      tudo de uma vez conforme mais níveis abrem), mas o nome exato da
-      peça que faz isso depende desta escolha, ainda não feita. Sem
-      ela, `MainActivity.kt` (hoje sem nenhuma chamada de tela, ver
-      decisions/0012) e qualquer tela nova continuam sem fundação pra
-      começar.
 
 - [ ] **Desenhar a aparência visual das telas do motor.**
 
@@ -590,6 +567,14 @@ Convenção dos códigos citados aqui:
       "org.nexo.motor.core.session.SessionScopeTest"`, `BUILD
       SUCCESSFUL`; suíte completa (`:core:test :app:testDebugUnitTest`)
       rodada de novo, sem quebra.
+- [x] **Decidir a ferramenta de desenho de tela do módulo `app`
+      (Jetpack Compose ou Views tradicionais).** Resolvido — ver
+      [decisions/0031](<../decisions/0031-jetpack-compose-como-ferramenta-de-desenho-de-tela.md>).
+      Pendência identificada durante o desenho do padrão de navegação
+      hierárquica de conteúdo, numa worktree separada (ainda não
+      mesclada em `develop` no momento em que esta foi resolvida) —
+      por isso nunca chegou a aparecer aqui como "Em aberto" antes de
+      já vir riscada.
 
 ## Referências
 
@@ -682,3 +667,5 @@ como mudança de conteúdo real. -->
 | 0.42.0 | 22-08-2026 | Pendência "Desenhar a aparência visual das telas do motor" ganha ponteiro pra ADR nova (padrão de navegação por acordeão, incluindo o caso de um nível com muitas entradas, resolvido pela busca aproximada já existente, sem pendência própria), e ponteiro pro achado já registrado sobre o botão de pausar ainda sem código correspondente, que não constava aqui. | Resolução de [decisions/0030](<../decisions/0030-padrao-de-navegacao-hierarquica-de-conteudo.md>) |
 | 0.43.0 | 22-08-2026 | Pendência nova "Decidir a ferramenta de desenho de tela do módulo `app` (Jetpack Compose ou Views tradicionais)" acrescentada — revelada ao decidir que o acordeão de `decisions/0030` precisa renderizar de forma preguiçosa, mecanismo cujo nome exato depende dessa escolha, ainda não feita em nenhum documento. | Achado durante a escrita de [decisions/0030](<../decisions/0030-padrao-de-navegacao-hierarquica-de-conteudo.md>) |
 | 0.44.0 | 22-08-2026 | Corrigido: o trecho "como agrupar esses estados em telas físicas... parte do desenho visual pendente" estava desatualizado desde 15-08-2026 — `decisions/0022` já resolve isso (`SessionScreen`, tipo fechado, uma variante por entrada da tabela DA-RET, uma tela só) e nunca tinha sido conectado aqui. | Achado ao revisar a pendência por completo, na mesma sessão da ADR 0030 |
+| 0.45.0 | 22-08-2026 | Pendência nova "Decidir a ferramenta de desenho de tela do módulo `app`" acrescentada já resolvida, movida direto para Resolvidas — nunca existiu aqui como "Em aberto", porque foi identificada numa worktree separada, ainda não mesclada nesta. | Resolução de [decisions/0031](<../decisions/0031-jetpack-compose-como-ferramenta-de-desenho-de-tela.md>) |
+| 0.46.0 | 22-08-2026 | Corrigida a duplicidade que a mescla de `develop` trouxe: o item "Decidir a ferramenta de desenho de tela do módulo `app`" acrescentado na linha `0.43.0` desta mesma tabela saiu de "Em aberto" — já resolvido em `develop` (linha `0.45.0`), enquanto essa worktree ainda não tinha essa informação. | Reconciliação ao mesclar `develop` (`decisions/0031`) nesta worktree |

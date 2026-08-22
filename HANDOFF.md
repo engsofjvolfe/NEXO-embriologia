@@ -112,6 +112,9 @@
   evento) decidido — expansão em acordeão, igual em celular e tablet,
   ver
   [modulos/motor/decisions/0030](<modulos/motor/decisions/0030-padrao-de-navegacao-hierarquica-de-conteudo.md>).
+- Jetpack Compose decidido como ferramenta de desenho de tela do
+  módulo `app`, destravando o desenho visual das telas — ver
+  [modulos/motor/decisions/0031](<modulos/motor/decisions/0031-jetpack-compose-como-ferramenta-de-desenho-de-tela.md>).
 - [TASKS.md, Resolvidas](TASKS.md#resolvidas) — pendências já corrigidas.
 
 ## Próximo passo

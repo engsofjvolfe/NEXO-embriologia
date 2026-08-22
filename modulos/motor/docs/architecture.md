@@ -6,7 +6,7 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Architecture |
-| Versão | 0.36.0 |
+| Versão | 0.37.0 |
 | Data | 22-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
@@ -772,7 +772,10 @@ não um módulo separado — motivo completo em
 *Em detalhe técnico:* o fluxo funcional de cada tela (quais existem, o
 que cada uma mostra) já está fixado no
 [Projeto Arquitetônico](<../../../docs/docs-VMODEL-visao-geral/4 - projeto-arquitetonico.md>),
-seção 6.6. A aparência visual (cor, fonte, layout) não está decidida —
+seção 6.6. A tecnologia usada pra desenhar essa interface é Jetpack
+Compose, não o sistema de Views tradicional — ver
+[decisions/0031](<../decisions/0031-jetpack-compose-como-ferramenta-de-desenho-de-tela.md>).
+A aparência visual em si (cor, fonte, layout) continua sem decisão —
 pendência registrada em [`tasks.md`](tasks.md). Direção provável,
 ainda não pesquisada nem decidida de verdade: uma casca única,
 neutra, no padrão Material Design do Google — reaproveitada por toda
@@ -1051,3 +1054,4 @@ com o campo Versão da tabela de cabeçalho, que sempre reflete a
 | 0.34.0 | 22-08-2026 | Seção "Interface" precisada: dentro do passo 2 (wireframe), o padrão de navegação entre instância, tema e evento (expansão em acordeão, igual em celular e tablet) já está decidido, substituindo a afirmação de que nenhuma das quatro etapas tinha sido executada. | Resolução de [decisions/0030](<../decisions/0030-padrao-de-navegacao-hierarquica-de-conteudo.md>) |
 | 0.35.0 | 22-08-2026 | Seção "Interface" registra que "Ponto de início" e "Configuração da sessão" já são a mesma tela — a Especificação (`EI-NAV-05`) já diz isso direto ("a tela de início... todos são decididos nessa mesma tela, no mesmo momento"). | Leitura direta da Especificação, ao revisar o padrão de navegação de decisions/0030 |
 | 0.36.0 | 22-08-2026 | Seção "Interface" registra que o botão de pausar já não precisa de confirmação nenhuma (`EI-PAU-03` só exige isso pra sair) — falta só o método novo em `SessionViewModel.kt`, não desenho. | Leitura direta da Especificação e do Documento de Conceito, seção 12 |
+| 0.37.0 | 22-08-2026 | Seção "Interface" ganha a tecnologia de renderização decidida (Jetpack Compose), separada da aparência visual em si, que continua pendente. | Resolução de [decisions/0031](<../decisions/0031-jetpack-compose-como-ferramenta-de-desenho-de-tela.md>) |

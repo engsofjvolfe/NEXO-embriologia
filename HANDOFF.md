@@ -115,6 +115,15 @@
 - Jetpack Compose decidido como ferramenta de desenho de tela do
   módulo `app`, destravando o desenho visual das telas — ver
   [modulos/motor/decisions/0031](<modulos/motor/decisions/0031-jetpack-compose-como-ferramenta-de-desenho-de-tela.md>).
+- Sistema de conformidade do `CLAUDE.md` instalado: hooks do Claude
+  Code (`.claude/hooks/`, `.claude/settings.json`) e do git nativo
+  (`scripts/hooks/commit-msg`, `pre-push`, `pre-rebase`, ao lado do
+  `pre-commit` já existente) transformam regras do `CLAUDE.md` em
+  travas automáticas -- leitura obrigatória antes de editar, worktree
+  própria, formato de commit, nunca reescrever `develop`/`main`, entre
+  outras. Ver `MANUAL.md` da instalação (raiz do repositório) pra
+  referência completa; regra que muda no `CLAUDE.md` sem hook
+  correspondente agora recebe aviso automático no commit.
 - [TASKS.md, Resolvidas](TASKS.md#resolvidas) — pendências já corrigidas.
 
 ## Próximo passo

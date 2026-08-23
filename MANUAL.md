@@ -187,6 +187,14 @@ pode pedir pra mudar qualquer critério específico a qualquer momento.
 
 ## 7. Instalação
 
+**Já instalado neste repositório** -- os passos abaixo já foram
+seguidos aqui (`.claude/hooks/`, `.claude/settings.json`,
+`scripts/hooks/commit-msg`/`pre-push`/`pre-rebase`, `.github/`,
+`.vale.ini`/`.vale/` já existem nos lugares certos, `core.hooksPath`
+segue apontando pra `scripts/hooks`, sem alteração). Esta seção
+continua valendo como referência de como foi feito, ou como roteiro
+pra instalar o mesmo sistema num outro projeto.
+
 **Antes do passo 1** -- confira `git config --get core.hooksPath`. Se
 já existir um valor (por exemplo `scripts/hooks`, com um `pre-commit`
 próprio já funcionando ali, caso real do projeto NEXO), **nunca** rode
@@ -250,10 +258,12 @@ o destino real é sempre a pasta que `core.hooksPath` já aponta.
 │   └── statusline.sh                -- painel ao vivo
 └── agents/fiscal-claude-md.md       -- checagem sob demanda
 
-scripts-hooks/        -- hooks nativos do git (commit-msg, pre-rebase,
-                         pre-push); destino real é a pasta que
-                         core.hooksPath já aponta, nunca uma pasta
-                         .githooks/ separada -- ver seção 7
+scripts/hooks/         -- hooks nativos do git; commit-msg, pre-push e
+├── pre-commit           pre-rebase vieram deste sistema, ao lado do
+├── commit-msg           pre-commit que já existia (versionamento de
+├── pre-push             documentos) -- nunca uma pasta .githooks/
+└── pre-rebase           separada, nunca um core.hooksPath novo (seção 7)
+
 .github/pull_request_template.md
 .vale.ini + .vale/styles/Projeto/    -- estilo de prosa (opcional)
 configurar-protecao-branch.sh        -- roda uma vez, configura o GitHub

@@ -99,11 +99,15 @@ Pontos que o diagrama não consegue expressar sozinho:
   `tasks.md`, perguntar se ela envolveu escolher entre alternativas
   reais -- se sim, a ADR vem antes do item virar riscado (ver
   `modulos/_template/docs/tasks.md`).
-- A "checagem mecânica" ainda não tem ferramenta própria pra este
-  formato novo. Até existir uma, a checagem é manual: reler cada
-  arquivo tocado, por completo -- mesma regra geral de leitura da
-  seção acima, sem exceção pra esta checagem -- contra a própria
-  descrição no topo dele, antes de fechar a entrega.
+- A "checagem mecânica" tem ferramenta própria: hooks do Claude Code
+  e do git nativo, documentados em `.claude/hooks/`, `scripts/hooks/`
+  e no `MANUAL.md` da instalação -- travam sozinhos as regras que dá
+  pra checar como fato (leitura obrigatória, ordem de escrita,
+  `handoff.md` por último, formato de commit, entre outras). O que
+  não é fato mecânico (é julgamento -- por exemplo, se uma
+  documentação está de fato completa) continua checagem manual: reler
+  cada arquivo tocado, por completo, contra a própria descrição no
+  topo dele, antes de fechar a entrega.
 - `handoff.md` é sempre a última coisa tocada **dentro do módulo**,
   nunca a primeira a ser escrita.
 - Tom impessoal em todo documento -- nunca "o proprietário

@@ -1,0 +1,168 @@
+{
+  "statusLine": {
+    "type": "command",
+    "command": "bash ${CLAUDE_PROJECT_DIR}/.claude/hooks/statusline.sh"
+  },
+  "permissions": {
+    "ask": [
+      "Bash(git merge *)",
+      "Bash(gh pr create *)",
+      "Grep",
+      "Glob",
+      "Agent"
+    ]
+  },
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ${CLAUDE_PROJECT_DIR}/.claude/hooks/user_prompt_submit.sh"
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "matcher": "compact",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo 'Lembrete pos-compactacao: releia o CLAUDE.md e a lista de leitura obrigatoria. Nunca reescrever historico de develop/main -- sem excecao. handoff.md e sempre o ultimo arquivo tocado. Todo trabalho acontece dentro de uma worktree. Nunca usar a pergunta de multipla escolha. Respostas sempre em portugues, sem termo tecnico sem explicar. Julgamento nunca e decidido sozinho -- vira pergunta pro usuario.'"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "AskUserQuestion",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo '{\"hookSpecificOutput\": {\"hookEventName\": \"PreToolUse\", \"permissionDecision\": \"deny\", \"permissionDecisionReason\": \"Regra do projeto: nunca usar a ferramenta de pergunta de multipla escolha, sem excecao.\"}}'"
+          }
+        ]
+      },
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          { "type": "command", "command": "bash ${CLAUDE_PROJECT_DIR}/.claude/hooks/pre_edit_safety.sh" }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ${CLAUDE_PROJECT_DIR}/.claude/hooks/pre_bash_search_guard.sh"
+          },
+          {
+            "type": "command",
+            "if": "Bash(git commit *)",
+            "command": "bash ${CLAUDE_PROJECT_DIR}/.claude/hooks/pre_commit_hygiene.sh"
+          },
+          {
+            "type": "command",
+            "if": "Bash(git *)",
+            "command": "bash ${CLAUDE_PROJECT_DIR}/.claude/hooks/pre_git_rules.sh"
+          },
+          {
+            "type": "command",
+            "if": "Bash(gh pr create *)",
+            "command": "bash ${CLAUDE_PROJECT_DIR}/.claude/hooks/pre_git_rules.sh"
+          },
+          {
+            "type": "agent",
+            "if": "Bash(git commit *)",
+            "timeout": 150,
+            "prompt": "Voce revisa um git commit antes dele acontecer. Primeiro rode: cat .claude/hooks/state/current-authorization -- se tiver conteudo, responda ok:true incluindo esse conteudo no systemMessage, e pare aqui. Caso contrario, para cada ponto que exigir julgamento (nao fato puro), siga um processo de quatro etapas antes de decidir: (1) RASCUNHO -- leia git status, git diff --cached e os arquivos do modulo em modulos/<modulo>/docs/, forme um veredito inicial; (2) PERGUNTAS -- para cada veredito 'parece certo', escreva uma pergunta especifica que desmontaria esse veredito se estivesse errado; (3) VERIFICACAO -- responda cada pergunta olhando de novo a evidencia real (nunca so impressao); (4) ADVERSARIO -- antes de fechar, argumente ativamente pelo lado oposto por um instante, que evidencia apontaria pra isso estar errado. So depois disso feche o veredito. Fatos objetivos a confirmar (decida com certeza, sem processo de 4 etapas): concept.md atualizado quando ha requisito novo, nunca reescrito so pra bater com codigo ja existente; architecture.md atualizado se ha codigo novo; schemas/ gerado do concept.md quando aplicavel; analysis.md/findings.md se o modulo ja tinha codigo; pitfalls.md se a implementacao revelou algo; tasks.md refletindo o estado atual; handoff.md tocado e coerente com o que mudou; mensagem do commit em portugues, titulo curto, corpo em bullet points. Pergunta de julgamento que NUNCA e decidida sozinha, sempre vira pergunta no reason: esta mudanca envolveu escolher entre alternativas reais que ainda nao tem ADR em decisions/? Tambem confira, como fato: nenhum .md tocado (exceto analysis.md) usa tom pessoal tipo 'o usuario pediu/relatou'; nenhum bloco de schema embutido em outro documento tem campo description ou example. Se algo objetivo faltar, ou alguma pergunta de julgamento ficar sem resposta sua, responda exatamente {\"ok\": false, \"reason\": \"fatos faltando + perguntas de julgamento, separados\"}. Caso contrario, {\"ok\": true, \"systemMessage\": \"Fluxo de documentacao conferido: tudo certo.\"}. $ARGUMENTS"
+          },
+          {
+            "type": "agent",
+            "if": "Bash(*preview-up.sh*)",
+            "timeout": 120,
+            "prompt": "Voce revisa se e seguro testar no preview isolado agora. Primeiro rode: cat .claude/hooks/state/current-authorization -- se tiver conteudo, responda ok:true incluindo no systemMessage. Caso contrario, rode git status e git diff (sem --cached) pra ver modulos alterados, e confira como fato se concept.md e architecture.md ja foram tocados quando ha codigo novo ou alterado -- documentacao vem antes do teste. Se faltar, {\"ok\": false, \"reason\": \"o que falta documentar antes de testar\"}. Caso contrario, {\"ok\": true, \"systemMessage\": \"Documentacao conferida antes do teste.\"}. $ARGUMENTS"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          { "type": "command", "command": "bash ${CLAUDE_PROJECT_DIR}/.claude/hooks/post_edit_track.sh" }
+        ]
+      },
+      {
+        "matcher": "Read",
+        "hooks": [
+          { "type": "command", "command": "bash ${CLAUDE_PROJECT_DIR}/.claude/hooks/post_read_track.sh" }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "if": "Bash(*preview-up.sh*)",
+            "command": "bash ${CLAUDE_PROJECT_DIR}/.claude/hooks/post_preview_track.sh"
+          },
+          {
+            "type": "command",
+            "if": "Bash(*preview-down.sh*)",
+            "command": "bash ${CLAUDE_PROJECT_DIR}/.claude/hooks/post_preview_track.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash ${CLAUDE_PROJECT_DIR}/.claude/hooks/post_merge_reminder.sh"
+          }
+        ]
+      }
+    ],
+    "WorktreeRemove": [
+      {
+        "hooks": [
+          { "type": "command", "command": "bash ${CLAUDE_PROJECT_DIR}/.claude/hooks/worktree_remove_cleanup.sh" }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ${CLAUDE_PROJECT_DIR}/.claude/hooks/stop_fact_check.sh"
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "agent",
+            "timeout": 150,
+            "prompt": "Antes de deixar a resposta terminar como tarefa concluida. Primeiro rode: cat .claude/hooks/state/current-authorization -- se tiver conteudo, responda ok:true incluindo no systemMessage, e pare aqui. Caso contrario: confira como FATO se TASKS.md/HANDOFF.md/modulos-README.md batem com o que mudou nesta sessao (unico fato que stop_fact_check.sh, que ja rodou antes deste hook, nao cobre -- exige entender o que mudou, nao so olhar um valor). Os fatos puramente mecanicos (worktree sem sobra, git status limpo quando a resposta diz 'pronto', base do PR) ja vieram checados por stop_fact_check.sh -- se o additionalContext dele apontar algo, trate como fato ja confirmado, nao recheque do zero. Depois, para cada pergunta de julgamento abaixo, NAO decida sozinho -- use o processo de rascunho/pergunta/verificacao/adversario se achar que sabe a resposta, mas mesmo assim sempre devolva a pergunta pro usuario no reason: o trabalho desta sessao foi significativo o suficiente pra HANDOFF.md (raiz)? Se houve merge em develop, precisa ir pra producao agora, ou fica so em develop? A descricao do PR (se houver) esta clara o suficiente, ou vaga? Confira tambem cat .claude/hooks/state/preview-sessions.log se existir -- se o ultimo preview-up/preview-down registrado e anterior ao ultimo item do edit-order.log (ou seja, codigo mudou depois do ultimo teste), pergunte explicitamente se foi testado de novo, nunca presuma que sim. Se algum fato faltar ou pergunta ficar sem resposta, responda {\"ok\": false, \"reason\": \"fatos faltando + perguntas, separados\"}. Caso contrario, {\"ok\": true, \"systemMessage\": \"Documentos gerais da raiz e status de entrega conferidos.\"}"
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "agent",
+            "timeout": 180,
+            "prompt": "Voce e o auditor final desta sessao -- segunda opiniao independente, releia tudo do zero, nao reaproveite conclusao de outro hook. Primeiro rode: cat .claude/hooks/state/current-authorization -- se tiver conteudo, responda ok:true com o motivo no systemMessage, cobre esta auditoria tambem. Caso contrario, leia o CLAUDE.md inteiro, do comeco ao fim, na raiz do projeto -- abra de verdade agora. Para cada regra objetiva, confirme com git status/diff/log/branch/worktree list e o transcript desta sessao (em $ARGUMENTS). Para cada regra de julgamento, gere uma pergunta que desmontaria um 'esta tudo bem' e responda com evidencia real antes de aceitar -- e mesmo assim, devolva pro usuario como pergunta no reason, nunca feche sozinho. Liste toda regra nao seguida ou nao confirmavel, por menor que seja. Responda {\"ok\": false, \"reason\": \"fatos + perguntas de julgamento, cada uma nomeada\"} se sobrar qualquer coisa. So {\"ok\": true, \"systemMessage\": \"Auditoria completa do CLAUDE.md: nada pendente, nenhuma pergunta em aberto.\"} com certeza genuina."
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "prompt",
+            "timeout": 30,
+            "prompt": "Olhe last_assistant_message. Regras: (1) resposta em portugues, termo tecnico explicado em linguagem simples -- se estiver em duvida se um termo precisava de explicacao, isso e julgamento, responda ok:false com a duvida no reason, pro usuario confirmar, nunca decida sozinho; (2) nenhum emoji em lugar nenhum da resposta -- fato puro, sem julgamento (CLAUDE.md, Regras gerais: 'nunca usar emojis em nada escrito neste projeto... chat'). Se claramente falta explicar, nao esta em portugues, ou tem emoji, {\"ok\": false, \"reason\": \"qual termo, ou 'emoji encontrado: <trecho>'\"}. Caso contrario, {\"ok\": true}."
+          }
+        ]
+      }
+    ]
+  }
+}

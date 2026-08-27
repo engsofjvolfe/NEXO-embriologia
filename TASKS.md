@@ -72,6 +72,19 @@
       já aprovado, que é imutável (ver
       [docs/docs-VMODEL-visao-geral/README.md](<docs/docs-VMODEL-visao-geral/README.md>)).
 
+- [ ] **Fechar as lacunas restantes do sistema de conformidade do
+      `CLAUDE.md`.**
+
+      *Resumo simples:* o sistema de hooks que trava as regras do
+      `CLAUDE.md` automaticamente foi formalizado como módulo próprio
+      — quatro lacunas reais já fechadas nesta rodada, mas ainda falta
+      confirmar tudo ao vivo numa sessão nova, e fazer uma auditoria
+      linha a linha mais rigorosa do `CLAUDE.md` inteiro.
+
+      *Detalhe técnico:* ver
+      [modulos/conformidade/docs/tasks.md, Em aberto](modulos/conformidade/docs/tasks.md#em-aberto)
+      pra lista completa.
+
 - [ ] **Desenhar e construir o preview isolado do projeto.**
 
       *Resumo simples:* `modulos/preview/`, citado no `CLAUDE.md`

@@ -6,8 +6,8 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Findings |
-| Versão | 0.7.0 |
-| Data | 18-08-2026 |
+| Versão | 0.8.0 |
+| Data | 27-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
 > Achados confirmados (por leitura de código, teste ao vivo, ou os dois)
@@ -217,6 +217,32 @@ lacuna foi encontrada (releitura do Documento de Conceito contra os
 documentos derivados) em
 [analysis.md#2026-08-18-arquitetura-de-informacao-das-telas-do-motor](<analysis.md#2026-08-18-arquitetura-de-informacao-das-telas-do-motor>).
 
+### <a id="2026-08-27-sessionviewmodel-ganha-onpauserequested"></a>2026-08-27 — `SessionViewModel.kt` ganha a ação de pausar por toque da pessoa
+
+**Confirmado por:** leitura de código e teste ao vivo
+
+*Resumo simples:* a lacuna registrada em
+[2026-08-18](<#2026-08-18-sessionviewmodel-sem-acao-de-pausar-manual>)
+está fechada — `SessionViewModel.kt` agora expõe `onPauseRequested()`,
+que guarda o estado da sessão em disco na hora, sem apagar nada e sem
+pedir confirmação, do mesmo jeito que a ociosidade automática já fazia.
+
+*Detalhe técnico:* mecanismo completo (o que `onPauseRequested()`
+chama, o que cancela, onde grava) descrito em
+[architecture.md, Ligação com o núcleo do motor](<architecture.md#ligação-com-o-núcleo-do-motor>)
+— não repetido aqui. Nenhuma decisão nova entre alternativas: é o
+mesmo padrão já decidido em
+[decisions/0024](<../decisions/0024-mecanismo-do-gatilho-de-ociosidade.md>),
+aplicado a um gatilho manual em vez de automático, por isso não gerou
+ADR própria. Dois testes escritos antes do código
+(`SessionViewModelTest.kt`), confirmando comportamento observável
+(estado gravado em disco, tipo de evento registrado, relógio de
+ociosidade cancelado) sem depender de detalhe interno de implementação.
+Testado ao vivo: `gradlew :app:testDebugUnitTest --tests
+"org.nexo.motor.app.ui.SessionViewModelTest"`, `BUILD SUCCESSFUL`;
+suíte completa (`:core:test :app:testDebugUnitTest`) rodada de novo,
+sem quebra.
+
 ## Controle de versão
 
 <!-- uma linha por versão publicada deste documento, mais antiga no
@@ -235,3 +261,4 @@ reescrever) também conta como mudança de conteúdo real. -->
 | 0.5.0 | 15-08-2026 | Achado "Mecanismo de PDF de decisions/0019 incompatível com o módulo core" acrescentado. | Revisão do mecanismo de PDF antes de escrever o pacote `report` |
 | 0.6.0 | 17-08-2026 | Achado "Caminho antigo de `ReportFileWriter.kt` não testável com Robolectric" acrescentado. | Tentativa de escrever o teste de `ReportFileWriter.kt`/`ReportShareIntent.kt` |
 | 0.7.0 | 18-08-2026 | Achado "`SessionViewModel.kt` não tem ação de pausar por toque da pessoa" acrescentado. | Montagem da arquitetura de informação das telas do motor, releitura do Documento de Conceito contra os documentos derivados |
+| 0.8.0 | 27-08-2026 | Achado "`SessionViewModel.kt` ganha a ação de pausar por toque da pessoa" acrescentado, fechando a lacuna registrada em 18-08-2026. | Escrita e teste de `onPauseRequested()` em `SessionViewModel.kt` |

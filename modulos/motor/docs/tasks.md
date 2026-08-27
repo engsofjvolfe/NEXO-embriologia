@@ -6,8 +6,8 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Tasks |
-| Versão | 0.46.0 |
-| Data | 22-08-2026 |
+| Versão | 0.47.0 |
+| Data | 27-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
 > Lista mutável de pendências só deste módulo. Lida depois de
@@ -236,16 +236,11 @@ Convenção dos códigos citados aqui:
       precisa ser discreto, nunca virar uma explicação ou aviso que
       compita com essa regra.
 
-      O botão de pausar (Documento de Conceito, seção 12 — "uma ação
-      explícita de pausar", distinta do gatilho automático de
-      ociosidade) depende de código que ainda não existe:
-      `SessionViewModel.kt` hoje só implementa o gatilho automático,
-      sem nenhum método equivalente pra um pedido direto da pessoa —
-      achado confirmado em
-      [findings.md](<findings.md#2026-08-18-sessionviewmodel-sem-acao-de-pausar-manual>).
-      O desenho visual desse controle não tem o que chamar enquanto
-      esse método não for escrito.
-
+      O botão de pausar já tem o que chamar — `onPauseRequested()`,
+      ver
+      [findings.md](<findings.md#2026-08-27-sessionviewmodel-ganha-onpauserequested>)
+      — resta só o desenho visual do controle em si, junto com o
+      restante das 16 entradas de tela sem wireframe.
 
 - [ ] **Escrever os testes instrumentados de `ReportPdfRenderer.kt` e
       do caminho antigo de `ReportFileWriter.kt` (Android 7 a 9).**
@@ -669,3 +664,4 @@ como mudança de conteúdo real. -->
 | 0.44.0 | 22-08-2026 | Corrigido: o trecho "como agrupar esses estados em telas físicas... parte do desenho visual pendente" estava desatualizado desde 15-08-2026 — `decisions/0022` já resolve isso (`SessionScreen`, tipo fechado, uma variante por entrada da tabela DA-RET, uma tela só) e nunca tinha sido conectado aqui. | Achado ao revisar a pendência por completo, na mesma sessão da ADR 0030 |
 | 0.45.0 | 22-08-2026 | Pendência nova "Decidir a ferramenta de desenho de tela do módulo `app`" acrescentada já resolvida, movida direto para Resolvidas — nunca existiu aqui como "Em aberto", porque foi identificada numa worktree separada, ainda não mesclada nesta. | Resolução de [decisions/0031](<../decisions/0031-jetpack-compose-como-ferramenta-de-desenho-de-tela.md>) |
 | 0.46.0 | 22-08-2026 | Corrigida a duplicidade que a mescla de `develop` trouxe: o item "Decidir a ferramenta de desenho de tela do módulo `app`" acrescentado na linha `0.43.0` desta mesma tabela saiu de "Em aberto" — já resolvido em `develop` (linha `0.45.0`), enquanto essa worktree ainda não tinha essa informação. | Reconciliação ao mesclar `develop` (`decisions/0031`) nesta worktree |
+| 0.47.0 | 27-08-2026 | Pendência "Desenhar a aparência visual das telas do motor" perde o bloqueio de código sobre o botão de pausar — `onPauseRequested()` já existe; só o desenho visual do controle segue pendente. | Escrita e teste de `onPauseRequested()` em `SessionViewModel.kt` |

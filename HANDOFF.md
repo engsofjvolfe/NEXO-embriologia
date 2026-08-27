@@ -133,6 +133,9 @@
   revisor do fim da resposta conferindo instrução do usuário não
   atendida) — ver
   [modulos/conformidade/docs/handoff.md](modulos/conformidade/docs/handoff.md).
+- Ação de pausar por toque da pessoa (distinta da ociosidade
+  automática) escrita em `SessionViewModel.kt` — ver
+  [modulos/motor/docs/handoff.md](modulos/motor/docs/handoff.md).
 - [TASKS.md, Resolvidas](TASKS.md#resolvidas) — pendências já corrigidas.
 
 ## Próximo passo

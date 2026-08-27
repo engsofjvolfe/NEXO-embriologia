@@ -6,8 +6,8 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Architecture |
-| Versão | 0.38.0 |
-| Data | 22-08-2026 |
+| Versão | 0.39.0 |
+| Data | 27-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
 > Descreve como o módulo é construído por dentro — layout de arquivos,
@@ -821,8 +821,11 @@ já são a mesma tela — a própria Especificação (`EI-NAV-05`) já diz que
 essa configuração "é feita uma única vez, na tela de início... todos
 são decididos nessa mesma tela, no mesmo momento"; não é uma pergunta
 em aberto. O botão de pausar também já está decidido — `EI-PAU-03` só
-exige confirmação pra sair, nunca pra pausar; falta só o método novo
-em `SessionViewModel.kt` (ver [`tasks.md`](tasks.md)), não desenho.
+exige confirmação pra sair, nunca pra pausar; o método
+(`onPauseRequested`) já existe em `SessionViewModel.kt` (ver
+["Ligação com o núcleo do motor"](#ligação-com-o-núcleo-do-motor)),
+só falta o desenho visual do controle em si, mesma pendência das
+outras 16 entradas de tela sem wireframe.
 
 ##### Ligação com o núcleo do motor
 
@@ -846,10 +849,18 @@ formato fechado em decisions/0022). Internamente chama `session`,
 de estudo ou continuação de evento num novo `SessionScreen`. Ações que
 a tela ainda vai disparar já têm método próprio no `ViewModel`
 (`onSkipRequested`, `onScreenAcknowledged`, `onContinueRequested`,
-`onExitRequested`, `onExitCancelled`, `onExitConfirmed`) — o efeito de
-cada uma (que `SessionScreen` resulta) está fechado; o gatilho exato
-na tela (toque) continua parte do desenho visual pendente (ver
-[tasks.md](tasks.md)). `onExitConfirmed` recebe, como
+`onExitRequested`, `onExitCancelled`, `onExitConfirmed`,
+`onPauseRequested`) — o efeito de cada uma (que `SessionScreen`
+resulta) está fechado; o gatilho exato na tela (toque) continua parte
+do desenho visual pendente (ver [tasks.md](tasks.md)). `onPauseRequested`
+não pede confirmação (`EI-PAU-03` só exige isso pra sair) — cancela o
+relógio de ociosidade e grava o estado da sessão em disco na hora,
+com `pause` (`core/session`), mesma função que já existia desde a
+resolução do achado
+[findings.md#2026-08-15-registro-de-sessao-incompleto-frente-a-ei-reg-01](<findings.md#2026-08-15-registro-de-sessao-incompleto-frente-a-ei-reg-01>),
+nunca antes chamada por nenhum caminho de `app` — mesmo padrão do
+gatilho de ociosidade, descrito duas linhas abaixo, só que disparado
+pela pessoa em vez de por tempo. `onExitConfirmed` recebe, como
 parâmetro obrigatório, a função que escreve o relatório de verdade
 (`writeReport: (csv: String, pdfLines: List<String>) -> Unit`) — chama
 essa função com o conteúdo já montado por `core/report`

@@ -49,6 +49,35 @@ if [[ -n "$SCHEMA_FILES" ]]; then
   done
 fi
 
+# 3b) Pureza de esquema embutido num documento (ex.: o bloco YAML
+# dentro de concept.md) -- mesma regra do item 3, agora pra esquema
+# que não mora em schemas/*.json. CLAUDE.md, Regras gerais: "Qualquer
+# esquema de dado... em qualquer lugar do projeto -- dentro de
+# schemas/... ou embutido num documento como o Projeto Detalhado --
+# carrega só dado puro". Heurística: dentro de cada bloco cercado por
+# ```yaml ou ```json, só conta como esquema (não qualquer bloco de
+# exemplo solto) quando o bloco também contém "required" ou
+# "properties" junto com "type" -- forma que todo bloco de contrato de
+# dado deste projeto já usa.
+MD_FILES_SCHEMA=$(git -C "$CWD" diff --cached --name-only -- '*.md' 2>/dev/null)
+for f in $MD_FILES_SCHEMA; do
+  HIT=$(git -C "$CWD" show ":$f" 2>/dev/null | awk '
+    /^```(yaml|json)[[:space:]]*$/ { infence=1; buf=""; next }
+    /^```[[:space:]]*$/ {
+      if (infence) {
+        if ((buf ~ /required/ || buf ~ /properties/) && buf ~ /type/) {
+          if (buf ~ /description/ || buf ~ /example/) { print "HIT"; exit }
+        }
+      }
+      infence=0; next
+    }
+    infence { buf = buf $0 "\n" }
+  ')
+  if [[ "$HIT" == "HIT" ]]; then
+    block "Bloqueado: $f tem um bloco de esquema embutido (cercado por \`\`\`yaml ou \`\`\`json) com campo 'description' ou 'example'. Esquema de dado carrega só dado puro, mesmo embutido num documento."
+  fi
+done
+
 # A partir daqui: checagens heurísticas -- podem ser puladas com
 # AUTORIZO-TRAVA: <motivo> na sua mensagem (ver hook
 # user_prompt_submit.sh, que já confirmou a autorização antes deste

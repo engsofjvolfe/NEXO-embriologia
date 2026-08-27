@@ -67,6 +67,22 @@ normalize_path() {
   echo "${1//\\//}"
 }
 
+# Compara dois caminhos ignorando maiúscula/minúscula, depois de
+# normalizar a barra de cada um. Necessário porque, no Windows, a letra
+# de unidade do mesmo diretório pode chegar em caixas diferentes
+# dependendo de quem informou o caminho -- o "cwd" que o Claude Code
+# manda pro hook e o caminho que "git worktree list" devolve para essa
+# mesma pasta nem sempre usam a mesma caixa, mesmo apontando pro mesmo
+# lugar em disco (sistema de arquivo do Windows não diferencia
+# maiúscula de minúscula). Comparação de texto, sem consultar o disco
+# nem resolver link simbólico.
+paths_equal() {
+  local a b
+  a=$(normalize_path "$1")
+  b=$(normalize_path "$2")
+  [[ "${a,,}" == "${b,,}" ]]
+}
+
 # Lista de leitura obrigatória (CLAUDE.md, seção "Leitura obrigatória,
 # fonte da verdade"). Só os 6 documentos de "LEITURA MANUAL
 # OBRIGATÓRIA" entram nesta checagem -- os outros 16, importados

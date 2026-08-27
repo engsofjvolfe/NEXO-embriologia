@@ -31,12 +31,23 @@ CONTEXT=""
 # git worktree list de vez em quando pra conferir que não sobrou
 # nenhuma"). Mesclada = a branch da worktree já está contida em
 # develop (git branch --merged develop já a lista).
+#
+# A pasta atual ($CWD) nunca entra nessa lista, mesmo quando a própria
+# branch dela já está contida em develop -- ela é sempre a pasta
+# principal do repositório (a única sem nome de worktree de tarefa),
+# nunca uma worktree de tarefa esquecida pra remover. A comparação usa
+# paths_equal (lib/common.sh), não "==" direto: o caminho que "git
+# worktree list" devolve e o "cwd" que o Claude Code informa podem vir
+# com a letra de unidade em caixas diferentes no Windows, mesmo
+# apontando pro mesmo lugar em disco -- "==" direto falha nesse caso e
+# a pasta principal aparece, por engano, como worktree esquecida.
 MERGED_BRANCHES=$(git -C "$CWD" branch --merged develop --format='%(refname:short)' 2>/dev/null)
 STALE_WORKTREES=""
 while IFS= read -r line; do
   WT_PATH=$(echo "$line" | awk '{print $1}')
   WT_BRANCH=$(echo "$line" | grep -oE '\[[^]]+\]' | tr -d '[]')
-  [[ -z "$WT_BRANCH" || "$WT_PATH" == "$CWD" ]] && continue
+  [[ -z "$WT_BRANCH" ]] && continue
+  paths_equal "$WT_PATH" "$CWD" && continue
   if echo "$MERGED_BRANCHES" | grep -qxF "$WT_BRANCH"; then
     STALE_WORKTREES+="  - $WT_PATH (branch '$WT_BRANCH', já mesclada em develop)"$'\n'
   fi

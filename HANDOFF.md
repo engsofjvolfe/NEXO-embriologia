@@ -124,6 +124,15 @@
   outras. Ver `MANUAL.md` da instalação (raiz do repositório) pra
   referência completa; regra que muda no `CLAUDE.md` sem hook
   correspondente agora recebe aviso automático no commit.
+- Sistema de conformidade do `CLAUDE.md` formalizado como módulo
+  próprio ([modulos/conformidade](modulos/conformidade/)), com
+  `MANUAL.md` continuando como fonte normativa — quatro lacunas reais
+  fechadas (leitura obrigatória cobrindo qualquer ferramenta, não só
+  escrita; comparação de caminho de worktree corrigida pro Windows;
+  checagem de esquema puro cobrindo esquema embutido em documento;
+  revisor do fim da resposta conferindo instrução do usuário não
+  atendida) — ver
+  [modulos/conformidade/docs/handoff.md](modulos/conformidade/docs/handoff.md).
 - [TASKS.md, Resolvidas](TASKS.md#resolvidas) — pendências já corrigidas.
 
 ## Próximo passo

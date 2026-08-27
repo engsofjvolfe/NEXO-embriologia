@@ -16,6 +16,7 @@ três.
 | Nome | Pasta | O que é |
 |---|---|---|
 | Motor | [`motor/`](motor/) | O mecanismo genérico do NEXO — simulador tátil de sequências, agnóstico a qualquer disciplina. Implementa o que a cascata de documentação em [`docs/docs-VMODEL-visao-geral/`](../docs/docs-VMODEL-visao-geral/) já decidiu (conceito, requisitos, especificação, projeto arquitetônico, projeto detalhado — todos versão 1.0.0, aprovados). |
+| Conformidade | [`conformidade/`](conformidade/) | O sistema que transforma as regras do `CLAUDE.md` em travas de verdade (hooks do Claude Code e do git nativo). Implementa o que [`MANUAL.md`](<../MANUAL.md>), na raiz do repositório, já decidiu — mesmo papel que a cascata VMODEL cumpre pro Motor. |
 
 `_template/` não é um módulo — é o molde a partir do qual todo módulo
 novo nasce (ver [Como navegar](#como-navegar)). `preview/` guarda a

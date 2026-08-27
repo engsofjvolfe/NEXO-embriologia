@@ -62,8 +62,14 @@ de um hook de git. Regra de tom de um documento precisa de alguém
 |---|---|
 | Ler documentos na íntegra, sem resumo, sem corte | `post_read_track.sh` registra cada leitura real (caminho normalizado -- ver seção 9.3), separando leitura completa de parcial -- ver seção 9.9; `pre_edit_safety.sh` e `pre_commit_hygiene.sh` exigem leitura completa antes de agir |
 | Não concluir a partir do que já carregou, tratar como hipótese | `pre_edit_safety.sh` -- bloqueia editar um arquivo sem reabri-lo (via Read) nesta sessão |
-| Lista de leitura manual obrigatória (6 documentos -- os outros 16 chegam via `@caminho`, ver seção 9.8) | `pre_edit_safety.sh` (antes da primeira edição, Portão pro Passo 2) + `pre_commit_hygiene.sh` (segunda conferência, no commit) |
+| Lista de leitura manual obrigatória (6 documentos -- os outros 16 chegam via `@caminho`, ver seção 9.8), "antes de qualquer outra coisa" | `pre_mandatory_reading_guard.sh` -- roda antes de toda ferramenta (matcher `*`), libera só `Read` (o próprio jeito de cumprir a exigência) e `TodoWrite` (sem efeito fora da lista de tarefas); `pre_edit_safety.sh` (antes da primeira edição) e `pre_commit_hygiene.sh` (no commit) continuam como reforço nos dois pontos mais sensíveis |
 | Lembrete depois de compactação de contexto | `SessionStart` (matcher `compact`) reinjeta as regras mais críticas |
+
+### Instruções específicas da tarefa dada pelo usuário
+
+| Regra | Mecanismo |
+|---|---|
+| Nenhum pedido/condição/detalhe dado numa mensagem de tarefa fica sem confirmação de que foi atendido | Revisor do fim da resposta (evento `Stop`) -- relê todas as mensagens do usuário na sessão, não só a última, lista cada instrução concreta contida numa mensagem que descreveu a tarefa com detalhe, e confirma uma a uma; qualquer uma sem confirmação clara vira pergunta nomeada, nunca presumida como feita |
 
 ### Fluxo de escrita e revisão de documentação
 
@@ -77,7 +83,7 @@ de um hook de git. Regra de tom de um documento precisa de alguém
 | `handoff.md` sempre a última coisa tocada no módulo | `pre_commit_hygiene.sh`, usa `edit-order.log` |
 | Documentos gerais da raiz (`modulos/README.md`, `TASKS.md`, `HANDOFF.md`) | Revisor do fim da resposta (evento `Stop`) |
 | Tom impessoal, exceção `analysis.md` | Revisor de commit (semântico) + Vale opcional (frases fixas, mecânico) |
-| Esquema de dado sem `description`/`example` | `pre_commit_hygiene.sh` |
+| Esquema de dado sem `description`/`example`, em `schemas/*.json` ou embutido num documento (bloco ` ```yaml `/` ```json ` com `type`+`required`/`properties`) | `pre_commit_hygiene.sh` -- as duas formas |
 | `CLAUDE.md` e o mecanismo que o aplica não derivam um do outro sem aviso | `pre_commit_hygiene.sh` -- aviso (autorizável) quando `CLAUDE.md` muda sem nenhum arquivo de hook mudar junto no mesmo commit |
 
 ### Commits, histórico, branches
@@ -245,6 +251,7 @@ o destino real é sempre a pasta que `core.hooksPath` já aponta.
 ├── hooks/
 │   ├── lib/common.sh                -- funções compartilhadas (inclui require_jq, normalize_path)
 │   ├── user_prompt_submit.sh        -- detecta AUTORIZO-TRAVA
+│   ├── pre_mandatory_reading_guard.sh -- leitura obrigatória antes de qualquer ferramenta (menos Read/TodoWrite)
 │   ├── pre_commit_hygiene.sh        -- checagens antes do commit
 │   ├── pre_git_rules.sh             -- develop/main, --no-ff, base do PR, worktree
 │   ├── pre_edit_safety.sh           -- reler antes de editar, só escrever em worktree

@@ -25,6 +25,7 @@ import org.nexo.motor.core.session.deleteSessionState
 import org.nexo.motor.core.session.eventComplete
 import org.nexo.motor.core.session.goIdle
 import org.nexo.motor.core.session.hintAvailable
+import org.nexo.motor.core.session.pause
 import org.nexo.motor.core.session.recordAttempt
 import org.nexo.motor.core.session.referenceImage
 import org.nexo.motor.core.session.saveSessionState
@@ -125,6 +126,12 @@ class SessionViewModel(
         writeReport(buildReportCsv(configuration, sessionState.log), buildReportPdfLines(configuration, sessionState.log))
         pausedStateFile?.let { deleteSessionState(it) }
         _uiState.update { it.copy(exitConfirmationRequested = false) }
+    }
+
+    fun onPauseRequested() {
+        idleJob?.cancel()
+        sessionState = pause(sessionState, now())
+        pausedStateFile?.let { saveSessionState(sessionState, it) }
     }
 
     private fun scheduleIdleTimeout() {

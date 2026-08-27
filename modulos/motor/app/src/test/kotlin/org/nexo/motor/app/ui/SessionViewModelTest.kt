@@ -233,4 +233,39 @@ class SessionViewModelTest {
 
         assertNull(loadSessionState(stateFile), "uma tentativa recente nao pode deixar a sessao cair em ociosidade")
     }
+
+    @Test
+    fun `pedido de pausa manual guarda o estado em disco imediatamente -- EI-PAU-01, Documento de Conceito seção 12`() = runTest(dispatcher) {
+        val stateFile = tempStateFile()
+        val viewModel = newViewModel(stateFile = stateFile)
+        viewModel.onScreenAcknowledged()
+
+        viewModel.onPauseRequested()
+
+        val savedState = loadSessionState(stateFile)
+        assertTrue(savedState != null, "pausa manual precisa ter o estado gravado em disco, igual a ociosidade -- EI-PAU-01")
+        assertTrue(savedState!!.paused, "pausa manual marca a sessão como pausada, mesmo efeito da ociosidade")
+        assertTrue(
+            savedState.log.any { it is org.nexo.motor.core.session.SessionEvent.Paused },
+            "o gatilho precisa ficar registrado no log como Paused, distinto de WentIdle (ociosidade automática)",
+        )
+    }
+
+    @Test
+    fun `pausa manual cancela o relogio de ociosidade -- decisions0024, ponto 4`() = runTest(dispatcher) {
+        val stateFile = tempStateFile()
+        val idleThresholdMillis = 5_000L
+        val viewModel = newViewModel(configuration = sampleConfiguration(idleThresholdMillis = idleThresholdMillis), stateFile = stateFile)
+        viewModel.onScreenAcknowledged()
+
+        viewModel.onPauseRequested()
+        dispatcher.scheduler.advanceTimeBy(idleThresholdMillis + 1)
+        dispatcher.scheduler.runCurrent()
+
+        val savedState = loadSessionState(stateFile)
+        assertTrue(
+            savedState!!.log.none { it is org.nexo.motor.core.session.SessionEvent.WentIdle },
+            "o relogio de ociosidade precisa estar cancelado apos a pausa manual, senao regravaria por cima com WentIdle",
+        )
+    }
 }

@@ -133,6 +133,22 @@
   revisor do fim da resposta conferindo instrução do usuário não
   atendida) — ver
   [modulos/conformidade/docs/handoff.md](modulos/conformidade/docs/handoff.md).
+- Achada e corrigida a causa raiz de os ganchos revisados por IA
+  (revisão de commit, revisão de preview, três checagens do fim da
+  resposta) nunca bloquearem de verdade: o formato de resposta que
+  pediam não era reconhecido pelo Claude Code como decisão de bloqueio
+  — ver
+  [modulos/conformidade/docs/handoff.md](modulos/conformidade/docs/handoff.md).
+- Mais quatro regras do `CLAUDE.md` (nunca emoji, esquema é dado puro,
+  linha de Licença em tabela, nunca "antes e depois" em documento nunca
+  versionado) movidas do momento do commit pro momento da própria
+  edição; achada e corrigida uma falha real do Claude Code (filtro
+  `if` roda um gancho mesmo sem bater o padrão, em comando complexo
+  demais pra ser interpretado) que fazia o revisor de commit disparar
+  fora de contexto; sistema de ficha/síntese (resumo compacto do estado
+  da sessão, substituindo releitura do diário inteiro a cada checagem)
+  documentado retroativamente — ver
+  [modulos/conformidade/docs/handoff.md](modulos/conformidade/docs/handoff.md).
 - [TASKS.md, Resolvidas](TASKS.md#resolvidas) — pendências já corrigidas.
 
 ## Próximo passo

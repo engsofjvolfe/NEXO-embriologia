@@ -4,8 +4,8 @@
 |---|---|
 | Módulo | Conformidade |
 | Documento | Tasks |
-| Versão | 0.1.0 |
-| Data | 27-08-2026 |
+| Versão | 0.4.0 |
+| Data | 28-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
 > Lista mutável de pendências só deste módulo. Lida depois de
@@ -25,6 +25,34 @@
 - [Controle de versão](#controle-de-versão)
 
 ## Em aberto
+
+- [ ] **Confirmar de ponta a ponta, numa sessão nova, que os cinco
+      mecanismos corrigidos na segunda rodada de hoje bloqueiam de
+      verdade.**
+
+      *Resumo simples:* uma queixa direta -- "o sistema ainda deixa
+      escolher se segue a trava ou não" -- revelou que boa parte do
+      sistema nunca bloqueava de verdade: o formato de resposta que os
+      ganchos revisados por IA usavam não é reconhecido pelo Claude
+      Code como decisão de bloqueio, então eles só "avisavam". Cinco
+      pontos corrigidos, mesma limitação da pendência acima (sessão
+      que corrige não consegue confirmar o bloqueio ao vivo).
+
+      *Detalhe técnico:* cinco pontos a confirmar: (1) o gancho `agent`
+      de revisão de commit (`if: Bash(git commit *)`) bloqueia um
+      commit de verdade quando encontra fato faltando, usando o formato
+      `hookSpecificOutput.permissionDecision` (achado raiz, ver
+      MANUAL.md 9.12); (2) o mesmo formato bloqueia o gancho de revisão
+      de preview; (3) `pre_mandatory_reading_guard.sh` bloqueia `Read`
+      de um arquivo fora da lista de seis, enquanto sobrar algum deles
+      por ler (decisions/0006); (4) `stop_fact_check.sh` bloqueia a
+      resposta de terminar (`exit 2`) quando encontra um dos três fatos
+      mecânicos, e libera com `AUTORIZO-TRAVA` (decisions/0007); (5) os
+      três ganchos de julgamento do evento `Stop` -- este quinto ponto
+      é o de confiança mais baixa dos cinco: mesmo se `decision:
+      "continue"` não bloquear (documentação marca como experimental,
+      sem exemplo confirmado -- ver decisions/0008), os outros quatro
+      continuam valendo.
 
 - [ ] **Confirmar de ponta a ponta, numa sessão nova, que os quatro
       mecanismos criados hoje bloqueiam de verdade.**
@@ -92,10 +120,50 @@
       vezes seguidas. Nunca foi investigado por quê, nem se é algo que
       este projeto deveria tratar de alguma forma.
 
-      *Detalhe técnico:* sem desenho, sem responsável -- registrado só
-      pra não perder o achado. Pode ser configuração da sessão em si
-      (fora do controle deste módulo) ou algo que vale a pena entender
-      melhor antes de repetir.
+      *Detalhe técnico:* pista nova, ainda não certeza: investigação
+      registrada em
+      [analysis.md](<analysis.md#2026-08-28-falha-aberta-do-filtro-if-e-ganchos-que-nunca-parecem-rodar>)
+      encontrou evidência de que mensagens de bloqueio recebidas ao
+      vivo (formato "Agent hook condition was not met") podem vir de
+      uma camada separada (classificador do "Auto Mode"), não dos
+      scripts reais deste módulo -- mesma família de sintoma desta
+      pendência, ainda sem confirmação definitiva. Sem desenho, sem
+      responsável -- registrado só pra não perder o achado. Pode ser
+      configuração da sessão em si (fora do controle deste módulo) ou
+      algo que vale a pena entender melhor antes de repetir.
+
+- [ ] **Confirmar ao vivo, numa sessão nova, a ficha/síntese
+      ([decisions/0012](<../decisions/0012-ficha-sintese-substitui-releitura-do-diario-a-cada-checagem.md>)).**
+
+      *Resumo simples:* as seis funções da ficha e o gancho
+      `session_start_reset.sh` já foram testados isoladamente (fora do
+      fluxo real de um gancho, numa pasta de rascunho) -- falta
+      confirmar, numa sessão nova de verdade, que `SessionStart`
+      dispara o reset no início, e que as sete checagens de
+      `pre_edit_safety.sh` que passaram a consultar a ficha continuam
+      bloqueando nos mesmos casos de antes.
+
+      *Detalhe técnico:* mesma limitação de toda esta lista -- ver
+      [pitfalls.md](<pitfalls.md#2026-08-27-configuracao-de-ganchos-nao-recarrega-na-mesma-sessao>).
+
+- [ ] **Confirmar ao vivo, numa sessão nova, o auto-portão contra
+      falha aberta do filtro `if` nos dois ganchos `agent` (revisão de
+      commit, revisão de preview).**
+
+      *Resumo simples:* [decisions/0011](<../decisions/0011-auto-portao-contra-falha-aberta-do-filtro-if.md>)
+      corrige um comportamento real e documentado oficialmente (o
+      filtro `if` roda o gancho mesmo sem bater o padrão, quando o
+      comando não é parseável) -- a versão em script
+      (`pre_commit_hygiene.sh`) já foi testada isoladamente, mas a
+      instrução equivalente nos dois ganchos `agent` não tem como ser
+      testada fora do fluxo real (não são script, são prompt de IA).
+
+      *Detalhe técnico:* confirmar, numa sessão nova (depois do
+      merge), que um comando Bash qualquer -- sem `git commit` real,
+      mas complexo o bastante pra disparar a falha aberta do `if` --
+      não aciona mais o julgamento completo do gancho de revisão de
+      commit, respondendo `allow` direto. Mesmo teste, adaptado, pro
+      gancho de revisão de preview.
 
 ## Resolvidas
 
@@ -104,3 +172,6 @@
 | Versão | Data | Alteração | Origem da alteração |
 |---|---|---|---|
 | 0.1.0 | 27-08-2026 | Criação inicial -- quatro pendências registradas. | Criação inicial do módulo |
+| 0.2.0 | 27-08-2026 | Pendência nova acrescentada: confirmação de ponta a ponta dos cinco mecanismos corrigidos na segunda rodada (decisions/0006 a 0008). | Correção do formato de bloqueio que nunca era reconhecido pelo Claude Code |
+| 0.3.0 | 28-08-2026 | Pendência de investigação da causa raiz do "modo sem perguntar" atualizada com pista nova; pendência nova acrescentada (confirmação do auto-portão de decisions/0011 nos dois ganchos agent). | Correção da falha aberta do filtro `if` |
+| 0.4.0 | 28-08-2026 | Pendência nova acrescentada (confirmação da ficha/síntese, decisions/0012, numa sessão nova). | Fechamento da lacuna de documentação da ficha/síntese |

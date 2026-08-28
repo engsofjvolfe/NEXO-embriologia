@@ -4,7 +4,7 @@
 |---|---|
 | Módulo | Conformidade |
 | Documento | Concept |
-| Versão | 0.1.0 |
+| Versão | 0.2.0 |
 | Data | 27-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
@@ -45,17 +45,20 @@ serem lembradas numa sessão longa. Não decide quais são as regras
 (isso é sempre o `CLAUDE.md`) — decide como cada regra já escrita lá é
 aplicada de verdade.
 
-*Em detalhe técnico:* o que este módulo deve ser e como deve se
-comportar já está inteiramente decidido em
-[`MANUAL.md`](../../../MANUAL.md), na raiz do repositório — a ideia
-central (três categorias de regra: fato mecânico, julgamento, estado
-do repositório em si), o modelo de quatro camadas (proteção de branch
-do GitHub, hooks nativos do git, Vale, Claude Code), e a referência
-completa, regra por regra do `CLAUDE.md`, contra o mecanismo que a
-aplica. Este `concept.md` não repete esse conteúdo — aponta pra ele
-como fonte normativa direta, mesmo padrão já usado por
-[`modulos/motor/docs/concept.md`](<../../motor/docs/concept.md>) em
-relação à cascata de documentos do motor.
+*Em detalhe técnico:* a fonte normativa deste módulo é o próprio
+`CLAUDE.md` (raiz do repositório), direto -- sem um manual separado
+descrevendo o sistema por cima dele: cada gancho, em
+`.claude/hooks/*.sh` e `.claude/settings.json`, cita no próprio
+comentário qual regra exata do `CLAUDE.md` ele aplica -- essa citação,
+junto ao código que a aplica, é a documentação de verdade. Manter as
+duas coisas juntas, no mesmo arquivo, evita o risco já confirmado uma
+vez neste módulo: um documento que descreve o sistema pode ficar
+desatualizado ou até errado sobre o que o código realmente faz (ver
+[findings.md](findings.md)), enquanto o comentário dentro do próprio
+gancho não tem como divergir de si mesmo. `MANUAL.md` (raiz) existe,
+mas com outro papel: não descreve o sistema por cima do código, é um
+checklist -- cada faixa de linha do `CLAUDE.md` marcada contra o
+gancho real que a aplica, prova de cobertura, não narrativa.
 
 Dentro do escopo: qualquer regra do `CLAUDE.md` que dê pra checar como
 fato objetivo (existe o arquivo? o texto bate com o padrão proibido?
@@ -67,51 +70,75 @@ protegida, formato de commit) fica garantida em camada que nem
 depende do Claude Code estar rodando.
 
 Fora do escopo: o conteúdo das regras em si — isso é sempre decisão de
-quem escreve o `CLAUDE.md`, nunca deste módulo; e os dois pontos sem
+quem escreve o `CLAUDE.md`, nunca deste módulo; e os pontos sem
 solução técnica possível, listados em
 [Limites reconhecidos](#limites-reconhecidos) abaixo.
 
 ## Fluxo
 
-*Em resumo:* cada peça deste sistema — o que cada camada cobre, como
-os scripts e os revisores automáticos decidem, como usar no dia a dia,
-como instalar — já está descrita por inteiro no `MANUAL.md`.
+*Em resumo:* pra saber o que cada gancho faz e por que, o lugar certo
+é o próprio arquivo dele -- não um índice à parte.
 
-*Em detalhe técnico:* ponto de entrada pra cada assunto, dentro do
-documento já existente:
+*Em detalhe técnico:*
 
-| Assunto | Onde está decidido |
+| Assunto | Onde está |
 |---|---|
-| Ideia central (três categorias de regra) | [`MANUAL.md`](../../../MANUAL.md), seção 1 |
-| Modelo de quatro camadas | `MANUAL.md`, seção 2 |
-| Referência completa -- cada regra do `CLAUDE.md`, sua camada, seu mecanismo | `MANUAL.md`, seção 3 |
-| O que acontece quando algo é bloqueado (`AUTORIZO-TRAVA`) | `MANUAL.md`, seção 4 |
-| Como os revisores semânticos decidem (processo de verificação em quatro etapas) | `MANUAL.md`, seção 5 |
-| Uso no dia a dia (painel ao vivo, checagem sob demanda) | `MANUAL.md`, seção 6 |
-| Instalação | `MANUAL.md`, seção 7 |
-| Layout de arquivos | `MANUAL.md`, seção 8; ver também [`architecture.md`](architecture.md) |
-| Achados confirmados por teste ao vivo | `MANUAL.md`, seção 9, e [`findings.md`](findings.md) deste módulo |
+| Cada gancho do Claude Code (o que faz, qual regra do `CLAUDE.md` aplica) | `.claude/hooks/*.sh`, comentário no topo de cada arquivo |
+| Funções compartilhadas (leitura de JSON, `AUTORIZO-TRAVA`, normalização de caminho) | `.claude/hooks/lib/common.sh` |
+| Qual gancho liga a qual evento do Claude Code | `.claude/settings.json` |
+| Hooks nativos do git (rodam fora do Claude Code, pra qualquer ferramenta) | `scripts/hooks/*` |
+| Layout completo de arquivos | [`architecture.md`](architecture.md) |
+| Achados confirmados por teste ao vivo | [`findings.md`](findings.md) |
+| Armadilhas de ferramenta/ambiente já encontradas | [`pitfalls.md`](pitfalls.md) |
 
-Qualquer mudança de comportamento deste módulo começa por `MANUAL.md`,
-não por este arquivo — `concept.md` só existe pra apontar pra ele e
-pra dar a este módulo o ponto de entrada que todo módulo tem dentro de
+Qualquer mudança de comportamento deste módulo começa relendo o
+`CLAUDE.md`, nunca um resumo dele -- `concept.md` só existe pra dar a
+este módulo o ponto de entrada que todo módulo tem dentro de
 `modulos/` (ver [`modulos/README.md`, Como
 navegar](../../README.md#como-navegar)). Divergência entre o código
-deste módulo e o que `MANUAL.md` decidiu vira achado em `findings.md`,
-nunca motivo pra reescrever o manual.
+deste módulo e o que o `CLAUDE.md` decide vira achado em
+`findings.md`, resolvida corrigindo o gancho, nunca reescrevendo o
+`CLAUDE.md` pra bater com o que o gancho já faz.
 
 ## Limites reconhecidos
 
-*Em resumo:* dois pontos não têm solução técnica possível, cada um por
-um motivo específico, não por serem difíceis — provar entendimento
-genuíno, e confirmar que um teste manual (preview isolado) funcionou
-de verdade.
+*Em resumo:* três pontos ficam sem garantia técnica plena, cada um por
+um motivo específico — dois sem solução possível (provar entendimento
+genuíno; confirmar que um teste manual, o preview isolado, funcionou
+de verdade), um terceiro que é falta de informação disponível hoje, não
+impossibilidade permanente: se um gancho decidido por IA (tipo `agent`
+ou `prompt`) consegue mesmo impedir a resposta de terminar no evento
+`Stop` — a documentação oficial marca esse mecanismo como
+experimental e não confirma isso com um exemplo literal.
 
-*Em detalhe técnico:* ver `MANUAL.md`, seção 10, pro texto completo de
-cada limite e o motivo exato.
+**Provar entendimento genuíno.** Dá pra forçar a ação -- reler o
+arquivo antes de editar -- mas não dá pra garantir que quem leu
+entendeu de verdade o que leu. Limite epistêmico, não algo que uma
+ferramenta resolve.
+
+**Confirmar que o teste no preview funcionou de verdade.** O
+`CLAUDE.md`, seção "Como rodar o preview isolado", não define nenhum
+sinal observável de sucesso (nem código de saída, nem arquivo de log,
+nem suíte de teste) -- sem essa definição, não existe evidência pra
+nenhum gancho capturar. `post_preview_track.sh` registra só que o
+ambiente subiu e desceu (sinal fraco); o revisor de commit pergunta
+explicitamente se foi testado de novo após mudança de código, em vez
+de presumir. No dia em que essa seção do `CLAUDE.md` definir um sinal
+concreto, essa checagem vira mecânica.
+
+**Bloqueio real de gancho `agent`/`prompt` no evento `Stop`.**
+Pesquisa direta na documentação oficial do Claude Code confirma o
+formato de bloqueio pra `PreToolUse` com certeza (mesmo formato de um
+gancho `command`), mas marca `agent`/`prompt` no evento `Stop` como
+experimental, sem exemplo confirmado de bloqueio. Os ganchos de
+julgamento do `Stop` usam o formato mais bem documentado disponível,
+sem garantia -- a garantia real, nesse evento, é só
+`stop_fact_check.sh` (gancho comum, sem IA, `exit 2` confirmado).
+Pendência de confirmação ao vivo em [tasks.md](tasks.md).
 
 ## Controle de versão
 
 | Versão | Data | Alteração | Origem da alteração |
 |---|---|---|---|
 | 0.1.0 | 27-08-2026 | Criação inicial -- módulo formalizado a partir do sistema de conformidade já existente em `.claude/hooks/`/`MANUAL.md`, sem repetir o conteúdo, só apontando pra ele como fonte normativa. | Criação inicial do módulo |
+| 0.2.0 | 27-08-2026 | Limites reconhecidos: terceiro ponto acrescentado (bloqueio real do evento `Stop` por gancho `agent`/`prompt`, mecanismo experimental sem confirmação oficial). | Resolução de [decisions/0008](<../decisions/0008-formato-de-bloqueio-nos-ganchos-de-julgamento-do-stop.md>) |

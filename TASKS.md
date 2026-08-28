@@ -77,9 +77,16 @@
 
       *Resumo simples:* o sistema de hooks que trava as regras do
       `CLAUDE.md` automaticamente foi formalizado como módulo próprio
-      — quatro lacunas reais já fechadas nesta rodada, mas ainda falta
-      confirmar tudo ao vivo numa sessão nova, e fazer uma auditoria
-      linha a linha mais rigorosa do `CLAUDE.md` inteiro.
+      — várias lacunas reais já fechadas em múltiplas rodadas (entre
+      elas: o formato de resposta que os ganchos revisados por IA
+      usavam nunca era reconhecido pelo Claude Code como bloqueio de
+      verdade; uma auditoria linha a linha do `CLAUDE.md` inteiro já
+      foi feita, virou o `MANUAL.md` na raiz; dez regras adicionais
+      movidas do momento do commit pro momento da própria edição; uma
+      falha real do Claude Code, no filtro `if`, corrigida com
+      auto-portão nos ganchos afetados), mas ainda falta confirmar tudo
+      ao vivo numa sessão nova -- nenhuma correção feita na mesma
+      sessão que a escreveu pôde ser vista bloqueando de verdade.
 
       *Detalhe técnico:* ver
       [modulos/conformidade/docs/tasks.md, Em aberto](modulos/conformidade/docs/tasks.md#em-aberto)

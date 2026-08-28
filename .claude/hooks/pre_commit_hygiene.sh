@@ -8,24 +8,33 @@ COMMAND=$(field '.tool_input.command')
 CWD=$(field '.cwd')
 TRANSCRIPT=$(field '.transcript_path')
 
+# Auto-portão: o campo "if" do settings.json (matcher Bash, condição
+# "Bash(git commit *)") já deveria restringir este script a rodar só
+# quando o comando é mesmo um "git commit" -- mas a documentação
+# oficial confirma que esse filtro FALHA ABERTO (roda o gancho mesmo
+# sem bater o padrão) sempre que o comando não é totalmente parseável
+# pelo mecanismo interno do Claude Code, o que comandos compostos,
+# com aspas aninhadas ou heredoc, disparam com facilidade. Achado ao
+# vivo nesta sessão: um comando qualquer, sem nenhum "git commit",
+# disparou este script mesmo assim, e a checagem de emoji (item 2b)
+# bloqueou um comando que não tinha nada a ver com commit. Sem este
+# auto-portão, todo comando Bash da sessão paga o custo (e o risco de
+# bloqueio falso) das checagens abaixo, que assumem staged diff e
+# mensagem de commit reais. Não depende do "if" pra estar correto --
+# só pra não rodar à toa quando o "if" funciona.
+if ! echo "$COMMAND" | grep -Eq '\bgit[[:space:]]+commit\b'; then
+  exit 0
+fi
+
 # 1) Trailer proibido -- fato de texto, sem exceção possível
 if echo "$COMMAND" | grep -qi "Co-Authored-By"; then
   block "Bloqueado: a mensagem de commit não pode ter a linha 'Co-Authored-By: Claude ...'."
 fi
 
-# 2) Emoji em qualquer arquivo do commit -- fato de texto, sem exceção
-#
-# "grep -P" com intervalo \x{...} acima de 0x7F exige locale UTF-8 --
-# em locale "C"/"POSIX" (comum em ambiente Windows/Git Bash sem
-# variável de locale definida), falha com "supports only unibyte and
-# UTF-8 locales" e a checagem inteira nunca roda (silêncio, não
-# segurança). Forçar LC_ALL=C.UTF-8 só nesta chamada -- confirmado
-# por teste ao vivo que resolve, sem depender de nenhum locale
-# instalado no sistema além do "C.UTF-8"/"C.utf8" que o glibc/musl já
-# trazem por padrão.
-EMOJI_PATTERN='[\x{1F300}-\x{1FAFF}\x{2600}-\x{27BF}\x{2190}-\x{21FF}\x{2B00}-\x{2BFF}]'
-EMOJI_HIT=$(git -C "$CWD" diff --cached -U0 2>/dev/null | LC_ALL=C.UTF-8 grep -P "$EMOJI_PATTERN" | head -n 1)
-if [[ -n "$EMOJI_HIT" ]]; then
+# 2) Emoji em qualquer arquivo do commit -- fato de texto, sem exceção.
+# Segunda conferência, no commit: pre_edit_safety.sh #9 já bloqueia
+# isso no momento da própria edição (ver lá o motivo do LC_ALL).
+if git -C "$CWD" diff --cached -U0 2>/dev/null | has_emoji; then
   block "Bloqueado: encontrei um emoji num arquivo que entraria neste commit."
 fi
 
@@ -35,11 +44,13 @@ fi
 # não só o conteúdo dos arquivos alterados. A checagem acima (2) só
 # olha o diff dos arquivos -- esta olha o comando "git commit" em si,
 # onde o texto da mensagem aparece de verdade (-m "..." ou heredoc).
-if echo "$COMMAND" | LC_ALL=C.UTF-8 grep -qP "$EMOJI_PATTERN"; then
+if echo "$COMMAND" | has_emoji; then
   block "Bloqueado: encontrei um emoji na própria mensagem do commit."
 fi
 
-# 3) Pureza de esquemas -- fato de texto, sem exceção
+# 3) Pureza de esquemas -- fato de texto, sem exceção. Segunda
+# conferência, no commit: pre_edit_safety.sh #10 já bloqueia isso no
+# momento da própria edição.
 SCHEMA_FILES=$(git -C "$CWD" diff --cached --name-only -- '*/schemas/*.json' 'schemas/*.json' 2>/dev/null)
 if [[ -n "$SCHEMA_FILES" ]]; then
   for f in $SCHEMA_FILES; do
@@ -54,26 +65,11 @@ fi
 # que não mora em schemas/*.json. CLAUDE.md, Regras gerais: "Qualquer
 # esquema de dado... em qualquer lugar do projeto -- dentro de
 # schemas/... ou embutido num documento como o Projeto Detalhado --
-# carrega só dado puro". Heurística: dentro de cada bloco cercado por
-# ```yaml ou ```json, só conta como esquema (não qualquer bloco de
-# exemplo solto) quando o bloco também contém "required" ou
-# "properties" junto com "type" -- forma que todo bloco de contrato de
-# dado deste projeto já usa.
+# carrega só dado puro". Segunda conferência, no commit:
+# pre_edit_safety.sh #10 já bloqueia isso no momento da própria edição.
 MD_FILES_SCHEMA=$(git -C "$CWD" diff --cached --name-only -- '*.md' 2>/dev/null)
 for f in $MD_FILES_SCHEMA; do
-  HIT=$(git -C "$CWD" show ":$f" 2>/dev/null | awk '
-    /^```(yaml|json)[[:space:]]*$/ { infence=1; buf=""; next }
-    /^```[[:space:]]*$/ {
-      if (infence) {
-        if ((buf ~ /required/ || buf ~ /properties/) && buf ~ /type/) {
-          if (buf ~ /description/ || buf ~ /example/) { print "HIT"; exit }
-        }
-      }
-      infence=0; next
-    }
-    infence { buf = buf $0 "\n" }
-  ')
-  if [[ "$HIT" == "HIT" ]]; then
+  if git -C "$CWD" show ":$f" 2>/dev/null | schema_block_impure; then
     block "Bloqueado: $f tem um bloco de esquema embutido (cercado por \`\`\`yaml ou \`\`\`json) com campo 'description' ou 'example'. Esquema de dado carrega só dado puro, mesmo embutido num documento."
   fi
 done
@@ -99,9 +95,12 @@ fi
 
 # 5) Ordem completa: concept.md -> architecture.md -> schemas/ ->
 # implementação (CLAUDE.md, Fluxo de escrita e revisão de
-# documentação). Achado na releitura linha por linha: só
-# "architecture.md antes do código" existia -- "concept.md antes de
+# documentação). Achado na releitura linha por linha (primeira rodada):
+# só "architecture.md antes do código" existia -- "concept.md antes de
 # architecture.md" e "schemas/ antes do código" nunca foram checados.
+# Achado na releitura seguinte, direto contra o código já corrigido:
+# ainda faltava "architecture.md antes de schemas/" -- as três
+# checagens que já existiam não cobriam esse par específico da ordem.
 if [[ -f "$EDIT_LOG" ]]; then
   MODULES=$(git -C "$CWD" diff --cached --name-only -- 'modulos/*' 2>/dev/null | sed -E 's#(modulos/[^/]+)/.*#\1#' | sort -u)
   for mod in $MODULES; do
@@ -111,6 +110,9 @@ if [[ -f "$EDIT_LOG" ]]; then
     CODE_TIME=$(grep -E "^\S+ $mod/" "$EDIT_LOG" | grep -Ev '/docs/|/schemas/|/decisions/' | head -n 1 | awk '{print $1}')
     if [[ -n "$CONCEPT_TIME" && -n "$ARCH_TIME" && "$ARCH_TIME" < "$CONCEPT_TIME" ]]; then
       block "Bloqueado: em $mod, architecture.md foi tocado antes de concept.md nesta sessão. Se isso for engano, use AUTORIZO-TRAVA: <motivo>."
+    fi
+    if [[ -n "$ARCH_TIME" && -n "$SCHEMA_TIME" && "$SCHEMA_TIME" < "$ARCH_TIME" ]]; then
+      block "Bloqueado: em $mod, schemas/ foi tocado antes de architecture.md nesta sessão. Se isso for engano, use AUTORIZO-TRAVA: <motivo>."
     fi
     if [[ -n "$SCHEMA_TIME" && -n "$CODE_TIME" && "$CODE_TIME" < "$SCHEMA_TIME" ]]; then
       block "Bloqueado: em $mod, implementação foi tocada antes de schemas/ nesta sessão. Se isso for engano, use AUTORIZO-TRAVA: <motivo>."
@@ -162,6 +164,39 @@ if [[ -n "$CLAUDE_MD_CHANGED" ]]; then
   if [[ -z "$HOOK_FILES_CHANGED" ]]; then
     block "Aviso: CLAUDE.md mudou neste commit e nenhum arquivo de hook (.claude/hooks/, .claude/settings.json, scripts-hooks/) mudou junto. Confirme se a regra nova/alterada precisa de mecanismo correspondente, ou se é ajuste que não se mecaniza (prosa, contexto). Se já confirmou, use AUTORIZO-TRAVA: <motivo>."
   fi
+fi
+
+# 10) Módulo novo sem linha em modulos/README.md (CLAUDE.md, "Fluxo de
+# escrita e revisão de documentação": checklist de documentos gerais
+# da raiz, item 1). Módulo novo = concept.md novo em modulos/<nome>/docs/.
+NEW_CONCEPTS=$(git -C "$CWD" diff --cached --name-only --diff-filter=A -- 'modulos/*/docs/concept.md' 2>/dev/null)
+if [[ -n "$NEW_CONCEPTS" ]]; then
+  README_CHANGED=$(git -C "$CWD" diff --cached --name-only -- 'modulos/README.md' 2>/dev/null)
+  for f in $NEW_CONCEPTS; do
+    mod=$(echo "$f" | sed -E 's#modulos/([^/]+)/.*#\1#')
+    [[ "$mod" == "_template" ]] && continue
+    if [[ -z "$README_CHANGED" ]]; then
+      block "Bloqueado: módulo novo '$mod' (concept.md criado) mas modulos/README.md não mudou neste commit -- falta a linha na tabela de módulos. Se isso for engano, use AUTORIZO-TRAVA: <motivo>."
+    fi
+  done
+fi
+
+# 11) tasks.md de algum módulo mudou de "Em aberto" vazia pra
+# não-vazia (ou o contrário) sem TASKS.md (raiz) acompanhar
+# (CLAUDE.md, mesmo checklist, item 2). Vazio = nenhuma linha "- [ ]"
+# entre "## Em aberto" e o próximo "## ".
+MODULE_TASKS=$(git -C "$CWD" diff --cached --name-only -- 'modulos/*/docs/tasks.md' 2>/dev/null)
+if [[ -n "$MODULE_TASKS" ]]; then
+  ROOT_TASKS_CHANGED=$(git -C "$CWD" diff --cached --name-only -- 'TASKS.md' 2>/dev/null)
+  for f in $MODULE_TASKS; do
+    OLD_SECTION=$(git -C "$CWD" show "HEAD:$f" 2>/dev/null | awk '/^## Em aberto/{flag=1;next}/^## /{flag=0}flag')
+    NEW_SECTION=$(git -C "$CWD" show ":$f" 2>/dev/null | awk '/^## Em aberto/{flag=1;next}/^## /{flag=0}flag')
+    OLD_EMPTY=true; echo "$OLD_SECTION" | grep -q '^- \[ \]' && OLD_EMPTY=false
+    NEW_EMPTY=true; echo "$NEW_SECTION" | grep -q '^- \[ \]' && NEW_EMPTY=false
+    if [[ "$OLD_EMPTY" != "$NEW_EMPTY" && -z "$ROOT_TASKS_CHANGED" ]]; then
+      block "Bloqueado: $f mudou a seção 'Em aberto' de vazia pra não-vazia (ou o contrário), mas TASKS.md (raiz) não mudou neste commit. Se isso for engano, use AUTORIZO-TRAVA: <motivo>."
+    fi
+  done
 fi
 
 exit 0

@@ -4,7 +4,7 @@
 |---|---|
 | Módulo | Conformidade |
 | Documento | Handoff |
-| Versão | 0.6.0 |
+| Versão | 0.8.0 |
 | Data | 28-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
@@ -64,6 +64,9 @@
   ficha compacta (estado atual, por ação) substitui a releitura do
   diário inteiro a cada checagem; diário continua existindo, intacto,
   do lado; reinicia a cada sessão nova.
+- [decisions/0013-frescor-uniforme-de-leitura-substitui-permanencia.md](<../decisions/0013-frescor-uniforme-de-leitura-substitui-permanencia.md>) —
+  leitura permanente dos seis documentos manuais trocada por frescor
+  uniforme (mesma janela já usada em citação de documento).
 - [`MANUAL.md`](../../../MANUAL.md) — recriado como checklist: cada
   faixa de linha do `CLAUDE.md` (344 linhas) contra o gancho real que
   a aplica, montado enquanto a leitura acontecia, não depois -- seis
@@ -82,6 +85,11 @@
   mesmo módulo, quando deveria ser só ponteiro -- ver nota de
   acompanhamento em
   [decisions/0009](<../decisions/0009-revisor-de-commit-confere-conteudo-no-documento-certo.md>).
+- Bloqueio real dos ganchos de conformidade corrigido -- ver
+  [findings.md](findings.md) e
+  [decisions/0013](<../decisions/0013-frescor-uniforme-de-leitura-substitui-permanencia.md>)
+  pro detalhe completo; gancho `agent` de edição ganha um quarto
+  julgamento (D), sobre qual arquivo de `schemas/` é o relevante.
 - [findings.md](findings.md) — achados confirmados até agora.
 - [analysis.md](analysis.md) — registro de como cada investigação
   deste módulo foi feita.
@@ -92,10 +100,9 @@
 
 - [tasks.md, Em aberto](<tasks.md#em-aberto>) — confirmação de ponta a
   ponta numa sessão nova, cobrindo todas as rodadas de correção, é a
-  pendência mais direta (inclui agora a ficha/síntese e o auto-portão
-  do filtro `if`). A auditoria linha a linha do `CLAUDE.md`, que ficara
-  combinada pra depois, já foi feita nesta sessão (é o que `MANUAL.md`
-  virou).
+  pendência mais direta (inclui agora os mecanismos desta rodada). A
+  auditoria linha a linha do `CLAUDE.md`, que ficara combinada pra
+  depois, já foi feita nesta sessão (é o que `MANUAL.md` virou).
 
 ## Controle de versão
 
@@ -107,3 +114,5 @@
 | 0.4.0 | 28-08-2026 | Acrescentado ponteiro para decisions/0010. | Guarda de busca ampla trocada de gancho-por-ferramenta pra gancho único, genérico por formato de chamada |
 | 0.5.0 | 28-08-2026 | Acrescentado ponteiro para decisions/0012 (ficha/síntese), retroativo a trabalho já feito nesta sessão sem registro. | Fechamento da lacuna de documentação da ficha/síntese |
 | 0.6.0 | 28-08-2026 | Acrescentado ponteiro para decisions/0011; linha nova sobre as quatro checagens movidas pro momento da edição e o terceiro julgamento (C) de conteúdo duplicado. | Correção da falha aberta do filtro `if`; extensão da checagem de duplicação de conteúdo pro momento da edição |
+| 0.7.0 | 28-08-2026 | Acrescentado ponteiro para decisions/0013; linha nova sobre a correção do bloqueio real dos ganchos (compactação, corrupção da ficha, AUTORIZO-TRAVA, itens 13/14-15). | Correção do bloqueio real dos ganchos de conformidade |
+| 0.8.0 | 28-08-2026 | Acrescentado ponteiro para pitfalls.md, sem linha própria antes. | Correção do bloqueio real dos ganchos de conformidade -- fechamento |

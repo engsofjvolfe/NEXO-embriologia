@@ -4,7 +4,7 @@
 |---|---|
 | Módulo | Conformidade |
 | Documento | Tasks |
-| Versão | 0.4.0 |
+| Versão | 0.5.0 |
 | Data | 28-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
@@ -132,19 +132,10 @@
       configuração da sessão em si (fora do controle deste módulo) ou
       algo que vale a pena entender melhor antes de repetir.
 
-- [ ] **Confirmar ao vivo, numa sessão nova, a ficha/síntese
+- [x] **Confirmar ao vivo, numa sessão nova, a ficha/síntese
       ([decisions/0012](<../decisions/0012-ficha-sintese-substitui-releitura-do-diario-a-cada-checagem.md>)).**
-
-      *Resumo simples:* as seis funções da ficha e o gancho
-      `session_start_reset.sh` já foram testados isoladamente (fora do
-      fluxo real de um gancho, numa pasta de rascunho) -- falta
-      confirmar, numa sessão nova de verdade, que `SessionStart`
-      dispara o reset no início, e que as sete checagens de
-      `pre_edit_safety.sh` que passaram a consultar a ficha continuam
-      bloqueando nos mesmos casos de antes.
-
-      *Detalhe técnico:* mesma limitação de toda esta lista -- ver
-      [pitfalls.md](<pitfalls.md#2026-08-27-configuracao-de-ganchos-nao-recarrega-na-mesma-sessao>).
+      Resolvido, embora não do jeito esperado -- ver
+      [Resolvidas](#resolvidas).
 
 - [ ] **Confirmar ao vivo, numa sessão nova, o auto-portão contra
       falha aberta do filtro `if` nos dois ganchos `agent` (revisão de
@@ -165,7 +156,47 @@
       commit, respondendo `allow` direto. Mesmo teste, adaptado, pro
       gancho de revisão de preview.
 
+- [ ] **Confirmar de ponta a ponta, numa sessão nova, os mecanismos
+      corrigidos nesta rodada (bloqueio real dos ganchos de
+      conformidade).**
+
+      *Resumo simples:* mesma limitação de toda esta lista -- a
+      sessão que corrige não consegue ver a correção valendo de
+      verdade, porque os ganchos rodam a partir da pasta principal do
+      repositório, não da worktree onde a correção foi escrita. Cinco
+      pontos corrigidos nesta rodada, ainda sem confirmação numa
+      sessão limpa, que já carregue os arquivos corrigidos desde o
+      início.
+
+      *Detalhe técnico:* cinco pontos a confirmar: (1) `SessionStart`
+      não apaga mais a ficha na compactação (só em
+      início/retomada/limpeza de verdade); (2) a ficha se recupera
+      sozinha de um estado corrompido (arquivo vazio ou JSON inválido),
+      sem precisar de intervenção manual; (3) `AUTORIZO-TRAVA` não
+      dispara mais por um texto de exemplo citado, só por um motivo de
+      fato escrito; (4) a leitura manual obrigatória dos seis
+      documentos expira depois de 20 ações, exigindo releitura; (5) os
+      itens 13 (achado sem registro) e 14/15 (escolha sem ADR) de
+      `pre_edit_safety.sh` sinalizam nos casos certos e destravam pelas
+      frases de confirmação específicas. Ver
+      [findings.md](<findings.md#2026-08-28-sessionstart-sem-matcher-reseta-a-ficha-na-compactacao>)
+      em diante, e
+      [decisions/0013](<../decisions/0013-frescor-uniforme-de-leitura-substitui-permanencia.md>).
+
 ## Resolvidas
+
+- [x] **Confirmar ao vivo, numa sessão nova, a ficha/síntese
+      ([decisions/0012](<../decisions/0012-ficha-sintese-substitui-releitura-do-diario-a-cada-checagem.md>)).**
+      Resolvido, embora não do jeito planejado (nenhum teste isolado
+      de propósito) -- a própria sessão que corrigiu o resto deste
+      módulo ficou repetidamente bloqueada pela ficha travando de
+      verdade (leitura manual obrigatória reaparecendo, mesmo depois
+      de já satisfeita), confirmando ao vivo que o bloqueio funciona.
+      Essa mesma experiência revelou dois defeitos novos na própria
+      ficha, corrigidos na mesma rodada -- ver
+      [findings.md](<findings.md#2026-08-28-sessionstart-sem-matcher-reseta-a-ficha-na-compactacao>)
+      e
+      [findings.md](<findings.md#2026-08-28-corrupcao-e-perda-de-fato-na-ficha-por-escrita-concorrente>).
 
 ## Controle de versão
 
@@ -175,3 +206,4 @@
 | 0.2.0 | 27-08-2026 | Pendência nova acrescentada: confirmação de ponta a ponta dos cinco mecanismos corrigidos na segunda rodada (decisions/0006 a 0008). | Correção do formato de bloqueio que nunca era reconhecido pelo Claude Code |
 | 0.3.0 | 28-08-2026 | Pendência de investigação da causa raiz do "modo sem perguntar" atualizada com pista nova; pendência nova acrescentada (confirmação do auto-portão de decisions/0011 nos dois ganchos agent). | Correção da falha aberta do filtro `if` |
 | 0.4.0 | 28-08-2026 | Pendência nova acrescentada (confirmação da ficha/síntese, decisions/0012, numa sessão nova). | Fechamento da lacuna de documentação da ficha/síntese |
+| 0.5.0 | 28-08-2026 | Pendência de confirmação da ficha/síntese resolvida (confirmada ao vivo por acidente, revelando dois defeitos novos, corrigidos na mesma rodada); pendência nova acrescentada (confirmação de ponta a ponta dos mecanismos desta rodada). | Correção do bloqueio real dos ganchos de conformidade |

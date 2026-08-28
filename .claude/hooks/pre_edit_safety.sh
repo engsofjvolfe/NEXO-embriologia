@@ -9,21 +9,36 @@ FILE_PATH=$(normalize_path "$(field '.tool_input.file_path')")
 CWD=$(normalize_path "$(field '.cwd')")
 TRANSCRIPT=$(field '.transcript_path')
 
+# Janela de frescor (em número de ações da ficha) -- quantas ações
+# atrás uma leitura ainda conta como "de fresco". Usada por vários
+# itens abaixo (1, 4, 5, 6, 7, 8), não só o item 4 como antes -- mesmo
+# princípio geral: nenhuma leitura vale "pra sempre", a pergunta é
+# sempre "li de fresco o bastante pra confiar agora?". Ver
+# modulos/conformidade/decisions/0013.
+RECENCY_WINDOW=20
+
 if is_authorized; then
   log_override "pre_edit_safety" "$(authorized_reason)"
   exit 0
 fi
 
 # 1) Reler antes de editar (não se aplica a Write de arquivo novo).
-# Consulta a ficha (síntese, lib/common.sh) em vez de reler o diário
-# inteiro -- o fato "leitura.<caminho>" é gravado por post_read_track.sh
-# toda vez que o Read acontece de verdade, sem expiração dentro da
-# sessão (mesmo raciocínio do item 3 abaixo: "foi lido" não é um fato
-# que perde validade com o tempo, só entre sessões -- e isso já é
-# coberto pelo reset em session_start_reset.sh).
+# Consulta a ficha (síntese, lib/common.sh) -- agora exigindo leitura
+# *fresca* (dentro da janela acima), não só "leu alguma vez nesta
+# sessão". Antes, um Read feito há muitas ações, com o arquivo já
+# mudado de memória por outra coisa lida ou escrita depois, ainda
+# contava como "lido" -- mesmo problema geral que motivou esta rodada
+# inteira (nenhuma leitura vale pra sempre). Duas mensagens distintas:
+# nunca lido (mais grave, sem rastro nenhum) e lido mas desatualizado
+# (já leu, só precisa confirmar de novo) -- mesmo padrão já usado no
+# item 4.
 if [[ "$TOOL_NAME" == "Edit" && -n "$FILE_PATH" ]]; then
-  if [[ -z "$(synthesis_age "leitura.${FILE_PATH}")" ]]; then
-    block "Bloqueado: não encontrei rastro de que $FILE_PATH foi lido (via Read) nesta sessão antes desta edição. Se já leu de outro jeito, use AUTORIZO-TRAVA: <motivo>."
+  if ! synthesis_fresh "leitura.${FILE_PATH}" "$RECENCY_WINDOW"; then
+    if [[ -n "$(synthesis_age "leitura.${FILE_PATH}")" ]]; then
+      block "Bloqueado: $FILE_PATH foi lido nesta sessão, mas não entre as últimas $RECENCY_WINDOW ações -- pode estar desatualizado na memória. Releia antes de editar, ou use AUTORIZO-TRAVA: <motivo>."
+    else
+      block "Bloqueado: não encontrei rastro de que $FILE_PATH foi lido (via Read) nesta sessão antes desta edição. Se já leu de outro jeito, use AUTORIZO-TRAVA: <motivo>."
+    fi
   fi
 fi
 
@@ -35,37 +50,22 @@ fi
 # 3) Leitura manual obrigatória antes de qualquer código -- Portão pro
 # Passo 2 do "Fluxo completo de uma tarefa": "nenhuma linha de código
 # escrita antes disso, e a leitura obrigatória já feita de verdade".
-# Achado na releitura linha por linha: antes, só pre_commit_hygiene.sh
-# conferia isso, no commit -- tarde demais, dava pra editar dezenas de
-# arquivos sem nunca ter lido nada. Só os 6 documentos de leitura
-# manual entram aqui (ver lib/common.sh, first_unread_mandatory_doc).
+# Só os 6 documentos de leitura manual entram aqui (ver lib/common.sh,
+# first_unread_mandatory_doc, que agora também exige frescor -- mesma
+# janela acima, ver decisions/0013).
 UNREAD_DOC=$(first_unread_mandatory_doc)
 if [[ -n "$UNREAD_DOC" ]]; then
-  block "Bloqueado: leitura manual obrigatória ainda não feita ('$UNREAD_DOC') -- nenhum código antes disso (CLAUDE.md, Portão pro Passo 2). Se isso for engano, use AUTORIZO-TRAVA: <motivo>."
+  block "Bloqueado: leitura manual obrigatória ainda não feita ou desatualizada ('$UNREAD_DOC') -- nenhum código antes disso (CLAUDE.md, Portão pro Passo 2). Se isso for engano, use AUTORIZO-TRAVA: <motivo>."
 fi
 
 # 4) Não concluir a partir do que já chegou carregado -- CLAUDE.md,
 # topo do documento: "confirmar antes de escrever a correção", não
-# depois. Antes, essa checagem só existia no revisor de commit
-# (julgamento, tarde -- roda só quando o commit já vai acontecer,
-# depois de várias edições). Movida pra cá: no momento exato da
-# escrita, mecânica (sem IA) -- se o texto novo cita outro documento
-# .md (por nome, não a própria edição em si), esse documento precisa
-# ter sido lido por completo (via Read) nesta sessão antes.
-#
-# Não basta ter sido lido "em algum momento da sessão" -- pesquisa
-# direta na documentação oficial confirmou que não existe forma de
-# forçar uma ferramenta (Read) rodar antes de outra (Edit/Write); o
-# máximo real é bloquear até existir o registro. Pra chegar mais perto
-# de "lido no momento em que precisa dele" (não uma leitura antiga,
-# esquecida, usada de memória várias ações depois), só aceita leitura
-# dentro das últimas RECENCY_WINDOW ações registradas na ficha (síntese,
-# lib/common.sh) -- não em qualquer ponto do histórico da sessão
-# inteira, e sem reler o diário pra descobrir isso (synthesis_fresh
-# consulta só o fato já resumido). Heurística, com falso positivo
-# possível (citar um nome não é sempre "depender" da convenção dele) --
-# por isso autorizável.
-RECENCY_WINDOW=20
+# depois. Se o texto novo cita outro documento .md (por nome, não a
+# própria edição em si), esse documento precisa ter sido lido por
+# completo (via Read) nesta sessão, dentro da janela de frescor acima
+# -- não em qualquer ponto do histórico da sessão inteira. Heurística,
+# com falso positivo possível (citar um nome não é sempre "depender"
+# da convenção dele) -- por isso autorizável.
 NEW_CONTENT=""
 if [[ "$TOOL_NAME" == "Write" ]]; then
   NEW_CONTENT=$(field '.tool_input.content')
@@ -90,49 +90,87 @@ fi
 
 # 5) Ordem completa concept.md -> architecture.md -> schemas/ ->
 # implementação, no momento da própria edição -- não só no commit.
-# `pre_commit_hygiene.sh` #5 já confere isso, mas só quando o commit
-# já vai acontecer -- dá pra escrever a sessão inteira fora de ordem e
-# só descobrir no fim, depois de já ter perdido o trabalho. Consulta a
-# ficha (síntese, lib/common.sh) em vez do diário: como
-# `post_edit_track.sh` marca "edicao.<mod>.<etapa>" só DEPOIS da edição
-# acontecer, o que já está na ficha agora reflete só as edições
-# anteriores a esta -- comparação segura, sem reler edit-order.log.
+# Trocado de "documento anterior foi EDITADO nesta sessão" (edicao.*)
+# pra "documento anterior foi LIDO DE FRESCO nesta sessão"
+# (synthesis_fresh sobre leitura.<basename>) -- o que garante a ordem
+# certa não é ter tocado no documento antes, é ter o conteúdo atual
+# dele na cabeça no momento de derivar o passo seguinte. Mesma
+# limitação de basename já aceita no item 4 (dois módulos com
+# concept.md não se distinguem por esse fato -- heurística, não fato
+# exato, mas suficiente pro caso real de uma sessão trabalhando num
+# módulo por vez).
 if [[ -n "$FILE_PATH" && "$FILE_PATH" == *"/modulos/"* ]]; then
   MOD=$(echo "$FILE_PATH" | sed -E 's#.*/modulos/([^/]+)/.*#\1#')
   if [[ "$MOD" != "_template" ]]; then
+    PREFIX="${FILE_PATH%%/modulos/*}"
+    MODDIR="$PREFIX/modulos/$MOD"
     IS_ARCH=false; [[ "$FILE_PATH" == *"modulos/$MOD/docs/architecture.md" ]] && IS_ARCH=true
     IS_SCHEMA=false; [[ "$FILE_PATH" == *"modulos/$MOD/schemas/"* ]] && IS_SCHEMA=true
+    IS_DECISION=false; [[ "$FILE_PATH" == *"modulos/$MOD/decisions/"*".md" ]] && IS_DECISION=true
     IS_CODE=false; [[ "$FILE_PATH" == *"modulos/$MOD/"* && "$FILE_PATH" != *"/docs/"* && "$FILE_PATH" != *"/schemas/"* && "$FILE_PATH" != *"/decisions/"* ]] && IS_CODE=true
-    if $IS_ARCH && [[ -z "$(synthesis_age "edicao.${MOD}.concept")" ]]; then
-      block "Bloqueado: tentando editar architecture.md em $MOD antes de concept.md ter sido tocado nesta sessão -- CLAUDE.md, ordem completa (concept.md -> architecture.md -> schemas/ -> implementação). Se isso for engano, use AUTORIZO-TRAVA: <motivo>."
+
+    if $IS_ARCH && ! synthesis_fresh "leitura.concept.md" "$RECENCY_WINDOW"; then
+      block "Bloqueado: tentando editar architecture.md em $MOD sem leitura fresca de concept.md nesta sessão -- CLAUDE.md, ordem completa (concept.md -> architecture.md -> schemas/ -> implementação). Releia concept.md antes, ou use AUTORIZO-TRAVA: <motivo>."
     fi
-    if $IS_SCHEMA && [[ -z "$(synthesis_age "edicao.${MOD}.architecture")" ]]; then
-      block "Bloqueado: tentando editar schemas/ em $MOD antes de architecture.md ter sido tocado nesta sessão. Se isso for engano, use AUTORIZO-TRAVA: <motivo>."
+    if $IS_SCHEMA && ! synthesis_fresh "leitura.architecture.md" "$RECENCY_WINDOW"; then
+      block "Bloqueado: tentando editar schemas/ em $MOD sem leitura fresca de architecture.md nesta sessão. Releia architecture.md antes, ou use AUTORIZO-TRAVA: <motivo>."
     fi
-    if $IS_CODE && [[ -z "$(synthesis_age "edicao.${MOD}.schemas")" && -z "$(synthesis_age "edicao.${MOD}.architecture")" ]]; then
-      block "Bloqueado: tentando editar implementação em $MOD antes de architecture.md/schemas/ terem sido tocados nesta sessão. Se isso for engano, use AUTORIZO-TRAVA: <motivo>."
+    # Código aceita architecture.md OU algum arquivo de schemas/ como
+    # "documento anterior" -- nem todo módulo tem pasta schemas/ (ex.:
+    # conformidade, sem contrato de dado próprio), então exigir as duas
+    # coisas sempre bloquearia módulo sem schemas/ sem necessidade.
+    # Mesma lógica "ou" que a checagem antiga (edicao.*) já usava, só
+    # trocando o fato de "foi editado" pra "foi lido de fresco".
+    # synthesis_any_fresh_with_prefix (lib/common.sh) cobre schemas/
+    # porque o nome do arquivo lá dentro não é fixo -- não dá pra usar
+    # synthesis_fresh com uma chave única.
+    if $IS_CODE && ! synthesis_fresh "leitura.architecture.md" "$RECENCY_WINDOW" \
+       && ! synthesis_any_fresh_with_prefix "leitura.${MODDIR}/schemas/" "$RECENCY_WINDOW"; then
+      block "Bloqueado: tentando editar implementação em $MOD sem leitura fresca de architecture.md, nem de nenhum arquivo em schemas/, nesta sessão. Releia um dos dois antes, ou use AUTORIZO-TRAVA: <motivo>."
+    fi
+
+    # Caso novo: escrever uma ADR em decisions/ exige leitura fresca de
+    # concept.md e architecture.md desse módulo -- a decisão precisa
+    # estar embasada no desenho atual, não em memória antiga. Pula a
+    # exigência se o módulo ainda não existir em disco (módulo novo,
+    # sem concept.md/architecture.md pra reler ainda).
+    if $IS_DECISION && [[ -d "$MODDIR" ]]; then
+      CONCEPT_PATH="$MODDIR/docs/concept.md"
+      ARCH_PATH="$MODDIR/docs/architecture.md"
+      if [[ -f "$CONCEPT_PATH" ]] && ! synthesis_fresh "leitura.${CONCEPT_PATH}" "$RECENCY_WINDOW"; then
+        block "Bloqueado: escrevendo uma ADR em $MOD/decisions/ sem leitura fresca de $CONCEPT_PATH nesta sessão. Releia antes, ou use AUTORIZO-TRAVA: <motivo>."
+      fi
+      if [[ -f "$ARCH_PATH" ]] && ! synthesis_fresh "leitura.${ARCH_PATH}" "$RECENCY_WINDOW"; then
+        block "Bloqueado: escrevendo uma ADR em $MOD/decisions/ sem leitura fresca de $ARCH_PATH nesta sessão. Releia antes, ou use AUTORIZO-TRAVA: <motivo>."
+      fi
     fi
   fi
 fi
 
-# 6) handoff.md sempre a última coisa tocada no módulo -- mesmo motivo
-# do item 5: `pre_commit_hygiene.sh` #8 já confere isso, só que tarde
-# demais (no commit). Aqui, no momento da edição, consultando a ficha:
-# se handoff.md deste módulo já foi tocado nesta sessão, qualquer outra
-# edição em modulos/<mod>/docs/ depois disso bloqueia.
+# 6) handoff.md sempre a última coisa tocada no módulo -- mantém a
+# checagem de ORDEM que já existia (handoff.md já tocado bloqueia
+# outra edição em docs/ depois dele -- isso é sobre "também foi
+# escrito", fato diferente de frescor de leitura). Acrescenta, além
+# disso: escrever no próprio handoff.md exige leitura fresca dele
+# primeiro (documento envolvido nesta edição específica) -- handoff.md
+# só aponta pro estado atual; sobrescrever sem reler arrisca apagar um
+# ponteiro que ainda vale.
 if [[ -n "$FILE_PATH" && "$FILE_PATH" == *"/modulos/"*"/docs/"* && "$FILE_PATH" != *"/docs/handoff.md" ]]; then
   MOD2=$(echo "$FILE_PATH" | sed -E 's#.*/modulos/([^/]+)/docs/.*#\1#')
   if [[ "$MOD2" != "_template" && -n "$(synthesis_age "edicao.${MOD2}.handoff")" ]]; then
     block "Bloqueado: handoff.md de $MOD2 já foi tocado nesta sessão -- CLAUDE.md: 'handoff.md é sempre a última coisa tocada dentro do módulo'. Se precisar editar mais algo em docs/, isso deveria vir antes de handoff.md. Se isso for engano, use AUTORIZO-TRAVA: <motivo>."
   fi
 fi
+if [[ -n "$FILE_PATH" && "$FILE_PATH" == *"/modulos/"*"/docs/handoff.md" && -f "$FILE_PATH" ]]; then
+  if ! synthesis_fresh "leitura.${FILE_PATH}" "$RECENCY_WINDOW"; then
+    block "Bloqueado: escrevendo handoff.md sem leitura fresca dele nesta sessão -- confirme o estado atual antes de sobrescrever. Releia $FILE_PATH antes, ou use AUTORIZO-TRAVA: <motivo>."
+  fi
+fi
 
-# 7) Módulo novo sem linha em modulos/README.md -- mesmo motivo dos
-# itens 5 e 6: `pre_commit_hygiene.sh` #10 já confere isso, só no
-# commit. Aqui, via ficha: assim que concept.md de um módulo novo é
-# criado (Write, primeira vez -- ainda sem fato "edicao.<mod>.concept"
-# registrado), qualquer edição seguinte que não seja o próprio
-# modulos/README.md bloqueia, até essa linha existir.
+# 7) Módulo novo sem linha em modulos/README.md -- mantém a checagem
+# de ORDEM que já existia. Acrescenta: escrever no próprio
+# modulos/README.md exige leitura fresca dele primeiro (documento
+# envolvido) -- confirma a tabela atual antes de editar por cima dela.
 if [[ -n "$FILE_PATH" && "$FILE_PATH" == *"/modulos/"* && "$FILE_PATH" != *"/modulos/README.md" ]]; then
   MOD3=$(echo "$FILE_PATH" | sed -E 's#.*/modulos/([^/]+)/.*#\1#')
   if [[ "$MOD3" != "_template" && -n "$MOD3" ]]; then
@@ -150,15 +188,17 @@ if [[ -n "$FILE_PATH" && "$FILE_PATH" == *"/modulos/"* && "$FILE_PATH" != *"/mod
     fi
   fi
 fi
+if [[ -n "$FILE_PATH" && "$FILE_PATH" == *"/modulos/README.md" && -f "$FILE_PATH" ]]; then
+  if ! synthesis_fresh "leitura.${FILE_PATH}" "$RECENCY_WINDOW"; then
+    block "Bloqueado: escrevendo modulos/README.md sem leitura fresca dele nesta sessão -- confirme a tabela atual antes de acrescentar linha. Releia $FILE_PATH antes, ou use AUTORIZO-TRAVA: <motivo>."
+  fi
+fi
 
 # 8) tasks.md de módulo mudando de "Em aberto" vazia pra não-vazia (ou
-# o contrário) sem TASKS.md (raiz) acompanhar -- mesmo motivo dos
-# itens 5 a 7. Sem depender de nada além de bash/awk/grep (nenhuma
-# dependência nova): pra Write, compara o arquivo inteiro; pra Edit,
-# compara só o fragmento trocado (old_string/new_string) -- heurística
-# um pouco menos precisa que reconstruir o arquivo inteiro, mas
-# suficiente pro caso real (a edição que faz essa transição sempre
-# toca a própria linha "- [ ]" dentro do fragmento).
+# o contrário) sem TASKS.md (raiz) acompanhar -- mantém a checagem de
+# ORDEM que já existia. Acrescenta: escrever no próprio TASKS.md
+# (raiz) exige leitura fresca dele primeiro (documento envolvido) --
+# confirma a lista atual de pendências antes de editar por cima dela.
 if [[ -n "$FILE_PATH" && "$FILE_PATH" == *"/modulos/"*"/docs/tasks.md" ]]; then
   OLD_HAS_ITEM=false
   NEW_HAS_ITEM=false
@@ -178,6 +218,11 @@ if [[ -n "$FILE_PATH" && "$FILE_PATH" == *"/modulos/"*"/docs/tasks.md" ]]; then
     block "Bloqueado: esta edição parece mudar se $FILE_PATH tem pendência aberta (item '- [ ]' aparecendo ou sumindo), mas TASKS.md (raiz) ainda não foi tocado nesta sessão. Se isso for engano (o item '- [ ]' na edição não é sobre a seção 'Em aberto'), use AUTORIZO-TRAVA: <motivo>."
   fi
 fi
+if [[ -n "$FILE_PATH" && "$FILE_PATH" == *"/TASKS.md" && "$FILE_PATH" != *"/modulos/"* && -f "$FILE_PATH" ]]; then
+  if ! synthesis_fresh "leitura.${FILE_PATH}" "$RECENCY_WINDOW"; then
+    block "Bloqueado: escrevendo TASKS.md (raiz) sem leitura fresca dele nesta sessão -- confirme a lista atual de pendências antes de editar. Releia $FILE_PATH antes, ou use AUTORIZO-TRAVA: <motivo>."
+  fi
+fi
 
 # Fragmento de texto novo desta edição -- reaproveita o mesmo cálculo
 # do item 4 acima (Write -> content inteiro; Edit -> só new_string,
@@ -186,22 +231,12 @@ fi
 # aqui, mesma limitação já aceita no item 4).
 NEW_FRAGMENT="$NEW_CONTENT"
 
-# 9) Nunca usar emoji em nada escrito no projeto -- achado na
-# releitura desta rodada: essa regra (CLAUDE.md, Regras gerais) só
-# tinha checagem mecânica no commit (pre_commit_hygiene.sh #2), tarde
-# demais -- editava-se o arquivo inteiro com emoji sem trava nenhuma
-# até o momento de commitar. Aqui, no momento da própria edição, fato
-# de texto sem exceção (mesma função compartilhada de lib/common.sh).
+# 9) Nunca usar emoji em nada escrito no projeto.
 if [[ -n "$NEW_FRAGMENT" ]] && echo "$NEW_FRAGMENT" | has_emoji; then
   block "Bloqueado: encontrei um emoji neste texto -- CLAUDE.md, Regras gerais: 'nunca usar emojis em nada escrito neste projeto (código, docs, commits, chat)'. Sem exceção, não é autorizável."
 fi
 
-# 10) Pureza de esquema de dado (sem campo description/example) --
-# mesmo achado do item 9: só existia checagem no commit
-# (pre_commit_hygiene.sh #3/#3b). Aqui: se o arquivo é um
-# schemas/*.json, o fragmento novo não pode ter "description"/
-# "example"; se é qualquer .md, um bloco ```yaml/```json embutido no
-# fragmento não pode ter esses campos junto com required/properties+type.
+# 10) Pureza de esquema de dado (sem campo description/example).
 if [[ -n "$NEW_FRAGMENT" ]]; then
   if [[ "$FILE_PATH" == *"/schemas/"*".json" ]]; then
     if echo "$NEW_FRAGMENT" | grep -Eq '"description"|"example"'; then
@@ -214,31 +249,61 @@ if [[ -n "$NEW_FRAGMENT" ]]; then
   fi
 fi
 
-# 11) Linha de Licença em tabela de cabeçalho ("Campo | Valor") -- só
-# existia checagem no commit (pre_commit_hygiene.sh #6). Aqui: só dá
-# pra checar com confiança quando o fragmento novo contém a própria
-# linha de cabeçalho da tabela (criação do arquivo via Write, ou uma
-# Edit que reescreve essa tabela) -- reconstruir o arquivo inteiro pra
-# achar uma tabela de cabeçalho que já existia antes desta edição não
-# é possível aqui (mesma limitação do item 9/10). Fora desse caso, o
-# commit continua sendo o backstop de certeza.
+# 11) Linha de Licença em tabela de cabeçalho ("Campo | Valor").
 if [[ -n "$NEW_FRAGMENT" && "$FILE_PATH" == *.md ]]; then
   if echo "$NEW_FRAGMENT" | grep -qE '^\s*\|?\s*Campo\s*\|\s*Valor' && ! echo "$NEW_FRAGMENT" | grep -qi 'Licen'; then
     block "Bloqueado: este texto cria/reescreve uma tabela de cabeçalho ('Campo | Valor') sem linha de Licença -- CLAUDE.md, Regras gerais. Se não for cabível pra este documento, use AUTORIZO-TRAVA: <motivo>."
   fi
 fi
 
-# 12) "Antes e depois" em documento nunca versionado -- só existia
-# checagem no commit (pre_commit_hygiene.sh #7). "Nunca versionado" =
-# sem nenhum commit no histórico do git pra este caminho; se o git em
-# si não responder (fora de repositório, comando falhando), pula a
-# checagem em vez de bloquear tudo por engano (fail-open só aqui,
-# porque o oposto -- tratar toda falha de git como "nunca versionado"
-# -- bloquearia edição de arquivo antigo também).
+# 12) "Antes e depois" em documento nunca versionado.
 if [[ -n "$NEW_FRAGMENT" && "$FILE_PATH" == *.md ]] && git -C "$CWD" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
   HAS_HISTORY=$(git -C "$CWD" log --oneline -- "$FILE_PATH" 2>/dev/null | head -n 1)
   if [[ -z "$HAS_HISTORY" ]] && echo "$NEW_FRAGMENT" | grep -Eiq 'era assim|ficou assim|antes:|anteriormente era|mudou de.*para'; then
     block "Bloqueado: $FILE_PATH nunca foi versionado (sem commit no histórico) e este texto usa linguagem de 'antes e depois' -- CLAUDE.md, Regras gerais: o que está sendo implementado e nunca foi versionado não entra como correção. Se isso for engano, use AUTORIZO-TRAVA: <motivo>."
+  fi
+fi
+
+# 13) Achado sem registro -- lacuna real: até aqui, pitfalls.md e
+# findings.md só eram checados por julgamento de IA no momento do
+# commit (pre_commit_hygiene.sh), sem nenhuma trava mecânica no
+# momento da própria edição, diferente do resto do fluxo. Editar
+# código (não docs/, não schemas/, não decisions/) dentro de
+# modulos/<mod>/ sem que pitfalls.md nem findings.md desse módulo
+# tenham sido tocados nesta sessão nem uma vez sinaliza -- decidir se
+# a implementação revelou um achado ou uma armadilha é julgamento de
+# quem desenvolve, não fato mecânico, então isto nunca destrava
+# sozinho. Duas formas de resolver: escrever a entrada correspondente
+# antes, ou confirmar explicitamente que não há nada a registrar (a
+# frase abaixo, mais estreita que AUTORIZO-TRAVA -- só libera este
+# item, não o resto do gancho) ou, se for mesmo engano, AUTORIZO-TRAVA.
+if [[ -n "$FILE_PATH" && "$FILE_PATH" == *"/modulos/"* ]]; then
+  MOD13=$(echo "$FILE_PATH" | sed -E 's#.*/modulos/([^/]+)/.*#\1#')
+  IS_CODE13=false
+  [[ "$FILE_PATH" == *"/modulos/$MOD13/"* && "$FILE_PATH" != *"/docs/"* && "$FILE_PATH" != *"/schemas/"* && "$FILE_PATH" != *"/decisions/"* ]] && IS_CODE13=true
+  if [[ "$MOD13" != "_template" ]] && $IS_CODE13 && ! no_finding_confirmed; then
+    if [[ -z "$(synthesis_age "edicao.${MOD13}.pitfalls")" && -z "$(synthesis_age "edicao.${MOD13}.findings")" ]]; then
+      block "Sinalizado: editando código em $MOD13 sem que pitfalls.md nem findings.md desse módulo tenham sido tocados nesta sessão -- confirme se a implementação revelou algum achado ou armadilha de ferramenta. Se revelou, registre antes de continuar; se não revelou nada, responda com a frase exata 'nada a registrar, confirmado'; se isso for engano, use AUTORIZO-TRAVA: <motivo>."
+    fi
+  fi
+fi
+
+# 14/15) Escolha sem ADR -- mesma lacuna do item 13, mesmo motivo:
+# decisions/ só era checado por julgamento de IA no commit. Editar
+# modulos/<mod>/docs/ ou modulos/<mod>/schemas/ sem nenhuma ADR nova
+# em modulos/<mod>/decisions/ nesta sessão sinaliza -- decidir se a
+# mudança envolveu escolha real entre alternativas é julgamento, nunca
+# decidido sozinho aqui. Confirma com "sem alternativas reais,
+# confirmado" (mais estreita, só libera este item) ou AUTORIZO-TRAVA.
+if [[ -n "$FILE_PATH" && "$FILE_PATH" == *"/modulos/"* ]]; then
+  MOD1415=$(echo "$FILE_PATH" | sed -E 's#.*/modulos/([^/]+)/.*#\1#')
+  IS_DOCS1415=false; [[ "$FILE_PATH" == *"/modulos/$MOD1415/docs/"* ]] && IS_DOCS1415=true
+  IS_SCHEMA1415=false; [[ "$FILE_PATH" == *"/modulos/$MOD1415/schemas/"* ]] && IS_SCHEMA1415=true
+  if [[ "$MOD1415" != "_template" ]] && ( $IS_DOCS1415 || $IS_SCHEMA1415 ) && ! no_adr_confirmed; then
+    if [[ -z "$(synthesis_age "edicao.${MOD1415}.decisions")" ]]; then
+      SUBPASTA=${FILE_PATH#*"/modulos/$MOD1415/"}
+      block "Sinalizado: editando $SUBPASTA em $MOD1415 sem nenhuma ADR nova em modulos/$MOD1415/decisions/ nesta sessão -- confirme se esta mudança envolveu escolher entre alternativas reais. Se envolveu, escreva a ADR antes de continuar; se não envolveu, responda com a frase exata 'sem alternativas reais, confirmado'; se isso for engano, use AUTORIZO-TRAVA: <motivo>."
+    fi
   fi
 fi
 

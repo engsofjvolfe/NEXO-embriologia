@@ -28,9 +28,11 @@ if [[ -n "$FILE_PATH" ]]; then
       */modulos/"$MOD_ST"/docs/architecture.md) synthesis_set "edicao.${MOD_ST}.architecture" ;;
       */modulos/"$MOD_ST"/docs/handoff.md) synthesis_set "edicao.${MOD_ST}.handoff" ;;
       */modulos/"$MOD_ST"/docs/tasks.md) synthesis_set "edicao.${MOD_ST}.tasks" ;;
+      */modulos/"$MOD_ST"/docs/findings.md) synthesis_set "edicao.${MOD_ST}.findings" ;;
+      */modulos/"$MOD_ST"/docs/pitfalls.md) synthesis_set "edicao.${MOD_ST}.pitfalls" ;;
       */modulos/"$MOD_ST"/schemas/*) synthesis_set "edicao.${MOD_ST}.schemas" ;;
-      */modulos/"$MOD_ST"/decisions/*) : ;; # ADR não conta como etapa do fluxo
-      */modulos/"$MOD_ST"/docs/*) : ;; # analysis.md/findings.md/pitfalls.md, sem etapa de ordem própria
+      */modulos/"$MOD_ST"/decisions/*) synthesis_set "edicao.${MOD_ST}.decisions" ;; # não conta como etapa de ORDEM do fluxo, mas os itens 13/14-15 de pre_edit_safety.sh consultam isso
+      */modulos/"$MOD_ST"/docs/*) : ;; # analysis.md, sem etapa de ordem própria
       *) synthesis_set "edicao.${MOD_ST}.codigo" ;;
     esac
   elif [[ "$FILE_PATH" == *"/TASKS.md" ]]; then

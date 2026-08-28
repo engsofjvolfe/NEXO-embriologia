@@ -12,6 +12,8 @@
 
 STATE_DIR="${CLAUDE_PROJECT_DIR}/.claude/hooks/state"
 AUTH_FILE="${STATE_DIR}/current-authorization"
+NO_FINDING_FILE="${STATE_DIR}/current-no-finding-confirmation"
+NO_ADR_FILE="${STATE_DIR}/current-no-adr-confirmation"
 OVERRIDES_LOG="${STATE_DIR}/overrides.log"
 EDIT_LOG="${STATE_DIR}/edit-order.log"
 PREVIEW_LOG="${STATE_DIR}/preview-sessions.log"
@@ -48,19 +50,74 @@ mkdir -p "$STATE_DIR"
 # anterior contar como "confirmado nesta sessão".
 
 synthesis_init() {
-  [[ -f "$SYNTHESIS_FILE" ]] || echo '{"acao_atual": 0, "fatos": {}}' > "$SYNTHESIS_FILE"
+  # "Existe" não basta -- achado ao vivo nesta rodada: duas chamadas
+  # concorrentes de synthesis_bump/synthesis_set (lote de Read em
+  # paralelo, cada Read disparando seu próprio post_read_track.sh) só
+  # escreviam num "${SYNTHESIS_FILE}.tmp" fixo -- uma concorrência
+  # dessas truncou o arquivo real pra 0 bytes. Daí em diante, `[[ -f ]]`
+  # continuava vendo "existe" e nunca recriava; e um arquivo vazio, lido
+  # por `jq` (sem `-e`), produz zero valores de saída sem erro nenhum
+  # (jq trata entrada vazia como sucesso silencioso) -- então toda
+  # leitura seguinte regravava por cima do mesmo vazio, pra sempre, sem
+  # nenhum aviso. Checar conteúdo válido, não só existência, quebra
+  # esse ciclo -- reconstrói do zero se o arquivo estiver vazio ou não
+  # for JSON.
+  if [[ ! -s "$SYNTHESIS_FILE" ]] || ! jq empty "$SYNTHESIS_FILE" >/dev/null 2>&1; then
+    echo '{"acao_atual": 0, "fatos": {}}' > "$SYNTHESIS_FILE"
+  fi
+}
+
+# Nome de arquivo temporário único por chamada (PID + número aleatório)
+# -- nunca o mesmo "${SYNTHESIS_FILE}.tmp" fixo de antes.
+synthesis_tmp_path() {
+  echo "${SYNTHESIS_FILE}.$$.${RANDOM}.tmp"
+}
+
+# Trava baseada em mkdir (criar uma pasta é atômico entre processos,
+# inclusive no Windows -- dois processos tentando criar a mesma pasta
+# ao mesmo tempo, só um consegue) -- em volta de cada leitura+escrita
+# da ficha. Achado ao vivo nesta rodada: mesmo depois de corrigir a
+# corrupção (arquivo virando 0 bytes), um lote de escritas concorrentes
+# (várias leituras em paralelo, cada uma com seu próprio processo)
+# ainda perdia fatos -- cada processo lê o estado atual, escreve o
+# próprio resultado por cima, e quem termina por último apaga o que os
+# outros escreveram nesse meio-tempo. A trava serializa as escritas:
+# só um processo por vez lê e escreve, nenhum fato desaparece. Trava
+# "presa" (processo morreu sem liberar) se quebra sozinha depois de
+# ~5 segundos de espera, em vez de travar a sessão inteira pra sempre.
+synthesis_lock() {
+  local lockdir="${SYNTHESIS_FILE}.lock"
+  local tentativas=0
+  while ! mkdir "$lockdir" 2>/dev/null; do
+    tentativas=$((tentativas + 1))
+    if [[ $tentativas -gt 50 ]]; then
+      rmdir "$lockdir" 2>/dev/null
+      break
+    fi
+    sleep 0.1
+  done
+}
+
+synthesis_unlock() {
+  rmdir "${SYNTHESIS_FILE}.lock" 2>/dev/null
 }
 
 # Anda o "relógio" da síntese uma ação -- chamado pelos ganchos
 # post_*_track.sh, sempre que algo relevante acontece (leitura
 # completa, edição). Devolve o novo valor por stdout.
 synthesis_bump() {
+  synthesis_lock
   synthesis_init
-  local novo
+  local novo tmp
   novo=$(jq '.acao_atual += 1 | .acao_atual' "$SYNTHESIS_FILE" 2>/dev/null)
   [[ -z "$novo" ]] && novo=1
-  jq --argjson n "$novo" '.acao_atual = $n' "$SYNTHESIS_FILE" > "${SYNTHESIS_FILE}.tmp" 2>/dev/null \
-    && mv "${SYNTHESIS_FILE}.tmp" "$SYNTHESIS_FILE"
+  tmp=$(synthesis_tmp_path)
+  if jq --argjson n "$novo" '.acao_atual = $n' "$SYNTHESIS_FILE" > "$tmp" 2>/dev/null && [[ -s "$tmp" ]]; then
+    mv "$tmp" "$SYNTHESIS_FILE"
+  else
+    rm -f "$tmp"
+  fi
+  synthesis_unlock
   echo "$novo"
 }
 
@@ -69,11 +126,17 @@ synthesis_bump() {
 #   synthesis_set "edicao.<modulo>.concept"
 synthesis_set() {
   local chave="$1"
+  synthesis_lock
   synthesis_init
-  local atual
+  local atual tmp
   atual=$(jq -r '.acao_atual' "$SYNTHESIS_FILE" 2>/dev/null)
-  jq --arg k "$chave" --argjson a "${atual:-0}" '.fatos[$k] = $a' "$SYNTHESIS_FILE" > "${SYNTHESIS_FILE}.tmp" 2>/dev/null \
-    && mv "${SYNTHESIS_FILE}.tmp" "$SYNTHESIS_FILE"
+  tmp=$(synthesis_tmp_path)
+  if jq --arg k "$chave" --argjson a "${atual:-0}" '.fatos[$k] = $a' "$SYNTHESIS_FILE" > "$tmp" 2>/dev/null && [[ -s "$tmp" ]]; then
+    mv "$tmp" "$SYNTHESIS_FILE"
+  else
+    rm -f "$tmp"
+  fi
+  synthesis_unlock
 }
 
 # Devolve, por stdout, há quantas ações um fato foi confirmado pela
@@ -97,6 +160,36 @@ synthesis_fresh() {
   idade=$(synthesis_age "$chave")
   [[ -z "$idade" ]] && return 1
   [[ "$idade" -le "$limite" ]]
+}
+
+# Igual a synthesis_fresh, mas pra quando o "documento anterior" da
+# cascata não tem nome de arquivo fixo -- uma pasta inteira (ex.:
+# schemas/, que pode ter qualquer nome de arquivo dentro, ou nem
+# existir pra um módulo sem contrato de dado). Devolve sucesso se
+# existir ao menos um fato "leitura.<algo que começa com o prefixo>"
+# dentro da janela de frescor. Uso:
+#   synthesis_any_fresh_with_prefix "leitura.$MODDIR/schemas/" 20
+synthesis_any_fresh_with_prefix() {
+  local prefixo="$1" limite="$2"
+  synthesis_init
+  local atual chave idade
+  atual=$(jq -r '.acao_atual' "$SYNTHESIS_FILE" 2>/dev/null)
+  # Achado ao vivo enquanto testava esta função: `jq` neste ambiente
+  # (Windows/Git Bash) devolve as linhas terminadas em "\r\n", e `read`
+  # só corta o "\n" -- o "\r" sobrava no fim de $chave, fazendo a
+  # comparação de chave contra `.fatos[$k]` falhar sempre (chave "igual
+  # visualmente" mas literalmente diferente, por causa do caractere
+  # invisível). Cortar "\r" explicitamente depois do `read` evita isso.
+  while IFS= read -r chave; do
+    chave="${chave%$'\r'}"
+    [[ -z "$chave" ]] && continue
+    idade=$(jq -r --arg k "$chave" '.fatos[$k] // empty' "$SYNTHESIS_FILE" 2>/dev/null)
+    [[ -z "$idade" ]] && continue
+    if [[ $(( ${atual:-0} - idade )) -le "$limite" ]]; then
+      return 0
+    fi
+  done < <(jq -r --arg p "$prefixo" '.fatos | keys[] | select(startswith($p))' "$SYNTHESIS_FILE" 2>/dev/null)
+  return 1
 }
 
 # Reinicia a síntese pro estado vazio -- chamado uma vez por sessão
@@ -141,6 +234,20 @@ is_authorized() {
 
 authorized_reason() {
   [[ -f "$AUTH_FILE" ]] && cat "$AUTH_FILE"
+}
+
+# Confirmação pontual, mais estreita que AUTORIZO-TRAVA -- resolve só
+# UM item específico de pre_edit_safety.sh (13, ou 14/15), sem liberar
+# o resto do gancho, ao contrário de AUTORIZO-TRAVA (bypass geral,
+# checado uma vez no topo do script). Escrita por user_prompt_submit.sh
+# quando a mensagem contém a frase exata esperada -- apagada a cada
+# mensagem nova, mesma regra de não ficar "pendurada".
+no_finding_confirmed() {
+  [[ -s "$NO_FINDING_FILE" ]]
+}
+
+no_adr_confirmed() {
+  [[ -s "$NO_ADR_FILE" ]]
 }
 
 # Windows usa "\" como separador de caminho; as checagens deste projeto
@@ -196,18 +303,30 @@ MANUAL_MANDATORY_DOCS=(
   "prompt model.txt"
 )
 
+# Janela de frescor (em número de ações da ficha) usada em qualquer
+# checagem de "isso foi confirmado há pouco o bastante pra eu confiar
+# agora" -- mesma janela já usada em pre_edit_safety.sh (citação de
+# documento num texto novo). Compartilhada aqui porque a leitura
+# obrigatória (abaixo) passou a usar a mesma regra.
+MANDATORY_READ_FRESHNESS_WINDOW=20
+
 # Devolve, por stdout, o primeiro documento de leitura manual
-# obrigatória ainda sem rastro de leitura completa (não parcial -- ver
-# post_read_track.sh) nesta sessão. Consulta a ficha (síntese, sem
-# expiração pra este fato específico -- leitura obrigatória é sobre
-# ORDEM, "antes de qualquer outra coisa", não sobre um fato que
-# precisa ficar sendo reconfirmado; diferente da citação de documento
-# num texto novo, que É sobre confiar em algo lido há pouco -- ver
-# pre_edit_safety.sh #4), nunca relendo o diário inteiro. Vazio se
-# todos já foram lidos.
+# obrigatória ainda sem rastro de leitura *fresca* (dentro da janela
+# acima) nesta sessão. Consulta a ficha (síntese), nunca relendo o
+# diário inteiro. Vazio se todos os seis foram lidos, e de forma
+# fresca.
+#
+# Antes, esta checagem usava synthesis_age sem limite -- uma leitura
+# feita uma vez, há muitas ações atrás, contava como "lido" pro resto
+# da sessão inteira. Corrigido: nenhuma leitura vale "pra sempre" --
+# a pergunta certa é sempre "li de fresco o bastante pra confiar
+# agora?", o mesmo princípio que já valia só pra citação de documento
+# (pre_edit_safety.sh #4). Os seis documentos manuais deixam de ser
+# exceção -- perdem a permanência que tinham antes, mesma janela do
+# resto do sistema. Ver decisions/0013.
 first_unread_mandatory_doc() {
   for doc in "${MANUAL_MANDATORY_DOCS[@]}"; do
-    if [[ -z "$(synthesis_age "leitura.${doc}")" ]]; then
+    if ! synthesis_fresh "leitura.${doc}" "$MANDATORY_READ_FRESHNESS_WINDOW"; then
       echo "$doc"
       return 0
     fi

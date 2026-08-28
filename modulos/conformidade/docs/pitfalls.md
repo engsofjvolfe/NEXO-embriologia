@@ -4,7 +4,7 @@
 |---|---|
 | Módulo | Conformidade |
 | Documento | Pitfalls |
-| Versão | 0.2.0 |
+| Versão | 0.3.0 |
 | Data | 28-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
@@ -86,9 +86,31 @@ Sem fonte oficial que confirme isso por escrito -- registrado só pela
 observação direta, ao vivo, nesta sessão, com a incerteza sobre a
 causa exata explícita na entrada de `analysis.md` correspondente.
 
+### 2026-08-28-jq-devolve-linha-com-retorno-de-carro-neste-ambiente
+
+*Em resumo:* `jq -r` (modo texto puro, sem aspas) devolve cada linha
+terminada em `\r\n`, não só `\n`, neste ambiente (Windows/Git Bash) --
+lida com `while IFS= read -r linha; do ...; done < <(jq ...)`, o `\r`
+sobra no fim de `$linha`, comparação contra uma chave sem esse
+caractere sempre falha (parecem iguais na tela, mas são strings
+diferentes de verdade).
+
+*Em detalhe técnico:* achado escrevendo `synthesis_any_fresh_with_prefix`
+(`lib/common.sh`, decisions/0013) -- a chave lida dentro do laço nunca
+batia contra `.fatos[$k]`, mesmo sendo visualmente idêntica à chave
+gravada. `xxd` no valor confirmou o byte `0d` (`\r`) sobrando no fim.
+`read -r` só corta o `\n` final, nunca um `\r` que sobrar antes dele.
+Mitigação: cortar `\r` explicitamente depois do `read`
+(`chave="${chave%$'\r'}"`) em qualquer laço que consome saída de `jq`
+linha a linha neste projeto. Funções que só capturam um valor único
+via `$(...)` (a maioria do resto de `lib/common.sh`) não são afetadas
+-- o problema é específico de laço linha a linha sobre múltiplas
+linhas de saída.
+
 ## Controle de versão
 
 | Versão | Data | Alteração | Origem da alteração |
 |---|---|---|---|
 | 0.1.0 | 27-08-2026 | Criação inicial -- uma armadilha registrada. | Criação inicial do módulo |
 | 0.2.0 | 28-08-2026 | Duas armadilhas novas registradas (falha aberta do filtro `if`; mensagem de bloqueio ao vivo não prova execução real do gancho). | Investigação da checagem de emoji disparando fora de contexto |
+| 0.3.0 | 28-08-2026 | Armadilha nova registrada (`jq` devolve `\r\n` neste ambiente, quebrando comparação de chave em laço linha a linha). | Correção do bloqueio real dos ganchos de conformidade |

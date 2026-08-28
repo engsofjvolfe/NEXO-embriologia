@@ -25,10 +25,25 @@ fi
 # develop/main só recebem conteúdo por "git merge --no-ff" (Passo 7 do
 # fluxo completo), nunca por "git commit" direto. Cuidado: o merge em
 # si roda com develop como branch atual e produz um commit de merge --
-# isso não pode ser bloqueado, então a checagem é só sobre "git commit"
-# escrito por extenso no comando, nunca sobre "git merge".
-if [[ "$BRANCH" == "develop" || "$BRANCH" == "main" ]] && echo "$COMMAND" | grep -Eq '\bgit[[:space:]]+commit\b' && ! echo "$COMMAND" | grep -Eq '\bgit[[:space:]]+merge\b'; then
-  block "Bloqueado: commit novo direto em $BRANCH não é permitido, sem exceção -- todo trabalho nasce numa branch de tarefa, numa worktree própria (ver CLAUDE.md, Trabalho em múltiplas frentes). $BRANCH só recebe conteúdo por 'git merge --no-ff', nunca por 'git commit' direto."
+# isso não pode ser bloqueado.
+#
+# Achado ao vivo: quando "git merge --no-ff" encontra conflito, ele
+# para sem commitar -- terminar a mesclagem depois de resolver o
+# conflito exige um "git commit" em comando separado, sem a palavra
+# "merge" nele. A checagem original só olhava se "merge" aparecia no
+# MESMO comando que "commit", então esse caso real (conflito, muito
+# comum) caía nesta regra por engano, travando um passo que o próprio
+# comentário acima já dizia que "não pode ser bloqueado". Corrigido:
+# reconhece esse caso também checando MERGE_HEAD -- um arquivo que o
+# git cria assim que "git merge" começa e só apaga quando a mesclagem
+# termina (por commit ou por "git merge --abort"). Existir esse
+# arquivo é a forma correta e padrão do git de saber "uma mesclagem
+# está em andamento agora", sem depender do texto do comando.
+GIT_DIR=$(git -C "$CWD" rev-parse --git-dir 2>/dev/null)
+MERGE_EM_ANDAMENTO=false
+[[ -n "$GIT_DIR" && -f "$GIT_DIR/MERGE_HEAD" ]] && MERGE_EM_ANDAMENTO=true
+if [[ "$BRANCH" == "develop" || "$BRANCH" == "main" ]] && echo "$COMMAND" | grep -Eq '\bgit[[:space:]]+commit\b' && ! echo "$COMMAND" | grep -Eq '\bgit[[:space:]]+merge\b' && ! $MERGE_EM_ANDAMENTO; then
+  block "Bloqueado: commit novo direto em $BRANCH não é permitido, sem exceção -- todo trabalho nasce numa branch de tarefa, numa worktree própria (ver regras gerais do projeto, secao Trabalho em multiplas frentes). $BRANCH só recebe conteúdo por 'git merge --no-ff', nunca por 'git commit' direto."
 fi
 
 # 2) Merge sem --no-ff -- sem chave, é trivial de corrigir direto

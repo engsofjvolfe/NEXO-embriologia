@@ -133,9 +133,6 @@
   revisor do fim da resposta conferindo instrução do usuário não
   atendida) — ver
   [modulos/conformidade/docs/handoff.md](modulos/conformidade/docs/handoff.md).
-- Ação de pausar por toque da pessoa (distinta da ociosidade
-  automática) escrita em `SessionViewModel.kt` — ver
-  [modulos/motor/docs/handoff.md](modulos/motor/docs/handoff.md).
 - Achada e corrigida a causa raiz de os ganchos revisados por IA
   (revisão de commit, revisão de preview, três checagens do fim da
   resposta) nunca bloquearem de verdade: o formato de resposta que
@@ -151,6 +148,15 @@
   fora de contexto; sistema de ficha/síntese (resumo compacto do estado
   da sessão, substituindo releitura do diário inteiro a cada checagem)
   documentado retroativamente — ver
+  [modulos/conformidade/docs/handoff.md](modulos/conformidade/docs/handoff.md).
+- Bloqueio real dos ganchos de conformidade corrigido: `SessionStart`
+  não apaga mais a ficha (registro de leitura/edição da sessão)
+  durante o resumo automático de contexto; a ficha se recupera sozinha
+  de um estado corrompido; `AUTORIZO-TRAVA` não dispara mais por um
+  texto de exemplo citado sem motivo real; a leitura manual obrigatória
+  dos seis documentos passa a expirar (frescor uniforme, em vez de
+  permanente); lacuna de trava mecânica em `pitfalls.md`/`findings.md`/
+  `decisions/` fechada — ver
   [modulos/conformidade/docs/handoff.md](modulos/conformidade/docs/handoff.md).
 - [TASKS.md, Resolvidas](TASKS.md#resolvidas) — pendências já corrigidas.
 

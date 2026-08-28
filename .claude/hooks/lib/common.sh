@@ -12,11 +12,191 @@
 
 STATE_DIR="${CLAUDE_PROJECT_DIR}/.claude/hooks/state"
 AUTH_FILE="${STATE_DIR}/current-authorization"
+NO_FINDING_FILE="${STATE_DIR}/current-no-finding-confirmation"
+NO_ADR_FILE="${STATE_DIR}/current-no-adr-confirmation"
 OVERRIDES_LOG="${STATE_DIR}/overrides.log"
 EDIT_LOG="${STATE_DIR}/edit-order.log"
 PREVIEW_LOG="${STATE_DIR}/preview-sessions.log"
+SYNTHESIS_FILE="${STATE_DIR}/synthesis.json"
 
 mkdir -p "$STATE_DIR"
+
+# --- Síntese (estado atual, não o diário) ---------------------------
+#
+# Cada log deste projeto (edit-order.log, read-log.txt, etc.) é um
+# diário: cresce pra sempre, nunca apaga nada, é a fonte bruta -- ótimo
+# pra investigar depois, ruim pra checar rápido (checar "isso já foi
+# feito?" reler o diário inteiro toda vez, ficando mais lento conforme
+# a sessão cresce). A síntese é o oposto: um arquivo pequeno, JSON, que
+# guarda só o estado ATUAL de cada coisa (foi tocado? há quanto tempo,
+# em número de ações, não em relógio?) -- suficiente pra responder
+# "isso já foi feito, e ainda vale?" sem reler nada.
+#
+# "Ainda vale" é a parte importante -- a síntese não é "marcar como
+# feito pra sempre": cada entrada carrega o número da ação (não da
+# hora do relógio) em que foi confirmada, e cada checagem decide, na
+# hora, se essa distância (ação atual menos ação registrada) ainda é
+# aceitável pra aquela regra específica -- mesmo princípio já usado
+# antes só pra citação de documento (janela das 20 leituras mais
+# recentes), generalizado agora pra qualquer fato guardado aqui.
+#
+# O diário nunca é substituído -- continua existindo, cresce do mesmo
+# jeito, serve de prova bruta pra quem quiser investigar ou fazer uma
+# segunda conferência independente, sem confiar na síntese de ninguém.
+# A síntese só existe *a mais*, como atalho rápido.
+#
+# Reinicia (arquivo novo, contador em zero) uma vez por sessão --
+# ver session_start_reset.sh -- pra nunca deixar um fato de uma sessão
+# anterior contar como "confirmado nesta sessão".
+
+synthesis_init() {
+  # "Existe" não basta -- achado ao vivo nesta rodada: duas chamadas
+  # concorrentes de synthesis_bump/synthesis_set (lote de Read em
+  # paralelo, cada Read disparando seu próprio post_read_track.sh) só
+  # escreviam num "${SYNTHESIS_FILE}.tmp" fixo -- uma concorrência
+  # dessas truncou o arquivo real pra 0 bytes. Daí em diante, `[[ -f ]]`
+  # continuava vendo "existe" e nunca recriava; e um arquivo vazio, lido
+  # por `jq` (sem `-e`), produz zero valores de saída sem erro nenhum
+  # (jq trata entrada vazia como sucesso silencioso) -- então toda
+  # leitura seguinte regravava por cima do mesmo vazio, pra sempre, sem
+  # nenhum aviso. Checar conteúdo válido, não só existência, quebra
+  # esse ciclo -- reconstrói do zero se o arquivo estiver vazio ou não
+  # for JSON.
+  if [[ ! -s "$SYNTHESIS_FILE" ]] || ! jq empty "$SYNTHESIS_FILE" >/dev/null 2>&1; then
+    echo '{"acao_atual": 0, "fatos": {}}' > "$SYNTHESIS_FILE"
+  fi
+}
+
+# Nome de arquivo temporário único por chamada (PID + número aleatório)
+# -- nunca o mesmo "${SYNTHESIS_FILE}.tmp" fixo de antes.
+synthesis_tmp_path() {
+  echo "${SYNTHESIS_FILE}.$$.${RANDOM}.tmp"
+}
+
+# Trava baseada em mkdir (criar uma pasta é atômico entre processos,
+# inclusive no Windows -- dois processos tentando criar a mesma pasta
+# ao mesmo tempo, só um consegue) -- em volta de cada leitura+escrita
+# da ficha. Achado ao vivo nesta rodada: mesmo depois de corrigir a
+# corrupção (arquivo virando 0 bytes), um lote de escritas concorrentes
+# (várias leituras em paralelo, cada uma com seu próprio processo)
+# ainda perdia fatos -- cada processo lê o estado atual, escreve o
+# próprio resultado por cima, e quem termina por último apaga o que os
+# outros escreveram nesse meio-tempo. A trava serializa as escritas:
+# só um processo por vez lê e escreve, nenhum fato desaparece. Trava
+# "presa" (processo morreu sem liberar) se quebra sozinha depois de
+# ~5 segundos de espera, em vez de travar a sessão inteira pra sempre.
+synthesis_lock() {
+  local lockdir="${SYNTHESIS_FILE}.lock"
+  local tentativas=0
+  while ! mkdir "$lockdir" 2>/dev/null; do
+    tentativas=$((tentativas + 1))
+    if [[ $tentativas -gt 50 ]]; then
+      rmdir "$lockdir" 2>/dev/null
+      break
+    fi
+    sleep 0.1
+  done
+}
+
+synthesis_unlock() {
+  rmdir "${SYNTHESIS_FILE}.lock" 2>/dev/null
+}
+
+# Anda o "relógio" da síntese uma ação -- chamado pelos ganchos
+# post_*_track.sh, sempre que algo relevante acontece (leitura
+# completa, edição). Devolve o novo valor por stdout.
+synthesis_bump() {
+  synthesis_lock
+  synthesis_init
+  local novo tmp
+  novo=$(jq '.acao_atual += 1 | .acao_atual' "$SYNTHESIS_FILE" 2>/dev/null)
+  [[ -z "$novo" ]] && novo=1
+  tmp=$(synthesis_tmp_path)
+  if jq --argjson n "$novo" '.acao_atual = $n' "$SYNTHESIS_FILE" > "$tmp" 2>/dev/null && [[ -s "$tmp" ]]; then
+    mv "$tmp" "$SYNTHESIS_FILE"
+  else
+    rm -f "$tmp"
+  fi
+  synthesis_unlock
+  echo "$novo"
+}
+
+# Marca um fato como confirmado agora (na ação atual). Uso:
+#   synthesis_set "leitura.<nome-do-documento>"
+#   synthesis_set "edicao.<modulo>.concept"
+synthesis_set() {
+  local chave="$1"
+  synthesis_lock
+  synthesis_init
+  local atual tmp
+  atual=$(jq -r '.acao_atual' "$SYNTHESIS_FILE" 2>/dev/null)
+  tmp=$(synthesis_tmp_path)
+  if jq --arg k "$chave" --argjson a "${atual:-0}" '.fatos[$k] = $a' "$SYNTHESIS_FILE" > "$tmp" 2>/dev/null && [[ -s "$tmp" ]]; then
+    mv "$tmp" "$SYNTHESIS_FILE"
+  else
+    rm -f "$tmp"
+  fi
+  synthesis_unlock
+}
+
+# Devolve, por stdout, há quantas ações um fato foi confirmado pela
+# última vez (0 = agora mesmo; vazio = nunca confirmado nesta sessão).
+synthesis_age() {
+  local chave="$1"
+  synthesis_init
+  local confirmado_em atual
+  confirmado_em=$(jq -r --arg k "$chave" '.fatos[$k] // empty' "$SYNTHESIS_FILE" 2>/dev/null)
+  [[ -z "$confirmado_em" ]] && return 0
+  atual=$(jq -r '.acao_atual' "$SYNTHESIS_FILE" 2>/dev/null)
+  echo $(( ${atual:-0} - confirmado_em ))
+}
+
+# Um fato foi confirmado, e a distância (em ações) até agora está
+# dentro do limite aceitável pra essa regra? Uso:
+#   synthesis_fresh "leitura.modulos/README.md" 20
+synthesis_fresh() {
+  local chave="$1" limite="$2"
+  local idade
+  idade=$(synthesis_age "$chave")
+  [[ -z "$idade" ]] && return 1
+  [[ "$idade" -le "$limite" ]]
+}
+
+# Igual a synthesis_fresh, mas pra quando o "documento anterior" da
+# cascata não tem nome de arquivo fixo -- uma pasta inteira (ex.:
+# schemas/, que pode ter qualquer nome de arquivo dentro, ou nem
+# existir pra um módulo sem contrato de dado). Devolve sucesso se
+# existir ao menos um fato "leitura.<algo que começa com o prefixo>"
+# dentro da janela de frescor. Uso:
+#   synthesis_any_fresh_with_prefix "leitura.$MODDIR/schemas/" 20
+synthesis_any_fresh_with_prefix() {
+  local prefixo="$1" limite="$2"
+  synthesis_init
+  local atual chave idade
+  atual=$(jq -r '.acao_atual' "$SYNTHESIS_FILE" 2>/dev/null)
+  # Achado ao vivo enquanto testava esta função: `jq` neste ambiente
+  # (Windows/Git Bash) devolve as linhas terminadas em "\r\n", e `read`
+  # só corta o "\n" -- o "\r" sobrava no fim de $chave, fazendo a
+  # comparação de chave contra `.fatos[$k]` falhar sempre (chave "igual
+  # visualmente" mas literalmente diferente, por causa do caractere
+  # invisível). Cortar "\r" explicitamente depois do `read` evita isso.
+  while IFS= read -r chave; do
+    chave="${chave%$'\r'}"
+    [[ -z "$chave" ]] && continue
+    idade=$(jq -r --arg k "$chave" '.fatos[$k] // empty' "$SYNTHESIS_FILE" 2>/dev/null)
+    [[ -z "$idade" ]] && continue
+    if [[ $(( ${atual:-0} - idade )) -le "$limite" ]]; then
+      return 0
+    fi
+  done < <(jq -r --arg p "$prefixo" '.fatos | keys[] | select(startswith($p))' "$SYNTHESIS_FILE" 2>/dev/null)
+  return 1
+}
+
+# Reinicia a síntese pro estado vazio -- chamado uma vez por sessão
+# nova (session_start_reset.sh), nunca no meio de uma sessão.
+synthesis_reset() {
+  echo '{"acao_atual": 0, "fatos": {}}' > "$SYNTHESIS_FILE"
+}
 
 # Todo hook deste projeto lê o JSON de entrada via jq (função field()
 # abaixo). Sem jq instalado, "field" falha e devolve string vazia --
@@ -54,6 +234,20 @@ is_authorized() {
 
 authorized_reason() {
   [[ -f "$AUTH_FILE" ]] && cat "$AUTH_FILE"
+}
+
+# Confirmação pontual, mais estreita que AUTORIZO-TRAVA -- resolve só
+# UM item específico de pre_edit_safety.sh (13, ou 14/15), sem liberar
+# o resto do gancho, ao contrário de AUTORIZO-TRAVA (bypass geral,
+# checado uma vez no topo do script). Escrita por user_prompt_submit.sh
+# quando a mensagem contém a frase exata esperada -- apagada a cada
+# mensagem nova, mesma regra de não ficar "pendurada".
+no_finding_confirmed() {
+  [[ -s "$NO_FINDING_FILE" ]]
+}
+
+no_adr_confirmed() {
+  [[ -s "$NO_ADR_FILE" ]]
 }
 
 # Windows usa "\" como separador de caminho; as checagens deste projeto
@@ -109,18 +303,88 @@ MANUAL_MANDATORY_DOCS=(
   "prompt model.txt"
 )
 
+# Janela de frescor (em número de ações da ficha) usada em qualquer
+# checagem de "isso foi confirmado há pouco o bastante pra eu confiar
+# agora" -- mesma janela já usada em pre_edit_safety.sh (citação de
+# documento num texto novo). Compartilhada aqui porque a leitura
+# obrigatória (abaixo) passou a usar a mesma regra.
+MANDATORY_READ_FRESHNESS_WINDOW=20
+
 # Devolve, por stdout, o primeiro documento de leitura manual
-# obrigatória ainda sem rastro de leitura completa (não parcial -- ver
-# post_read_track.sh) no read-log.txt desta sessão. Vazio se todos já
-# foram lidos.
+# obrigatória ainda sem rastro de leitura *fresca* (dentro da janela
+# acima) nesta sessão. Consulta a ficha (síntese), nunca relendo o
+# diário inteiro. Vazio se todos os seis foram lidos, e de forma
+# fresca.
+#
+# Antes, esta checagem usava synthesis_age sem limite -- uma leitura
+# feita uma vez, há muitas ações atrás, contava como "lido" pro resto
+# da sessão inteira. Corrigido: nenhuma leitura vale "pra sempre" --
+# a pergunta certa é sempre "li de fresco o bastante pra confiar
+# agora?", o mesmo princípio que já valia só pra citação de documento
+# (pre_edit_safety.sh #4). Os seis documentos manuais deixam de ser
+# exceção -- perdem a permanência que tinham antes, mesma janela do
+# resto do sistema. Ver decisions/0013.
 first_unread_mandatory_doc() {
-  local READ_LOG="${STATE_DIR}/read-log.txt"
   for doc in "${MANUAL_MANDATORY_DOCS[@]}"; do
-    if [[ ! -f "$READ_LOG" ]] || ! grep -qF "$doc" "$READ_LOG"; then
+    if ! synthesis_fresh "leitura.${doc}" "$MANDATORY_READ_FRESHNESS_WINDOW"; then
       echo "$doc"
       return 0
     fi
   done
+}
+
+# Padrão de emoji, compartilhado entre pre_edit_safety.sh (no momento
+# da edição) e pre_commit_hygiene.sh (segunda conferência, no commit),
+# e função de esquema impuro, também compartilhada -- um lugar só,
+# nunca cópia duplicada que possa divergir entre os dois arquivos.
+#
+# Cobertura, por bloco Unicode (faixas de emoji de verdade, conforme
+# `emoji-data.txt` do Unicode Consortium):
+# - \x{1F1E6}-\x{1F1FF}: indicadores regionais -- bandeira de país é
+#   sempre um par desses dois caracteres.
+# - \x{1F300}-\x{1FAFF}: pictogramas, emoticons, transporte, símbolos
+#   suplementares -- o grosso dos emojis "modernos".
+# - \x{2600}-\x{27BF}: símbolos diversos e dingbats (ex.: sol, coração,
+#   tesoura, avião).
+# - \x{2B00}-\x{2BFF}: símbolos diversos e setas (ex.: estrela, seta
+#   grossa colorida -- diferente do bloco "Arrows" abaixo).
+# - \x{2300}-\x{23FF}: técnico diverso (ex.: relógio, ampulheta).
+#
+# Deliberadamente fora do padrão, mesmo aparecendo em alguma lista de
+# emoji: o bloco Unicode "Arrows" (\x{2190}-\x{21FF}, setas
+# tipográficas simples como "→"/"↔") e "Geometric Shapes"
+# (\x{25A0}-\x{25FF}, quadrados/círculos simples) -- os dois usados o
+# tempo todo como pontuação comum na prosa deste projeto (ex.:
+# "concept.md → architecture.md"), e "©"/"®"/"™" -- comuns em texto
+# legal/técnico comum. Incluir esses blocos bloquearia texto legítimo
+# sem nenhum emoji de verdade envolvido.
+EMOJI_PATTERN='[\x{1F1E6}-\x{1F1FF}\x{1F300}-\x{1FAFF}\x{2300}-\x{23FF}\x{2600}-\x{27BF}\x{2B00}-\x{2BFF}]'
+
+# "grep -P" com \x{...} acima de 0x7F exige locale UTF-8 -- em locale
+# "C"/"POSIX" (comum em Windows/Git Bash sem variável de locale
+# definida), falha em silêncio (nunca acha nada, nunca bloqueia).
+# Forçar LC_ALL=C.UTF-8 aqui, confirmado por teste ao vivo.
+has_emoji() {
+  LC_ALL=C.UTF-8 grep -qP "$EMOJI_PATTERN"
+}
+
+# Bloco cercado por ```yaml ou ```json que também tem required ou
+# properties, junto com type (forma de todo bloco de contrato de dado
+# deste projeto), e além disso tem description ou example -- esquema
+# que devia ser dado puro mas não é.
+schema_block_impure() {
+  awk '
+    /^```(yaml|json)[[:space:]]*$/ { infence=1; buf=""; next }
+    /^```[[:space:]]*$/ {
+      if (infence) {
+        if ((buf ~ /required/ || buf ~ /properties/) && buf ~ /type/) {
+          if (buf ~ /description/ || buf ~ /example/) { print "HIT"; exit }
+        }
+      }
+      infence=0; next
+    }
+    infence { buf = buf $0 "\n" }
+  ' | grep -q HIT
 }
 
 # Registra o uso de uma autorização -- nunca some em silêncio.

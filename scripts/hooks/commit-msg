@@ -32,6 +32,19 @@ if echo "$TITLE" | grep -Eq '^(docs|fix|feat|chore|refactor|style|test)(\(.+\))?
   exit 1
 fi
 
+# CLAUDE.md, Passo 4 do "Fluxo completo de uma tarefa": título "sem
+# prefixo tipo docs:/fix: NEM caminho de arquivo antes de dois-pontos"
+# -- duas proibições distintas na mesma frase. A checagem acima só
+# cobre a primeira (lista fixa de palavras tipo conventional commits);
+# um título como "settings.json: corrige o gancho" passava batido.
+# Padrão: token no início da linha contendo "." ou "/" (cara de nome de
+# arquivo/caminho), seguido de ":" -- checado contra os 50 commits mais
+# recentes do histórico real antes de entrar, sem nenhum falso positivo.
+if echo "$TITLE" | grep -Eq '^[^[:space:]]*[./][^[:space:]]*:'; then
+  echo "Commit rejeitado: título não usa caminho de arquivo antes de dois-pontos -- direto, imperativo." >&2
+  exit 1
+fi
+
 # Commit de merge (título "Merge branch..."/"Merge pull request #N
 # from...") tem corpo gerado pelo git/GitHub -- ex.: o título do PR
 # repetido em texto corrido, sem bullet nenhum. Não é texto escrito à

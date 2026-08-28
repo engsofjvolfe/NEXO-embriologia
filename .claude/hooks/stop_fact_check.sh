@@ -13,16 +13,24 @@
 # (significância pro HANDOFF.md, produção, clareza da descrição do
 # PR), que exigem entendimento, não só olhar um valor.
 #
-# Limite honesto: isso reduz custo, mas não elimina a chamada de
-# agente do Stop -- o campo "if" (que poderia pular um hook inteiro
-# condicionalmente) só é avaliado em eventos de ferramenta
-# (PreToolUse/PostToolUse/PostToolUseFailure/PermissionRequest/
-# PermissionDenied), nunca em Stop, confirmado na documentação
-# oficial de hooks. Não existe hoje um jeito de pular o hook "agent"
-# do Stop com base em "esta resposta foi trivial".
+# Trava de verdade, não só aviso: pesquisa direta na documentação
+# oficial do Claude Code confirmou que "exit 2" é o único mecanismo de
+# bloqueio garantido em qualquer evento, incluindo Stop, com a
+# mensagem lida do stderr -- e que "additionalContext" (usado antes
+# aqui) não bloqueia nada, só aparece como texto que pode ser seguido
+# ou ignorado. Como os três fatos abaixo são objetivos (sem
+# julgamento), block() aqui é seguro; AUTORIZO-TRAVA continua
+# liberando, pra não travar sem saída num caso excepcional real (por
+# exemplo, uma worktree "esquecida" que ainda está em uso de
+# propósito).
 
 source "$(dirname "$0")/lib/common.sh"
 read_input
+
+if is_authorized; then
+  log_override "stop_fact_check" "$(authorized_reason)"
+  exit 0
+fi
 
 CWD=$(normalize_path "$(field '.cwd')")
 CONTEXT=""
@@ -32,21 +40,26 @@ CONTEXT=""
 # nenhuma"). Mesclada = a branch da worktree já está contida em
 # develop (git branch --merged develop já a lista).
 #
-# A pasta atual ($CWD) nunca entra nessa lista, mesmo quando a própria
-# branch dela já está contida em develop -- ela é sempre a pasta
-# principal do repositório (a única sem nome de worktree de tarefa),
-# nunca uma worktree de tarefa esquecida pra remover. A comparação usa
-# paths_equal (lib/common.sh), não "==" direto: o caminho que "git
-# worktree list" devolve e o "cwd" que o Claude Code informa podem vir
-# com a letra de unidade em caixas diferentes no Windows, mesmo
-# apontando pro mesmo lugar em disco -- "==" direto falha nesse caso e
-# a pasta principal aparece, por engano, como worktree esquecida.
+# A pasta principal do repositório nunca entra nessa lista, mesmo
+# quando a própria branch dela já está contida em develop -- ela nunca
+# é uma worktree de tarefa esquecida pra remover. Dois filtros, não um
+# só: (a) paths_equal contra $CWD (lib/common.sh, não "==" direto --
+# letra de unidade em caixas diferentes no Windows não pode quebrar a
+# comparação) cobre o caso comum, checagem rodando da própria pasta
+# principal; (b) branch igual a "develop"/"main" cobre o caso desta
+# sessão -- rodando de dentro de uma worktree de TAREFA, $CWD nunca é
+# igual à pasta principal, e "git branch --merged develop" sempre lista
+# "develop" (todo branch é ancestral de si mesmo), então sem o filtro
+# (b) a pasta principal aparecia, por engano, como "worktree esquecida"
+# -- achado ao vivo, confirmado pelo próprio gancho disparando errado
+# nesta sessão.
 MERGED_BRANCHES=$(git -C "$CWD" branch --merged develop --format='%(refname:short)' 2>/dev/null)
 STALE_WORKTREES=""
 while IFS= read -r line; do
   WT_PATH=$(echo "$line" | awk '{print $1}')
   WT_BRANCH=$(echo "$line" | grep -oE '\[[^]]+\]' | tr -d '[]')
   [[ -z "$WT_BRANCH" ]] && continue
+  [[ "$WT_BRANCH" == "develop" || "$WT_BRANCH" == "main" ]] && continue
   paths_equal "$WT_PATH" "$CWD" && continue
   if echo "$MERGED_BRANCHES" | grep -qxF "$WT_BRANCH"; then
     STALE_WORKTREES+="  - $WT_PATH (branch '$WT_BRANCH', já mesclada em develop)"$'\n'
@@ -79,7 +92,9 @@ if echo "$LAST_MSG" | grep -Eiq '\bPR\b|pull request'; then
 fi
 
 if [[ -n "$CONTEXT" ]]; then
-  jq -n --arg ctx "$CONTEXT" '{hookSpecificOutput: {hookEventName: "Stop", additionalContext: $ctx}}'
+  block "Bloqueado -- fato conferido, não julgamento (CLAUDE.md, seção correspondente):
+${CONTEXT}
+Corrija antes de terminar a resposta. Se algum destes itens for engano ou exceção real, use AUTORIZO-TRAVA: <motivo> na próxima mensagem."
 fi
 
 exit 0

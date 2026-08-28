@@ -27,6 +27,14 @@ if [[ -n "$FILE_PATH" ]]; then
     echo "$(date -u +%FT%TZ) $FILE_PATH (parcial: offset=${OFFSET:-0} limit=${LIMIT:-?})" >> "${STATE_DIR}/partial-read-log.txt"
   else
     echo "$(date -u +%FT%TZ) $FILE_PATH" >> "${STATE_DIR}/read-log.txt"
+    # Ficha (síntese, lib/common.sh): anda o relógio e marca esta
+    # leitura como confirmada agora -- registrada tanto pelo caminho
+    # completo (comparação com FILE_PATH em pre_edit_safety.sh #1)
+    # quanto pelo nome do arquivo sozinho (comparação por basename,
+    # usada pra citação de documento e leitura manual obrigatória).
+    synthesis_bump >/dev/null
+    synthesis_set "leitura.${FILE_PATH}"
+    synthesis_set "leitura.$(basename "$FILE_PATH")"
   fi
 fi
 

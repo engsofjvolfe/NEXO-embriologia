@@ -78,4 +78,20 @@ if echo "$COMMAND" | grep -Eq '\bgit[[:space:]]+(checkout|switch)\b' && [[ "$CWD
   fi
 fi
 
+# 6) Merge em develop sem PR de verdade por trás -- CLAUDE.md, Trabalho
+# em múltiplas frentes: "nunca commitar/mergear direto sem passar por
+# PR, mesmo sendo projeto de um só dono". A checagem 2 (acima) já
+# confere --no-ff; esta confere que o branch mesclado teve um PR
+# (aberto, fechado ou já mesclado -- qualquer estado conta, o que
+# importa é ter existido o ponto de checagem) antes desse momento.
+if [[ "$BRANCH" == "develop" ]] && echo "$COMMAND" | grep -Eq '\bgit[[:space:]]+merge\b'; then
+  MERGE_TARGET=$(echo "$COMMAND" | sed -E 's/.*\bmerge\b//' | tr ' ' '\n' | grep -Ev '^-' | grep -v '^$' | head -n 1)
+  if [[ -n "$MERGE_TARGET" ]]; then
+    PR_COUNT=$(gh pr list --state all --head "$MERGE_TARGET" --json number 2>/dev/null | jq 'length' 2>/dev/null)
+    if [[ "${PR_COUNT:-0}" -eq 0 ]]; then
+      block "Bloqueado: nenhum PR (aberto, fechado ou mesclado) encontrado com origem no branch '$MERGE_TARGET' -- CLAUDE.md exige PR sempre antes de mesclar em develop, nunca merge direto. Se isso for engano (gh não autenticado, PR criado por outro caminho), use AUTORIZO-TRAVA: <motivo>."
+    fi
+  fi
+fi
+
 exit 0

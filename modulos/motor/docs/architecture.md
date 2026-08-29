@@ -6,8 +6,8 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Architecture |
-| Versão | 0.39.0 |
-| Data | 27-08-2026 |
+| Versão | 0.40.0 |
+| Data | 29-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
 > Descreve como o módulo é construído por dentro — layout de arquivos,
@@ -851,8 +851,10 @@ a tela ainda vai disparar já têm método próprio no `ViewModel`
 (`onSkipRequested`, `onScreenAcknowledged`, `onContinueRequested`,
 `onExitRequested`, `onExitCancelled`, `onExitConfirmed`,
 `onPauseRequested`) — o efeito de cada uma (que `SessionScreen`
-resulta) está fechado; o gatilho exato na tela (toque) continua parte
-do desenho visual pendente (ver [tasks.md](tasks.md)). `onPauseRequested`
+resulta) está fechado; o gatilho exato na tela (toque livre ou botão
+nomeado, por situação) também já está decidido, ver
+[decisions/0032](<../decisions/0032-gatilho-de-toque-entre-estados-do-sessionscreen.md>).
+`onPauseRequested`
 não pede confirmação (`EI-PAU-03` só exige isso pra sair) — cancela o
 relógio de ociosidade e grava o estado da sessão em disco na hora,
 com `pause` (`core/session`), mesma função que já existia desde a
@@ -1071,3 +1073,4 @@ com o campo Versão da tabela de cabeçalho, que sempre reflete a
 | 0.36.0 | 22-08-2026 | Seção "Interface" registra que o botão de pausar já não precisa de confirmação nenhuma (`EI-PAU-03` só exige isso pra sair) — falta só o método novo em `SessionViewModel.kt`, não desenho. | Leitura direta da Especificação e do Documento de Conceito, seção 12 |
 | 0.37.0 | 22-08-2026 | Seção "Interface" ganha a tecnologia de renderização decidida (Jetpack Compose), separada da aparência visual em si, que continua pendente. | Resolução de [decisions/0031](<../decisions/0031-jetpack-compose-como-ferramenta-de-desenho-de-tela.md>) |
 | 0.38.0 | 22-08-2026 | Corrigido: a seção "Layout" tratava o agrupamento das 17 entradas de tela em telas físicas como inteiramente pendente — 10 delas (variações de conteúdo dentro da sessão em jogo) já têm esse agrupamento fechado desde [decisions/0022](<../decisions/0022-conteudo-do-estado-exposto-pelo-viewmodel.md>); só as outras 7 seguem sem essa decisão. | Achado ao revisar a pendência de desenho visual por completo, na mesma sessão de [decisions/0030](<../decisions/0030-padrao-de-navegacao-hierarquica-de-conteudo.md>) |
+| 0.40.0 | 29-08-2026 | Seção "Ligação com o núcleo do motor" corrigida: o gatilho exato na tela (toque livre ou botão nomeado, por situação) deixa de estar descrito como pendente — já está decidido. | Resolução de [decisions/0032](<../decisions/0032-gatilho-de-toque-entre-estados-do-sessionscreen.md>) |

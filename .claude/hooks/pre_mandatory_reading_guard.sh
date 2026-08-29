@@ -36,6 +36,34 @@ if [[ "$TOOL_NAME" == "TodoWrite" ]]; then
   exit 0
 fi
 
+# Comando git ou gh (qualquer um -- status, commit, push, pull, abrir
+# PR, etc.) nunca depende de ter lido os seis documentos manuais
+# primeiro -- decisão explícita, dada em texto, de quem desenvolve o
+# sistema: esses comandos são passo mecânico de controle de versão,
+# não decisão sobre conteúdo do projeto. Só o comando em si isenta
+# esta checagem específica -- as regras de segurança do git em si
+# (nunca reescrever develop/main, merge sempre com --no-ff, commit
+# sempre fora de develop/main, etc., em pre_git_rules.sh e
+# pre_commit_hygiene.sh) continuam valendo do mesmo jeito, com o mesmo
+# AUTORIZO-TRAVA de sempre pra quem quiser pular alguma delas -- essa
+# liberação nunca é automática, só decidida por quem está conduzindo a
+# sessão, na hora. Ver decisions/0017.
+#
+# Nome da variável importa aqui: "BASH_COMMAND" (usado numa primeira
+# versão desta correção) é o nome de uma variável especial do próprio
+# Bash, atualizada sozinha, sem aviso, a cada comando executado
+# (documentada pra uso em armadilhas de depuração) -- ela sobrescrevia
+# o valor atribuído aqui antes do "if" seguinte rodar, fazendo o grep
+# nunca ver o comando real. Achado ao testar isoladamente antes do
+# commit (ver findings.md). "COMMAND" (mesmo nome já usado em
+# pre_git_rules.sh e pre_commit_hygiene.sh) não colide com nada.
+if [[ "$TOOL_NAME" == "Bash" ]]; then
+  COMMAND=$(field '.tool_input.command')
+  if echo "$COMMAND" | grep -Eq '\b(git|gh)\b'; then
+    exit 0
+  fi
+fi
+
 if is_authorized; then
   log_override "pre_mandatory_reading_guard" "$(authorized_reason)"
   exit 0

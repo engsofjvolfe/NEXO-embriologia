@@ -66,7 +66,22 @@ while IFS= read -r -d '' arquivo; do
     if [ "$tipo" = "markdown" ]; then
         # grep sem -E (modo basico) -- "|" e literal nesse modo, nao
         # operador de "ou" -- exatamente o que a tabela markdown precisa.
-        printf '%s\n' "$diff_arquivo" | grep -q '^[+-]| Versão |' && tocou_versao=1
+        # Achado ao vivo: documento que só tem a tabela "Controle de
+        # versão" (sem a linha de campo único "| Versão | X.Y.Z |" na
+        # tabela de cabeçalho -- caso de MANUAL.md, que não tem tabela
+        # de cabeçalho nenhuma) nunca passava nesta checagem, mesmo
+        # subindo a versão de verdade -- porque subir a versão, nesse
+        # tipo de documento, é acrescentar uma linha NOVA na tabela
+        # (ex.: "| 0.4.0 | ... |"), nunca tocar a linha de cabeçalho da
+        # própria tabela ("| Versão | Data | ... |"), que é a única
+        # coisa que o padrão original conseguia enxergar (e que
+        # coincide, por acaso, com o mesmo texto usado no início da
+        # linha de campo único do outro formato). Segunda alternativa
+        # aceita agora: uma linha ACRESCENTADA que comece com
+        # "| X.Y.Z |" (um número de versão dentro da própria tabela de
+        # changelog) também conta como "versão subiu".
+        printf '%s\n' "$diff_arquivo" | grep -Eq '^[+-]\| Versão \|' && tocou_versao=1
+        printf '%s\n' "$diff_arquivo" | grep -Eq '^\+\| *[0-9]+\.[0-9]+\.[0-9]+ *\|' && tocou_versao=1
     else
         # grep -E (modo estendido) aqui sim, pra "|" valer como alternancia
         # de verdade -- precisa casar tanto a linha da chave "schema_version"

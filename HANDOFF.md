@@ -171,6 +171,17 @@
   preview), substituídos por checagem mecânica; os outros quatro
   mantidos, com o formato corrigido — ver
   [modulos/conformidade/docs/handoff.md](modulos/conformidade/docs/handoff.md).
+- Dois falsos bloqueios reais confirmados ao vivo, com evidência em
+  disco, e corrigidos: `SessionStart` ainda apagava a ficha no evento
+  `resume` (correção anterior só cobria `compact`), e `AUTORIZO-TRAVA`
+  ainda disparava por uma citação com reticências, sem motivo real.
+  Janela de validade da leitura manual obrigatória alongada, e
+  comandos `git`/`gh` isentos dela — ver
+  [modulos/conformidade/docs/handoff.md](modulos/conformidade/docs/handoff.md).
+- Gancho nativo do git `scripts/hooks/pre-commit` corrigido: não
+  reconhecia subida de versão de verdade em documento sem tabela de
+  cabeçalho (caso de `MANUAL.md`) -- ver
+  [modulos/conformidade/docs/handoff.md](modulos/conformidade/docs/handoff.md).
 - [TASKS.md, Resolvidas](TASKS.md#resolvidas) — pendências já corrigidas.
 
 ## Próximo passo

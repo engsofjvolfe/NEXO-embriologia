@@ -7,6 +7,10 @@ marcado significa: existe gancho real (`.claude/hooks/*.sh` +
 aplica aquele trecho, confirmado contra o código, não contra a
 lembrança dele.
 
+Guia de uso das frases que destravam um bloqueio (`AUTORIZO-TRAVA` e
+as frases de confirmação pontual) é outro documento, com outro papel:
+[FRASES-DE-CONFIRMACAO.md](FRASES-DE-CONFIRMACAO.md).
+
 Princípio seguido nesta rodada: o momento certo de uma checagem é o
 mais cedo possível -- no instante da própria edição (`pre_edit_safety.sh`,
 evento `PreToolUse` em `Write`/`Edit`), nunca só no commit
@@ -350,3 +354,4 @@ intacto; ficha reinicia a cada sessão nova
 | 0.1.0 | 28-08-2026 | Criação -- checklist nascida da leitura linha a linha do CLAUDE.md (344 linhas) contra o código real dos ganchos, faixa de linha por faixa de linha, sem reorganizar por tema. | Correção do sistema de conformidade |
 | 0.2.0 | 28-08-2026 | Seis checagens que só rodavam no commit movidas pro momento da própria edição (ordem completa, handoff.md por último, módulo novo, tasks.md vazio, ADR de escolha real, tom impessoal) -- revisor de commit mantido como segunda camada, não removido. Acrescentado systemMessage em toda checagem de julgamento que bloqueia, pra você ver uma frase curta na hora, não só eu. | Continuação da correção do sistema de conformidade |
 | 0.3.0 | 28-08-2026 | Mais quatro checagens movidas pro momento da própria edição (nunca emoji, esquema é dado puro, linha de Licença, nunca "antes e depois" em documento nunca versionado) -- linhas 330-334 atualizadas. Nota nova sobre dois reforços de infraestrutura (auto-portão contra falha aberta do filtro `if`; ficha/síntese substituindo releitura do diário). Referência desatualizada, numa das checagens de julgamento, a uma "seção de achados do MANUAL.md" que não existe mais (MANUAL.md virou só checklist) corrigida pra apontar pro `findings.md`/`pitfalls.md` de cada módulo. | Correção da falha aberta do filtro `if`; checagens de emoji/esquema/licença/antes-depois movidas pro momento da edição |
+| 0.4.0 | 29-08-2026 | Ponteiro novo, no topo, pro FRASES-DE-CONFIRMACAO.md -- documento separado, papel diferente deste checklist. | Criação do FRASES-DE-CONFIRMACAO.md |

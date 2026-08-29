@@ -4,8 +4,8 @@
 |---|---|
 | Módulo | Conformidade |
 | Documento | Tasks |
-| Versão | 0.6.0 |
-| Data | 28-08-2026 |
+| Versão | 0.9.0 |
+| Data | 29-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
 > Lista mutável de pendências só deste módulo. Lida depois de
@@ -188,7 +188,31 @@
       em diante, e
       [decisions/0013](<../decisions/0013-frescor-uniforme-de-leitura-substitui-permanencia.md>).
 
+- [ ] **Investigar `pre_git_rules.sh` bloqueando commit legítimo numa
+      worktree de tarefa, achando que a branch ativa era `develop`.**
+      Relato de outra sessão, não reproduzido ao vivo nesta rodada --
+      ver [analysis.md](<analysis.md#2026-08-29-relatorio-de-outra-sessao-e-reset-da-ficha-no-evento-resume>),
+      item 3.
+
+- [ ] **Confirmar de ponta a ponta, numa sessão nova, os mecanismos
+      corrigidos nesta rodada.** Ver
+      [decisions/0015](<../decisions/0015-sessionstart-nao-reseta-mais-a-ficha-no-evento-resume-e-janela-de-frescor-maior.md>),
+      [decisions/0016](<../decisions/0016-autorizo-trava-rejeita-reticencias-sem-motivo-real.md>),
+      [decisions/0017](<../decisions/0017-comandos-git-gh-isentos-da-leitura-manual-obrigatoria.md>)
+      e
+      [decisions/0018](<../decisions/0018-frases-de-confirmacao-toleram-virgula-opcional.md>).
+
 ## Resolvidas
+
+- [x] **Corrigir `scripts/hooks/pre-commit` nunca detectando subida de
+      versão em documento só com a tabela "Controle de versão", sem
+      tabela de cabeçalho.** Resolvido -- ver
+      [decisions/0019](<../decisions/0019-deteccao-de-versao-subida-em-documento-so-com-changelog.md>).
+
+- [x] **Investigar a frase de confirmação "commit revisado, confirmado"
+      não destravando `pre_commit_hygiene.sh`, relatado por outra
+      sessão.** Resolvido -- ver
+      [decisions/0018](<../decisions/0018-frases-de-confirmacao-toleram-virgula-opcional.md>).
 
 - [x] **Confirmar ao vivo, numa sessão nova, a ficha/síntese
       ([decisions/0012](<../decisions/0012-ficha-sintese-substitui-releitura-do-diario-a-cada-checagem.md>)).**
@@ -213,3 +237,6 @@
 | 0.4.0 | 28-08-2026 | Pendência nova acrescentada (confirmação da ficha/síntese, decisions/0012, numa sessão nova). | Fechamento da lacuna de documentação da ficha/síntese |
 | 0.5.0 | 28-08-2026 | Pendência de confirmação da ficha/síntese resolvida (confirmada ao vivo por acidente, revelando dois defeitos novos, corrigidos na mesma rodada); pendência nova acrescentada (confirmação de ponta a ponta dos mecanismos desta rodada). | Correção do bloqueio real dos ganchos de conformidade |
 | 0.6.0 | 28-08-2026 | Duas pendências resolvidas (causa raiz do "modo sem perguntar"; auto-portão dos dois ganchos `agent` removidos); pendência nova acrescentada (confirmar os quatro ganchos de IA restantes com o modo automático desligado); nota de acompanhamento na pendência de confirmação da segunda rodada, precisando quais dos cinco pontos ainda se aplicam. | Resolução de [decisions/0014](<../decisions/0014-remocao-dos-ganchos-tipo-agent-substituidos-por-script-mais-confirmacao.md>) |
+| 0.7.0 | 29-08-2026 | Três pendências novas acrescentadas: dois relatos de outra sessão não reproduzidos nesta rodada (`pre_git_rules.sh`, frase de confirmação de commit); confirmação de ponta a ponta dos mecanismos corrigidos nesta rodada (decisions/0015 a 0017). | Correção de falsos bloqueios reportados de outra sessão + pedido de janela de frescor maior |
+| 0.8.0 | 29-08-2026 | Pendência da frase de confirmação de commit resolvida -- ver decisions/0018. | Resolução de [decisions/0018](<../decisions/0018-frases-de-confirmacao-toleram-virgula-opcional.md>) |
+| 0.9.0 | 29-08-2026 | Pendência nova resolvida na mesma rodada: `scripts/hooks/pre-commit` corrigido -- ver decisions/0019. | Resolução de [decisions/0019](<../decisions/0019-deteccao-de-versao-subida-em-documento-so-com-changelog.md>) |

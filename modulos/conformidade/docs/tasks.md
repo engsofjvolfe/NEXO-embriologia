@@ -4,7 +4,7 @@
 |---|---|
 | Módulo | Conformidade |
 | Documento | Tasks |
-| Versão | 0.5.0 |
+| Versão | 0.6.0 |
 | Data | 28-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
@@ -53,6 +53,14 @@
       "continue"` não bloquear (documentação marca como experimental,
       sem exemplo confirmado -- ver decisions/0008), os outros quatro
       continuam valendo.
+
+      *Nota de acompanhamento, 28-08-2026:* pontos (1) e (2) não se
+      aplicam mais -- os dois ganchos `agent` citados (revisão de
+      commit, revisão de preview) foram removidos por completo, e o
+      formato de resposta que os motivava foi corrigido em todo o
+      resto do sistema. Ver
+      [decisions/0014](<../decisions/0014-remocao-dos-ganchos-tipo-agent-substituidos-por-script-mais-confirmacao.md>).
+      Pontos (3), (4) e (5) continuam válidos e ainda sem confirmação.
 
 - [ ] **Confirmar de ponta a ponta, numa sessão nova, que os quatro
       mecanismos criados hoje bloqueiam de verdade.**
@@ -110,51 +118,48 @@
       9.10, 9.11) são conserto de bug ou erro factual, não escolha
       real entre alternativas -- não precisam de ADR.
 
-- [ ] **Investigar a causa raiz do "modo sem perguntar" que bloqueou o
+- [x] **Investigar a causa raiz do "modo sem perguntar" que bloqueou o
       gancho de `Stop` durante parte desta sessão.**
-
-      *Resumo simples:* durante boa parte do trabalho de hoje, a
-      sessão entrou num modo de permissão que nega qualquer pedido de
-      leitura/execução automaticamente, sem perguntar -- isso impediu
-      o próprio gancho de `Stop` de terminar a checagem dele várias
-      vezes seguidas. Nunca foi investigado por quê, nem se é algo que
-      este projeto deveria tratar de alguma forma.
-
-      *Detalhe técnico:* pista nova, ainda não certeza: investigação
-      registrada em
-      [analysis.md](<analysis.md#2026-08-28-falha-aberta-do-filtro-if-e-ganchos-que-nunca-parecem-rodar>)
-      encontrou evidência de que mensagens de bloqueio recebidas ao
-      vivo (formato "Agent hook condition was not met") podem vir de
-      uma camada separada (classificador do "Auto Mode"), não dos
-      scripts reais deste módulo -- mesma família de sintoma desta
-      pendência, ainda sem confirmação definitiva. Sem desenho, sem
-      responsável -- registrado só pra não perder o achado. Pode ser
-      configuração da sessão em si (fora do controle deste módulo) ou
-      algo que vale a pena entender melhor antes de repetir.
+      Resolvido -- ver
+      [decisions/0014](<../decisions/0014-remocao-dos-ganchos-tipo-agent-substituidos-por-script-mais-confirmacao.md>).
 
 - [x] **Confirmar ao vivo, numa sessão nova, a ficha/síntese
       ([decisions/0012](<../decisions/0012-ficha-sintese-substitui-releitura-do-diario-a-cada-checagem.md>)).**
       Resolvido, embora não do jeito esperado -- ver
       [Resolvidas](#resolvidas).
 
-- [ ] **Confirmar ao vivo, numa sessão nova, o auto-portão contra
+- [x] **Confirmar ao vivo, numa sessão nova, o auto-portão contra
       falha aberta do filtro `if` nos dois ganchos `agent` (revisão de
       commit, revisão de preview).**
+      Resolvido de outra forma -- os dois ganchos `agent` citados
+      (revisão de commit, revisão de início do teste no preview) foram
+      removidos por completo, substituídos por script comum
+      (`pre_commit_hygiene.sh`, `pre_preview_check.sh`), cujo
+      auto-portão já foi testado isoladamente de verdade, sem a
+      limitação que motivou esta pendência. Ver
+      [decisions/0014](<../decisions/0014-remocao-dos-ganchos-tipo-agent-substituidos-por-script-mais-confirmacao.md>).
 
-      *Resumo simples:* [decisions/0011](<../decisions/0011-auto-portao-contra-falha-aberta-do-filtro-if.md>)
-      corrige um comportamento real e documentado oficialmente (o
-      filtro `if` roda o gancho mesmo sem bater o padrão, quando o
-      comando não é parseável) -- a versão em script
-      (`pre_commit_hygiene.sh`) já foi testada isoladamente, mas a
-      instrução equivalente nos dois ganchos `agent` não tem como ser
-      testada fora do fluxo real (não são script, são prompt de IA).
+- [ ] **Confirmar ao vivo, com o modo automático da sessão desligado,
+      que os quatro ganchos decididos por IA que ainda existem
+      (revisão de edição de documento, duas checagens do fim da
+      resposta, checagem de idioma/emoji) conseguem usar ferramenta de
+      verdade.**
 
-      *Detalhe técnico:* confirmar, numa sessão nova (depois do
-      merge), que um comando Bash qualquer -- sem `git commit` real,
-      mas complexo o bastante pra disparar a falha aberta do `if` --
-      não aciona mais o julgamento completo do gancho de revisão de
-      commit, respondendo `allow` direto. Mesmo teste, adaptado, pro
-      gancho de revisão de preview.
+      *Resumo simples:* mesmo com o formato de resposta corrigido, os
+      quatro continuaram sem conseguir ler nada enquanto o modo
+      automático estava ligado -- confirmado ao vivo, mais de uma vez,
+      nesta mesma sessão. O modo automático foi desligado no fim desta
+      rodada, mas a confirmação de que isso resolve o problema de
+      verdade ainda não aconteceu.
+
+      *Detalhe técnico:* ver
+      [decisions/0014](<../decisions/0014-remocao-dos-ganchos-tipo-agent-substituidos-por-script-mais-confirmacao.md>)
+      e o achado correspondente em
+      [findings.md](<findings.md#2026-08-28-modo-automatico-da-sessao-nega-ferramenta-a-gancho-agent>).
+      Confirmar numa resposta real, com o modo automático desligado,
+      que pelo menos um dos quatro consegue rodar um comando (`cat`,
+      `git status`) e usar o resultado na decisão -- não só imprimir o
+      formato de resposta certo.
 
 - [ ] **Confirmar de ponta a ponta, numa sessão nova, os mecanismos
       corrigidos nesta rodada (bloqueio real dos ganchos de
@@ -207,3 +212,4 @@
 | 0.3.0 | 28-08-2026 | Pendência de investigação da causa raiz do "modo sem perguntar" atualizada com pista nova; pendência nova acrescentada (confirmação do auto-portão de decisions/0011 nos dois ganchos agent). | Correção da falha aberta do filtro `if` |
 | 0.4.0 | 28-08-2026 | Pendência nova acrescentada (confirmação da ficha/síntese, decisions/0012, numa sessão nova). | Fechamento da lacuna de documentação da ficha/síntese |
 | 0.5.0 | 28-08-2026 | Pendência de confirmação da ficha/síntese resolvida (confirmada ao vivo por acidente, revelando dois defeitos novos, corrigidos na mesma rodada); pendência nova acrescentada (confirmação de ponta a ponta dos mecanismos desta rodada). | Correção do bloqueio real dos ganchos de conformidade |
+| 0.6.0 | 28-08-2026 | Duas pendências resolvidas (causa raiz do "modo sem perguntar"; auto-portão dos dois ganchos `agent` removidos); pendência nova acrescentada (confirmar os quatro ganchos de IA restantes com o modo automático desligado); nota de acompanhamento na pendência de confirmação da segunda rodada, precisando quais dos cinco pontos ainda se aplicam. | Resolução de [decisions/0014](<../decisions/0014-remocao-dos-ganchos-tipo-agent-substituidos-por-script-mais-confirmacao.md>) |

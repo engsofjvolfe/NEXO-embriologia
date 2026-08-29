@@ -12,14 +12,13 @@
 
 STATE_DIR="${CLAUDE_PROJECT_DIR}/.claude/hooks/state"
 AUTH_FILE="${STATE_DIR}/current-authorization"
-NO_FINDING_FILE="${STATE_DIR}/current-no-finding-confirmation"
-NO_ADR_FILE="${STATE_DIR}/current-no-adr-confirmation"
+CONFIRM_DIR="${STATE_DIR}/confirmations"
 OVERRIDES_LOG="${STATE_DIR}/overrides.log"
 EDIT_LOG="${STATE_DIR}/edit-order.log"
 PREVIEW_LOG="${STATE_DIR}/preview-sessions.log"
 SYNTHESIS_FILE="${STATE_DIR}/synthesis.json"
 
-mkdir -p "$STATE_DIR"
+mkdir -p "$STATE_DIR" "$CONFIRM_DIR"
 
 # --- Síntese (estado atual, não o diário) ---------------------------
 #
@@ -237,18 +236,22 @@ authorized_reason() {
 }
 
 # Confirmação pontual, mais estreita que AUTORIZO-TRAVA -- resolve só
-# UM item específico de pre_edit_safety.sh (13, ou 14/15), sem liberar
-# o resto do gancho, ao contrário de AUTORIZO-TRAVA (bypass geral,
-# checado uma vez no topo do script). Escrita por user_prompt_submit.sh
-# quando a mensagem contém a frase exata esperada -- apagada a cada
-# mensagem nova, mesma regra de não ficar "pendurada".
-no_finding_confirmed() {
-  [[ -s "$NO_FINDING_FILE" ]]
+# UM ponto de checagem específico, sem liberar o resto do gancho, ao
+# contrário de AUTORIZO-TRAVA (bypass geral, checado uma vez no topo
+# do script). Escrita por user_prompt_submit.sh quando SUA mensagem
+# (nunca a minha) contém a frase exata esperada pra aquele ponto --
+# apagada a cada mensagem nova, mesma regra de não ficar "pendurada".
+# Um arquivo por ponto, dentro de CONFIRM_DIR -- generalizado a partir
+# dos dois arquivos fixos que existiam antes (current-no-finding-
+# confirmation, current-no-adr-confirmation), pra um ponto de checagem
+# novo não precisar de uma variável e uma função só pra ele.
+confirmation_confirmed() {
+  local nome="$1"
+  [[ -s "${CONFIRM_DIR}/${nome}" ]]
 }
 
-no_adr_confirmed() {
-  [[ -s "$NO_ADR_FILE" ]]
-}
+no_finding_confirmed() { confirmation_confirmed "no-finding"; }
+no_adr_confirmed() { confirmation_confirmed "no-adr"; }
 
 # Windows usa "\" como separador de caminho; as checagens deste projeto
 # comparam substring com "/" (padrão Unix, usado nas regras do

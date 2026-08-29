@@ -4,8 +4,8 @@
 |---|---|
 | Módulo | Conformidade |
 | Documento | Concept |
-| Versão | 0.2.0 |
-| Data | 27-08-2026 |
+| Versão | 0.3.0 |
+| Data | 28-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
 > Descreve o desenho pretendido do módulo — o que ele deve ser e como
@@ -105,11 +105,17 @@ deste módulo e o que o `CLAUDE.md` decide vira achado em
 *Em resumo:* três pontos ficam sem garantia técnica plena, cada um por
 um motivo específico — dois sem solução possível (provar entendimento
 genuíno; confirmar que um teste manual, o preview isolado, funcionou
-de verdade), um terceiro que é falta de informação disponível hoje, não
-impossibilidade permanente: se um gancho decidido por IA (tipo `agent`
-ou `prompt`) consegue mesmo impedir a resposta de terminar no evento
-`Stop` — a documentação oficial marca esse mecanismo como
-experimental e não confirma isso com um exemplo literal.
+de verdade), um terceiro que depende de uma configuração da sessão que
+este módulo não controla: os quatro ganchos decididos por IA que ainda
+existem (revisão de edição de documento, duas checagens do fim da
+resposta, checagem de idioma/emoji) só têm acesso real a ferramenta
+quando a sessão principal não está no modo automático (a configuração
+do próprio Claude Code que decide sozinha, sem perguntar, se cada ação
+pode rodar) — confirmado ao vivo mais de uma vez. Motivo completo,
+incluindo os dois ganchos removidos por completo (revisão de commit,
+revisão de início do teste no preview) e a correção do formato de
+resposta dos quatro que restam, em
+[decisions/0014](<../decisions/0014-remocao-dos-ganchos-tipo-agent-substituidos-por-script-mais-confirmacao.md>).
 
 **Provar entendimento genuíno.** Dá pra forçar a ação -- reler o
 arquivo antes de editar -- mas não dá pra garantir que quem leu
@@ -126,15 +132,22 @@ explicitamente se foi testado de novo após mudança de código, em vez
 de presumir. No dia em que essa seção do `CLAUDE.md` definir um sinal
 concreto, essa checagem vira mecânica.
 
-**Bloqueio real de gancho `agent`/`prompt` no evento `Stop`.**
-Pesquisa direta na documentação oficial do Claude Code confirma o
-formato de bloqueio pra `PreToolUse` com certeza (mesmo formato de um
-gancho `command`), mas marca `agent`/`prompt` no evento `Stop` como
-experimental, sem exemplo confirmado de bloqueio. Os ganchos de
-julgamento do `Stop` usam o formato mais bem documentado disponível,
-sem garantia -- a garantia real, nesse evento, é só
-`stop_fact_check.sh` (gancho comum, sem IA, `exit 2` confirmado).
-Pendência de confirmação ao vivo em [tasks.md](tasks.md).
+**Bloqueio real de gancho `agent`/`prompt` no evento `Stop`, e acesso a
+ferramenta dependente do modo da sessão.** Pesquisa direta na
+documentação oficial do Claude Code confirma o formato de resposta
+certo pra gancho `agent`/`prompt` em qualquer evento (`{"ok": true}`
+ou `{"ok": false, "reason": "..."}`, nunca o formato de um gancho
+`command`, defeito já corrigido em todos -- ver
+[decisions/0014](<../decisions/0014-remocao-dos-ganchos-tipo-agent-substituidos-por-script-mais-confirmacao.md>)),
+mas continua marcando o bloqueio de verdade no evento `Stop` como
+experimental, sem exemplo confirmado. Some-se a isso um segundo
+limite, confirmado ao vivo: mesmo com o formato certo, um gancho
+`agent` só tem acesso real a ferramenta quando a sessão principal não
+está no modo automático -- com o modo automático ligado, a checagem
+roda sem conseguir ler nada, na prática decorativa. A garantia real,
+no evento `Stop`, independente de modo, é só `stop_fact_check.sh`
+(gancho comum, sem IA, `exit 2` confirmado). Pendência de confirmação
+ao vivo, fora do modo automático, em [tasks.md](tasks.md).
 
 ## Controle de versão
 
@@ -142,3 +155,4 @@ Pendência de confirmação ao vivo em [tasks.md](tasks.md).
 |---|---|---|---|
 | 0.1.0 | 27-08-2026 | Criação inicial -- módulo formalizado a partir do sistema de conformidade já existente em `.claude/hooks/`/`MANUAL.md`, sem repetir o conteúdo, só apontando pra ele como fonte normativa. | Criação inicial do módulo |
 | 0.2.0 | 27-08-2026 | Limites reconhecidos: terceiro ponto acrescentado (bloqueio real do evento `Stop` por gancho `agent`/`prompt`, mecanismo experimental sem confirmação oficial). | Resolução de [decisions/0008](<../decisions/0008-formato-de-bloqueio-nos-ganchos-de-julgamento-do-stop.md>) |
+| 0.3.0 | 28-08-2026 | Limites reconhecidos, terceiro ponto reescrito: formato de resposta de todo gancho `agent`/`prompt` corrigido (era o formato de um gancho comum, por engano); dois ganchos `agent` removidos por completo; acrescentado o limite de acesso a ferramenta depender do modo automático da sessão, confirmado ao vivo. | Resolução de [decisions/0014](<../decisions/0014-remocao-dos-ganchos-tipo-agent-substituidos-por-script-mais-confirmacao.md>) |

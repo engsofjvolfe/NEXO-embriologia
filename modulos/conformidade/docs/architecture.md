@@ -4,7 +4,7 @@
 |---|---|
 | Módulo | Conformidade |
 | Documento | Architecture |
-| Versão | 0.3.0 |
+| Versão | 0.4.0 |
 | Data | 28-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
@@ -46,6 +46,9 @@ o gancho real que aplica.
   (confere se os dezesseis documentos de importação automática do
   `CLAUDE.md` existem de verdade), `pre_mandatory_reading_guard.sh`,
   `pre_edit_safety.sh`, `pre_commit_hygiene.sh`, `pre_git_rules.sh`,
+  `pre_preview_check.sh` (documentação antes do teste no preview,
+  substitui gancho `agent` removido -- ver
+  [decisions/0014](<../decisions/0014-remocao-dos-ganchos-tipo-agent-substituidos-por-script-mais-confirmacao.md>)),
   `pre_search_guard.sh` (guarda de busca ampla genérica, por formato de
   chamada -- qualquer ferramenta com `tool_input.command` -- não por
   nome de ferramenta), `post_edit_track.sh`, `post_read_track.sh`,
@@ -76,3 +79,4 @@ o gancho real que aplica.
 |---|---|---|---|
 | 0.1.0 | 27-08-2026 | Criação inicial -- aponta pro layout já descrito em `MANUAL.md`, acrescenta só a pasta `decisions/` própria do módulo. | Criação inicial do módulo |
 | 0.2.0 | 28-08-2026 | Layout reescrito direto (sem apontar pras seções antigas de MANUAL.md, que virou um índice por faixa de linha do CLAUDE.md, não mais numerado por seção) -- lista completa dos arquivos reais, incluindo session_start_import_check.sh, novo nesta rodada. | Segunda rodada de correção do sistema de conformidade |
+| 0.4.0 | 28-08-2026 | Acrescentado `pre_preview_check.sh` à lista de arquivos. | Resolução de [decisions/0014](<../decisions/0014-remocao-dos-ganchos-tipo-agent-substituidos-por-script-mais-confirmacao.md>) |

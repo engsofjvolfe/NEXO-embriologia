@@ -51,23 +51,32 @@ else
   : > "$AUTH_FILE"
 fi
 
-# Confirmação pontual pros itens 13 e 14/15 de pre_edit_safety.sh --
-# mais estreita que AUTORIZO-TRAVA (resolve só aquele item específico,
-# nunca libera o resto do gancho). Mesma regra de não ficar
-# "pendurada": limpa a cada mensagem nova, escreve só quando a frase
-# exata aparece nesta mensagem.
-if echo "$PROMPT" | grep -qi "nada a registrar, confirmado"; then
-  echo "confirmado" > "$NO_FINDING_FILE"
-  log_override "user_prompt_submit" "nada a registrar, confirmado"
-else
-  : > "$NO_FINDING_FILE"
-fi
-
-if echo "$PROMPT" | grep -qi "sem alternativas reais, confirmado"; then
-  echo "confirmado" > "$NO_ADR_FILE"
-  log_override "user_prompt_submit" "sem alternativas reais, confirmado"
-else
-  : > "$NO_ADR_FILE"
-fi
+# Confirmação pontual pra cada ponto de checagem que só um humano pode
+# resolver (nunca eu sozinho, nunca a resposta anterior de outra
+# sessão) -- mais estreita que AUTORIZO-TRAVA (resolve só aquele ponto
+# específico, nunca libera o resto do gancho). Tabela, não um "if" por
+# frase: um ponto de checagem novo (ver pre_edit_safety.sh,
+# pre_commit_hygiene.sh) só precisa de uma linha nova aqui, nunca de
+# copiar este bloco inteiro de novo. Mesma regra de não ficar
+# "pendurada": todo arquivo listado é limpo a cada mensagem nova,
+# escrito só quando a frase exata aparece NESTA mensagem sua.
+CONFIRMATION_PHRASES=(
+  "nada a registrar, confirmado|no-finding"
+  "sem alternativas reais, confirmado|no-adr"
+  "tom impessoal confirmado, sem violacao|tom-impessoal"
+  "sem duplicacao de conteudo, confirmado|sem-duplicacao"
+  "commit revisado, confirmado|commit-revisado"
+)
+for par in "${CONFIRMATION_PHRASES[@]}"; do
+  frase="${par%%|*}"
+  nome="${par##*|}"
+  arquivo="${CONFIRM_DIR}/${nome}"
+  if echo "$PROMPT" | grep -qi "$frase"; then
+    echo "confirmado" > "$arquivo"
+    log_override "user_prompt_submit" "$frase"
+  else
+    : > "$arquivo"
+  fi
+done
 
 exit 0

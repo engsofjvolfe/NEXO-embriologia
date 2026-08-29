@@ -4,7 +4,7 @@
 |---|---|
 | Módulo | Conformidade |
 | Documento | Pitfalls |
-| Versão | 0.3.0 |
+| Versão | 0.4.0 |
 | Data | 28-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
@@ -107,6 +107,25 @@ via `$(...)` (a maioria do resto de `lib/common.sh`) não são afetadas
 -- o problema é específico de laço linha a linha sobre múltiplas
 linhas de saída.
 
+### 2026-08-28-grep-p-exige-locale-utf-8-neste-ambiente
+
+*Em resumo:* `grep -P` (modo de expressão regular mais completo) falha
+em silêncio -- ou com erro explícito de locale -- ao usar um caractere
+fora do intervalo básico (ex.: `á`, `ó`) neste ambiente (Windows/Git
+Bash), porque `-P` exige um ambiente de idioma (`locale`) UTF-8, que
+não está configurado por padrão aqui. Também não é possível combinar
+`-E` e `-P` na mesma chamada -- `grep` recusa com erro.
+
+*Em detalhe técnico:* achado escrevendo a checagem de tom pessoal em
+`pre_edit_safety.sh` (item 16) -- um padrão com `[aá]`/`[oó]` sob `-P`
+devolvia "grep: -P supports only unibyte and UTF-8 locales" neste
+ambiente. Mitigação: usar `-E` (expressão regular estendida, POSIX) em
+vez de `-P` sempre que o padrão não precisar de nenhum recurso
+exclusivo de `-P` (como os grupos de caractere acentuado usados aqui,
+que `-E` já cobre sem problema) -- evita o problema de locale por
+completo, em vez de forçar a variável de ambiente como já feito para
+emoji (`LC_ALL=C.UTF-8`, ver `has_emoji` em `lib/common.sh`).
+
 ## Controle de versão
 
 | Versão | Data | Alteração | Origem da alteração |
@@ -114,3 +133,4 @@ linhas de saída.
 | 0.1.0 | 27-08-2026 | Criação inicial -- uma armadilha registrada. | Criação inicial do módulo |
 | 0.2.0 | 28-08-2026 | Duas armadilhas novas registradas (falha aberta do filtro `if`; mensagem de bloqueio ao vivo não prova execução real do gancho). | Investigação da checagem de emoji disparando fora de contexto |
 | 0.3.0 | 28-08-2026 | Armadilha nova registrada (`jq` devolve `\r\n` neste ambiente, quebrando comparação de chave em laço linha a linha). | Correção do bloqueio real dos ganchos de conformidade |
+| 0.4.0 | 28-08-2026 | Armadilha nova registrada (`grep -P` exige locale UTF-8 neste ambiente, e não pode ser combinado com `-E`). | Resolução de [decisions/0014](<../decisions/0014-remocao-dos-ganchos-tipo-agent-substituidos-por-script-mais-confirmacao.md>) |

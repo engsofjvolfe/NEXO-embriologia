@@ -199,4 +199,35 @@ if [[ -n "$MODULE_TASKS" ]]; then
   done
 fi
 
+# 12) Mensagem de commit narrativa -- CLAUDE.md, Passo 4: "Nunca
+# narrativa -- nada de bullet ou frase contando a jornada de
+# investigação". O próprio CLAUDE.md já lista os três exemplos exatos
+# de frase proibida -- fato de texto, sem exceção possível, igual aos
+# itens 1/2/2b/3/3b acima (nunca autorizável).
+if echo "$COMMAND" | grep -Eiq "descobrimos que|depois de tentar .* percebemos que|a causa acabou sendo"; then
+  block "Bloqueado: a mensagem de commit parece contar a jornada de investigação ('descobrimos que...', 'depois de tentar X, percebemos que...', 'a causa acabou sendo...') -- CLAUDE.md, Passo 4: commit descreve o fato final, nunca como se chegou nele (esse relato pertence aos arquivos de investigação e achados do módulo, nunca ao commit). Reescreva a mensagem."
+fi
+
+# 13) Julgamento restante do commit (duplicação de conteúdo entre
+# documentos do módulo, cada arquivo tocado batendo com a própria
+# descrição no topo) -- antes checado por um gancho do tipo "agent"
+# (segunda inteligência artificial) que usava um formato de resposta
+# que este tipo de gancho não reconhece pra bloquear de verdade
+# (achado equivalente ao da própria edição, ver o arquivo de achados
+# do módulo conformidade). Os fatos mecânicos que essa segunda IA
+# também checava (leitura obrigatória, ordem de escrita, achado/
+# pitfall/ADR faltando) já são cobertos, sem IA nenhuma, pelos itens
+# acima e pelos itens 13/14/15 de pre_edit_safety.sh, que rodam antes,
+# no momento da própria edição -- só falta o julgamento genuíno, que
+# nenhum script confirma sozinho: sinaliza sempre que o commit toca
+# mais de um arquivo em docs/ ou decisions/ de um módulo, confirmação
+# sua decide, nunca eu sozinho.
+MODULOS_TOCADOS_DOCS=$(git -C "$CWD" diff --cached --name-only -- 'modulos/*/docs/*' 'modulos/*/decisions/*' 2>/dev/null | sed -E 's#(modulos/[^/]+)/.*#\1#' | sort -u)
+for mod in $MODULOS_TOCADOS_DOCS; do
+  QTD=$(git -C "$CWD" diff --cached --name-only -- "$mod/docs/*" "$mod/decisions/*" 2>/dev/null | wc -l)
+  if [[ "$QTD" -gt 1 ]] && ! confirmation_confirmed "commit-revisado"; then
+    block "Sinalizado: este commit toca $QTD arquivos em $mod/docs/ ou $mod/decisions/ -- confirme que nenhuma explicação foi duplicada entre eles (cada uma mora só no documento dono, o resto aponta) e que cada arquivo tocado foi relido, por completo, contra a própria descrição no topo dele (CLAUDE.md, Fluxo de escrita e revisão de documentação). Se estiver tudo certo, responda com a frase exata 'commit revisado, confirmado'; se encontrar duplicação ou divergência, corrija antes de commitar; se isso for engano de outro tipo, use AUTORIZO-TRAVA: <motivo>."
+  fi
+done
+
 exit 0

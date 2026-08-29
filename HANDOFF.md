@@ -115,6 +115,11 @@
 - Jetpack Compose decidido como ferramenta de desenho de tela do
   módulo `app`, destravando o desenho visual das telas — ver
   [modulos/motor/decisions/0031](<modulos/motor/decisions/0031-jetpack-compose-como-ferramenta-de-desenho-de-tela.md>).
+- Gatilho de toque entre os oito estados da tela de jogo do motor
+  decidido — toque livre em situações sem decisão real, botão nomeado
+  quando existe escolha ou consequência, com duas fontes oficiais
+  independentes — ver
+  [modulos/motor/decisions/0032](<modulos/motor/decisions/0032-gatilho-de-toque-entre-estados-do-sessionscreen.md>).
 - Sistema de conformidade do `CLAUDE.md` instalado: hooks do Claude
   Code (`.claude/hooks/`, `.claude/settings.json`) e do git nativo
   (`scripts/hooks/commit-msg`, `pre-push`, `pre-rebase`, ao lado do

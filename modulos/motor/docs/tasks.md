@@ -6,8 +6,8 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Tasks |
-| Versão | 0.47.0 |
-| Data | 27-08-2026 |
+| Versão | 0.48.0 |
+| Data | 29-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
 > Lista mutável de pendências só deste módulo. Lida depois de
@@ -203,10 +203,12 @@ Convenção dos códigos citados aqui:
       decidido
       ([decisions/0022](<../decisions/0022-conteudo-do-estado-exposto-pelo-viewmodel.md>):
       `SessionScreen` é um tipo fechado, uma variante por entrada da
-      tabela DA-RET — uma tela só, mudando de conteúdo por dentro); só
-      o gatilho exato por toque que move de um pro outro segue
-      pendente (o gatilho por temporizador, usado só pela ociosidade,
-      já está resolvido, independente da aparência — ver
+      tabela DA-RET — uma tela só, mudando de conteúdo por dentro); o
+      gatilho exato por toque que move de um pro outro já está
+      decidido, com fonte oficial pra cada situação — ver
+      [decisions/0032](<../decisions/0032-gatilho-de-toque-entre-estados-do-sessionscreen.md>)
+      (o gatilho por temporizador, usado só pela ociosidade, já estava
+      resolvido antes, independente da aparência — ver
       [decisions/0024](<../decisions/0024-mecanismo-do-gatilho-de-ociosidade.md>)).
       Dentro disso, o padrão de navegação entre instância, tema e
       evento — expansão em acordeão, nunca troca de tela inteira,
@@ -665,3 +667,4 @@ como mudança de conteúdo real. -->
 | 0.45.0 | 22-08-2026 | Pendência nova "Decidir a ferramenta de desenho de tela do módulo `app`" acrescentada já resolvida, movida direto para Resolvidas — nunca existiu aqui como "Em aberto", porque foi identificada numa worktree separada, ainda não mesclada nesta. | Resolução de [decisions/0031](<../decisions/0031-jetpack-compose-como-ferramenta-de-desenho-de-tela.md>) |
 | 0.46.0 | 22-08-2026 | Corrigida a duplicidade que a mescla de `develop` trouxe: o item "Decidir a ferramenta de desenho de tela do módulo `app`" acrescentado na linha `0.43.0` desta mesma tabela saiu de "Em aberto" — já resolvido em `develop` (linha `0.45.0`), enquanto essa worktree ainda não tinha essa informação. | Reconciliação ao mesclar `develop` (`decisions/0031`) nesta worktree |
 | 0.47.0 | 27-08-2026 | Pendência "Desenhar a aparência visual das telas do motor" perde o bloqueio de código sobre o botão de pausar — `onPauseRequested()` já existe; só o desenho visual do controle segue pendente. | Escrita e teste de `onPauseRequested()` em `SessionViewModel.kt` |
+| 0.48.0 | 29-08-2026 | Pendência "Desenhar a aparência visual das telas do motor" ganha ponteiro pra ADR nova: o gatilho de toque entre os oito estados da tela de jogo, antes só citado como pendente, agora está decidido, com duas fontes oficiais independentes (Material Design 3, Nielsen Norman Group). Aparência visual em si, leiaute das 16 entradas de tela restantes, indicador de conexão e protótipo continuam pendentes. | Resolução de [decisions/0032](<../decisions/0032-gatilho-de-toque-entre-estados-do-sessionscreen.md>) |

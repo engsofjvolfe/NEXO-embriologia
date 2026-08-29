@@ -6,8 +6,8 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Handoff |
-| Versão | 0.37.0 |
-| Data | 27-08-2026 |
+| Versão | 0.38.0 |
+| Data | 29-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
 > Resumo curto de "onde este módulo está" e "o que fazer a seguir" nele.
@@ -110,6 +110,9 @@
 - [decisions/0031-jetpack-compose-como-ferramenta-de-desenho-de-tela.md](<../decisions/0031-jetpack-compose-como-ferramenta-de-desenho-de-tela.md>) —
   Jetpack Compose escolhido como ferramenta de desenho de tela do
   módulo `app`.
+- [decisions/0032-gatilho-de-toque-entre-estados-do-sessionscreen.md](<../decisions/0032-gatilho-de-toque-entre-estados-do-sessionscreen.md>) —
+  gatilho de toque entre os oito estados da tela de jogo decidido, com
+  fonte oficial.
 - [findings.md](findings.md) — achados confirmados até agora.
 - [analysis.md](analysis.md) — registro de como cada investigação
   deste módulo foi feita.
@@ -166,3 +169,4 @@ com o campo Versão da tabela de cabeçalho, que sempre reflete a
 | 0.33.0 | 22-08-2026 | Acrescentado ponteiro para decisions/0031. | Jetpack Compose decidido como ferramenta de desenho de tela do módulo `app`, com fonte oficial pra cada ponto — não decide aparência visual em si, que segue pendente em `tasks.md` |
 | 0.36.0 | 22-08-2026 | Nenhum ponteiro novo (concept.md, architecture.md, decisions/0003, 0029 e 0031 já citados). | A mesma frase imprecisa sobre o agrupamento das 17 entradas de tela precisada em cinco lugares, critério corrigido pra decidir entre nota de acompanhamento e edição direta: conta a data (informação já existia antes de o texto ser escrito?), não se a worktree já foi mesclada. `decisions/0003` e `architecture.md`/"Layout" (antes de `decisions/0022` existir) levam nota de acompanhamento; `decisions/0029`, `decisions/0031` e `concept.md` (escritos depois) corrigidos direto — investigação em `analysis.md` |
 | 0.37.0 | 27-08-2026 | Nenhum ponteiro novo (`architecture.md`/`findings.md`/`tasks.md` já citados). | `onPauseRequested()` escrito em `SessionViewModel.kt`, fechando o achado sobre a ação de pausar por toque; teste escrito antes do código, suíte completa sem quebra; pendência de desenho visual perde o bloqueio de código sobre o botão de pausar |
+| 0.38.0 | 29-08-2026 | Acrescentado ponteiro para decisions/0032. | Gatilho de toque entre os oito estados da tela de jogo decidido, com duas fontes oficiais independentes (Material Design 3, Nielsen Norman Group) |

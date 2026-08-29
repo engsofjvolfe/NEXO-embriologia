@@ -4,7 +4,7 @@
 |---|---|
 | Módulo | Conformidade |
 | Documento | Findings |
-| Versão | 0.6.0 |
+| Versão | 0.8.0 |
 | Data | 28-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
@@ -325,6 +325,108 @@ mão>" -- começa com `<` mas não é o texto de exemplo -- autorizou
 normalmente, sem bloquear por engano). `bash -n lib/common.sh` e
 `bash -n pre_edit_safety.sh` sem erro depois da correção.
 
+### 2026-08-28-formato-de-resposta-errado-em-todo-gancho-agent-e-prompt
+
+**Confirmado por:** leitura de código e teste ao vivo.
+
+*Em resumo:* os sete pontos do sistema que usavam uma segunda
+inteligência artificial (seis do tipo "agent", um do tipo "prompt",
+mais simples) pediam a ela uma resposta no formato de um gancho comum
+(`hookSpecificOutput.permissionDecision`/`decision`) -- formato que o
+Claude Code não reconhece pra esse tipo de gancho, que só entende
+`{"ok": true}` ou `{"ok": false, "reason": "..."}`. Na prática, nenhum
+dos sete bloqueava de verdade, mesmo quando a segunda inteligência
+artificial raciocinava certo.
+
+*Em detalhe técnico:* confirmado lendo a documentação oficial do
+Claude Code direto (Hooks reference, seções "Prompt-based hooks" e
+"Agent-based hooks"), não resumida por outra fonte. Corrigido nos sete
+pontos -- ver
+[decisions/0014](<../decisions/0014-remocao-dos-ganchos-tipo-agent-substituidos-por-script-mais-confirmacao.md>).
+
+### 2026-08-28-modo-automatico-da-sessao-nega-ferramenta-a-gancho-agent
+
+**Confirmado por:** teste ao vivo.
+
+*Em resumo:* mesmo depois de corrigido o formato de resposta acima,
+um gancho do tipo "agent" continuou sem conseguir usar nenhuma
+ferramenta (ler arquivo, rodar comando) enquanto a sessão principal
+estava com o modo automático ligado -- reproduzido de forma
+independente dentro desta mesma sessão, mais de uma vez, incluindo um
+caso em que um comando de teste contendo um "git commit" real disparou
+o gancho de revisão de commit (ainda ativo, rodando a partir da pasta
+principal do repositório) e ele bloqueou alegando falta de acesso a
+ferramenta.
+
+*Em detalhe técnico:* a documentação oficial confirma que um gancho
+"agent" herda o modo de permissão da sessão que o chamou, sem campo de
+configuração pra escolher um modo próprio -- se a sessão está no modo
+automático, o gancho também fica. Duas checagens do fim da resposta
+continuaram retornando mensagem de "modo sem perguntar bloqueou acesso
+necessário" mesmo depois da correção de formato, confirmando que o
+defeito tem duas causas independentes, não uma só. Ver
+[decisions/0014](<../decisions/0014-remocao-dos-ganchos-tipo-agent-substituidos-por-script-mais-confirmacao.md>);
+pendência de confirmar o comportamento com o modo automático desligado
+em [tasks.md](tasks.md).
+
+### 2026-08-28-checagem-mecanica-de-documentacao-antes-do-teste-tinha-dois-defeitos
+
+**Confirmado por:** teste ao vivo.
+
+*Em resumo:* o script novo que substitui o gancho "agent" de revisão
+de início do teste no preview (`pre_preview_check.sh`) tinha dois
+defeitos, achados só ao testar o código novo: usava `git diff`, que não
+lista arquivo nunca registrado no controle de versão (só modificado),
+deixando passar um módulo inteiro novo sem documentação; e não excluía
+`docs/`/`schemas/`/`decisions/` do que conta como "código", fazendo a
+própria edição do documento de conceito de um módulo disparar a
+checagem contra si mesma.
+
+*Em detalhe técnico:* corrigido trocando `git diff --name-only` por
+`git status --porcelain --untracked-files=all` (cobre modificado e
+novo na mesma chamada) e acrescentando o mesmo filtro
+`/docs/|/schemas/|/decisions/` que `IS_CODE`, em `pre_edit_safety.sh`
+item 5, já usava. Testado isoladamente: módulo com código novo
+(nunca registrado) e sem documentação bloqueou; o mesmo módulo com o
+documento de conceito tocado na mesma sessão liberou; módulo só com o
+documento de conceito alterado, sem nenhum código, não bloqueou (não
+há código exigindo documentação).
+
+### 2026-08-28-item-16-tinha-conflito-de-opcao-do-grep-e-problema-de-locale
+
+**Confirmado por:** teste ao vivo.
+
+*Em resumo:* a checagem mecânica nova de tom pessoal (`pre_edit_safety.sh`,
+item 16) não disparava nunca, por dois motivos empilhados: a chamada
+combinava as opções `-E` e `-P` do `grep` ao mesmo tempo (`grep` recusa
+essa combinação com erro); corrigido para `-P` sozinho, o padrão com
+caractere acentuado (`[aá]`) ainda falhava, porque `-P` exige um
+ambiente de idioneo (`locale`) UTF-8, ausente neste ambiente.
+
+*Em detalhe técnico:* corrigido trocando pra `grep -E` (sem `-P`),
+suficiente pro padrão usado (não precisa de nenhum recurso exclusivo
+de `-P`) -- mesma família de problema já registrada em
+[pitfalls.md](<pitfalls.md#2026-08-28-grep-p-exige-locale-utf-8-neste-ambiente>).
+Testado isoladamente depois da correção: frase com tom pessoal
+bloqueou; a mesma frase, depois de confirmada, liberou; frase sem tom
+pessoal não bloqueou.
+
+### 2026-08-28-frase-de-confirmacao-cadastrada-mas-nunca-usada
+
+**Confirmado por:** leitura de código.
+
+*Em resumo:* a frase "preview pronto pra testar, confirmado" foi
+cadastrada na tabela de confirmações de `user_prompt_submit.sh`, mas
+nenhum script chegou a checá-la -- sobra de um desenho inicial trocado
+no meio da implementação, sem efeito nenhum, achada só numa auditoria
+pedida explicitamente sobre o próprio trabalho desta rodada.
+
+*Em detalhe técnico:* removida a linha da tabela. As outras cinco
+frases da mesma tabela (`no-finding`, `no-adr`, `tom-impessoal`,
+`sem-duplicacao`, `commit-revisado`) confirmadas, uma a uma, como
+realmente lidas por `confirmation_confirmed` em `pre_edit_safety.sh`
+ou `pre_commit_hygiene.sh`.
+
 ## Controle de versão
 
 | Versão | Data | Alteração | Origem da alteração |
@@ -336,3 +438,4 @@ normalmente, sem bloquear por engano). `bash -n lib/common.sh` e
 | 0.5.0 | 28-08-2026 | Achado novo registrado (padrão de emoji incluía bloco de setas tipográficas, bloqueando commit legítimo). | Correção do padrão de emoji em lib/common.sh |
 | 0.6.0 | 28-08-2026 | Quatro achados novos registrados, todos testados isoladamente antes do commit: reset indevido da ficha na compactação, corrupção e perda de fato na ficha por escrita concorrente, AUTORIZO-TRAVA disparado por texto de exemplo citado, e a lacuna de trava mecânica em pitfalls/findings/decisions. | Correção do bloqueio real dos ganchos de conformidade |
 | 0.7.0 | 28-08-2026 | Achado novo registrado (item 5 perdia a alternativa de `schemas/`, revelado numa segunda rodada de teste mais rigorosa, cobrindo limite exato da janela, isolamento entre módulos, itens 6/7/8 e falso positivo do placeholder). | Correção do bloqueio real dos ganchos de conformidade |
+| 0.8.0 | 28-08-2026 | Cinco achados novos registrados: formato de resposta errado em todo gancho `agent`/`prompt`; modo automático da sessão nega ferramenta a gancho `agent`, mesmo com formato corrigido; dois defeitos reais na checagem nova de documentação-antes-do-teste; conflito de opção e problema de locale do `grep` na checagem nova de tom pessoal; frase de confirmação cadastrada mas nunca usada. | Resolução de [decisions/0014](<../decisions/0014-remocao-dos-ganchos-tipo-agent-substituidos-por-script-mais-confirmacao.md>) |

@@ -84,9 +84,14 @@
       foi feita, virou o `MANUAL.md` na raiz; dez regras adicionais
       movidas do momento do commit pro momento da própria edição; uma
       falha real do Claude Code, no filtro `if`, corrigida com
-      auto-portão nos ganchos afetados), mas ainda falta confirmar tudo
-      ao vivo numa sessão nova -- nenhuma correção feita na mesma
-      sessão que a escreveu pôde ser vista bloqueando de verdade.
+      auto-portão nos ganchos afetados; a causa raiz de os ganchos
+      revisados por IA nunca bloquearem de verdade confirmada com fonte
+      oficial -- formato de resposta errado, mais um deles ficando sem
+      acesso a ferramenta enquanto a sessão está no modo automático --
+      dois desses ganchos removidos, os outros quatro mantidos com o
+      formato corrigido), mas ainda falta confirmar tudo ao vivo numa
+      sessão nova -- nenhuma correção feita na mesma sessão que a
+      escreveu pôde ser vista bloqueando de verdade.
 
       *Detalhe técnico:* ver
       [modulos/conformidade/docs/tasks.md, Em aberto](modulos/conformidade/docs/tasks.md#em-aberto)

@@ -4,7 +4,7 @@
 |---|---|
 | Módulo | Conformidade |
 | Documento | Handoff |
-| Versão | 0.8.0 |
+| Versão | 0.9.0 |
 | Data | 28-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
@@ -90,6 +90,16 @@
   [decisions/0013](<../decisions/0013-frescor-uniforme-de-leitura-substitui-permanencia.md>)
   pro detalhe completo; gancho `agent` de edição ganha um quarto
   julgamento (D), sobre qual arquivo de `schemas/` é o relevante.
+- Formato de resposta corrigido em todo gancho decidido por IA (seis
+  do tipo `agent`, um do tipo `prompt`) -- estava no formato de um
+  gancho comum, nunca reconhecido pra esse tipo. Dois desses ganchos
+  (revisão de commit, revisão de início do teste no preview) removidos
+  por completo, substituídos por script comum; os outros quatro
+  (revisão de edição, duas checagens do fim da resposta, idioma/emoji)
+  mantidos, só com o formato corrigido. Mecanismo de confirmação
+  textual generalizado (tabela, não mais um par arquivo/função por
+  ponto). Ver
+  [decisions/0014](<../decisions/0014-remocao-dos-ganchos-tipo-agent-substituidos-por-script-mais-confirmacao.md>).
 - [findings.md](findings.md) — achados confirmados até agora.
 - [analysis.md](analysis.md) — registro de como cada investigação
   deste módulo foi feita.
@@ -98,11 +108,11 @@
 
 ## Próximo passo
 
-- [tasks.md, Em aberto](<tasks.md#em-aberto>) — confirmação de ponta a
-  ponta numa sessão nova, cobrindo todas as rodadas de correção, é a
-  pendência mais direta (inclui agora os mecanismos desta rodada). A
-  auditoria linha a linha do `CLAUDE.md`, que ficara combinada pra
-  depois, já foi feita nesta sessão (é o que `MANUAL.md` virou).
+- [tasks.md, Em aberto](<tasks.md#em-aberto>) — confirmar, com o modo
+  automático da sessão desligado, que os quatro ganchos de IA
+  restantes conseguem usar ferramenta de verdade, é a pendência mais
+  direta desta rodada. A confirmação de ponta a ponta numa sessão
+  nova, cobrindo as rodadas anteriores, continua pendente.
 
 ## Controle de versão
 
@@ -116,3 +126,4 @@
 | 0.6.0 | 28-08-2026 | Acrescentado ponteiro para decisions/0011; linha nova sobre as quatro checagens movidas pro momento da edição e o terceiro julgamento (C) de conteúdo duplicado. | Correção da falha aberta do filtro `if`; extensão da checagem de duplicação de conteúdo pro momento da edição |
 | 0.7.0 | 28-08-2026 | Acrescentado ponteiro para decisions/0013; linha nova sobre a correção do bloqueio real dos ganchos (compactação, corrupção da ficha, AUTORIZO-TRAVA, itens 13/14-15). | Correção do bloqueio real dos ganchos de conformidade |
 | 0.8.0 | 28-08-2026 | Acrescentado ponteiro para pitfalls.md, sem linha própria antes. | Correção do bloqueio real dos ganchos de conformidade -- fechamento |
+| 0.9.0 | 28-08-2026 | Acrescentado ponteiro para decisions/0014; linha nova sobre a correção do formato de resposta em todo gancho de IA, e a remoção de dois deles. | Resolução de decisions/0014 |

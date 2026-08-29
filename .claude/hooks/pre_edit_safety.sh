@@ -307,4 +307,38 @@ if [[ -n "$FILE_PATH" && "$FILE_PATH" == *"/modulos/"* ]]; then
   fi
 fi
 
+# 16) Tom pessoal em documento (exceto o arquivo de investigação de
+# cada módulo) -- CLAUDE.md/modulos/README.md: "Tom impessoal... nunca
+# 'o usuário pediu/relatou X'". Antes, só um gancho do tipo "agent"
+# (uma segunda inteligência artificial, chamada à parte) julgava isso,
+# no momento da edição -- lacuna real: essa segunda IA usava um
+# formato de resposta que o Claude Code não reconhece pra bloquear de
+# verdade nesse tipo de gancho (confirmado lendo a documentação
+# oficial: um gancho "agent" só entende resposta no formato
+# {"ok": true/false}, nunca o formato "permissionDecision" que ela
+# usava) -- na prática, nunca travava. Substituído por checagem
+# mecânica de palavra-chave (sinal, não certeza -- por isso
+# autorizável) mais confirmação sua, mesmo padrão dos itens 13/14/15:
+# nunca decidido por mim sozinho.
+if [[ -n "$NEW_FRAGMENT" && "$FILE_PATH" == *.md && "$FILE_PATH" != *"/docs/analysis"* ]]; then
+  if echo "$NEW_FRAGMENT" | grep -Eiq '\b(o usu[aá]rio pediu|o usu[aá]rio relatou|o dono pediu|decidimos|resolvemos|n[oó]s decidimos|achei que|eu escolhi|pedi pra)\b' && ! confirmation_confirmed "tom-impessoal"; then
+    block "Sinalizado: este texto parece usar tom pessoal ('o usuário pediu', 'decidimos', etc.) em vez de fato direto -- CLAUDE.md/modulos/README.md: tom impessoal em todo documento, exceto o arquivo de investigação. Pode ser falso positivo (a palavra aparece sem ser nesse sentido). Se for violação de verdade, reescreva antes de continuar; se não for, responda com a frase exata 'tom impessoal confirmado, sem violacao'; se isso for engano de outro tipo, use AUTORIZO-TRAVA: <motivo>."
+  fi
+fi
+
+# 17) O arquivo de fechamento do módulo só aponta -- CLAUDE.md/
+# modulos/README.md: "link markdown de verdade + uma frase curta,
+# nunca uma descrição do que o conteúdo diz". Mesma lacuna do item 16
+# (antes só a segunda IA julgava, sem travar de verdade). Heurística
+# mecânica: uma linha desse arquivo sem nenhum link markdown, mas
+# comprida o bastante pra parecer descrição/explicação em vez de
+# ponteiro, sinaliza -- sinal, não certeza (por isso autorizável),
+# confirmação sua decide, nunca eu sozinho.
+if [[ -n "$NEW_FRAGMENT" && "$FILE_PATH" == *"/docs/handoff"* ]]; then
+  LINHA_SEM_LINK=$(echo "$NEW_FRAGMENT" | grep -E '^- ' | grep -Ev '\]\(' | awk 'length > 200')
+  if [[ -n "$LINHA_SEM_LINK" ]] && ! confirmation_confirmed "sem-duplicacao"; then
+    block "Sinalizado: o arquivo de fechamento do módulo parece ter uma linha longa sem link markdown -- CLAUDE.md/modulos/README.md: esse arquivo só aponta (link + frase curta), nunca descreve o que outro documento já diz. Pode ser falso positivo. Se for duplicação de verdade, corrija pra virar ponteiro; se não for, responda com a frase exata 'sem duplicacao de conteudo, confirmado'; se isso for engano de outro tipo, use AUTORIZO-TRAVA: <motivo>."
+  fi
+fi
+
 exit 0

@@ -158,6 +158,14 @@
   permanente); lacuna de trava mecânica em `pitfalls.md`/`findings.md`/
   `decisions/` fechada — ver
   [modulos/conformidade/docs/handoff.md](modulos/conformidade/docs/handoff.md).
+- Causa raiz encontrada, com fonte oficial, de por que os ganchos
+  decididos por IA no sistema de conformidade não bloqueavam de
+  verdade: formato de resposta errado em todos, e um deles ficando sem
+  acesso a ferramenta enquanto a sessão está no modo automático. Dois
+  ganchos removidos (revisão de commit, revisão de início do teste no
+  preview), substituídos por checagem mecânica; os outros quatro
+  mantidos, com o formato corrigido — ver
+  [modulos/conformidade/docs/handoff.md](modulos/conformidade/docs/handoff.md).
 - [TASKS.md, Resolvidas](TASKS.md#resolvidas) — pendências já corrigidas.
 
 ## Próximo passo

@@ -95,6 +95,11 @@
           },
           {
             "type": "command",
+            "if": "Bash(gh pr create *)",
+            "command": "bash ${CLAUDE_PROJECT_DIR}/.claude/hooks/pre_pr_review_check.sh"
+          },
+          {
+            "type": "command",
             "if": "Bash(*preview-up.sh*)",
             "command": "bash ${CLAUDE_PROJECT_DIR}/.claude/hooks/pre_preview_check.sh"
           }

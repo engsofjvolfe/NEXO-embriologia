@@ -4,8 +4,8 @@
 |---|---|
 | Módulo | Conformidade |
 | Documento | Concept |
-| Versão | 0.3.0 |
-| Data | 28-08-2026 |
+| Versão | 0.4.0 |
+| Data | 29-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
 > Descreve o desenho pretendido do módulo — o que ele deve ser e como
@@ -67,7 +67,11 @@ perguntar nada; qualquer regra que dependa de entendimento ou opinião
 vira pergunta explícita, devolvida a quem pediu a tarefa, nunca
 decidida sozinha; regra sobre o próprio histórico do git (branch
 protegida, formato de commit) fica garantida em camada que nem
-depende do Claude Code estar rodando.
+depende do Claude Code estar rodando. Revisão de PR por julgamento
+(completude, coerência do conjunto, qualidade de teste, valor fixo no
+código) é um caso desse tipo -- assistentes próprios, chamados
+manualmente, um por assunto (ver
+[decisions/0020](<../decisions/0020-revisao-de-pr-por-assistentes-chamados-manualmente.md>)).
 
 Fora do escopo: o conteúdo das regras em si — isso é sempre decisão de
 quem escreve o `CLAUDE.md`, nunca deste módulo; e os pontos sem
@@ -156,3 +160,4 @@ ao vivo, fora do modo automático, em [tasks.md](tasks.md).
 | 0.1.0 | 27-08-2026 | Criação inicial -- módulo formalizado a partir do sistema de conformidade já existente em `.claude/hooks/`/`MANUAL.md`, sem repetir o conteúdo, só apontando pra ele como fonte normativa. | Criação inicial do módulo |
 | 0.2.0 | 27-08-2026 | Limites reconhecidos: terceiro ponto acrescentado (bloqueio real do evento `Stop` por gancho `agent`/`prompt`, mecanismo experimental sem confirmação oficial). | Resolução de [decisions/0008](<../decisions/0008-formato-de-bloqueio-nos-ganchos-de-julgamento-do-stop.md>) |
 | 0.3.0 | 28-08-2026 | Limites reconhecidos, terceiro ponto reescrito: formato de resposta de todo gancho `agent`/`prompt` corrigido (era o formato de um gancho comum, por engano); dois ganchos `agent` removidos por completo; acrescentado o limite de acesso a ferramenta depender do modo automático da sessão, confirmado ao vivo. | Resolução de [decisions/0014](<../decisions/0014-remocao-dos-ganchos-tipo-agent-substituidos-por-script-mais-confirmacao.md>) |
+| 0.4.0 | 29-08-2026 | Escopo acrescido: revisão de PR por julgamento, feita por assistentes chamados manualmente. | Resolução de [decisions/0020](<../decisions/0020-revisao-de-pr-por-assistentes-chamados-manualmente.md>) |

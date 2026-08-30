@@ -182,6 +182,9 @@
   reconhecia subida de versão de verdade em documento sem tabela de
   cabeçalho (caso de `MANUAL.md`) -- ver
   [modulos/conformidade/docs/handoff.md](modulos/conformidade/docs/handoff.md).
+- Revisão de PR por assistentes chamados manualmente, um por assunto --
+  ver
+  [modulos/conformidade/docs/handoff.md](modulos/conformidade/docs/handoff.md).
 - [TASKS.md, Resolvidas](TASKS.md#resolvidas) — pendências já corrigidas.
 
 ## Próximo passo

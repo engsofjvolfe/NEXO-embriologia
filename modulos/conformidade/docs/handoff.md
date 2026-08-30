@@ -4,7 +4,7 @@
 |---|---|
 | Módulo | Conformidade |
 | Documento | Handoff |
-| Versão | 0.12.0 |
+| Versão | 0.13.0 |
 | Data | 29-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
@@ -117,15 +117,16 @@
 - [decisions/0019-deteccao-de-versao-subida-em-documento-so-com-changelog.md](<../decisions/0019-deteccao-de-versao-subida-em-documento-so-com-changelog.md>) —
   `scripts/hooks/pre-commit` passa a detectar versão subida em
   documento só com tabela de changelog, sem tabela de cabeçalho.
+- [decisions/0020-revisao-de-pr-por-assistentes-chamados-manualmente.md](<../decisions/0020-revisao-de-pr-por-assistentes-chamados-manualmente.md>) —
+  revisão de PR por quatro assistentes chamados manualmente, um por
+  assunto sem checagem automática.
 - [tasks.md, Em aberto](<tasks.md#em-aberto>) — pendências abertas.
 
 ## Próximo passo
 
-- [tasks.md, Em aberto](<tasks.md#em-aberto>) — o relato de outra
-  sessão sobre `pre_git_rules.sh` não foi reproduzido nesta rodada,
-  segue como pendência de investigação. Confirmação de ponta a ponta,
-  numa sessão nova, de todos os mecanismos corrigidos até aqui,
-  continua pendente.
+- [tasks.md, Em aberto](<tasks.md#em-aberto>) — pendências abertas,
+  incluindo confirmação de ponta a ponta, numa sessão nova, dos
+  mecanismos corrigidos e acrescentados até aqui.
 
 ## Controle de versão
 
@@ -143,3 +144,4 @@
 | 0.10.0 | 29-08-2026 | Acrescentados ponteiros para decisions/0015 a 0017. | Correção de falsos bloqueios reportados de outra sessão + pedido de janela de frescor maior |
 | 0.11.0 | 29-08-2026 | Acrescentado ponteiro para decisions/0018. | Resolução de [decisions/0018](<../decisions/0018-frases-de-confirmacao-toleram-virgula-opcional.md>) |
 | 0.12.0 | 29-08-2026 | Acrescentado ponteiro para decisions/0019. | Resolução de [decisions/0019](<../decisions/0019-deteccao-de-versao-subida-em-documento-so-com-changelog.md>) |
+| 0.13.0 | 29-08-2026 | Acrescentado ponteiro para decisions/0020. | Resolução de [decisions/0020](<../decisions/0020-revisao-de-pr-por-assistentes-chamados-manualmente.md>) |

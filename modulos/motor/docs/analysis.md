@@ -6,8 +6,8 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Analysis |
-| Versão | 0.20.0 |
-| Data | 22-08-2026 |
+| Versão | 0.22.0 |
+| Data | 30-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
 > Registro datado de como uma investigação foi feita neste módulo — o
@@ -904,6 +904,158 @@ resolvidas por documentos existentes, nunca conectadas antes — nenhuma delas e
   arquivo (`grep` pela frase exata) e checagem de data por commit (`git log`), não por suposição
   de que toda ocorrência pedia o mesmo tratamento.
 
+### <a id="2026-08-30-pesquisa-do-sistema-visual-material-design-e-cor-semente"></a>2026-08-30 — Pesquisa do sistema visual (Material Design), acessibilidade e cor semente
+
+**Levou a:** ainda sem conclusão
+
+*Resumo simples:* pesquisa em fonte oficial direta (nunca resumo de
+terceiro) pros pontos do passo 3 do método já registrado em
+`architecture.md` (aplicar o sistema visual sobre o esqueleto de tela
+já pronto — `wireframe.md`): versão do sistema, cor, tipografia,
+forma, tema claro/escuro, contraste e área de toque. Confirmado que o
+guarda-chuva de processo pra essa etapa já existe — a norma ISO
+9241-210, já citada em `architecture.md` — sem precisar de metodologia
+nova. Cinco dos sete pontos já foram decididos direto em conversa (cor
+dinâmica; tema claro e escuro, com escolha manual pendente de um menu
+de configurações ainda não desenhado; forma no padrão do Material;
+contraste no nível comum, 4,5 para 1; fonte Roboto, a padrão do
+sistema; área de toque de 48dp por 48dp, que é regra técnica do
+Android, não escolha). Só a cor semente (a cor fixa de reserva, usada
+quando o aparelho não suporta cor dinâmica) segue em aberto, entre uma
+combinação vibrante de laranja e azul e uma combinação mais fechada —
+sem decisão ainda.
+
+*Detalhe técnico:*
+- `m3.material.io` (site oficial do Material Design 3) carrega o
+  conteúdo por JavaScript e não deixa a ferramenta de leitura
+  automatizada extrair o texto — mesma limitação já registrada em
+  `architecture.md, Referências` pra essa mesma fonte. Conteúdo
+  técnico confirmado, com trecho literal, pela documentação irmã do
+  Android Developers (mesmo dono, texto estático):
+  `developer.android.com/develop/ui/compose/designsystems/material3` —
+  cor dinâmica (`dynamicLightColorScheme`/`dynamicDarkColorScheme`, só
+  Android 12+) com fallback pra esquema fixo (`LightColorScheme`/
+  `DarkColorScheme`) baseado numa única cor semente; tipografia em
+  cinco categorias (display, headline, title, body, label), cada uma
+  em três tamanhos; forma em cinco tamanhos de arredondamento (4dp a
+  24dp); tema escuro/claro resolvido por `isSystemInDarkTheme()`.
+- Contraste checado em duas fontes oficiais, concordantes: W3C, dono
+  do padrão WCAG (`w3.org/WAI/WCAG21/Understanding/contrast-minimum.html`,
+  lido por completo, não só resumo de busca) — nível comum (AA) exige
+  4,5 para 1 em texto normal, 3 para 1 em texto grande; e Android
+  Developers (`developer.android.com/guide/topics/ui/accessibility/apps`)
+  — mesma faixa, mais a área de toque mínima de 48dp por 48dp.
+- Gestalt (organização visual) confirmado por fonte acadêmica de
+  acesso aberto, não blog: capítulo de livro-texto universitário
+  (OpenStax Psychology 2e, Rice University,
+  `openstax.org/books/psychology-2e/pages/5-6-gestalt-principles-of-perception`,
+  lido por completo) — cinco princípios (figura-fundo, proximidade,
+  similaridade, continuidade, fechamento), fundadores Max Wertheimer,
+  Wolfgang Köhler e Kurt Koffka, início do século XX.
+- Psicologia da cor: artigo trazido pelo usuário (Elliot e Maier,
+  2014, *Color Psychology: Effects of Perceiving Color on
+  Psychological Functioning in Humans*, *Annual Review of Psychology*,
+  v. 65, revisado por pares) — três tentativas anteriores de acesso
+  direto (Annual Reviews, SSRN, ResearchGate, Semantic Scholar)
+  bloqueadas por erro 403. Lido por completo, do resumo à conclusão,
+  sem inferir além do texto. O próprio artigo desaconselha usar seus
+  achados pra decisão prática: o resumo já avisa que a área está "em
+  estágio inicial de desenvolvimento" e falta trabalho antes de
+  "recomendações de aplicação" serem justificadas; a seção de
+  Direções Futuras reforça isso, em tradução livre, "os efeitos da
+  cor são chamativos e atraem atenção da mídia, o que pode empurrar a
+  pressa de uma descoberta de laboratório pra uma conclusão sobre
+  aplicação no mundo real — achamos melhor resistir a esse impulso".
+  A maioria dos achados também é de contexto distante de interface de
+  aplicativo (vermelho em competição esportiva, vermelho em atração,
+  cor de alimento); o ponto mais próximo (azul associado a "mais
+  relaxante, mais confiável" em site e logotipo) vem de comportamento
+  de consumidor, não de interface. Decisão tomada: não usar este
+  artigo como base pra escolher uma cor — ele mesmo pede pra não ser
+  usado assim ainda.
+- Seis combinações de laranja e azul montadas numa página comparativa
+  (Artifact, gerado nesta sessão, sem citar nenhum rascunho externo ao
+  repositório): https://claude.ai/code/artifact/f66529ec-d07a-4bdb-9923-16ca6e538170 —
+  do mais vibrante (laranja `#FF6D1F` + azul royal `#2D5FE0`) ao mais
+  discreto (pêssego `#FFB37B` + azul claro `#7EB6E8`), cada uma com o
+  código hexadecimal exato. Escolha entre a primeira (laranja vibrante
+  `#FF6D1F` + azul royal `#2D5FE0`) e a sexta (mostarda `#D98E04` +
+  índigo `#38419D`) segue em aberto; contraste calculado à mão pela
+  fórmula oficial do WCAG (luminância relativa, mesma fórmula da fonte
+  já citada acima) mostra que o índigo da sexta opção tem contraste
+  bem mais alto contra fundo claro (8,71 para 1, contra 5,49 para 1 do
+  azul royal) mas quase desaparece contra um fundo escuro típico do
+  Material (1,96 para 1, contra 3,10 para 1 do azul royal) — como o
+  projeto já decidiu suportar os dois temas, um par mais equilibrado
+  nos dois modos tem uma vantagem objetiva mensurável, mas o Material
+  já gera automaticamente um tom acessível de qualquer cor semente
+  (mesma fonte acima: "on-primary... para fornecer contraste acessível
+  ao usuário"), então essa vantagem é real mas não decisiva sozinha —
+  o restante da escolha (vibrante ou discreto) é preferência, não
+  critério técnico.
+
+### <a id="2026-08-30-fechamento-da-decisao-de-cor-semente"></a>2026-08-30 — Fechamento da decisão de cor semente
+
+**Levou a:** [decisions/0035-sistema-visual-cor-tipografia-forma-contraste.md](<../decisions/0035-sistema-visual-cor-tipografia-forma-contraste.md>)
+
+*Resumo simples:* fecha a investigação anterior, no mesmo dia. Duas
+coisas novas: a página comparativa das seis combinações de cor passou
+a morar dentro do repositório (antes era só um link externo), e uma
+fonte oficial nova confirmou que o Google recomenda partir de uma cor
+de marca já existente ou preferida, em vez de uma fórmula. Escolha
+final: a primeira das seis combinações, laranja `#FF6D1F` e azul royal
+`#2D5FE0`.
+
+*Detalhe técnico:*
+- Página movida pra
+  [cor-semente-candidatas.html](<../design/cor-semente-candidatas.html>),
+  dentro de `design/` (pasta nova do módulo, ver nota de acompanhamento
+  abaixo), com nota de origem (material gerado por IA, preferência de
+  laranja e azul indicada por N. Denominado — autoria do projeto,
+  `README.md` da raiz).
+- Duas fontes novas do Google (Google Design; Codelab de
+  personalização de cor) confirmam que a orientação oficial é manter
+  uma cor de marca já existente/preferida — resolve a pergunta se
+  existe fonte oficial pra esse tipo de escolha.
+- Material Theme Builder (ferramenta correlata) considerado, mas não
+  operado nesta investigação — código-fonte arquivado desde 23 jul.
+  2026.
+- Buscas sobre cor em interação humano-computador e em tecnologia
+  educacional, interrompidas antes de trazer resultado, seguem em
+  aberto.
+
+### <a id="2026-08-30-nota-pagina-comparativa-e-escolha-desatualizadas"></a>2026-08-30 — Nota de acompanhamento: entrada anterior desatualizada
+
+*Resumo simples:* a entrada
+[2026-08-30-pesquisa-do-sistema-visual-material-design-e-cor-semente](<#2026-08-30-pesquisa-do-sistema-visual-material-design-e-cor-semente>),
+escrita mais cedo no mesmo dia, cita a página comparativa por um link
+externo e descreve a escolha entre a primeira e a sexta combinação
+como "ainda em aberto". As duas informações mudaram — página movida
+pra dentro do repositório, escolha fechada — registradas na entrada
+anterior, sem alterar o texto já escrito daquela.
+
+### <a id="2026-08-30-reorganizacao-de-pasta-do-modulo"></a>2026-08-30 — Reorganização de pasta do módulo: `design/` separado de `docs/`
+
+**Levou a:** ainda sem conclusão (reorganização de arquivo, não decisão de conteúdo)
+
+*Resumo simples:* `docs/` deste módulo, como de qualquer módulo, tem
+um conjunto fixo de sete documentos definido pelo molde
+(`_template/`). `wireframe.md` e `cor-semente-candidatas.html` tinham
+sido criados direto ali, sem checar se cabiam — não cabiam. Os dois
+foram movidos pra `design/`, pasta nova, irmã de `docs/`, reservada
+pra material visual (esqueleto de tela, aplicação do sistema visual,
+protótipo).
+
+*Detalhe técnico:*
+- Confirmado por listagem direta de `docs/` que só esses dois arquivos
+  não pertenciam ao conjunto fixo do molde.
+- Links corrigidos em todo lugar que apontava pro caminho antigo:
+  `architecture.md`, `tasks.md`, `handoff.md` (módulo) e `HANDOFF.md`
+  (raiz) — os quatro já commitados antes desta correção.
+- Pendência em aberto: se essa mesma pasta (`design/`) deveria virar
+  parte formal do molde (`_template/`), valendo pra qualquer módulo
+  futuro, não só o motor — decisão ainda não tomada.
+
 ## Controle de versão
 
 <!-- uma linha por versão publicada deste documento, mais antiga no
@@ -933,3 +1085,5 @@ sem reescrever) também conta como mudança de conteúdo real. -->
 | 0.16.0 | 18-08-2026 | Acrescentada a investigação da arquitetura de informação das telas do motor — duas lacunas encontradas ao reler o Documento de Conceito contra os documentos derivados, uma resolvida por citação (mecanismo já existente) e outra confirmada como achado de verdade por leitura de código. | Montagem do passo 1 do método de desenho visual já registrado em `architecture.md`; achado novo em `findings.md` |
 | 0.17.0 | 22-08-2026 | Acrescentada a investigação do padrão de navegação hierárquica — decisão apoiada só em lógica interna, tentativa de fonte externa descartada por peso insuficiente, e três pendências de tela que já estavam resolvidas em outros documentos, nunca conectadas antes. | Resolução de [decisions/0030](<../decisions/0030-padrao-de-navegacao-hierarquica-de-conteudo.md>) |
 | 0.20.0 | 22-08-2026 | Estendida a mesma investigação: o achado sobre o Grupo B não estava isolado em `tasks.md` — a mesma frase imprecisa se repetia em mais quatro lugares. Critério corrigido: o que separa nota de acompanhamento de correção direta é a data (a informação certa já existia antes daquele texto ser escrito?), não se a worktree já foi mesclada — `decisions/0031` tinha ganhado nota de acompanhamento por engano, corrigido depois de checar a data de verdade. | Auditoria completa por `grep` da frase exata e checagem de data por commit, ao reconciliar esta worktree com `develop` |
+| 0.21.0 | 30-08-2026 | Acrescentada a investigação do sistema visual (Material Design), acessibilidade e cor semente — cinco dos sete pontos do passo 3 já decididos em conversa; artigo de psicologia da cor lido por completo e descartado como base de decisão, por pedido explícito do próprio artigo; seis combinações de cor semente comparadas numa página própria, escolha entre duas delas ainda em aberto. | Pesquisa pro passo 3 do método de desenho visual já registrado em `architecture.md` |
+| 0.22.0 | 30-08-2026 | Acrescentadas três entradas: fechamento da escolha da cor semente (com fonte oficial nova sobre orientação de marca do Google), nota de acompanhamento sobre a entrada anterior ter ficado desatualizada, e a reorganização de `wireframe.md`/`cor-semente-candidatas.html` pra uma pasta nova (`design/`). | Resolução de [decisions/0035](<../decisions/0035-sistema-visual-cor-tipografia-forma-contraste.md>); correção estrutural de pasta do módulo |

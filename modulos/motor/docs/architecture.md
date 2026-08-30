@@ -6,7 +6,7 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Architecture |
-| Versão | 0.43.0 |
+| Versão | 0.44.0 |
 | Data | 30-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
@@ -824,7 +824,7 @@ outra) — ver
 [decisions/0034](<../decisions/0034-mecanismo-de-carregamento-preguicoso-do-acordeao-de-navegacao.md>).
 O restante do wireframe (as outras 16 entradas de tela, mais como
 indicar o estado de conexão do acessório) já está escrito em
-[wireframe.md](wireframe.md). "Ponto de início" e "Configuração da
+[wireframe.md](../design/wireframe.md). "Ponto de início" e "Configuração da
 sessão" já são a mesma tela — a própria Especificação (`EI-NAV-05`) já
 diz que essa configuração "é feita uma única vez, na tela de
 início... todos são decididos nessa mesma tela, no mesmo momento";
@@ -834,7 +834,7 @@ pausar; o método (`onPauseRequested`) já existe em
 `SessionViewModel.kt` (ver
 ["Ligação com o núcleo do motor"](#ligação-com-o-núcleo-do-motor)),
 com o desenho visual do controle em si fechado em
-[wireframe.md](wireframe.md).
+[wireframe.md](../design/wireframe.md).
 
 ##### Ligação com o núcleo do motor
 
@@ -1085,4 +1085,5 @@ com o campo Versão da tabela de cabeçalho, que sempre reflete a
 | 0.40.0 | 29-08-2026 | Seção "Ligação com o núcleo do motor" corrigida: o gatilho exato na tela (toque livre ou botão nomeado, por situação) deixa de estar descrito como pendente — já está decidido. | Resolução de [decisions/0032](<../decisions/0032-gatilho-de-toque-entre-estados-do-sessionscreen.md>) |
 | 0.41.0 | 30-08-2026 | Seção "Interface" ganha o formato de aparelho decidido (celular primeiro; tablet só com leiaute diferente onde há necessidade real reconhecida), dentro do passo 2 (wireframe) do método. | Resolução de [decisions/0033](<../decisions/0033-formato-de-aparelho-leiaute-responsivo.md>) |
 | 0.42.0 | 30-08-2026 | Seção "Interface" ganha o mecanismo de carregamento aos poucos do acordeão de navegação (`LazyColumn` única, achatada), dentro do passo 2 (wireframe) do método. | Resolução de [decisions/0034](<../decisions/0034-mecanismo-de-carregamento-preguicoso-do-acordeao-de-navegacao.md>) |
-| 0.43.0 | 30-08-2026 | Seção "Interface" registra que o passo 2 (wireframe) do método está completo — o esqueleto das 16 entradas de tela restantes, mais o indicador de conexão do acessório e o botão de pausar, agora mora em [wireframe.md](wireframe.md). | Criação de [wireframe.md](wireframe.md) |
+| 0.43.0 | 30-08-2026 | Seção "Interface" registra que o passo 2 (wireframe) do método está completo — o esqueleto das 16 entradas de tela restantes, mais o indicador de conexão do acessório e o botão de pausar, agora mora em [wireframe.md](../design/wireframe.md). | Criação de [wireframe.md](../design/wireframe.md) |
+| 0.44.0 | 30-08-2026 | Link pra `wireframe.md` corrigido — arquivo movido de `docs/` pra uma pasta nova, `design/`, fora do conjunto fixo de documentos do molde do módulo. | Reorganização de pasta do módulo |

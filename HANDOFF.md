@@ -130,7 +130,11 @@
   [modulos/motor/decisions/0034](<modulos/motor/decisions/0034-mecanismo-de-carregamento-preguicoso-do-acordeao-de-navegacao.md>).
 - Esqueleto (leiaute) das 16 entradas de tela restantes do motor
   escrito, fechando o passo 2 do método de desenho visual — ver
-  [modulos/motor/docs/wireframe.md](modulos/motor/docs/wireframe.md).
+  [modulos/motor/design/wireframe.md](modulos/motor/design/wireframe.md).
+- Sistema visual (cor, tipografia, forma, contraste, área de toque)
+  das telas do motor decidido, fechando o passo 3 do método de desenho
+  visual — ver
+  [modulos/motor/decisions/0035](<modulos/motor/decisions/0035-sistema-visual-cor-tipografia-forma-contraste.md>).
 - Sistema de conformidade do `CLAUDE.md` instalado: hooks do Claude
   Code (`.claude/hooks/`, `.claude/settings.json`) e do git nativo
   (`scripts/hooks/commit-msg`, `pre-push`, `pre-rebase`, ao lado do

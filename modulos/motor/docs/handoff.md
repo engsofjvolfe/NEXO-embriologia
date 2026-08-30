@@ -6,7 +6,7 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Handoff |
-| Versão | 0.41.0 |
+| Versão | 0.43.0 |
 | Data | 30-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
@@ -119,7 +119,10 @@
 - [decisions/0034-mecanismo-de-carregamento-preguicoso-do-acordeao-de-navegacao.md](<../decisions/0034-mecanismo-de-carregamento-preguicoso-do-acordeao-de-navegacao.md>) —
   mecanismo de carregamento aos poucos do acordeão de navegação
   decidido, com fonte oficial.
-- [wireframe.md](wireframe.md) — leiaute de tela.
+- [decisions/0035-sistema-visual-cor-tipografia-forma-contraste.md](<../decisions/0035-sistema-visual-cor-tipografia-forma-contraste.md>) —
+  sistema visual (cor, tipografia, forma, contraste, área de toque)
+  decidido, com fonte oficial.
+- [wireframe.md](../design/wireframe.md) — leiaute de tela.
 - [findings.md](findings.md) — achados confirmados até agora.
 - [analysis.md](analysis.md) — registro de como cada investigação
   deste módulo foi feita.
@@ -180,3 +183,5 @@ com o campo Versão da tabela de cabeçalho, que sempre reflete a
 | 0.39.0 | 30-08-2026 | Acrescentado ponteiro para decisions/0033. | Formato de aparelho (celular primeiro, tablet só com leiaute diferente onde há necessidade real reconhecida) decidido, com fonte oficial (Android Developers) |
 | 0.40.0 | 30-08-2026 | Acrescentado ponteiro para decisions/0034. | Mecanismo de carregamento aos poucos do acordeão de navegação decidido, com fonte oficial (Android Developers) |
 | 0.41.0 | 30-08-2026 | Acrescentado ponteiro para wireframe.md. | Esqueleto (leiaute) das 16 entradas de tela restantes escrito |
+| 0.42.0 | 30-08-2026 | Link pra `wireframe.md` corrigido. | Reorganização de pasta do módulo |
+| 0.43.0 | 30-08-2026 | Acrescentado ponteiro para decisions/0035. | Resolução de decisions/0035 |

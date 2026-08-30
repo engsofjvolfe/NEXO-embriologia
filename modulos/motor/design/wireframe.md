@@ -12,15 +12,18 @@
 
 > Esqueleto de cada tela do motor — onde cada botão, texto e campo vai,
 > sem cor nem fonte ainda (passo 2 do método fixado em
-> [architecture.md, Interface](architecture.md#interface)). Deriva só
-> do que já está decidido: a tabela DA-RET
+> [architecture.md, Interface](../docs/architecture.md#interface)).
+> Deriva só do que já está decidido: a tabela DA-RET
 > ([Projeto Arquitetônico](<../../../docs/docs-VMODEL-visao-geral/4 - projeto-arquitetonico.md>),
 > seção 6.6), [decisions/0022](<../decisions/0022-conteudo-do-estado-exposto-pelo-viewmodel.md>)
 > (conteúdo da tela de jogo), [decisions/0030](<../decisions/0030-padrao-de-navegacao-hierarquica-de-conteudo.md>)
 > (acordeão), [decisions/0032](<../decisions/0032-gatilho-de-toque-entre-estados-do-sessionscreen.md>)
 > (gatilho de toque), [decisions/0033](<../decisions/0033-formato-de-aparelho-leiaute-responsivo.md>)
 > (formato de aparelho) e [decisions/0034](<../decisions/0034-mecanismo-de-carregamento-preguicoso-do-acordeao-de-navegacao.md>)
-> (`LazyColumn`). Nenhum campo novo é inventado aqui — só posição.
+> (`LazyColumn`). Nenhum campo novo é inventado aqui — só posição. Este
+> arquivo mora em `design/`, não em `docs/` — pasta separada dos sete
+> documentos fixos do molde do módulo, reservada pra material visual
+> (esqueleto de tela, aplicação do sistema visual, protótipo).
 >
 > Cada seção segue [a regra de escrita geral](../../README.md#como-escrever):
 > resumo simples primeiro, detalhe técnico depois.
@@ -61,13 +64,13 @@ Falta só onde, na tela, cada controle fica.
   sobreposto). Fica sempre no mesmo lugar entre uma situação e outra,
   pra não exigir reaprender a posição a cada troca de conteúdo.
 - **Controle de pausar** (`onPauseRequested()`, já escrito — ver
-  [findings.md](<findings.md#2026-08-27-sessionviewmodel-ganha-onpauserequested>))
+  [findings.md](<../docs/findings.md#2026-08-27-sessionviewmodel-ganha-onpauserequested>))
   — canto superior direito, ícone (sem texto, por não exigir
   confirmação — `EI-PAU-03` só exige isso pra sair). Não aparece
   durante a Confirmação de saída (`DA-RET-15`), já que o diálogo
   sobreposto ocupa esse momento.
 - **Indicador de conexão do acessório** (`ConnectionState`, ver
-  [architecture.md, pacote `connectivity`](<architecture.md#pacote-connectivity--desenho-interno>))
+  [architecture.md, pacote `connectivity`](<../docs/architecture.md#pacote-connectivity--desenho-interno>))
   — só na tela "Aguardando tentativa" (`DA-RET-06`, o único estado com
   o campo `connectionState` em `SessionScreen`). Um texto curto, canto
   superior direito, abaixo do controle de pausar: "● conectado",
@@ -215,3 +218,4 @@ com o campo Versão da tabela de cabeçalho, que sempre reflete a
 | Versão | Data | Alteração | Origem da alteração |
 |---|---|---|---|
 | 0.1.0 | 30-08-2026 | Criação inicial: esqueleto das 16 entradas de tela restantes (elementos comuns da tela de jogo — sair, pausar, indicador de conexão, aviso de rádio desligado, pular, continuar — e as 6 telas de navegação de fato). | Resolução da pendência "Desenhar o esqueleto das 16 entradas de tela restantes" |
+| 0.2.0 | 30-08-2026 | Movido de `docs/wireframe.md` pra `design/wireframe.md` — pasta nova, fora do conjunto fixo de documentos do molde, reservada pra material visual. Links pra `architecture.md` e `findings.md` corrigidos pra apontar de volta pra `docs/`. | Reorganização de pasta do módulo |

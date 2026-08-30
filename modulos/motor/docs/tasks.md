@@ -6,7 +6,7 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Tasks |
-| Versão | 0.52.0 |
+| Versão | 0.54.0 |
 | Data | 30-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
@@ -171,24 +171,6 @@ Convenção dos códigos citados aqui:
       terceiro (ANATEL), pode mudar — reconfirmar na fonte oficial
       antes de agir (comprar homologação, iniciar processo).
 
-- [ ] **Aplicar o sistema visual (Material Design) sobre o esqueleto de
-      tela já pronto.**
-
-      *Resumo simples:* depois que o leiaute de cada tela estiver
-      decidido, falta aplicar cor, fonte e espaçamento de verdade,
-      seguindo o padrão visual público do Google — hoje só citado como
-      direção provável, nunca pesquisado a fundo nem decidido.
-
-      *Detalhe técnico:* passo 3 do método de quatro passos já fixado
-      em [architecture.md, Interface](<architecture.md#interface>). O
-      esqueleto de tela que este passo precisa já está pronto — ver
-      [wireframe.md](wireframe.md). Sem pesquisa nem decisão ainda —
-      inclusive qual versão exata do sistema visual usar (o projeto já
-      cita "Material Design 3" em
-      [decisions/0032](<../decisions/0032-gatilho-de-toque-entre-estados-do-sessionscreen.md>),
-      mas só pra embasar o gatilho de toque, nunca como escolha formal
-      de versão do sistema visual inteiro).
-
 - [ ] **Montar o protótipo navegável e avaliar contra as boas práticas
       de usabilidade.**
 
@@ -204,8 +186,7 @@ Convenção dos códigos citados aqui:
       [decisions/0032](<../decisions/0032-gatilho-de-toque-entre-estados-do-sessionscreen.md>)
       e em
       [architecture.md, Referências](<architecture.md#referências>).
-      Bloqueada pela pendência "Aplicar o sistema visual" acima. Sem
-      trabalho iniciado.
+      Sem trabalho iniciado.
 
 - [ ] **Escrever os testes instrumentados de `ReportPdfRenderer.kt` e
       do caminho antigo de `ReportFileWriter.kt` (Android 7 a 9).**
@@ -546,8 +527,12 @@ Convenção dos códigos citados aqui:
 - [x] **Desenhar o esqueleto (leiaute) das 16 entradas de tela que
       restam, incluindo o indicador de conexão do acessório e o aviso
       de NFC/Bluetooth desligado.** Resolvido — ver
-      [wireframe.md](wireframe.md). Desbloqueia a pendência "Aplicar o
-      sistema visual (Material Design)", abaixo.
+      [wireframe.md](../design/wireframe.md).
+- [x] **Aplicar o sistema visual (Material Design) sobre o esqueleto de
+      tela já pronto.** Resolvido — ver
+      [decisions/0035](<../decisions/0035-sistema-visual-cor-tipografia-forma-contraste.md>).
+      Desbloqueia a pendência "Montar o protótipo navegável e avaliar
+      contra as boas práticas de usabilidade", acima.
 
 ## Referências
 
@@ -647,4 +632,6 @@ como mudança de conteúdo real. -->
 | 0.49.0 | 30-08-2026 | Pendência única "Desenhar a aparência visual das telas do motor" dividida em cinco pendências menores, marcáveis uma a uma, seguindo o mesmo padrão já usado na linha `0.3.0` deste documento: "Decidir o formato de aparelho (leiaute responsivo)" (nova, bloqueia a seguinte), "Decidir o mecanismo de carregamento aos poucos (lazy) da lista em acordeão" (fecha uma lacuna que `decisions/0030` já previa registrar aqui, mas nunca tinha sido criada), "Desenhar o esqueleto das 16 entradas de tela restantes" (com o indicador de conexão e o aviso de NFC/Bluetooth desligado), "Aplicar o sistema visual (Material Design)" e "Montar o protótipo navegável e avaliar contra as boas práticas de usabilidade". | Detalhamento de pendência existente, sem decisão nova |
 | 0.50.0 | 30-08-2026 | Pendência "Decidir o formato de aparelho (leiaute responsivo)" resolvida — movida para Resolvidas. Ponteiros ajustados em "Desenhar o esqueleto das 16 entradas de tela restantes", que perde o bloqueio. | Resolução de [decisions/0033](<../decisions/0033-formato-de-aparelho-leiaute-responsivo.md>) |
 | 0.51.0 | 30-08-2026 | Pendência "Decidir o mecanismo de carregamento aos poucos (lazy) da lista em acordeão de navegação" resolvida — movida para Resolvidas. | Resolução de [decisions/0034](<../decisions/0034-mecanismo-de-carregamento-preguicoso-do-acordeao-de-navegacao.md>) |
-| 0.52.0 | 30-08-2026 | Pendência "Desenhar o esqueleto das 16 entradas de tela restantes" resolvida — movida para Resolvidas. Ponteiro de bloqueio da pendência "Aplicar o sistema visual (Material Design)" atualizado. | Criação de [wireframe.md](wireframe.md) |
+| 0.52.0 | 30-08-2026 | Pendência "Desenhar o esqueleto das 16 entradas de tela restantes" resolvida — movida para Resolvidas. Ponteiro de bloqueio da pendência "Aplicar o sistema visual (Material Design)" atualizado. | Criação de [wireframe.md](../design/wireframe.md) |
+| 0.53.0 | 30-08-2026 | Correção de link. | Correção de link |
+| 0.54.0 | 30-08-2026 | Pendência "Aplicar o sistema visual (Material Design) sobre o esqueleto de tela já pronto" resolvida — movida para Resolvidas. Pendência "Montar o protótipo navegável..." perde o bloqueio. | Resolução de [decisions/0035](<../decisions/0035-sistema-visual-cor-tipografia-forma-contraste.md>) |

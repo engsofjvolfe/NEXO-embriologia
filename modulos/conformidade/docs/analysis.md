@@ -4,8 +4,8 @@
 |---|---|
 | Módulo | Conformidade |
 | Documento | Analysis |
-| Versão | 0.2.0 |
-| Data | 28-08-2026 |
+| Versão | 0.4.0 |
+| Data | 29-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
 > Registro datado de como uma investigação foi feita neste módulo — o
@@ -23,6 +23,121 @@
 - [Controle de versão](#controle-de-versão)
 
 ## Investigações
+
+### 2026-08-29-relatorio-de-outra-sessao-e-reset-da-ficha-no-evento-resume
+
+**Levou a:**
+[decisions/0015](<../decisions/0015-sessionstart-nao-reseta-mais-a-ficha-no-evento-resume-e-janela-de-frescor-maior.md>),
+[decisions/0016](<../decisions/0016-autorizo-trava-rejeita-reticencias-sem-motivo-real.md>),
+[decisions/0017](<../decisions/0017-comandos-git-gh-isentos-da-leitura-manual-obrigatoria.md>),
+[findings.md](findings.md).
+
+*Em resumo:* uma sessão anterior relatou, em texto, três suspeitas de
+falso bloqueio nos ganchos deste módulo (regra de `develop` disparando
+fora de contexto; um gancho reagindo ao texto de um comando em vez de
+sua execução real; a frase de confirmação nunca destravando). A
+investigação desta rodada não conseguiu reproduzir as duas primeiras
+ao vivo, mas reproduziu, ao vivo e por acidente, um problema real e
+diferente: o próprio ato de investigar disparou de novo o defeito já
+corrigido em 28-08-2026 (`session_start_reset.sh` apagando a ficha fora
+de hora) -- prova de que a correção anterior era incompleta.
+
+*Em detalhe técnico:*
+
+1. Relato recebido, em texto, de outra sessão: (a) `pre_git_rules.sh`
+   bloqueou um commit legítimo, numa worktree de tarefa, achando que a
+   branch ativa era `develop` -- a outra sessão já tinha confirmado
+   manualmente, com `git branch --show-current`, que a branch real
+   era outra; causa exata não encontrada por ela; (b) um comando de
+   diagnóstico sem nenhum `git commit` de verdade disparou
+   `pre_commit_hygiene.sh` mesmo assim; (c) a frase de confirmação
+   "commit revisado, confirmado" não destravou em três tentativas
+   seguidas, só `AUTORIZO-TRAVA` resolveu.
+2. Sobre (b): lendo o código atual de `pre_commit_hygiene.sh`, o
+   auto-portão que intercepta exatamente esse caso já existe
+   ([decisions/0011](<../decisions/0011-auto-portao-contra-falha-aberta-do-filtro-if.md>),
+   28-08-2026) -- o relato da outra sessão provavelmente aconteceu
+   antes dessa correção estar em vigor, ou numa execução em que o
+   filtro `if` do Claude Code falhou aberto por outro motivo (mesma
+   armadilha já documentada em
+   [pitfalls.md](<pitfalls.md#2026-08-28-filtro-if-falha-aberto-em-comando-nao-parseavel>)).
+   Sem evidência nova pra investigar mais fundo agora; nenhuma mudança
+   de código feita neste ponto nesta rodada.
+3. Sobre (a): sem reprodução ao vivo possível nesta rodada (a sessão
+   estava, neste momento, na pasta principal, não numa worktree de
+   tarefa, até o passo 6 abaixo) -- fica registrado como pendência,
+   a testar de verdade no momento real de commitar o trabalho desta
+   própria rodada (ver tasks.md).
+4. Ao tentar ler os seis documentos manuais obrigatórios (primeiro
+   passo desta sessão, exigido pelo `CLAUDE.md`), o gancho
+   `pre_mandatory_reading_guard.sh` bloqueou `EnterWorktree` alegando
+   que o primeiro documento não tinha sido lido -- mesmo os seis
+   tendo acabado de ser lidos por completo, com conteúdo retornado.
+   Confirmado, por leitura repetida do mesmo documento, que o
+   problema não era esquecimento: o bloqueio persistia mesmo
+   imediatamente depois de reler.
+5. Inspeção direta do estado gravado em disco
+   (`.claude/hooks/state/synthesis.json`, `read-log.txt`, e a pasta
+   `arquivo/` de diários arquivados) confirmou a causa: um arquivo
+   arquivado, `arquivo/20260829T184953Z-read-log.txt`, contém as seis
+   leituras (18:46:09 a 18:46:13) que tinham acabado de acontecer --
+   arquivadas (ou seja, apagadas do registro ativo) três minutos
+   depois, às 18:49:53, por `session_start_reset.sh`. Isso só acontece
+   quando o evento `SessionStart` dispara de novo com o `matcher`
+   `startup`, `resume` ou `clear` -- e nenhum desses três foi uma ação
+   deliberada, nem minha nem de quem conduz a sessão, no meio desta
+   conversa.
+6. Consulta direta à documentação oficial do Claude Code
+   (`code.claude.com/docs/en/hooks`, via ferramenta de busca na
+   internet) sobre o significado exato de cada valor de `matcher` do
+   evento `SessionStart`: `resume` é descrito como disparando só
+   quando alguém pede explicitamente pra retomar uma sessão salva
+   (`--resume`/`--continue`), não sozinho no meio de uma sessão em
+   andamento -- ao contrário do que a pasta `arquivo/` mostrou
+   acontecendo de verdade, várias vezes, só nas últimas horas do dia
+   29-08-2026. A documentação consultada cobre a ferramenta de linha
+   de comando; este ambiente específico (extensão de VSCode, via
+   Claude Agent SDK) tem seu próprio ciclo de vida de sessão, que pode
+   recarregar/reconectar o processo por trás das cenas de um jeito que
+   a documentação genérica não cobre em detalhe -- a evidência ao vivo
+   (arquivo arquivado, com hora exata, e uma repetição do conteúdo
+   completo do `CLAUDE.md` reaparecendo no meio da conversa, no mesmo
+   formato de início de sessão) pesa mais, aqui, que a suposição de
+   que "resume" só é manual.
+7. Pedido explícito de quem conduz a sessão: manter a exigência de
+   leitura obrigatória (não removê-la), mas alongar bastante a janela
+   de validade dela, pra aguentar uma sessão longa sem expirar à toa;
+   e, à parte, remover a exigência de leitura prévia especificamente
+   nos comandos de `git`/`gh` (commit, push, pull, abrir PR, etc.) --
+   com a ressalva de que qualquer liberação de bloqueio, fora dessa
+   isenção permanente e já decidida em texto, continua exigindo
+   `AUTORIZO-TRAVA` digitado pela própria pessoa, nunca decidido
+   sozinho.
+8. Enquanto testava a isenção de `git`/`gh` isoladamente (JSON de
+   entrada fabricado, numa pasta de rascunho), o primeiro teste
+   passou batido -- investigação revelou que a variável usada pra
+   guardar o comando (`BASH_COMMAND`) tem o mesmo nome de uma variável
+   especial do próprio Bash, atualizada sozinha a cada comando
+   executado, que sobrescrevia o valor antes do `grep` seguinte rodar.
+   Corrigido renomeando pra `COMMAND` (mesmo nome já usado nos outros
+   dois ganchos de git deste módulo).
+9. Enquanto testava a correção do `AUTORIZO-TRAVA` (item 7), uma
+   primeira tentativa (exigir 4 letras em qualquer lugar do texto
+   capturado) não bastou -- teste isolado confirmou que o resto da
+   frase, contando a história de outra sessão, quase sempre tem letras
+   de sobra, então quase nunca rejeitava nada de verdade. Corrigida
+   pra checar só o início do texto capturado (reticências logo depois
+   de "AUTORIZO-TRAVA:", antes de qualquer letra), mesmo princípio já
+   usado pro placeholder `<motivo>`. As duas regressões conhecidas
+   (placeholder `<motivo>`; motivo real começando com `<`, do achado de
+   28-08-2026) testadas de novo depois da correção, sem quebrar.
+10. Uma tentativa de editar `.claude/settings.json` (separar o evento
+    `resume` do script que apaga a ficha) foi bloqueada por uma camada
+    de segurança do próprio Claude Code (classificador de "modo
+    automático"), que identificou a mudança como automodificação do
+    próprio mecanismo de supervisão e pediu confirmação explícita de
+    quem conduz a sessão antes de prosseguir -- pergunta feita, resposta
+    ainda pendente no momento em que esta entrada foi escrita.
 
 ### 2026-08-27-cobertura-do-sistema-de-ganchos-contra-o-claude-md
 
@@ -174,9 +289,40 @@ executar de verdade nesta sessão.
    procurá-lo), só a certeza sobre O QUE, exatamente, bloqueou os
    comandos de teste vistos ao vivo nesta sessão.
 
+### 2026-08-29-varredura-de-documentos-sem-tabela-de-cabecalho-com-versao
+
+**Levou a:**
+[decisions/0019](<../decisions/0019-deteccao-de-versao-subida-em-documento-so-com-changelog.md>),
+[findings.md](findings.md).
+
+*Em resumo:* depois de corrigir o ponto cego de `scripts/hooks/pre-commit`
+achado em `MANUAL.md`, checado se algum outro documento do projeto
+tinha o mesmo problema -- pedido direto de quem conduz a sessão.
+
+*Em detalhe técnico:* busca por `## Controle de versão` no projeto
+inteiro (`*.md`) devolveu 29 documentos. Busca seguinte, por
+`\| Versão \|` nos mesmos arquivos, bateu nos 29 -- resultado esperado
+e inútil por si só, já que essa string aparece igual na linha de
+título da própria tabela de changelog (`| Versão | Data | Alteração |
+Origem da alteração |`), presente em todo documento com essa tabela,
+tenha ele tabela de cabeçalho ou não. Distinção real feita por leitura
+direta de cada candidato restante depois de descartar os já conhecidos
+pelo padrão do molde (`modulos/_template/`): documento nascido desse
+molde, e todo documento da cascata VMODEL, tem uma tabela de
+cabeçalho própria ("Campo | Valor") com uma linha de dois campos
+`| Versão | X.Y.Z |` -- essa linha muda de valor a cada subida de
+versão, e por isso já era detectada pela condição original do gancho.
+Só `MANUAL.md` (sem tabela de cabeçalho nenhuma) e
+`FRASES-DE-CONFIRMACAO.md` (tabela de cabeçalho existe, mas só com a
+linha de Licença, sem campo "Versão") dependiam exclusivamente da
+tabela de changelog -- os dois já cobertos pela correção de
+[decisions/0019](<../decisions/0019-deteccao-de-versao-subida-em-documento-so-com-changelog.md>).
+
 ## Controle de versão
 
 | Versão | Data | Alteração | Origem da alteração |
 |---|---|---|---|
 | 0.1.0 | 27-08-2026 | Criação inicial -- uma investigação registrada. | Criação inicial do módulo |
 | 0.2.0 | 28-08-2026 | Investigação nova registrada (falha aberta do filtro `if`, e observação separada sobre ganchos que parecem nunca rodar nesta sessão). | Teste isolado das checagens de emoji/esquema/licença/antes-e-depois movidas pro momento da edição |
+| 0.3.0 | 29-08-2026 | Investigação nova registrada (relato de outra sessão sobre falsos bloqueios; reprodução ao vivo do reset indevido da ficha no evento `resume`, com evidência em disco; correção da leitura obrigatória e do `AUTORIZO-TRAVA`; isenção de comandos `git`/`gh`). | Correção de falsos bloqueios reportados de outra sessão + pedido de janela de frescor maior |
+| 0.4.0 | 29-08-2026 | Investigação nova registrada (varredura dos 29 documentos do projeto com tabela "Controle de versão", pra achar quais dependiam do mesmo ponto cego do `pre-commit` achado em `MANUAL.md`). | Resolução de [decisions/0019](<../decisions/0019-deteccao-de-versao-subida-em-documento-so-com-changelog.md>) |

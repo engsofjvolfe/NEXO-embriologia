@@ -4,8 +4,8 @@
 |---|---|
 | Módulo | Conformidade |
 | Documento | Handoff |
-| Versão | 0.9.0 |
-| Data | 28-08-2026 |
+| Versão | 0.12.0 |
+| Data | 29-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
 > Resumo curto de "onde este módulo está" e "o que fazer a seguir" nele.
@@ -104,15 +104,28 @@
 - [analysis.md](analysis.md) — registro de como cada investigação
   deste módulo foi feita.
 - [pitfalls.md](pitfalls.md) — armadilhas de ferramenta já encontradas.
+- [decisions/0015-sessionstart-nao-reseta-mais-a-ficha-no-evento-resume-e-janela-de-frescor-maior.md](<../decisions/0015-sessionstart-nao-reseta-mais-a-ficha-no-evento-resume-e-janela-de-frescor-maior.md>) —
+  evento `resume` do `SessionStart` não apaga mais a ficha; janela de
+  frescor da leitura obrigatória alongada.
+- [decisions/0016-autorizo-trava-rejeita-reticencias-sem-motivo-real.md](<../decisions/0016-autorizo-trava-rejeita-reticencias-sem-motivo-real.md>) —
+  `AUTORIZO-TRAVA` rejeita reticências sem motivo real, mesma família
+  do achado do placeholder `<motivo>`.
+- [decisions/0017-comandos-git-gh-isentos-da-leitura-manual-obrigatoria.md](<../decisions/0017-comandos-git-gh-isentos-da-leitura-manual-obrigatoria.md>) —
+  comandos `git`/`gh` isentos da leitura manual obrigatória.
+- [decisions/0018-frases-de-confirmacao-toleram-virgula-opcional.md](<../decisions/0018-frases-de-confirmacao-toleram-virgula-opcional.md>) —
+  frases de confirmação toleram vírgula opcional.
+- [decisions/0019-deteccao-de-versao-subida-em-documento-so-com-changelog.md](<../decisions/0019-deteccao-de-versao-subida-em-documento-so-com-changelog.md>) —
+  `scripts/hooks/pre-commit` passa a detectar versão subida em
+  documento só com tabela de changelog, sem tabela de cabeçalho.
 - [tasks.md, Em aberto](<tasks.md#em-aberto>) — pendências abertas.
 
 ## Próximo passo
 
-- [tasks.md, Em aberto](<tasks.md#em-aberto>) — confirmar, com o modo
-  automático da sessão desligado, que os quatro ganchos de IA
-  restantes conseguem usar ferramenta de verdade, é a pendência mais
-  direta desta rodada. A confirmação de ponta a ponta numa sessão
-  nova, cobrindo as rodadas anteriores, continua pendente.
+- [tasks.md, Em aberto](<tasks.md#em-aberto>) — o relato de outra
+  sessão sobre `pre_git_rules.sh` não foi reproduzido nesta rodada,
+  segue como pendência de investigação. Confirmação de ponta a ponta,
+  numa sessão nova, de todos os mecanismos corrigidos até aqui,
+  continua pendente.
 
 ## Controle de versão
 
@@ -127,3 +140,6 @@
 | 0.7.0 | 28-08-2026 | Acrescentado ponteiro para decisions/0013; linha nova sobre a correção do bloqueio real dos ganchos (compactação, corrupção da ficha, AUTORIZO-TRAVA, itens 13/14-15). | Correção do bloqueio real dos ganchos de conformidade |
 | 0.8.0 | 28-08-2026 | Acrescentado ponteiro para pitfalls.md, sem linha própria antes. | Correção do bloqueio real dos ganchos de conformidade -- fechamento |
 | 0.9.0 | 28-08-2026 | Acrescentado ponteiro para decisions/0014; linha nova sobre a correção do formato de resposta em todo gancho de IA, e a remoção de dois deles. | Resolução de decisions/0014 |
+| 0.10.0 | 29-08-2026 | Acrescentados ponteiros para decisions/0015 a 0017. | Correção de falsos bloqueios reportados de outra sessão + pedido de janela de frescor maior |
+| 0.11.0 | 29-08-2026 | Acrescentado ponteiro para decisions/0018. | Resolução de [decisions/0018](<../decisions/0018-frases-de-confirmacao-toleram-virgula-opcional.md>) |
+| 0.12.0 | 29-08-2026 | Acrescentado ponteiro para decisions/0019. | Resolução de [decisions/0019](<../decisions/0019-deteccao-de-versao-subida-em-documento-so-com-changelog.md>) |

@@ -4,8 +4,8 @@
 |---|---|
 | Módulo | Conformidade |
 | Documento | Findings |
-| Versão | 0.8.0 |
-| Data | 28-08-2026 |
+| Versão | 0.11.0 |
+| Data | 29-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
 > Achados confirmados (por leitura de código, teste ao vivo, ou os dois)
@@ -411,6 +411,89 @@ Testado isoladamente depois da correção: frase com tom pessoal
 bloqueou; a mesma frase, depois de confirmada, liberou; frase sem tom
 pessoal não bloqueou.
 
+### 2026-08-29-sessionstart-ainda-reseta-a-ficha-no-evento-resume
+
+**Confirmado por:** teste ao vivo.
+
+*Em resumo:* a correção de 28-08-2026 (ver
+[findings.md](<#2026-08-28-sessionstart-sem-matcher-reseta-a-ficha-na-compactacao>))
+tirou o evento `compact` do gatilho que apaga a ficha, mas deixou o
+evento `resume` -- e esse evento dispara sozinho, várias vezes por
+hora, neste ambiente (extensão de VSCode/Claude Agent SDK), sem
+nenhuma ação deliberada de quem conduz a sessão. Efeito prático igual
+ao defeito já corrigido: a leitura manual obrigatória, já satisfeita
+minutos antes, reaparece como bloqueio no meio do trabalho.
+
+*Em detalhe técnico:* reproduzido ao vivo, com hora exata: os seis
+documentos manuais obrigatórios foram lidos por completo às 18:46:09
+a 18:46:13 (29-08-2026); `.claude/hooks/state/arquivo/
+20260829T184953Z-read-log.txt` (diário arquivado por
+`session_start_reset.sh`) contém exatamente essas seis leituras,
+arquivadas -- ou seja, removidas do registro ativo -- às 18:49:53, três
+minutos depois, sem nenhum comando `/clear` nem reinício manual da
+sessão nesse meio-tempo. A tentativa seguinte de usar qualquer
+ferramenta (`EnterWorktree`) bloqueou, `pre_mandatory_reading_guard.sh`
+apontando o primeiro documento como não lido. Consulta à documentação
+oficial (`code.claude.com/docs/en/hooks`) descreve `resume` como
+disparado só por retomada explícita (`--resume`/`--continue`), não
+sozinho no meio de uma sessão -- não bate com o comportamento
+observado neste ambiente específico (ver
+[analysis.md](<analysis.md#2026-08-29-relatorio-de-outra-sessao-e-reset-da-ficha-no-evento-resume>)
+pro raciocínio completo). Corrigido separando o evento `resume` do
+bloco que roda `session_start_reset.sh` em `.claude/settings.json` --
+`session_start_import_check.sh` (checagem que só lê, nunca apaga nada)
+continua rodando em `resume`. Ver
+[decisions/0015](<../decisions/0015-sessionstart-nao-reseta-mais-a-ficha-no-evento-resume-e-janela-de-frescor-maior.md>).
+
+### 2026-08-29-autorizo-trava-disparado-por-reticencias-em-narrativa
+
+**Confirmado por:** teste ao vivo.
+
+*Em resumo:* a correção de 28-08-2026 contra citação do placeholder
+`<motivo>` (ver
+[findings.md](<#2026-08-28-autorizo-trava-disparado-por-texto-de-exemplo-citado>))
+não cobria uma variante real: uma mensagem contando, em prosa, o que
+aconteceu numa sessão anterior ("...só desbloqueou quando você mesmo
+escreveu AUTORIZO-TRAVA: ....") também registrava autorização de
+verdade -- o "motivo" capturado era só reticências, seguido do resto
+da frase da própria narrativa, sem nenhuma decisão real de quem estava
+conduzindo a sessão naquele momento.
+
+*Em detalhe técnico:* reproduzido ao vivo -- uma mensagem legítima,
+descrevendo um relato recebido de outra sessão, registrou autorização
+sem intenção nenhuma de autorizar algo na hora. Corrigido em
+`user_prompt_submit.sh`: o texto imediatamente depois de
+"AUTORIZO-TRAVA:" também é rejeitado quando começa com duas ou mais
+reticências (`..`), mesmo princípio já usado pro placeholder `<motivo>`
+(checar só o início do texto capturado, não o texto inteiro -- o resto
+da frase, contando a história, quase sempre tem conteúdo real, então
+checar "existe alguma letra em algum lugar" não bastava; testado
+isoladamente e confirmado que essa primeira tentativa passava batido
+antes da correção final). Testado isoladamente, cinco casos: citação
+com reticências não autoriza; placeholder `<motivo>` continua sem
+autorizar (regressão); motivo real autoriza normalmente; motivo
+começando com `<` mas com conteúdo real continua autorizando
+(regressão do achado de 28-08-2026); um único ponto no início não
+bloqueia por engano. Ver
+[decisions/0016](<../decisions/0016-autorizo-trava-rejeita-reticencias-sem-motivo-real.md>).
+
+### 2026-08-29-frase-de-confirmacao-exigia-pontuacao-exata
+
+**Confirmado por:** teste ao vivo.
+
+*Em resumo:* as cinco frases de confirmação pontual (ex.: "commit
+revisado, confirmado") exigiam a vírgula exata pra bater com o texto
+digitado -- uma tentativa real, sem essa vírgula, não destravava
+nada, sem nenhum aviso do motivo.
+
+*Em detalhe técnico:* reproduzido ao vivo -- corrigido em
+`user_prompt_submit.sh`, decisão registrada em
+[decisions/0018](<../decisions/0018-frases-de-confirmacao-toleram-virgula-opcional.md>).
+Testado isoladamente: frase sem vírgula passa a confirmar; frase com
+vírgula continua confirmando (regressão); frase totalmente diferente
+continua sem confirmar; `AUTORIZO-TRAVA` continua exigindo o
+dois-pontos, sem regressão.
+
 ### 2026-08-28-frase-de-confirmacao-cadastrada-mas-nunca-usada
 
 **Confirmado por:** leitura de código.
@@ -427,6 +510,22 @@ frases da mesma tabela (`no-finding`, `no-adr`, `tom-impessoal`,
 realmente lidas por `confirmation_confirmed` em `pre_edit_safety.sh`
 ou `pre_commit_hygiene.sh`.
 
+### 2026-08-29-pre-commit-nunca-detectava-versao-subida-em-documento-so-com-changelog
+
+**Confirmado por:** teste ao vivo.
+
+*Em resumo:* o gancho nativo do git `scripts/hooks/pre-commit` --
+fora de `.claude/hooks/`, escrito antes deste módulo existir -- nunca
+reconhecia uma subida de versão de verdade em documento que não tem
+tabela de cabeçalho "Campo | Valor" (caso de `MANUAL.md`), só a tabela
+"Controle de versão". Um documento assim, mesmo subindo a versão
+corretamente, ficava bloqueado pra sempre nesse gancho.
+
+*Em detalhe técnico:* achado tentando commitar `MANUAL.md` e
+`FRASES-DE-CONFIRMACAO.md` (documento novo) nesta mesma rodada.
+Correção, alternativas descartadas e bateria de teste completas em
+[decisions/0019](<../decisions/0019-deteccao-de-versao-subida-em-documento-so-com-changelog.md>).
+
 ## Controle de versão
 
 | Versão | Data | Alteração | Origem da alteração |
@@ -439,3 +538,6 @@ ou `pre_commit_hygiene.sh`.
 | 0.6.0 | 28-08-2026 | Quatro achados novos registrados, todos testados isoladamente antes do commit: reset indevido da ficha na compactação, corrupção e perda de fato na ficha por escrita concorrente, AUTORIZO-TRAVA disparado por texto de exemplo citado, e a lacuna de trava mecânica em pitfalls/findings/decisions. | Correção do bloqueio real dos ganchos de conformidade |
 | 0.7.0 | 28-08-2026 | Achado novo registrado (item 5 perdia a alternativa de `schemas/`, revelado numa segunda rodada de teste mais rigorosa, cobrindo limite exato da janela, isolamento entre módulos, itens 6/7/8 e falso positivo do placeholder). | Correção do bloqueio real dos ganchos de conformidade |
 | 0.8.0 | 28-08-2026 | Cinco achados novos registrados: formato de resposta errado em todo gancho `agent`/`prompt`; modo automático da sessão nega ferramenta a gancho `agent`, mesmo com formato corrigido; dois defeitos reais na checagem nova de documentação-antes-do-teste; conflito de opção e problema de locale do `grep` na checagem nova de tom pessoal; frase de confirmação cadastrada mas nunca usada. | Resolução de [decisions/0014](<../decisions/0014-remocao-dos-ganchos-tipo-agent-substituidos-por-script-mais-confirmacao.md>) |
+| 0.9.0 | 29-08-2026 | Dois achados novos registrados: `SessionStart` ainda reseta a ficha no evento `resume` (correção de 28-08-2026 cobriu só `compact`); `AUTORIZO-TRAVA` disparado por reticências numa narrativa, variante não coberta pela correção de 28-08-2026 contra o placeholder `<motivo>`. | Correção de falsos bloqueios reportados de outra sessão + pedido de janela de frescor maior |
+| 0.10.0 | 29-08-2026 | Achado novo registrado: frases de confirmação exigiam pontuação exata (vírgula), sem aviso de quase-acerto quando faltava. | Correção de falsos bloqueios reportados de outra sessão + pedido de janela de frescor maior |
+| 0.11.0 | 29-08-2026 | Achado novo registrado: `scripts/hooks/pre-commit` nunca detectava subida de versão de verdade em documento só com a tabela "Controle de versão", sem tabela de cabeçalho. | Resolução de [decisions/0019](<../decisions/0019-deteccao-de-versao-subida-em-documento-so-com-changelog.md>) |

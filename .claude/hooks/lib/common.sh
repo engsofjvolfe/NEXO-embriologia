@@ -306,12 +306,20 @@ MANUAL_MANDATORY_DOCS=(
   "prompt model.txt"
 )
 
-# Janela de frescor (em número de ações da ficha) usada em qualquer
-# checagem de "isso foi confirmado há pouco o bastante pra eu confiar
-# agora" -- mesma janela já usada em pre_edit_safety.sh (citação de
-# documento num texto novo). Compartilhada aqui porque a leitura
-# obrigatória (abaixo) passou a usar a mesma regra.
-MANDATORY_READ_FRESHNESS_WINDOW=20
+# Janela de frescor (em número de ações da ficha) só dos seis
+# documentos de leitura manual obrigatória -- diferente da janela de
+# pre_edit_safety.sh (citação de documento, ainda 20 ações). As duas
+# eram a mesma constante (20) até esta rodada; separadas porque o
+# julgamento por trás de cada uma é diferente: citar um documento por
+# nome é um evento pontual, vale checar bem de perto; já ter lido os
+# seis documentos manuais é uma condição de fundo, que precisa
+# aguentar uma sessão inteira de trabalho -- inclusive um recarregamento
+# de contexto no meio do caminho (evento "resume" do Claude Code), que
+# não é decisão de ninguém, só o jeito como a ferramenta funciona por
+# trás das cenas. Valor bem maior (pedido explícito: "pra bastante
+# tempo") pra que isso não expire à toa no meio de uma sessão longa.
+# Ver decisions/0015.
+MANDATORY_READ_FRESHNESS_WINDOW=500
 
 # Devolve, por stdout, o primeiro documento de leitura manual
 # obrigatória ainda sem rastro de leitura *fresca* (dentro da janela

@@ -34,9 +34,15 @@
         ]
       },
       {
-        "matcher": "startup|resume|clear",
+        "matcher": "startup|clear",
         "hooks": [
           { "type": "command", "command": "bash ${CLAUDE_PROJECT_DIR}/.claude/hooks/session_start_reset.sh" },
+          { "type": "command", "command": "bash ${CLAUDE_PROJECT_DIR}/.claude/hooks/session_start_import_check.sh" }
+        ]
+      },
+      {
+        "matcher": "resume",
+        "hooks": [
           { "type": "command", "command": "bash ${CLAUDE_PROJECT_DIR}/.claude/hooks/session_start_import_check.sh" }
         ]
       }

@@ -4,8 +4,8 @@
 |---|---|
 | Módulo | Conformidade |
 | Documento | Pitfalls |
-| Versão | 0.4.0 |
-| Data | 28-08-2026 |
+| Versão | 0.6.0 |
+| Data | 29-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
 > Comportamento não óbvio de ferramenta/mecanismo usado só neste módulo
@@ -126,6 +126,54 @@ que `-E` já cobre sem problema) -- evita o problema de locale por
 completo, em vez de forçar a variável de ambiente como já feito para
 emoji (`LC_ALL=C.UTF-8`, ver `has_emoji` em `lib/common.sh`).
 
+### 2026-08-29-nome-de-variavel-colide-com-variavel-especial-do-bash
+
+*Em resumo:* uma variável chamada `BASH_COMMAND`, dentro de um script
+de gancho, nunca guarda o valor atribuído a ela -- `BASH_COMMAND` é o
+nome de uma variável especial do próprio Bash, atualizada sozinha, sem
+aviso, a cada comando executado (existe pra uso em armadilhas de
+depuração). Qualquer atribuição própria a esse nome é sobrescrita
+assim que o próximo comando começa a rodar, inclusive o comando
+seguinte que tentaria usar o valor atribuído.
+
+*Em detalhe técnico:* achado escrevendo a isenção de leitura
+obrigatória pra comandos `git`/`gh` em `pre_mandatory_reading_guard.sh`
+-- `BASH_COMMAND=$(field '.tool_input.command')` seguido de
+`echo "$BASH_COMMAND" | grep ...` nunca via o comando real; `bash -x`
+confirmou que, no momento em que o `echo` roda, `$BASH_COMMAND` já
+tinha sido reescrito pelo próprio Bash com o texto-fonte do comando
+`echo` que estava prestes a rodar (efeito colateral autorreferente).
+Mitigação: nunca nomear variável própria igual a uma variável especial
+do Bash (`BASH_COMMAND`, `BASH_SUBSHELL`, `PIPESTATUS`, `RANDOM`, entre
+outras) -- os demais ganchos de git deste módulo (`pre_git_rules.sh`,
+`pre_commit_hygiene.sh`) já usavam o nome `COMMAND`, sem colisão;
+mesmo nome adotado aqui.
+
+### 2026-08-29-core-hookspath-aponta-pra-pasta-principal-nao-pra-worktree
+
+*Em resumo:* este repositório configura `core.hooksPath` apontando
+pra pasta principal (`scripts/hooks/` fora de qualquer worktree) --
+editar um gancho nativo do git (`scripts/hooks/pre-commit`, por
+exemplo) dentro de uma worktree de tarefa não muda o gancho que roda
+de verdade ali. Um `git commit` real, na própria worktree, continua
+usando a versão antiga, sem a correção, até a tarefa ser mesclada em
+`develop` e a pasta principal atualizada.
+
+*Em detalhe técnico:* confirmado com `git config --get core.hooksPath`
+(devolveu o caminho absoluto da pasta principal) e
+`git rev-parse --git-common-dir` (mesmo `.git` compartilhado entre
+worktrees). Achado tentando confirmar ao vivo, com um `git commit` de
+verdade, a correção de
+[decisions/0019](<../decisions/0019-deteccao-de-versao-subida-em-documento-so-com-changelog.md>)
+-- o commit continuou bloqueado com a mensagem antiga, mesmo com a
+correção já salva em disco na worktree, e com a mesma correção já
+validada, momentos antes, num repositório de rascunho isolado.
+Mitigação usada: `--no-verify` nesse commit específico, autorizado
+explicitamente pelo usuário -- a validação de verdade, num repositório
+de teste separado (fora da worktree e fora da pasta principal), é o
+caminho que já funciona pra confirmar um gancho nativo de git antes de
+ele estar disponível pra pasta principal de verdade.
+
 ## Controle de versão
 
 | Versão | Data | Alteração | Origem da alteração |
@@ -134,3 +182,5 @@ emoji (`LC_ALL=C.UTF-8`, ver `has_emoji` em `lib/common.sh`).
 | 0.2.0 | 28-08-2026 | Duas armadilhas novas registradas (falha aberta do filtro `if`; mensagem de bloqueio ao vivo não prova execução real do gancho). | Investigação da checagem de emoji disparando fora de contexto |
 | 0.3.0 | 28-08-2026 | Armadilha nova registrada (`jq` devolve `\r\n` neste ambiente, quebrando comparação de chave em laço linha a linha). | Correção do bloqueio real dos ganchos de conformidade |
 | 0.4.0 | 28-08-2026 | Armadilha nova registrada (`grep -P` exige locale UTF-8 neste ambiente, e não pode ser combinado com `-E`). | Resolução de [decisions/0014](<../decisions/0014-remocao-dos-ganchos-tipo-agent-substituidos-por-script-mais-confirmacao.md>) |
+| 0.5.0 | 29-08-2026 | Armadilha nova registrada (nome de variável própria colidindo com variável especial do Bash, `BASH_COMMAND`). | Correção de falsos bloqueios reportados de outra sessão + pedido de janela de frescor maior |
+| 0.6.0 | 29-08-2026 | Armadilha nova registrada (`core.hooksPath` aponta pra pasta principal, não pra worktree -- gancho nativo do git editado numa worktree só é validado ao vivo depois do merge). | Resolução de [decisions/0019](<../decisions/0019-deteccao-de-versao-subida-em-documento-so-com-changelog.md>) |

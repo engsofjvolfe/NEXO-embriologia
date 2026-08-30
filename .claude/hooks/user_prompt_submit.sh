@@ -39,9 +39,26 @@ PROMPT=$(field '.prompt')
 if echo "$PROMPT" | grep -q "AUTORIZO-TRAVA:"; then
   MOTIVO=$(echo "$PROMPT" | grep -o "AUTORIZO-TRAVA:.\{1,300\}" | head -n 1)
   RAZAO_LIMPA=$(echo "$MOTIVO" | sed -E 's/^AUTORIZO-TRAVA:[[:space:]]*//')
-  if echo "$RAZAO_LIMPA" | grep -qiE '^<[[:space:]]*motivo[[:space:]]*>'; then
+  # Segundo achado, na mesma família de problema (a mensagem só CITA a
+  # frase, sem intenção real de autorizar agora): o placeholder
+  # "<motivo>" não é o único jeito de citar a frase sem querer usá-la
+  # de verdade -- uma mensagem contando o que aconteceu numa sessão
+  # anterior ("...só desbloqueou quando você escreveu AUTORIZO-TRAVA:
+  # ....") também batia no grep acima, com um "motivo" que não é
+  # motivo nenhum (só reticências, "...."), seguido do resto da frase
+  # da pessoa contando a história ("Isso sugere que..."). Reproduzido
+  # ao vivo nesta rodada. Uma primeira tentativa de correção (exigir 4
+  # letras em qualquer lugar do texto capturado) não bastou -- o resto
+  # da frase, contando a história, quase sempre tem letras de sobra,
+  # então quase nunca rejeitava nada; testado isoladamente, confirmado
+  # que passava batido. Corrigido pra checar só o início, mesmo
+  # princípio já usado pro placeholder: reticências (duas ou mais
+  # reticências, "..") logo no começo do texto, antes de qualquer
+  # letra, também nunca é motivo real -- é o mesmo padrão de "citação
+  # sem conteúdo" do placeholder, só com pontuação diferente.
+  if echo "$RAZAO_LIMPA" | grep -qiE '^<[[:space:]]*motivo[[:space:]]*>' || echo "$RAZAO_LIMPA" | grep -qE '^\.{2,}'; then
     : > "$AUTH_FILE"
-    log_override "user_prompt_submit" "IGNORADO -- placeholder sem motivo real: $MOTIVO"
+    log_override "user_prompt_submit" "IGNORADO -- sem motivo real escrito: $MOTIVO"
   else
     echo "$MOTIVO" > "$AUTH_FILE"
     log_override "user_prompt_submit" "$MOTIVO"
@@ -60,6 +77,18 @@ fi
 # copiar este bloco inteiro de novo. Mesma regra de não ficar
 # "pendurada": todo arquivo listado é limpo a cada mensagem nova,
 # escrito só quando a frase exata aparece NESTA mensagem sua.
+#
+# Achado ao vivo nesta rodada: a vírgula literal, dentro da frase
+# exigida (ex.: "commit revisado, confirmado"), é fácil de esquecer ao
+# digitar de cabeça -- uma tentativa real, faltando só essa vírgula
+# ("commit revisado confirmado"), não bateu com a comparação exata
+# (grep -qi de string literal) e não destravou nada, sem nenhum aviso
+# de "quase bateu, faltou a vírgula". Mesma família de problema do
+# achado sobre AUTORIZO-TRAVA (checagem rígida demais pra pequena
+# variação de digitação). Corrigido: a vírgula de cada frase vira
+# opcional na comparação (`,?` numa expressão regular, no lugar da
+# string literal) -- continua exigindo o resto das palavras, na ordem,
+# só a pontuação entre elas fica tolerante.
 CONFIRMATION_PHRASES=(
   "nada a registrar, confirmado|no-finding"
   "sem alternativas reais, confirmado|no-adr"
@@ -71,7 +100,8 @@ for par in "${CONFIRMATION_PHRASES[@]}"; do
   frase="${par%%|*}"
   nome="${par##*|}"
   arquivo="${CONFIRM_DIR}/${nome}"
-  if echo "$PROMPT" | grep -qi "$frase"; then
+  frase_regex=$(echo "$frase" | sed -E 's/, /,? */g')
+  if echo "$PROMPT" | grep -qiE "$frase_regex"; then
     echo "confirmado" > "$arquivo"
     log_override "user_prompt_submit" "$frase"
   else

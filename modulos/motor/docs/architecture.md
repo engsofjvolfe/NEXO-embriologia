@@ -6,8 +6,8 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Architecture |
-| Versão | 0.40.0 |
-| Data | 29-08-2026 |
+| Versão | 0.41.0 |
+| Data | 30-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
 > Descreve como o módulo é construído por dentro — layout de arquivos,
@@ -809,11 +809,15 @@ reconhecido fora deste projeto, chamado design centrado no usuário
    usabilidade (NIELSEN, 1994) antes de virar código de verdade.
 
 Nenhuma dessas quatro etapas foi concluída ainda. Dentro do passo 2
-(wireframe), um ponto já está decidido: o padrão de navegação entre
-instância, tema e evento usa expansão em acordeão (tocar num item
-abre a lista do nível seguinte embaixo dele, sem trocar de tela),
+(wireframe), dois pontos já estão decididos: o padrão de navegação
+entre instância, tema e evento usa expansão em acordeão (tocar num
+item abre a lista do nível seguinte embaixo dele, sem trocar de tela),
 igual em celular e tablet — ver
-[decisions/0030](<../decisions/0030-padrao-de-navegacao-hierarquica-de-conteudo.md>).
+[decisions/0030](<../decisions/0030-padrao-de-navegacao-hierarquica-de-conteudo.md>)
+—; e o formato de aparelho que o restante do wireframe segue (celular
+primeiro, sempre a versão de referência; tablet só ganha leiaute
+diferente onde há necessidade real reconhecida) — ver
+[decisions/0033](<../decisions/0033-formato-de-aparelho-leiaute-responsivo.md>).
 O restante do wireframe (as outras 16 entradas de tela, mais como
 indicar o estado de conexão do acessório) segue pendente, ver
 [`tasks.md`](tasks.md). "Ponto de início" e "Configuração da sessão"
@@ -1074,3 +1078,4 @@ com o campo Versão da tabela de cabeçalho, que sempre reflete a
 | 0.37.0 | 22-08-2026 | Seção "Interface" ganha a tecnologia de renderização decidida (Jetpack Compose), separada da aparência visual em si, que continua pendente. | Resolução de [decisions/0031](<../decisions/0031-jetpack-compose-como-ferramenta-de-desenho-de-tela.md>) |
 | 0.38.0 | 22-08-2026 | Corrigido: a seção "Layout" tratava o agrupamento das 17 entradas de tela em telas físicas como inteiramente pendente — 10 delas (variações de conteúdo dentro da sessão em jogo) já têm esse agrupamento fechado desde [decisions/0022](<../decisions/0022-conteudo-do-estado-exposto-pelo-viewmodel.md>); só as outras 7 seguem sem essa decisão. | Achado ao revisar a pendência de desenho visual por completo, na mesma sessão de [decisions/0030](<../decisions/0030-padrao-de-navegacao-hierarquica-de-conteudo.md>) |
 | 0.40.0 | 29-08-2026 | Seção "Ligação com o núcleo do motor" corrigida: o gatilho exato na tela (toque livre ou botão nomeado, por situação) deixa de estar descrito como pendente — já está decidido. | Resolução de [decisions/0032](<../decisions/0032-gatilho-de-toque-entre-estados-do-sessionscreen.md>) |
+| 0.41.0 | 30-08-2026 | Seção "Interface" ganha o formato de aparelho decidido (celular primeiro; tablet só com leiaute diferente onde há necessidade real reconhecida), dentro do passo 2 (wireframe) do método. | Resolução de [decisions/0033](<../decisions/0033-formato-de-aparelho-leiaute-responsivo.md>) |

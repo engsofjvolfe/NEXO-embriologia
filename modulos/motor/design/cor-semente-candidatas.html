@@ -1,0 +1,341 @@
+<title>Candidatas de cor semente — laranja e azul</title>
+<style>
+  :root{
+    --paper: #faf6f0;
+    --paper-2: #f2ebe1;
+    --ink: #24201a;
+    --ink-soft: #6b6155;
+    --line: #e2d8c8;
+    --mono: ui-monospace, "SF Mono", "Cascadia Mono", "Roboto Mono", monospace;
+    --sans: -apple-system, "Segoe UI", system-ui, sans-serif;
+  }
+  *{ box-sizing: border-box; }
+  body{
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--sans);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap{
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 48px 24px 80px;
+  }
+  header{
+    margin-bottom: 40px;
+    padding-bottom: 28px;
+    border-bottom: 1px solid var(--line);
+  }
+  .eyebrow{
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin: 0 0 10px;
+  }
+  h1{
+    font-size: clamp(26px, 4vw, 34px);
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    margin: 0 0 14px;
+    text-wrap: balance;
+  }
+  header p{
+    max-width: 62ch;
+    color: var(--ink-soft);
+    font-size: 15px;
+    margin: 0 0 8px;
+  }
+  header p:last-child{ margin-bottom: 0; }
+  .note{
+    font-size: 13px;
+    color: var(--ink-soft);
+    background: var(--paper-2);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 12px 16px;
+    margin-top: 18px;
+  }
+  .note strong{ color: var(--ink); }
+  .provenance{
+    font-size: 13px;
+    color: var(--ink-soft);
+    background: #fff;
+    border: 1px dashed var(--line);
+    border-radius: 6px;
+    padding: 12px 16px;
+    margin-top: 12px;
+  }
+
+  .grid{
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+  }
+
+  .card{
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    overflow: hidden;
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .swatch{
+    display: flex;
+    height: 56px;
+  }
+  .swatch span{ flex: 1; }
+
+  .mock{
+    padding: 14px;
+    background: var(--paper-2);
+    border-bottom: 1px solid var(--line);
+  }
+  .mock-phone{
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid rgba(0,0,0,0.08);
+    background: #fff;
+  }
+  .mock-bar{
+    height: 34px;
+    display: flex;
+    align-items: center;
+    padding: 0 12px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #fff;
+  }
+  .mock-body{
+    padding: 14px 12px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .mock-line{
+    height: 7px;
+    border-radius: 3px;
+    background: #e7e1d6;
+    width: 100%;
+  }
+  .mock-line.short{ width: 55%; }
+  .mock-fab{
+    align-self: flex-end;
+    margin-top: 4px;
+    padding: 7px 14px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #fff;
+  }
+
+  .info{
+    padding: 14px 16px 16px;
+  }
+  .name{
+    font-size: 14px;
+    font-weight: 700;
+    margin: 0 0 3px;
+  }
+  .tag{
+    font-size: 12px;
+    color: var(--ink-soft);
+    margin: 0 0 10px;
+  }
+  .hexes{
+    display: flex;
+    gap: 14px;
+    font-family: var(--mono);
+    font-variant-numeric: tabular-nums;
+    font-size: 12px;
+  }
+  .hexes div{ display: flex; align-items: center; gap: 6px; }
+  .dot{
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+    border: 1px solid rgba(0,0,0,0.12);
+  }
+
+  footer{
+    margin-top: 44px;
+    padding-top: 20px;
+    border-top: 1px solid var(--line);
+    font-size: 13px;
+    color: var(--ink-soft);
+  }
+</style>
+
+<div class="wrap">
+  <header>
+    <p class="eyebrow">Motor — decisão de cor semente</p>
+    <h1>Seis combinações de laranja e azul, lado a lado</h1>
+    <p>Laranja e azul são cores complementares — ficam em lados opostos do círculo cromático, por isso combinam com naturalidade e um contrasta bem contra o outro. Dentro dessa família ampla cabem resultados muito diferentes: cada par abaixo usa um tom diferente de laranja e de azul, do mais vibrante ao mais discreto, pra apontar qual se aproxima do que se tem em mente.</p>
+    <div class="note">Cada mini tela é só uma simulação simplificada — barra superior numa cor, botão de ação na outra — pra dar noção de como o par funciona junto numa interface. Não é o leiaute final das telas do motor, que já está fechado em <strong>wireframe.md</strong>.</div>
+    <div class="provenance">Material de apoio gerado por IA (Claude), a pedido de N. Denominado — autoria deste projeto (ver <code>README.md</code> da raiz) —, que indicou preferência pelas cores laranja e azul como identidade visual do motor. Esta página serve só pra visualizar candidatas antes da escolha; não é fonte técnica nem embasa a decisão por si — a escolha final é preferência direta, registrada em <code>decisions/0035</code>.</div>
+  </header>
+
+  <div class="grid">
+
+    <div class="card">
+      <div class="swatch">
+        <span style="background:#FF6D1F"></span>
+        <span style="background:#2D5FE0"></span>
+      </div>
+      <div class="mock">
+        <div class="mock-phone">
+          <div class="mock-bar" style="background:#2D5FE0">Navegação</div>
+          <div class="mock-body">
+            <div class="mock-line"></div>
+            <div class="mock-line short"></div>
+            <div class="mock-fab" style="background:#FF6D1F">Continuar</div>
+          </div>
+        </div>
+      </div>
+      <div class="info">
+        <p class="name">Laranja vibrante + azul royal</p>
+        <p class="tag">Energético, alto contraste, clima de aplicativo ativo</p>
+        <div class="hexes">
+          <div><span class="dot" style="background:#FF6D1F"></span>FF6D1F</div>
+          <div><span class="dot" style="background:#2D5FE0"></span>2D5FE0</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="swatch">
+        <span style="background:#C1592B"></span>
+        <span style="background:#1F4B4C"></span>
+      </div>
+      <div class="mock">
+        <div class="mock-phone">
+          <div class="mock-bar" style="background:#1F4B4C">Navegação</div>
+          <div class="mock-body">
+            <div class="mock-line"></div>
+            <div class="mock-line short"></div>
+            <div class="mock-fab" style="background:#C1592B">Continuar</div>
+          </div>
+        </div>
+      </div>
+      <div class="info">
+        <p class="name">Terracota + azul petróleo</p>
+        <p class="tag">Terroso, contido, clima mais sóbrio</p>
+        <div class="hexes">
+          <div><span class="dot" style="background:#C1592B"></span>C1592B</div>
+          <div><span class="dot" style="background:#1F4B4C"></span>1F4B4C</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="swatch">
+        <span style="background:#FFB37B"></span>
+        <span style="background:#7EB6E8"></span>
+      </div>
+      <div class="mock">
+        <div class="mock-phone">
+          <div class="mock-bar" style="background:#7EB6E8">Navegação</div>
+          <div class="mock-body">
+            <div class="mock-line"></div>
+            <div class="mock-line short"></div>
+            <div class="mock-fab" style="background:#FFB37B">Continuar</div>
+          </div>
+        </div>
+      </div>
+      <div class="info">
+        <p class="name">Pêssego + azul claro</p>
+        <p class="tag">Suave, baixo contraste entre si, clima calmo</p>
+        <div class="hexes">
+          <div><span class="dot" style="background:#FFB37B"></span>FFB37B</div>
+          <div><span class="dot" style="background:#7EB6E8"></span>7EB6E8</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="swatch">
+        <span style="background:#E8912B"></span>
+        <span style="background:#16305C"></span>
+      </div>
+      <div class="mock">
+        <div class="mock-phone">
+          <div class="mock-bar" style="background:#16305C">Navegação</div>
+          <div class="mock-body">
+            <div class="mock-line"></div>
+            <div class="mock-line short"></div>
+            <div class="mock-fab" style="background:#E8912B">Continuar</div>
+          </div>
+        </div>
+      </div>
+      <div class="info">
+        <p class="name">Âmbar + azul-marinho</p>
+        <p class="tag">Contraste forte entre os dois, clima institucional</p>
+        <div class="hexes">
+          <div><span class="dot" style="background:#E8912B"></span>E8912B</div>
+          <div><span class="dot" style="background:#16305C"></span>16305C</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="swatch">
+        <span style="background:#FF6F59"></span>
+        <span style="background:#1FB6B0"></span>
+      </div>
+      <div class="mock">
+        <div class="mock-phone">
+          <div class="mock-bar" style="background:#1FB6B0">Navegação</div>
+          <div class="mock-body">
+            <div class="mock-line"></div>
+            <div class="mock-line short"></div>
+            <div class="mock-fab" style="background:#FF6F59">Continuar</div>
+          </div>
+        </div>
+      </div>
+      <div class="info">
+        <p class="name">Coral + azul-turquesa</p>
+        <p class="tag">Leve puxado pra quente nos dois, clima jovem</p>
+        <div class="hexes">
+          <div><span class="dot" style="background:#FF6F59"></span>FF6F59</div>
+          <div><span class="dot" style="background:#1FB6B0"></span>1FB6B0</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="swatch">
+        <span style="background:#D98E04"></span>
+        <span style="background:#38419D"></span>
+      </div>
+      <div class="mock">
+        <div class="mock-phone">
+          <div class="mock-bar" style="background:#38419D">Navegação</div>
+          <div class="mock-body">
+            <div class="mock-line"></div>
+            <div class="mock-line short"></div>
+            <div class="mock-fab" style="background:#D98E04">Continuar</div>
+          </div>
+        </div>
+      </div>
+      <div class="info">
+        <p class="name">Mostarda + índigo</p>
+        <p class="tag">Tons mais fechados nos dois, clima maduro</p>
+        <div class="hexes">
+          <div><span class="dot" style="background:#D98E04"></span>D98E04</div>
+          <div><span class="dot" style="background:#38419D"></span>38419D</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <footer>
+    Cada par funciona como ponto de partida — depois de escolhido, o Material Design 3 (já decidido em decisions/0031) gera sozinho toda a paleta de tons a partir da cor "semente", tanto pro modo claro quanto pro escuro.
+  </footer>
+</div>

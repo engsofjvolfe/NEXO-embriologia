@@ -6,8 +6,8 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Decisions — Índice |
-| Versão | 0.20.0 |
-| Data | 22-08-2026 |
+| Versão | 0.23.0 |
+| Data | 30-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
 > Decisões (ADR) específicas deste módulo — um arquivo por decisão,
@@ -71,6 +71,11 @@
 | [0028](0028-combinacao-do-recorte-de-temas-e-eventos-numa-sessao.md) | Combinação do recorte de temas e de eventos numa sessão que atravessa mais de um tema |
 | [0029](0029-aparencia-visual-das-telas-mora-no-motor.md) | Aparência visual das telas mora no módulo motor |
 | [0030](0030-padrao-de-navegacao-hierarquica-de-conteudo.md) | Padrão de navegação hierárquica de conteúdo |
+| [0031](0031-jetpack-compose-como-ferramenta-de-desenho-de-tela.md) | Jetpack Compose como ferramenta de desenho de tela |
+| [0032](0032-gatilho-de-toque-entre-estados-do-sessionscreen.md) | Gatilho de toque entre estados do SessionScreen |
+| [0033](0033-formato-de-aparelho-leiaute-responsivo.md) | Formato de aparelho (leiaute responsivo) para as telas do motor |
+| [0034](0034-mecanismo-de-carregamento-preguicoso-do-acordeao-de-navegacao.md) | Mecanismo de carregamento aos poucos (lazy) do acordeão de navegação |
+| [0035](0035-sistema-visual-cor-tipografia-forma-contraste.md) | Sistema visual: cor, tipografia, forma, contraste e área de toque |
 
 ## Controle de versão
 
@@ -105,3 +110,6 @@ pelo ADR-NNNN). -->
 | 0.18.0 | 18-08-2026 | ADR 0027 acrescentada à lista. | Correção da forma de `SessionState` (decisão 2 de decisions/0026), achada ao rodar o teste de `SessionViewModel.kt` contra o código real |
 | 0.19.0 | 18-08-2026 | ADR 0028 acrescentada à lista. | Combinação do recorte de temas e de eventos numa sessão que atravessa mais de um tema |
 | 0.20.0 | 22-08-2026 | ADRs 0029 e 0030 acrescentadas ao índice, a primeira retroativamente — já existia como arquivo desde a tarefa que a criou, mas nunca tinha entrado nesta lista. | Checagem mecânica ao abrir este arquivo pra acrescentar a ADR 0030 |
+| 0.21.0 | 30-08-2026 | ADRs 0031 e 0032 acrescentadas ao índice, retroativamente — já existiam como arquivo desde a tarefa que as criou, mas nunca tinham entrado nesta lista. ADR 0033 acrescentada. | Checagem mecânica ao abrir este arquivo pra acrescentar a ADR 0033 |
+| 0.22.0 | 30-08-2026 | ADR 0034 acrescentada ao índice. | Resolução de [decisions/0034](0034-mecanismo-de-carregamento-preguicoso-do-acordeao-de-navegacao.md) |
+| 0.23.0 | 30-08-2026 | ADR 0035 acrescentada ao índice. | Resolução de [decisions/0035](0035-sistema-visual-cor-tipografia-forma-contraste.md) |

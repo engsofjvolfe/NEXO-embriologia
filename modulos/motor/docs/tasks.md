@@ -6,7 +6,7 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Tasks |
-| Versão | 0.51.0 |
+| Versão | 0.52.0 |
 | Data | 30-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
@@ -171,58 +171,6 @@ Convenção dos códigos citados aqui:
       terceiro (ANATEL), pode mudar — reconfirmar na fonte oficial
       antes de agir (comprar homologação, iniciar processo).
 
-- [ ] **Desenhar o esqueleto (leiaute) das 16 entradas de tela que
-      restam, incluindo o indicador de conexão do acessório e o aviso
-      de NFC/Bluetooth desligado.**
-
-      *Resumo simples:* onde cada botão, texto e campo vai em cada
-      tela — sem cor nem fonte ainda, só a posição. Cobre as 7 telas de
-      navegação de fato e a posição de cada elemento dentro da tela de
-      jogo (que já é uma única tela, mudando de conteúdo por dentro).
-
-      *Detalhe técnico:* a base de formato de aparelho que bloqueava
-      esta pendência já está resolvida — ver
-      [decisions/0033](<../decisions/0033-formato-de-aparelho-leiaute-responsivo.md>):
-      celular primeiro, sempre a versão completa; tablet só ganha
-      leiaute diferente onde há necessidade real reconhecida — hoje,
-      só em Configuração da sessão; a tela de Navegação fica de fora
-      desse tratamento (acordeão igual em qualquer tamanho de tela,
-      `decisions/0030`). Das 17 entradas de tela do
-      [Projeto Arquitetônico](<../../../docs/docs-VMODEL-visao-geral/4 - projeto-arquitetonico.md>),
-      seção 6.6 (DA-RET-01 a DA-RET-17), 10 (variações de conteúdo
-      dentro da tela de jogo) já têm o agrupamento físico fechado
-      ([decisions/0022](<../decisions/0022-conteudo-do-estado-exposto-pelo-viewmodel.md>):
-      `SessionScreen`, tipo fechado, uma tela só) e o gatilho de toque
-      entre elas já está decidido, com fonte oficial pra cada situação
-      ([decisions/0032](<../decisions/0032-gatilho-de-toque-entre-estados-do-sessionscreen.md>))
-      — falta só a posição visual de cada botão e rótulo dentro dessa
-      tela, não mais o quê nem o gesto. Restam 7 telas de navegação de
-      fato (sessão pausada, navegação, ponto de início — já a mesma
-      tela que configuração da sessão, por EI-NAV-05 —, resultado/
-      relatório, importar conteúdo, consentimento); dentro da tela de
-      navegação, o padrão de expansão em acordeão já está decidido
-      ([decisions/0030](<../decisions/0030-padrao-de-navegacao-hierarquica-de-conteudo.md>)).
-      O botão de pausar já tem o que chamar — `onPauseRequested()`, ver
-      [findings.md](<findings.md#2026-08-27-sessionviewmodel-ganha-onpauserequested>)
-      — falta só a posição visual do controle. Indicador de conexão:
-      dado já existe pronto (`ConnectionState`, ver
-      [architecture.md, pacote `connectivity`](<architecture.md#pacote-connectivity--desenho-interno>)),
-      só falta decidir como ele aparece na tela "Aguardando tentativa"
-      (DA-RET-06); mesma pergunta em aberto pra avisar se o NFC/
-      Bluetooth do próprio aparelho estão desligados — sem resposta
-      ainda, nem no dado, nem na aparência. Limite a respeitar:
-      [Documento de Conceito](<../../../docs/docs-VMODEL-visao-geral/1 - documento-de-conceito-geral.md>),
-      seção 8 ("a tela... confirma, não anuncia") — esses dois
-      indicadores precisam ser discretos, nunca virar uma explicação ou
-      aviso que compita com essa regra. Existe material de rascunho,
-      fora deste repositório, numa pasta de trabalho separada e não
-      canônica (`Design/`), cobrindo essas 16 entradas — reaproveitável
-      só na parte compatível com
-      [decisions/0033](<../decisions/0033-formato-de-aparelho-leiaute-responsivo.md>),
-      sempre cruzado contra o que os documentos deste projeto já
-      fixam, nunca copiado direto sem essa checagem. Sem responsável
-      definido ainda (designer, ou o próprio usuário).
-
 - [ ] **Aplicar o sistema visual (Material Design) sobre o esqueleto de
       tela já pronto.**
 
@@ -232,11 +180,11 @@ Convenção dos códigos citados aqui:
       direção provável, nunca pesquisado a fundo nem decidido.
 
       *Detalhe técnico:* passo 3 do método de quatro passos já fixado
-      em [architecture.md, Interface](<architecture.md#interface>).
-      Bloqueada pela pendência "Desenhar o esqueleto das 16 entradas de
-      tela restantes" acima. Sem pesquisa nem decisão ainda — inclusive
-      qual versão exata do sistema visual usar (o projeto já cita
-      "Material Design 3" em
+      em [architecture.md, Interface](<architecture.md#interface>). O
+      esqueleto de tela que este passo precisa já está pronto — ver
+      [wireframe.md](wireframe.md). Sem pesquisa nem decisão ainda —
+      inclusive qual versão exata do sistema visual usar (o projeto já
+      cita "Material Design 3" em
       [decisions/0032](<../decisions/0032-gatilho-de-toque-entre-estados-do-sessionscreen.md>),
       mas só pra embasar o gatilho de toque, nunca como escolha formal
       de versão do sistema visual inteiro).
@@ -595,6 +543,11 @@ Convenção dos códigos citados aqui:
 - [x] **Decidir o mecanismo de carregamento aos poucos (lazy) da lista
       em acordeão de navegação.** Resolvido — ver
       [decisions/0034](<../decisions/0034-mecanismo-de-carregamento-preguicoso-do-acordeao-de-navegacao.md>).
+- [x] **Desenhar o esqueleto (leiaute) das 16 entradas de tela que
+      restam, incluindo o indicador de conexão do acessório e o aviso
+      de NFC/Bluetooth desligado.** Resolvido — ver
+      [wireframe.md](wireframe.md). Desbloqueia a pendência "Aplicar o
+      sistema visual (Material Design)", abaixo.
 
 ## Referências
 
@@ -694,3 +647,4 @@ como mudança de conteúdo real. -->
 | 0.49.0 | 30-08-2026 | Pendência única "Desenhar a aparência visual das telas do motor" dividida em cinco pendências menores, marcáveis uma a uma, seguindo o mesmo padrão já usado na linha `0.3.0` deste documento: "Decidir o formato de aparelho (leiaute responsivo)" (nova, bloqueia a seguinte), "Decidir o mecanismo de carregamento aos poucos (lazy) da lista em acordeão" (fecha uma lacuna que `decisions/0030` já previa registrar aqui, mas nunca tinha sido criada), "Desenhar o esqueleto das 16 entradas de tela restantes" (com o indicador de conexão e o aviso de NFC/Bluetooth desligado), "Aplicar o sistema visual (Material Design)" e "Montar o protótipo navegável e avaliar contra as boas práticas de usabilidade". | Detalhamento de pendência existente, sem decisão nova |
 | 0.50.0 | 30-08-2026 | Pendência "Decidir o formato de aparelho (leiaute responsivo)" resolvida — movida para Resolvidas. Ponteiros ajustados em "Desenhar o esqueleto das 16 entradas de tela restantes", que perde o bloqueio. | Resolução de [decisions/0033](<../decisions/0033-formato-de-aparelho-leiaute-responsivo.md>) |
 | 0.51.0 | 30-08-2026 | Pendência "Decidir o mecanismo de carregamento aos poucos (lazy) da lista em acordeão de navegação" resolvida — movida para Resolvidas. | Resolução de [decisions/0034](<../decisions/0034-mecanismo-de-carregamento-preguicoso-do-acordeao-de-navegacao.md>) |
+| 0.52.0 | 30-08-2026 | Pendência "Desenhar o esqueleto das 16 entradas de tela restantes" resolvida — movida para Resolvidas. Ponteiro de bloqueio da pendência "Aplicar o sistema visual (Material Design)" atualizado. | Criação de [wireframe.md](wireframe.md) |

@@ -6,7 +6,7 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Tasks |
-| Versão | 0.50.0 |
+| Versão | 0.51.0 |
 | Data | 30-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
@@ -170,28 +170,6 @@ Convenção dos códigos citados aqui:
       usada no Projeto Detalhado (PD-IMP-05, PD-IMP-07): é regra de
       terceiro (ANATEL), pode mudar — reconfirmar na fonte oficial
       antes de agir (comprar homologação, iniciar processo).
-
-- [ ] **Decidir o mecanismo de carregamento aos poucos (lazy) da lista
-      em acordeão de navegação.**
-
-      *Resumo simples:* quando um nível da navegação (por exemplo, a
-      lista de eventos de um tema) tem muitos itens, a tela precisa
-      carregar essa lista aos poucos, sem travar o aplicativo, conforme
-      a pessoa abre mais níveis — falta decidir o mecanismo exato que
-      faz isso.
-
-      *Detalhe técnico:*
-      [decisions/0030](<../decisions/0030-padrao-de-navegacao-hierarquica-de-conteudo.md>),
-      seção Consequências, registra que essa escolha "é maior que esta
-      ADR (do mesmo porte de decisions/0001, linguagem do
-      aplicativo)... vira pendência nova em tasks.md" — item ainda
-      ausente deste documento até esta linha; lacuna entre o que
-      aquela ADR registra e o que este arquivo lista, agora fechada com
-      este item. [decisions/0031](<../decisions/0031-jetpack-compose-como-ferramenta-de-desenho-de-tela.md>)
-      (Jetpack Compose como ferramenta de desenho) não resolve isso —
-      fixa só a tecnologia de renderização em geral, sem descer ao
-      mecanismo específico de carregamento aos poucos. Sem pesquisa nem
-      decisão ainda.
 
 - [ ] **Desenhar o esqueleto (leiaute) das 16 entradas de tela que
       restam, incluindo o indicador de conexão do acessório e o aviso
@@ -614,6 +592,9 @@ Convenção dos códigos citados aqui:
       [decisions/0033](<../decisions/0033-formato-de-aparelho-leiaute-responsivo.md>).
       Desbloqueia a pendência "Desenhar o esqueleto das 16 entradas de
       tela restantes", abaixo.
+- [x] **Decidir o mecanismo de carregamento aos poucos (lazy) da lista
+      em acordeão de navegação.** Resolvido — ver
+      [decisions/0034](<../decisions/0034-mecanismo-de-carregamento-preguicoso-do-acordeao-de-navegacao.md>).
 
 ## Referências
 
@@ -712,3 +693,4 @@ como mudança de conteúdo real. -->
 | 0.48.0 | 29-08-2026 | Pendência "Desenhar a aparência visual das telas do motor" ganha ponteiro pra ADR nova: o gatilho de toque entre os oito estados da tela de jogo, antes só citado como pendente, agora está decidido, com duas fontes oficiais independentes (Material Design 3, Nielsen Norman Group). Aparência visual em si, leiaute das 16 entradas de tela restantes, indicador de conexão e protótipo continuam pendentes. | Resolução de [decisions/0032](<../decisions/0032-gatilho-de-toque-entre-estados-do-sessionscreen.md>) |
 | 0.49.0 | 30-08-2026 | Pendência única "Desenhar a aparência visual das telas do motor" dividida em cinco pendências menores, marcáveis uma a uma, seguindo o mesmo padrão já usado na linha `0.3.0` deste documento: "Decidir o formato de aparelho (leiaute responsivo)" (nova, bloqueia a seguinte), "Decidir o mecanismo de carregamento aos poucos (lazy) da lista em acordeão" (fecha uma lacuna que `decisions/0030` já previa registrar aqui, mas nunca tinha sido criada), "Desenhar o esqueleto das 16 entradas de tela restantes" (com o indicador de conexão e o aviso de NFC/Bluetooth desligado), "Aplicar o sistema visual (Material Design)" e "Montar o protótipo navegável e avaliar contra as boas práticas de usabilidade". | Detalhamento de pendência existente, sem decisão nova |
 | 0.50.0 | 30-08-2026 | Pendência "Decidir o formato de aparelho (leiaute responsivo)" resolvida — movida para Resolvidas. Ponteiros ajustados em "Desenhar o esqueleto das 16 entradas de tela restantes", que perde o bloqueio. | Resolução de [decisions/0033](<../decisions/0033-formato-de-aparelho-leiaute-responsivo.md>) |
+| 0.51.0 | 30-08-2026 | Pendência "Decidir o mecanismo de carregamento aos poucos (lazy) da lista em acordeão de navegação" resolvida — movida para Resolvidas. | Resolução de [decisions/0034](<../decisions/0034-mecanismo-de-carregamento-preguicoso-do-acordeao-de-navegacao.md>) |

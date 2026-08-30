@@ -125,6 +125,9 @@
   diferente onde há necessidade real reconhecida (hoje, só na tela de
   Configuração da sessão) — ver
   [modulos/motor/decisions/0033](<modulos/motor/decisions/0033-formato-de-aparelho-leiaute-responsivo.md>).
+- Mecanismo de carregamento aos poucos do acordeão de navegação das
+  telas do motor decidido — ver
+  [modulos/motor/decisions/0034](<modulos/motor/decisions/0034-mecanismo-de-carregamento-preguicoso-do-acordeao-de-navegacao.md>).
 - Sistema de conformidade do `CLAUDE.md` instalado: hooks do Claude
   Code (`.claude/hooks/`, `.claude/settings.json`) e do git nativo
   (`scripts/hooks/commit-msg`, `pre-push`, `pre-rebase`, ao lado do

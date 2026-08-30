@@ -4,8 +4,8 @@
 |---|---|
 | Módulo | Conformidade |
 | Documento | Architecture |
-| Versão | 0.4.0 |
-| Data | 28-08-2026 |
+| Versão | 0.5.0 |
+| Data | 29-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
 > Descreve como o módulo é construído por dentro — layout de arquivos,
@@ -72,6 +72,17 @@ o gancho real que aplica.
   entra). Pendência de formalizar, aqui, decisões estruturais já
   tomadas antes deste módulo existir como módulo — ver
   [`tasks.md`](tasks.md).
+- `.claude/agents/` -- um assistente por assunto que depende de
+  julgamento, chamado manualmente (ver
+  [decisions/0020](<../decisions/0020-revisao-de-pr-por-assistentes-chamados-manualmente.md>)):
+  `revisor-referencias-cruzadas.md`, `revisor-testes.md`,
+  `revisor-visao-de-conjunto.md`, `revisor-valores-fixos.md` -- o que
+  cada um olha está descrito no próprio arquivo dele, fonte única.
+  `fiscal-claude-md.md`, já existente antes desta rodada, cobre outro
+  papel (retrato do meio de uma tarefa, não revisão de PR).
+- `.claude/skills/revisar-pr/` -- comando que chama os quatro
+  revisores acima de uma vez, em paralelo. Cada um também pode ser
+  chamado sozinho, pelo nome, numa conversa normal.
 
 ## Controle de versão
 
@@ -80,3 +91,4 @@ o gancho real que aplica.
 | 0.1.0 | 27-08-2026 | Criação inicial -- aponta pro layout já descrito em `MANUAL.md`, acrescenta só a pasta `decisions/` própria do módulo. | Criação inicial do módulo |
 | 0.2.0 | 28-08-2026 | Layout reescrito direto (sem apontar pras seções antigas de MANUAL.md, que virou um índice por faixa de linha do CLAUDE.md, não mais numerado por seção) -- lista completa dos arquivos reais, incluindo session_start_import_check.sh, novo nesta rodada. | Segunda rodada de correção do sistema de conformidade |
 | 0.4.0 | 28-08-2026 | Acrescentado `pre_preview_check.sh` à lista de arquivos. | Resolução de [decisions/0014](<../decisions/0014-remocao-dos-ganchos-tipo-agent-substituidos-por-script-mais-confirmacao.md>) |
+| 0.5.0 | 29-08-2026 | Acrescentados os quatro revisores de PR (`.claude/agents/`) e o comando que os chama juntos (`.claude/skills/revisar-pr/`). | Resolução de [decisions/0020](<../decisions/0020-revisao-de-pr-por-assistentes-chamados-manualmente.md>) |

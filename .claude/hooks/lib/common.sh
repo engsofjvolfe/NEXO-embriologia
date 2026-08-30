@@ -16,6 +16,7 @@ CONFIRM_DIR="${STATE_DIR}/confirmations"
 OVERRIDES_LOG="${STATE_DIR}/overrides.log"
 EDIT_LOG="${STATE_DIR}/edit-order.log"
 PREVIEW_LOG="${STATE_DIR}/preview-sessions.log"
+PR_REVIEW_LOG="${STATE_DIR}/pr-review-log.txt"
 SYNTHESIS_FILE="${STATE_DIR}/synthesis.json"
 
 mkdir -p "$STATE_DIR" "$CONFIRM_DIR"

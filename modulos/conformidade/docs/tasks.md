@@ -4,7 +4,7 @@
 |---|---|
 | Módulo | Conformidade |
 | Documento | Tasks |
-| Versão | 0.9.0 |
+| Versão | 0.10.0 |
 | Data | 29-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
@@ -202,6 +202,27 @@
       e
       [decisions/0018](<../decisions/0018-frases-de-confirmacao-toleram-virgula-opcional.md>).
 
+- [ ] **Confirmar ao vivo, numa sessão nova, os quatro revisores de PR,
+      o comando que os chama juntos, e o gancho novo em `gh pr create`.**
+
+      *Resumo simples:* os quatro assistentes de revisão de PR, o
+      comando que os dispara juntos, e o gancho que confere se a
+      revisão já rodou antes de abrir o PR foram escritos e conferidos
+      por sintaxe, mas nenhum foi chamado de verdade ainda -- mesma
+      limitação já registrada em
+      [pitfalls.md](<pitfalls.md#2026-08-27-configuracao-de-ganchos-nao-recarrega-na-mesma-sessao>):
+      a sessão que escreve uma mudança em `.claude/` não vê essa
+      mudança valendo de verdade nela mesma.
+
+      *Detalhe técnico:* ver
+      [decisions/0020](<../decisions/0020-revisao-de-pr-por-assistentes-chamados-manualmente.md>).
+      Confirmar, numa sessão nova: (1) cada um dos quatro assistentes
+      roda quando chamado pelo nome; (2) o comando dispara os quatro em
+      paralelo e junta o resultado; (3) `pre_pr_review_check.sh`
+      bloqueia `gh pr create` quando não há revisão registrada, ou
+      quando a última revisão é anterior à última edição, e libera
+      quando a revisão está em dia.
+
 ## Resolvidas
 
 - [x] **Corrigir `scripts/hooks/pre-commit` nunca detectando subida de
@@ -240,3 +261,4 @@
 | 0.7.0 | 29-08-2026 | Três pendências novas acrescentadas: dois relatos de outra sessão não reproduzidos nesta rodada (`pre_git_rules.sh`, frase de confirmação de commit); confirmação de ponta a ponta dos mecanismos corrigidos nesta rodada (decisions/0015 a 0017). | Correção de falsos bloqueios reportados de outra sessão + pedido de janela de frescor maior |
 | 0.8.0 | 29-08-2026 | Pendência da frase de confirmação de commit resolvida -- ver decisions/0018. | Resolução de [decisions/0018](<../decisions/0018-frases-de-confirmacao-toleram-virgula-opcional.md>) |
 | 0.9.0 | 29-08-2026 | Pendência nova resolvida na mesma rodada: `scripts/hooks/pre-commit` corrigido -- ver decisions/0019. | Resolução de [decisions/0019](<../decisions/0019-deteccao-de-versao-subida-em-documento-so-com-changelog.md>) |
+| 0.10.0 | 29-08-2026 | Pendência nova acrescentada: confirmação ao vivo dos quatro revisores de PR, do comando que os chama juntos, e do gancho novo em `gh pr create`. | Resolução de [decisions/0020](<../decisions/0020-revisao-de-pr-por-assistentes-chamados-manualmente.md>) |

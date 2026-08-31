@@ -50,7 +50,15 @@
       escrita em `content` e deixe a pessoa importar um pacote ali só
       pra checar e corrigir erros, antes de instalar de verdade no
       aplicativo — cada opção com seu próprio custo de construção,
-      nenhuma escolhida ainda.
+      nenhuma escolhida ainda. Sem relação com o desenho desta
+      ferramenta em si (assunto diferente: aqui é sobre montar e
+      validar um pacote de conteúdo, não sobre desenhar tela), mas
+      [modulos/motor/decisions/0036](<modulos/motor/decisions/0036-ferramenta-e-fidelidade-do-prototipo-navegavel.md>)
+      já comparou, com fonte oficial, o mesmo tipo de escolha de
+      ferramenta cogitada aqui pro "site simples" (página autocontida
+      — HTML/CSS/JavaScript, sem servidor, sem conta externa, sem
+      custo) — precedente a conferir quando esta pendência for
+      decidida de verdade, nunca uma resposta já pronta pra ela.
 
 - [ ] **Encontrar forma de importar automaticamente os seis documentos
       com espaço no nome (cascata VMODEL numerada + `prompt

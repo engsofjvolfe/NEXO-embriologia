@@ -103,9 +103,10 @@ de documentos e o `README.md` já estabelecem.
 **Nota de acompanhamento (30-08-2026):**
 
 *Resumo simples:* o valor exato da aparência (cor, fonte, layout), que este ADR registrava acima
-como ainda sem decisão, já foi decidido — das quatro etapas do método citadas acima, as três
-primeiras já estão prontas; só a quarta (protótipo navegável) segue pendente.
+como ainda sem decisão, já foi decidido — as quatro etapas do método citadas acima estão prontas.
 
 *Detalhe técnico:* etapa 2 (wireframe) resolvida em `design/wireframe.md`; etapa 3 (sistema visual)
-resolvida em [decisions/0035](0035-sistema-visual-cor-tipografia-forma-contraste.md), que carrega o
-detalhe exato (nunca repetido aqui). Só a etapa 4 segue como pendência, registrada em `tasks.md`.
+resolvida em [decisions/0035](0035-sistema-visual-cor-tipografia-forma-contraste.md); etapa 4
+(protótipo navegável e avaliação) resolvida em
+[decisions/0036](0036-ferramenta-e-fidelidade-do-prototipo-navegavel.md) — cada uma carrega o
+detalhe exato, nunca repetido aqui.

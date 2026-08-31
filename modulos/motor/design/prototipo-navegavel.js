@@ -32,9 +32,19 @@ const instanciaExemplo = {
    (decisions/0032) — nenhuma das três envolve decisão real, mesmo tratamento pras três */
 const ESTADOS_COM_TOQUE_LIVRE_PARA_AGUARDANDO = ["AttemptRejected", "HintShown", "StudySuggestionShown"];
 
+/* valores de exemplo deste protótipo pros três parâmetros de configuração da sessão (EI-NAV-05) —
+   nomeados aqui (em vez de literais espalhados) só pra não haver risco de o texto exibido e a lógica
+   de simulação ficarem fora de sincronia; nenhum dos três é um valor-padrão do motor em si — RF-CFG-01/
+   RF-DIC-04/RF-PAU-06 proíbem o motor de impor qualquer padrão, cada sessão real escolhe o próprio */
+const LIMIAR_ERRO_DICA_EXEMPLO = 3;
+const LIMIAR_ERRO_SUGESTAO_ESTUDO_EXEMPLO = 6;
+const TEMPO_OCIOSIDADE_EXEMPLO_SEGUNDOS = 60;
+
 let estado = {
   tela: "carregando",      // paused | nav | config | session | resultado | importar | consentimento
   temaAberto: null,
+  temaIndex: null,         // posição, dentro de instanciaExemplo.temas, da sessão em curso
+  eventoIndex: null,       // posição, dentro do tema acima, do evento em curso — permite saber se há próximo
   eventoAlvoConfig: null,
   eventoTabletSelecionado: 0,
   sessionSubEstado: "Reference", // 8 estados de SessionScreen (decisions/0022)
@@ -42,7 +52,10 @@ let estado = {
   totalPosicoes: 4,
   errosSeguidos: 0,
   saiuPedido: false,
-  conexao: "conectado" // conectado | procurando | desconectado | null (sem acessório)
+  conexao: "conectado", // conectado | procurando | desconectado | null (sem acessório)
+  limiarDica: LIMIAR_ERRO_DICA_EXEMPLO,
+  limiarSugestaoEstudo: LIMIAR_ERRO_SUGESTAO_ESTUDO_EXEMPLO,
+  tempoOciosidadeSegundos: TEMPO_OCIOSIDADE_EXEMPLO_SEGUNDOS
 };
 
 function aoAbrirApp(){
@@ -58,14 +71,20 @@ function irPara(tela, extra){
 
 /* ---------- fragmentos reaproveitados entre telas (DRY) ---------- */
 
-// EI-NAV-05: os três campos de configuração de um evento são os mesmos,
-// esteja a tela em leiaute de celular ou de tablet (decisions/0033).
+// EI-NAV-05: os três campos de configuração de um evento são os mesmos, esteja a tela em leiaute
+// de celular ou de tablet (decisions/0033) — os três são campo editável de verdade (não texto fixo),
+// já que EI-CFG-01/RF-DIC-04/RF-PAU-06 tratam os três como igualmente escolhidos por quem inicia a
+// sessão, nunca impostos pelo motor; mesmo nível de interatividade que "Pular disponível" já tinha.
 function blocoConfigEvento(nomeEvento){
   return `
     <strong>${nomeEvento}</strong>
     <div class="linha-campo"><span>Pular disponível</span><input type="checkbox" checked></div>
-    <div class="linha-campo"><span>Limiar de erro — dica</span><span>3</span></div>
-    <div class="linha-campo"><span>Limiar de erro — sugestão de estudo</span><span>6</span></div>`;
+    <div class="linha-campo"><span>Limiar de erro — dica</span>
+      <input type="number" min="1" value="${estado.limiarDica}"
+             onchange="estado.limiarDica=Number(this.value)||${LIMIAR_ERRO_DICA_EXEMPLO}"></div>
+    <div class="linha-campo"><span>Limiar de erro — sugestão de estudo</span>
+      <input type="number" min="1" value="${estado.limiarSugestaoEstudo}"
+             onchange="estado.limiarSugestaoEstudo=Number(this.value)||${LIMIAR_ERRO_SUGESTAO_ESTUDO_EXEMPLO}"></div>`;
 }
 
 // Negativa, dica e sugestão de estudo não têm decisão real (RF-DIC-01, RF-DIC-03) —
@@ -79,11 +98,31 @@ function corpoComToqueLivreParaAguardando(rotulo, texto){
     </div>`;
 }
 
-// Fim de evento (com ou sem pulo): o mesmo botão, só o texto muda conforme
-// existir ou não próximo evento na cadeia (decisions/0022, ponto 2). Este
-// protótipo cobre só o caso "sem próximo evento" (hasNextEvent = false).
+// EI-ENC-01/EI-ENC-02: existindo próximo evento na cadeia, o botão continua pra ele (direto pra
+// "Aguardando tentativa", sem tela de referência própria); sem próximo evento, vai pro resultado.
+function eventoAtualTemProximo(){
+  if (estado.temaIndex === null || estado.eventoIndex === null) return false;
+  return estado.eventoIndex < instanciaExemplo.temas[estado.temaIndex].eventos.length - 1;
+}
+
 function rodapeContinuarOuVerResultado(){
-  return `<div class="rodape-app"><div></div><button class="acao primario" onclick="irPara('resultado')">Ver resultado</button></div>`;
+  return eventoAtualTemProximo()
+    ? `<div class="rodape-app"><div></div><button class="acao primario" onclick="continuarProximoEvento()">Continuar</button></div>`
+    : `<div class="rodape-app"><div></div><button class="acao primario" onclick="irPara('resultado')">Ver resultado</button></div>`;
+}
+
+function continuarProximoEvento(){
+  estado.eventoIndex++;
+  const proximoEvento = instanciaExemplo.temas[estado.temaIndex].eventos[estado.eventoIndex];
+  // EI-ENC-02: "a próxima peça já é aguardada, sem nenhuma imagem de transição" — vai direto pra
+  // AwaitingAttempt, nunca por uma tela de Referência própria do novo evento.
+  irPara("session", {
+    sessionSubEstado: "AwaitingAttempt",
+    posicaoAtual: 1,
+    totalPosicoes: proximoEvento.frames,
+    errosSeguidos: 0,
+    eventoAlvoConfig: proximoEvento.nome
+  });
 }
 
 /* ---------- render principal ---------- */
@@ -169,6 +208,8 @@ function telaNavegacao(){
 
 function abrirEvento(indiceTema, indiceEvento){
   const evento = instanciaExemplo.temas[indiceTema].eventos[indiceEvento];
+  estado.temaIndex = indiceTema;
+  estado.eventoIndex = indiceEvento;
   estado.eventoAlvoConfig = evento.nome;
   estado.totalPosicoes = evento.frames;
   irPara("config");
@@ -186,7 +227,9 @@ function telaConfiguracaoDaSessao(){
         <div class="rotulo-secao">Começar em</div>
         <div class="linha-campo"><label><input type="radio" name="inicio" checked> Posição 1 (padrão)</label></div>
         <div class="rotulo-secao">Tempo de ociosidade (sessão inteira)</div>
-        <div class="linha-campo"><span>Pausar sozinho após</span><span>60s</span></div>
+        <div class="linha-campo"><span>Pausar sozinho após (segundos)</span>
+          <input type="number" min="1" value="${estado.tempoOciosidadeSegundos}"
+                 onchange="estado.tempoOciosidadeSegundos=Number(this.value)||${TEMPO_OCIOSIDADE_EXEMPLO_SEGUNDOS}"></div>
       </div>
       <div class="duas-colunas-tablet">
         <div class="coluna-lista-eventos">
@@ -211,7 +254,9 @@ function telaConfiguracaoDaSessao(){
         <div class="rotulo-secao">Eventos desta sessão</div>
         <div class="bloco-evento-config">${blocoConfigEvento(nomeEvento)}</div>
         <div class="rotulo-secao">Tempo de ociosidade (sessão inteira)</div>
-        <div class="linha-campo"><span>Pausar sozinho após</span><span>60s</span></div>
+        <div class="linha-campo"><span>Pausar sozinho após (segundos)</span>
+          <input type="number" min="1" value="${estado.tempoOciosidadeSegundos}"
+                 onchange="estado.tempoOciosidadeSegundos=Number(this.value)||${TEMPO_OCIOSIDADE_EXEMPLO_SEGUNDOS}"></div>
       </div>
       <div class="rodape-fixo-fone">
         <button class="acao primario" style="width:100%" onclick="${iniciarSessao}">Iniciar sessão</button>
@@ -335,11 +380,9 @@ function simuladorDeSessao(){
 
 function simularErro(){
   estado.errosSeguidos++;
-  // limiares de exemplo deste protótipo (3 pra dica, 6 pra sugestão de estudo) — cada conteúdo
-  // real define os próprios, escolhidos na configuração da sessão (EI-DIC-04), nunca fixos no motor.
-  if (estado.errosSeguidos >= 6){
+  if (estado.errosSeguidos >= estado.limiarSugestaoEstudo){
     irPara("session", { sessionSubEstado: "StudySuggestionShown" });
-  } else if (estado.errosSeguidos >= 3){
+  } else if (estado.errosSeguidos >= estado.limiarDica){
     irPara("session", { sessionSubEstado: "HintShown" });
   } else {
     irPara("session", { sessionSubEstado: "AttemptRejected" });

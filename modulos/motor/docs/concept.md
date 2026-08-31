@@ -6,8 +6,8 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Concept |
-| Versão | 0.7.0 |
-| Data | 30-08-2026 |
+| Versão | 0.8.0 |
+| Data | 31-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
 > Descreve o desenho pretendido do módulo — o que ele deve ser e como
@@ -84,9 +84,10 @@ e adiadas:
 O valor exato da aparência (cor, fonte, posição de cada elemento) já
 está decidido — ver [decisions/0035](<../decisions/0035-sistema-visual-cor-tipografia-forma-contraste.md>)
 (sistema visual) e [`design/wireframe.md`](<../design/wireframe.md>)
-(posição de cada elemento). Só o passo final do método — montar um
-protótipo clicável e avaliar contra as boas práticas de usabilidade —
-segue como pendência em [`tasks.md`](tasks.md).
+(posição de cada elemento). O passo final do método — protótipo
+clicável e avaliação contra as boas práticas de usabilidade — também já
+está pronto, ver [decisions/0036](<../decisions/0036-ferramenta-e-fidelidade-do-prototipo-navegavel.md>)
+e [`design/avaliacao-heuristica.md`](<../design/avaliacao-heuristica.md>).
 O agrupamento das 17 entradas em telas físicas já está parcialmente
 resolvido: as 10 que são variações de conteúdo dentro da sessão em jogo
 formam uma tela só (`SessionScreen`, tipo fechado — ver
@@ -284,3 +285,4 @@ com o campo Versão da tabela de cabeçalho, que sempre reflete a
 | 0.4.0 | 18-08-2026 | Escopo corrigido: a aparência visual das telas passa de "fora do escopo" para "dentro do escopo" deste módulo — casca única, compartilhada por toda instância, nunca desenhada por instância nem em módulo separado; motivo completo em [decisions/0029](<../decisions/0029-aparencia-visual-das-telas-mora-no-motor.md>). | Resolução de [decisions/0029](<../decisions/0029-aparencia-visual-das-telas-mora-no-motor.md>) |
 | 0.6.0 | 22-08-2026 | Precisado o agrupamento das 17 entradas de tela: 10 delas (variações de conteúdo dentro da sessão em jogo) já têm o agrupamento em telas físicas fechado desde [decisions/0022](<../decisions/0022-conteudo-do-estado-exposto-pelo-viewmodel.md>); só as outras 7 seguem sem essa decisão. | Revisão da pendência de desenho visual, na mesma sessão de [decisions/0030](<../decisions/0030-padrao-de-navegacao-hierarquica-de-conteudo.md>) |
 | 0.7.0 | 30-08-2026 | Corrigidas duas frases desatualizadas: a aparência visual (cor, fonte, layout) não estava mais "sem decisão" desde [decisions/0035](<../decisions/0035-sistema-visual-cor-tipografia-forma-contraste.md>) e `design/wireframe.md`, mas o texto ainda dizia isso, em dois lugares (seção Escopo e tabela da seção Fluxo). | Auditoria de leitura completa antes da tarefa do protótipo navegável |
+| 0.8.0 | 31-08-2026 | Corrigida frase que ainda dizia "o passo final do método... segue como pendência" — o protótipo navegável e a avaliação heurística, resolvidos na mesma tarefa que escreveu a versão anterior deste documento, nunca tinham sido refletidos aqui. | Achado na revisão de PR (revisor-visao-de-conjunto) |

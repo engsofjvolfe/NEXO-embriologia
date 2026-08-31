@@ -6,8 +6,8 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Tasks |
-| Versão | 0.55.0 |
-| Data | 30-08-2026 |
+| Versão | 0.56.0 |
+| Data | 31-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
 > Lista mutável de pendências só deste módulo. Lida depois de
@@ -555,9 +555,9 @@ Convenção dos códigos citados aqui:
       [design/avaliacao-heuristica.md](<../design/avaliacao-heuristica.md>) —
       dois pontos de atenção registrados, nenhum exigindo revisão de
       decisão já fechada. Testado ao vivo: navegador real (Microsoft
-      Edge) em modo sem interface, roteiro cobrindo navegação, acordeão,
-      configuração de sessão (celular e tablet), os oito estados do
-      `SessionScreen`, resultado e importação, sem erro de execução.
+      Edge) em modo sem interface, com asserções específicas contra o
+      comportamento já documentado — ver
+      [analysis.md](<analysis.md#2026-08-31-verificacao-do-prototipo-navegavel-apos-revisao-de-pr>).
 
 ## Referências
 
@@ -661,3 +661,4 @@ como mudança de conteúdo real. -->
 | 0.53.0 | 30-08-2026 | Correção de link. | Correção de link |
 | 0.54.0 | 30-08-2026 | Pendência "Aplicar o sistema visual (Material Design) sobre o esqueleto de tela já pronto" resolvida — movida para Resolvidas. Pendência "Montar o protótipo navegável..." perde o bloqueio. | Resolução de [decisions/0035](<../decisions/0035-sistema-visual-cor-tipografia-forma-contraste.md>) |
 | 0.55.0 | 30-08-2026 | Pendência "Montar o protótipo navegável e avaliar contra as boas práticas de usabilidade" resolvida — movida para Resolvidas, fechando as quatro etapas do método de desenho visual. Pendência nova "Escrever o código real das telas do módulo `app` (Jetpack Compose) e ligar tudo" acrescentada em seu lugar — a implementação de tela em si nunca tinha pendência própria registrada. | Resolução de [decisions/0036](<../decisions/0036-ferramenta-e-fidelidade-do-prototipo-navegavel.md>) |
+| 0.56.0 | 31-08-2026 | Nota de teste do item resolvido "Montar o protótipo navegável..." trocada por ponteiro pra `analysis.md`, com o detalhe das asserções específicas usadas na revisão pós-`/revisar-pr` (antes só dizia "sem erro de execução"). | Verificação com asserções específicas, ver [analysis.md](<analysis.md#2026-08-31-verificacao-do-prototipo-navegavel-apos-revisao-de-pr>) |

@@ -14,8 +14,9 @@
 - [ ] **Continuar a implementação do módulo motor.**
 
       *Resumo simples:* o módulo já tem desenho de código, contrato de
-      dado e decisões de linguagem — falta o código em si, os testes,
-      e o desenho visual das telas.
+      dado, decisões de linguagem e o desenho visual das telas
+      (protótipo navegável já avaliado) — falta o código real das
+      telas e os testes.
 
       *Detalhe técnico:* ver
       [modulos/motor/docs/tasks.md, Em aberto](modulos/motor/docs/tasks.md#em-aberto)

@@ -6,8 +6,8 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Concept |
-| Versão | 0.6.0 |
-| Data | 22-08-2026 |
+| Versão | 0.7.0 |
+| Data | 30-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
 > Descreve o desenho pretendido do módulo — o que ele deve ser e como
@@ -81,8 +81,12 @@ própria em `architecture.md` (ver [Interface](architecture.md#interface))
 — não vira módulo separado. Motivo completo, alternativas descartadas
 e adiadas:
 [decisions/0029](<../decisions/0029-aparencia-visual-das-telas-mora-no-motor.md>).
-O valor exato da aparência (cor, fonte, posição de cada elemento)
-continua sem decisão, registrado como pendência em [`tasks.md`](tasks.md).
+O valor exato da aparência (cor, fonte, posição de cada elemento) já
+está decidido — ver [decisions/0035](<../decisions/0035-sistema-visual-cor-tipografia-forma-contraste.md>)
+(sistema visual) e [`design/wireframe.md`](<../design/wireframe.md>)
+(posição de cada elemento). Só o passo final do método — montar um
+protótipo clicável e avaliar contra as boas práticas de usabilidade —
+segue como pendência em [`tasks.md`](tasks.md).
 O agrupamento das 17 entradas em telas físicas já está parcialmente
 resolvido: as 10 que são variações de conteúdo dentro da sessão em jogo
 formam uma tela só (`SessionScreen`, tipo fechado — ver
@@ -113,7 +117,8 @@ cascata já aprovada:
 | Requisitos funcionais e não funcionais derivados dessa mecânica | [`2 - requisitos-conceito-geral.md`](<../../../docs/docs-VMODEL-visao-geral/2 - requisitos-conceito-geral.md>) |
 | Regra de comportamento concreta por trás de cada requisito | [`3 - especificacao-conceito-geral.md`](<../../../docs/docs-VMODEL-visao-geral/3 - especificacao-conceito-geral.md>) |
 | Componentes físicos e lógicos, conectividade, armazenamento | [`4 - projeto-arquitetonico.md`](<../../../docs/docs-VMODEL-visao-geral/4 - projeto-arquitetonico.md>) |
-| Quais telas existem e o que cada uma mostra (nunca a aparência visual — cor, fonte, layout — ver pendência em [`tasks.md`](tasks.md)) | [`4 - projeto-arquitetonico.md`](<../../../docs/docs-VMODEL-visao-geral/4 - projeto-arquitetonico.md>), seção 6.6 |
+| Quais telas existem e o que cada uma mostra | [`4 - projeto-arquitetonico.md`](<../../../docs/docs-VMODEL-visao-geral/4 - projeto-arquitetonico.md>), seção 6.6 |
+| Aparência visual — cor, fonte, layout — já decidida (nunca fixada nesta cascata; é decisão do módulo, ver acima) | [decisions/0035](<../decisions/0035-sistema-visual-cor-tipografia-forma-contraste.md>) e [`design/wireframe.md`](<../design/wireframe.md>) |
 | Peça exata de cada componente (chip, serviço Bluetooth, esquema de arquivo, algoritmo de busca) | [`5 - projeto-detalhado.md`](<../../../docs/docs-VMODEL-visao-geral/5 - projeto-detalhado.md>) |
 
 Qualquer mudança de comportamento do motor começa por essa cascata, não
@@ -278,3 +283,4 @@ com o campo Versão da tabela de cabeçalho, que sempre reflete a
 | 0.3.0 | 15-08-2026 | `schema_version` do contrato de dado sobe de `1.0.0` para `2.0.0`: campo novo `summary_fragment`, obrigatório, em `frame` — mudança que quebra compatibilidade com pacotes de conteúdo já válidos na versão anterior. | Resolução de [decisions/0021](<../decisions/0021-quem-monta-o-texto-de-resumo-e-sintese.md>) |
 | 0.4.0 | 18-08-2026 | Escopo corrigido: a aparência visual das telas passa de "fora do escopo" para "dentro do escopo" deste módulo — casca única, compartilhada por toda instância, nunca desenhada por instância nem em módulo separado; motivo completo em [decisions/0029](<../decisions/0029-aparencia-visual-das-telas-mora-no-motor.md>). | Resolução de [decisions/0029](<../decisions/0029-aparencia-visual-das-telas-mora-no-motor.md>) |
 | 0.6.0 | 22-08-2026 | Precisado o agrupamento das 17 entradas de tela: 10 delas (variações de conteúdo dentro da sessão em jogo) já têm o agrupamento em telas físicas fechado desde [decisions/0022](<../decisions/0022-conteudo-do-estado-exposto-pelo-viewmodel.md>); só as outras 7 seguem sem essa decisão. | Revisão da pendência de desenho visual, na mesma sessão de [decisions/0030](<../decisions/0030-padrao-de-navegacao-hierarquica-de-conteudo.md>) |
+| 0.7.0 | 30-08-2026 | Corrigidas duas frases desatualizadas: a aparência visual (cor, fonte, layout) não estava mais "sem decisão" desde [decisions/0035](<../decisions/0035-sistema-visual-cor-tipografia-forma-contraste.md>) e `design/wireframe.md`, mas o texto ainda dizia isso, em dois lugares (seção Escopo e tabela da seção Fluxo). | Auditoria de leitura completa antes da tarefa do protótipo navegável |

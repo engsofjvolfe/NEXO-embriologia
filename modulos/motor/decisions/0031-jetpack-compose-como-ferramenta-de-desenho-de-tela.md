@@ -97,6 +97,11 @@ tela hoje. Existe interoperabilidade oficial entre Compose e Views
 (`views-in-compose`/`compose-in-views`), mas ela não é exigida aqui,
 já que não há tela em nenhuma das duas tecnologias pra interoperar.
 
+**Nota de acompanhamento (30-08-2026):** cor, fonte, layout e o
+agrupamento das 7 telas de navegação, citados acima como pendentes, já
+foram decididos — ver `design/wireframe.md` e
+[decisions/0035](<0035-sistema-visual-cor-tipografia-forma-contraste.md>).
+
 ## Referências
 
 BUTCHER, Nick. **Android UI development is Compose First**. Android

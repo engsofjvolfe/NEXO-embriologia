@@ -6,7 +6,7 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Tasks |
-| Versão | 0.54.0 |
+| Versão | 0.55.0 |
 | Data | 30-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
@@ -171,22 +171,33 @@ Convenção dos códigos citados aqui:
       terceiro (ANATEL), pode mudar — reconfirmar na fonte oficial
       antes de agir (comprar homologação, iniciar processo).
 
-- [ ] **Montar o protótipo navegável e avaliar contra as boas práticas
-      de usabilidade.**
+- [ ] **Escrever o código real das telas do módulo `app` (Jetpack
+      Compose) e ligar tudo — telas, `SessionViewModel`, `core`.**
 
-      *Resumo simples:* último passo do método — depois que a aparência
-      de verdade estiver aplicada, montar uma versão clicável das telas
-      e checar se ela segue as boas práticas de usabilidade já usadas
-      como referência neste módulo.
+      *Resumo simples:* o método de desenho visual (arquitetura de
+      informação, esqueleto, cor/fonte, protótipo clicável) está
+      inteiramente concluído — falta escrever o código de verdade das
+      17 entradas de tela, em Kotlin/Compose, e conectar cada uma ao
+      que já existe por baixo (`SessionViewModel`, `core/session`,
+      `core/content`, etc.). O protótipo navegável (HTML) não vira
+      código nenhum — é só a maquete que validou o desenho antes desta
+      etapa.
 
-      *Detalhe técnico:* passo 4 do método
-      ([architecture.md, Interface](<architecture.md#interface>)) —
-      avaliação contra as heurísticas de usabilidade do Nielsen Norman
-      Group (NIELSEN, 1994), mesma fonte já citada em
+      *Detalhe técnico:* implementa, em Jetpack Compose
+      ([decisions/0031](<../decisions/0031-jetpack-compose-como-ferramenta-de-desenho-de-tela.md>)),
+      o leiaute já fechado em
+      [design/wireframe.md](<../design/wireframe.md>), o sistema visual
+      de
+      [decisions/0035](<../decisions/0035-sistema-visual-cor-tipografia-forma-contraste.md>),
+      o gatilho de toque de
       [decisions/0032](<../decisions/0032-gatilho-de-toque-entre-estados-do-sessionscreen.md>)
-      e em
-      [architecture.md, Referências](<architecture.md#referências>).
-      Sem trabalho iniciado.
+      e o acordeão de
+      [decisions/0030](<../decisions/0030-padrao-de-navegacao-hierarquica-de-conteudo.md>)/[decisions/0034](<../decisions/0034-mecanismo-de-carregamento-preguicoso-do-acordeao-de-navegacao.md>).
+      Cada tela consome o `uiState: StateFlow<SessionUiState>` e chama
+      os métodos já existentes do `SessionViewModel` (ver
+      [architecture.md, Ligação com o núcleo do
+      motor](<architecture.md#ligação-com-o-núcleo-do-motor>)) — nenhuma
+      lógica nova de sessão, só a tela em si. Sem trabalho iniciado.
 
 - [ ] **Escrever os testes instrumentados de `ReportPdfRenderer.kt` e
       do caminho antigo de `ReportFileWriter.kt` (Android 7 a 9).**
@@ -532,7 +543,21 @@ Convenção dos códigos citados aqui:
       tela já pronto.** Resolvido — ver
       [decisions/0035](<../decisions/0035-sistema-visual-cor-tipografia-forma-contraste.md>).
       Desbloqueia a pendência "Montar o protótipo navegável e avaliar
-      contra as boas práticas de usabilidade", acima.
+      contra as boas práticas de usabilidade", abaixo.
+- [x] **Montar o protótipo navegável e avaliar contra as boas práticas
+      de usabilidade.** Resolvido — fecha o passo 4 (e último) do método
+      de desenho visual. Ferramenta e fidelidade decididas em
+      [decisions/0036](<../decisions/0036-ferramenta-e-fidelidade-do-prototipo-navegavel.md>)
+      (HTML/CSS/JavaScript autocontido, sem biblioteca externa, cor e
+      leiaute reais). Protótipo em
+      [design/prototipo-navegavel.html](<../design/prototipo-navegavel.html>);
+      avaliação contra as dez heurísticas de Nielsen em
+      [design/avaliacao-heuristica.md](<../design/avaliacao-heuristica.md>) —
+      dois pontos de atenção registrados, nenhum exigindo revisão de
+      decisão já fechada. Testado ao vivo: navegador real (Microsoft
+      Edge) em modo sem interface, roteiro cobrindo navegação, acordeão,
+      configuração de sessão (celular e tablet), os oito estados do
+      `SessionScreen`, resultado e importação, sem erro de execução.
 
 ## Referências
 
@@ -635,3 +660,4 @@ como mudança de conteúdo real. -->
 | 0.52.0 | 30-08-2026 | Pendência "Desenhar o esqueleto das 16 entradas de tela restantes" resolvida — movida para Resolvidas. Ponteiro de bloqueio da pendência "Aplicar o sistema visual (Material Design)" atualizado. | Criação de [wireframe.md](../design/wireframe.md) |
 | 0.53.0 | 30-08-2026 | Correção de link. | Correção de link |
 | 0.54.0 | 30-08-2026 | Pendência "Aplicar o sistema visual (Material Design) sobre o esqueleto de tela já pronto" resolvida — movida para Resolvidas. Pendência "Montar o protótipo navegável..." perde o bloqueio. | Resolução de [decisions/0035](<../decisions/0035-sistema-visual-cor-tipografia-forma-contraste.md>) |
+| 0.55.0 | 30-08-2026 | Pendência "Montar o protótipo navegável e avaliar contra as boas práticas de usabilidade" resolvida — movida para Resolvidas, fechando as quatro etapas do método de desenho visual. Pendência nova "Escrever o código real das telas do módulo `app` (Jetpack Compose) e ligar tudo" acrescentada em seu lugar — a implementação de tela em si nunca tinha pendência própria registrada. | Resolução de [decisions/0036](<../decisions/0036-ferramenta-e-fidelidade-do-prototipo-navegavel.md>) |

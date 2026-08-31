@@ -6,7 +6,7 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Analysis |
-| Versão | 0.22.0 |
+| Versão | 0.23.0 |
 | Data | 30-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
@@ -1056,6 +1056,39 @@ protótipo).
   parte formal do molde (`_template/`), valendo pra qualquer módulo
   futuro, não só o motor — decisão ainda não tomada.
 
+### <a id="2026-08-30-auditoria-de-desenho-visual-antes-do-prototipo"></a>2026-08-30 — Auditoria de leitura completa antes da tarefa do protótipo navegável
+
+**Levou a:** correções diretas em `concept.md` e `architecture.md`, e notas de acompanhamento em
+[decisions/0029](<../decisions/0029-aparencia-visual-das-telas-mora-no-motor.md>),
+[decisions/0030](<../decisions/0030-padrao-de-navegacao-hierarquica-de-conteudo.md>) e
+[decisions/0031](<../decisions/0031-jetpack-compose-como-ferramenta-de-desenho-de-tela.md>)
+
+*Resumo simples:* antes de montar o protótipo navegável (passo 4 do método de desenho visual),
+leitura obrigatória completa de todo documento do módulo ligado à aparência das telas revelou frase
+desatualizada em cinco lugares — cada uma escrita antes de uma decisão posterior
+([decisions/0035](<../decisions/0035-sistema-visual-cor-tipografia-forma-contraste.md>),
+`design/wireframe.md`) resolver o que elas ainda descreviam como pendente. Nenhuma correção
+envolveu escolher entre alternativas novas — só reconectar texto antigo a uma decisão já tomada,
+mesmo padrão já registrado na investigação de
+[22-08-2026](<#2026-08-22-padrao-de-navegacao-hierarquica-e-revisao-das-pendencias-de-tela>).
+
+*Detalhe técnico:*
+- `concept.md`: duas frases corrigidas (seção Escopo e tabela da seção Fluxo) — apontam agora pra
+  `decisions/0035` e `design/wireframe.md`, em vez de tratar a aparência como sem decisão.
+- `architecture.md`, seção Interface: três trechos corrigidos — a mesma frase de aparência sem
+  decisão; o lembrete de que a posição do indicador de conexão Bluetooth ainda precisava ser
+  desenhada (já fechada em `design/wireframe.md`); e "nenhuma das quatro etapas foi concluída" (só a
+  quarta, protótipo navegável, seguia pendente).
+- `decisions/0029`, `0030` e `0031` já estavam aceitos — a correção entrou como nota de
+  acompanhamento datada, nunca reescrevendo a Decisão nem o texto original de Consequências, mesma
+  regra já usada em `decisions/0019`/`0025`.
+- `decisions/0034` conferida e deixada como está: a frase ali ("fica para a implementação, quando a
+  pendência... chegar") descreve escrita de código, que de fato continua pendente — não é o mesmo
+  tipo de desatualização das demais.
+- Pasta `Design/` (rascunho de outro ambiente de trabalho, já citado em `decisions/0033`) lida por
+  completo nesta sessão, sem usar nenhum conteúdo dela nesta auditoria — nenhuma correção acima se
+  apoia nela.
+
 ## Controle de versão
 
 <!-- uma linha por versão publicada deste documento, mais antiga no
@@ -1087,3 +1120,4 @@ sem reescrever) também conta como mudança de conteúdo real. -->
 | 0.20.0 | 22-08-2026 | Estendida a mesma investigação: o achado sobre o Grupo B não estava isolado em `tasks.md` — a mesma frase imprecisa se repetia em mais quatro lugares. Critério corrigido: o que separa nota de acompanhamento de correção direta é a data (a informação certa já existia antes daquele texto ser escrito?), não se a worktree já foi mesclada — `decisions/0031` tinha ganhado nota de acompanhamento por engano, corrigido depois de checar a data de verdade. | Auditoria completa por `grep` da frase exata e checagem de data por commit, ao reconciliar esta worktree com `develop` |
 | 0.21.0 | 30-08-2026 | Acrescentada a investigação do sistema visual (Material Design), acessibilidade e cor semente — cinco dos sete pontos do passo 3 já decididos em conversa; artigo de psicologia da cor lido por completo e descartado como base de decisão, por pedido explícito do próprio artigo; seis combinações de cor semente comparadas numa página própria, escolha entre duas delas ainda em aberto. | Pesquisa pro passo 3 do método de desenho visual já registrado em `architecture.md` |
 | 0.22.0 | 30-08-2026 | Acrescentadas três entradas: fechamento da escolha da cor semente (com fonte oficial nova sobre orientação de marca do Google), nota de acompanhamento sobre a entrada anterior ter ficado desatualizada, e a reorganização de `wireframe.md`/`cor-semente-candidatas.html` pra uma pasta nova (`design/`). | Resolução de [decisions/0035](<../decisions/0035-sistema-visual-cor-tipografia-forma-contraste.md>); correção estrutural de pasta do módulo |
+| 0.23.0 | 30-08-2026 | Acrescentada a auditoria de leitura completa que precedeu a tarefa do protótipo navegável — cinco frases desatualizadas sobre aparência visual encontradas e corrigidas em `concept.md`, `architecture.md` e três ADRs (nota de acompanhamento). | Preparação pra "Montar o protótipo navegável", em `tasks.md` |

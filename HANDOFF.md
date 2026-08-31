@@ -106,8 +106,6 @@
   mora dentro do próprio módulo, numa casca única compartilhada por
   toda instância, nunca num módulo separado — ver
   [modulos/motor/decisions/0029](<modulos/motor/decisions/0029-aparencia-visual-das-telas-mora-no-motor.md>).
-  O desenho de fato dessa aparência (cor, fonte, layout de cada tela)
-  segue como pendência própria.
 - Padrão de navegação hierárquica das telas do motor (instância, tema,
   evento) decidido — expansão em acordeão, igual em celular e tablet,
   ver
@@ -135,6 +133,12 @@
   das telas do motor decidido, fechando o passo 3 do método de desenho
   visual — ver
   [modulos/motor/decisions/0035](<modulos/motor/decisions/0035-sistema-visual-cor-tipografia-forma-contraste.md>).
+- Protótipo navegável das 17 telas do motor montado e avaliado contra
+  as dez heurísticas de usabilidade de Nielsen, fechando o passo 4 (e
+  último) do método de desenho visual — ver
+  [modulos/motor/decisions/0036](<modulos/motor/decisions/0036-ferramenta-e-fidelidade-do-prototipo-navegavel.md>).
+  Escrever o código real das telas, em Jetpack Compose, segue como
+  pendência própria.
 - Sistema de conformidade do `CLAUDE.md` instalado: hooks do Claude
   Code (`.claude/hooks/`, `.claude/settings.json`) e do git nativo
   (`scripts/hooks/commit-msg`, `pre-push`, `pre-rebase`, ao lado do

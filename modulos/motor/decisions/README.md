@@ -6,7 +6,7 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Decisions — Índice |
-| Versão | 0.23.0 |
+| Versão | 0.24.0 |
 | Data | 30-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
@@ -76,6 +76,7 @@
 | [0033](0033-formato-de-aparelho-leiaute-responsivo.md) | Formato de aparelho (leiaute responsivo) para as telas do motor |
 | [0034](0034-mecanismo-de-carregamento-preguicoso-do-acordeao-de-navegacao.md) | Mecanismo de carregamento aos poucos (lazy) do acordeão de navegação |
 | [0035](0035-sistema-visual-cor-tipografia-forma-contraste.md) | Sistema visual: cor, tipografia, forma, contraste e área de toque |
+| [0036](0036-ferramenta-e-fidelidade-do-prototipo-navegavel.md) | Ferramenta e fidelidade do protótipo navegável |
 
 ## Controle de versão
 
@@ -113,3 +114,4 @@ pelo ADR-NNNN). -->
 | 0.21.0 | 30-08-2026 | ADRs 0031 e 0032 acrescentadas ao índice, retroativamente — já existiam como arquivo desde a tarefa que as criou, mas nunca tinham entrado nesta lista. ADR 0033 acrescentada. | Checagem mecânica ao abrir este arquivo pra acrescentar a ADR 0033 |
 | 0.22.0 | 30-08-2026 | ADR 0034 acrescentada ao índice. | Resolução de [decisions/0034](0034-mecanismo-de-carregamento-preguicoso-do-acordeao-de-navegacao.md) |
 | 0.23.0 | 30-08-2026 | ADR 0035 acrescentada ao índice. | Resolução de [decisions/0035](0035-sistema-visual-cor-tipografia-forma-contraste.md) |
+| 0.24.0 | 30-08-2026 | ADR 0036 acrescentada ao índice. | Resolução de [decisions/0036](0036-ferramenta-e-fidelidade-do-prototipo-navegavel.md) |

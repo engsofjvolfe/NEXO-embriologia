@@ -6,7 +6,7 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Handoff |
-| Versão | 0.43.0 |
+| Versão | 0.44.0 |
 | Data | 30-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
@@ -123,6 +123,13 @@
   sistema visual (cor, tipografia, forma, contraste, área de toque)
   decidido, com fonte oficial.
 - [wireframe.md](../design/wireframe.md) — leiaute de tela.
+- [decisions/0036-ferramenta-e-fidelidade-do-prototipo-navegavel.md](<../decisions/0036-ferramenta-e-fidelidade-do-prototipo-navegavel.md>) —
+  ferramenta e fidelidade do protótipo navegável decididas.
+- [design/prototipo-navegavel.html](<../design/prototipo-navegavel.html>) —
+  protótipo clicável das 17 entradas de tela, fechando o método de
+  desenho visual.
+- [design/avaliacao-heuristica.md](<../design/avaliacao-heuristica.md>) —
+  avaliação do protótipo contra as dez heurísticas de Nielsen.
 - [findings.md](findings.md) — achados confirmados até agora.
 - [analysis.md](analysis.md) — registro de como cada investigação
   deste módulo foi feita.
@@ -185,3 +192,4 @@ com o campo Versão da tabela de cabeçalho, que sempre reflete a
 | 0.41.0 | 30-08-2026 | Acrescentado ponteiro para wireframe.md. | Esqueleto (leiaute) das 16 entradas de tela restantes escrito |
 | 0.42.0 | 30-08-2026 | Link pra `wireframe.md` corrigido. | Reorganização de pasta do módulo |
 | 0.43.0 | 30-08-2026 | Acrescentado ponteiro para decisions/0035. | Resolução de decisions/0035 |
+| 0.44.0 | 30-08-2026 | Acrescentado ponteiro para decisions/0036, `design/prototipo-navegavel.html` e `design/avaliacao-heuristica.md`. | Resolução de decisions/0036 |

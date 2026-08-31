@@ -6,8 +6,8 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Analysis |
-| Versão | 0.22.0 |
-| Data | 30-08-2026 |
+| Versão | 0.24.0 |
+| Data | 31-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
 > Registro datado de como uma investigação foi feita neste módulo — o
@@ -1056,6 +1056,92 @@ protótipo).
   parte formal do molde (`_template/`), valendo pra qualquer módulo
   futuro, não só o motor — decisão ainda não tomada.
 
+### <a id="2026-08-30-auditoria-de-desenho-visual-antes-do-prototipo"></a>2026-08-30 — Auditoria de leitura completa antes da tarefa do protótipo navegável
+
+**Levou a:** correções diretas em `concept.md` e `architecture.md`, e notas de acompanhamento em
+[decisions/0029](<../decisions/0029-aparencia-visual-das-telas-mora-no-motor.md>),
+[decisions/0030](<../decisions/0030-padrao-de-navegacao-hierarquica-de-conteudo.md>) e
+[decisions/0031](<../decisions/0031-jetpack-compose-como-ferramenta-de-desenho-de-tela.md>)
+
+*Resumo simples:* antes de montar o protótipo navegável (passo 4 do método de desenho visual),
+leitura obrigatória completa de todo documento do módulo ligado à aparência das telas revelou frase
+desatualizada em cinco lugares — cada uma escrita antes de uma decisão posterior
+([decisions/0035](<../decisions/0035-sistema-visual-cor-tipografia-forma-contraste.md>),
+`design/wireframe.md`) resolver o que elas ainda descreviam como pendente. Nenhuma correção
+envolveu escolher entre alternativas novas — só reconectar texto antigo a uma decisão já tomada,
+mesmo padrão já registrado na investigação de
+[22-08-2026](<#2026-08-22-padrao-de-navegacao-hierarquica-e-revisao-das-pendencias-de-tela>).
+
+*Detalhe técnico:*
+- `concept.md`: duas frases corrigidas (seção Escopo e tabela da seção Fluxo) — apontam agora pra
+  `decisions/0035` e `design/wireframe.md`, em vez de tratar a aparência como sem decisão.
+- `architecture.md`, seção Interface: três trechos corrigidos — a mesma frase de aparência sem
+  decisão; o lembrete de que a posição do indicador de conexão Bluetooth ainda precisava ser
+  desenhada (já fechada em `design/wireframe.md`); e "nenhuma das quatro etapas foi concluída" (só a
+  quarta, protótipo navegável, seguia pendente).
+- `decisions/0029`, `0030` e `0031` já estavam aceitos — a correção entrou como nota de
+  acompanhamento datada, nunca reescrevendo a Decisão nem o texto original de Consequências, mesma
+  regra já usada em `decisions/0019`/`0025`.
+- `decisions/0034` conferida e deixada como está: a frase ali ("fica para a implementação, quando a
+  pendência... chegar") descreve escrita de código, que de fato continua pendente — não é o mesmo
+  tipo de desatualização das demais.
+- Pasta `Design/` (rascunho de outro ambiente de trabalho, já citado em `decisions/0033`) lida por
+  completo nesta sessão, sem usar nenhum conteúdo dela nesta auditoria — nenhuma correção acima se
+  apoia nela.
+
+### <a id="2026-08-31-verificacao-do-prototipo-navegavel-apos-revisao-de-pr"></a>2026-08-31 — Verificação do protótipo navegável depois da revisão de PR
+
+**Levou a:** correções diretas em `design/prototipo-navegavel.js` (sem ADR — nenhuma das três
+decisões envolveu escolher entre alternativas reais, só completar comportamento já exigido pelos
+documentos)
+
+*Resumo simples:* a revisão de PR (`/revisar-pr`) apontou três pontos sem teste de verdade no
+protótipo navegável: o ramo "sessão continua pro próximo evento do mesmo tema" nunca tinha sido
+implementado nem testado; o leiaute de tablet nunca foi conferido fora da tela de Configuração; e o
+botão "Pular peça", em `StudySuggestionShown`, nunca foi clicado de verdade sob a camada de
+toque-livre que cobre o resto da tela. Os três pontos foram implementados (o primeiro não existia
+ainda) e testados com asserções específicas contra o que EI-ENC-01/02 e `decisions/0033` já exigem
+— não só "rodou sem erro".
+
+*Detalhe técnico:*
+- Ramo `hasNextEvent`: `eventoAtualTemProximo()` e `continuarProximoEvento()` escritas;
+  `rodapeContinuarOuVerResultado()` passa a mostrar "Continuar" (leva pro próximo evento do mesmo
+  tema, direto em `AwaitingAttempt`, sem tela de Referência própria — EI-ENC-02) quando existe
+  próximo evento, e "Ver resultado" quando não existe. Teste: terminar o Evento 1 (4 fotogramas) do
+  Tema A (que tem Evento 2 na sequência) e confirmar o texto do botão, o `sessionSubEstado` seguinte
+  (`AwaitingAttempt`, não uma tela de referência separada) e o `totalPosicoes`/`posicaoAtual` do
+  evento novo; depois terminar o Evento 2 (último do tema) e confirmar que o botão muda pra "Ver
+  resultado".
+- Limiares de dica/sugestão de estudo e tempo de ociosidade, antes fixos no texto da tela
+  (`3`, `6`, `60s`), viram campos `<input type="number">` de verdade, editáveis, ligados a
+  `estado.limiarDica`/`estado.limiarSugestaoEstudo`/`estado.tempoOciosidadeSegundos` — RF-CFG-01/
+  RF-DIC-04/RF-PAU-06 (documento 2) já proíbem o motor de impor um valor padrão; o protótipo tinha
+  esse número gravado como texto estático, contradizendo a própria regra que ele deveria ilustrar.
+  Teste: alterar `estado.limiarDica`/`estado.limiarSugestaoEstudo` pra valores diferentes do exemplo
+  original e confirmar que `simularErro()` respeita o valor novo (não o `3`/`6` fixo de antes) pra
+  decidir entre `AttemptRejected`, `HintShown` e `StudySuggestionShown`.
+- Isolamento do leiaute de tablet (`decisions/0033`): teste navegando, com o controle "tablet"
+  marcado, por Configuração, Navegação, tela de jogo (`SessionScreen`) e Resultado, conferindo a
+  classe do elemento da moldura (`elMoldura.className`) em cada uma — só Configuração deveria trocar
+  pra `"tablet"`, as outras três continuam `"celular"`.
+- Botão "Pular peça" sob o toque-livre: teste inicial (sem rolar a página) apontou o elemento no
+  centro do botão como "nenhum" — investigado antes de concluir que era bug: o retângulo do botão
+  (`getBoundingClientRect`) media `top: 797` numa janela de `805px` de altura, ou seja, o botão
+  simplesmente estava abaixo da área visível da janela de teste (rolagem de página comum, sem
+  relação com sobreposição de camada). Confirmado chamando `scrollIntoView()` antes de medir de
+  novo: com o botão dentro da área visível, `document.elementFromPoint()` no centro dele aponta pro
+  próprio botão, não pro `.toque-livre` (`position:absolute;inset:0`) que cobre o resto da tela —
+  a hipótese de sobreposição real não se confirmou. Complementado com um clique de verdade
+  (`botao.click()`, não a função isolada) confirmando a transição pra `SkipMessageShown`.
+- Ferramenta: Microsoft Edge em modo sem interface (`--headless=new --disable-gpu --no-sandbox
+  --window-size=1200,900 --dump-dom`), carregando o `.css`/`.js` reais do repositório por caminho
+  `file:///` absoluto; resultado lido pelo `<title>` da página (cada falha vira uma frase específica
+  ali, não um booleano solto). Roteiro do lado de fora do repositório, no diretório de rascunho da
+  sessão — não faz parte da entrega.
+- Nenhuma das três correções envolveu escolher entre alternativas reais (não houve segunda opção
+  cogitada pra "o que o botão deveria dizer" ou "que classe a moldura deveria ter") — por isso nenhum
+  ADR novo, mesma regra já aplicada nas correções anteriores desta sessão.
+
 ## Controle de versão
 
 <!-- uma linha por versão publicada deste documento, mais antiga no
@@ -1087,3 +1173,5 @@ sem reescrever) também conta como mudança de conteúdo real. -->
 | 0.20.0 | 22-08-2026 | Estendida a mesma investigação: o achado sobre o Grupo B não estava isolado em `tasks.md` — a mesma frase imprecisa se repetia em mais quatro lugares. Critério corrigido: o que separa nota de acompanhamento de correção direta é a data (a informação certa já existia antes daquele texto ser escrito?), não se a worktree já foi mesclada — `decisions/0031` tinha ganhado nota de acompanhamento por engano, corrigido depois de checar a data de verdade. | Auditoria completa por `grep` da frase exata e checagem de data por commit, ao reconciliar esta worktree com `develop` |
 | 0.21.0 | 30-08-2026 | Acrescentada a investigação do sistema visual (Material Design), acessibilidade e cor semente — cinco dos sete pontos do passo 3 já decididos em conversa; artigo de psicologia da cor lido por completo e descartado como base de decisão, por pedido explícito do próprio artigo; seis combinações de cor semente comparadas numa página própria, escolha entre duas delas ainda em aberto. | Pesquisa pro passo 3 do método de desenho visual já registrado em `architecture.md` |
 | 0.22.0 | 30-08-2026 | Acrescentadas três entradas: fechamento da escolha da cor semente (com fonte oficial nova sobre orientação de marca do Google), nota de acompanhamento sobre a entrada anterior ter ficado desatualizada, e a reorganização de `wireframe.md`/`cor-semente-candidatas.html` pra uma pasta nova (`design/`). | Resolução de [decisions/0035](<../decisions/0035-sistema-visual-cor-tipografia-forma-contraste.md>); correção estrutural de pasta do módulo |
+| 0.23.0 | 30-08-2026 | Acrescentada a auditoria de leitura completa que precedeu a tarefa do protótipo navegável — cinco frases desatualizadas sobre aparência visual encontradas e corrigidas em `concept.md`, `architecture.md` e três ADRs (nota de acompanhamento). | Preparação pra "Montar o protótipo navegável", em `tasks.md` |
+| 0.24.0 | 31-08-2026 | Acrescentada a verificação do protótipo navegável depois da revisão de PR — três pontos sem teste de verdade implementados (ramo `hasNextEvent`) ou testados (isolamento do leiaute tablet, clique real no botão "Pular peça" sob o toque-livre), com asserções específicas, não genéricas. | Resposta às decisões do usuário sobre os achados de `/revisar-pr` |

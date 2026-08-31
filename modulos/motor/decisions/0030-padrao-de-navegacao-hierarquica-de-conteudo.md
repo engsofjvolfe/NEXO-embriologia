@@ -125,3 +125,7 @@ exige código novo em `SessionViewModel.kt`) continuam em aberto — esta
 ADR resolve só o padrão de navegação hierárquica, nenhuma delas.
 "Ponto de início" e "Configuração da sessão" não entram nessa lista:
 já são a mesma tela, por `EI-NAV-05`, sem pendência nenhuma.
+
+**Nota de acompanhamento (30-08-2026):** as duas pendências citadas no
+parágrafo acima já foram resolvidas — ver `design/wireframe.md` e
+[findings.md](<../docs/findings.md#2026-08-27-sessionviewmodel-ganha-onpauserequested>).

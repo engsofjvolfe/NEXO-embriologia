@@ -99,3 +99,14 @@ fechado); só as outras 7 (páginas de navegação de fato) seguem sem agrupamen
 
 Nenhuma fonte externa foi necessária pra esta decisão — resolvida inteiramente com o que a cascata
 de documentos e o `README.md` já estabelecem.
+
+**Nota de acompanhamento (30-08-2026):**
+
+*Resumo simples:* o valor exato da aparência (cor, fonte, layout), que este ADR registrava acima
+como ainda sem decisão, já foi decidido — as quatro etapas do método citadas acima estão prontas.
+
+*Detalhe técnico:* etapa 2 (wireframe) resolvida em `design/wireframe.md`; etapa 3 (sistema visual)
+resolvida em [decisions/0035](0035-sistema-visual-cor-tipografia-forma-contraste.md); etapa 4
+(protótipo navegável e avaliação) resolvida em
+[decisions/0036](0036-ferramenta-e-fidelidade-do-prototipo-navegavel.md) — cada uma carrega o
+detalhe exato, nunca repetido aqui.

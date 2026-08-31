@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>NEXO — Protótipo navegável do motor</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="prototipo-navegavel.css">
+</head>
+<body>
+
+<h1>NEXO — Protótipo navegável do módulo motor</h1>
+<p class="subtitulo">
+  Passo 4 do método de desenho visual (<code>architecture.md#interface</code>) — aparência de
+  <a href="../decisions/0035-sistema-visual-cor-tipografia-forma-contraste.md">decisions/0035</a>,
+  leiaute de <code>design/wireframe.md</code>, tecnologia de prototipagem de
+  <a href="../decisions/0036-ferramenta-e-fidelidade-do-prototipo-navegavel.md">decisions/0036</a>.
+  Os botões do painel "Simulador" à direita representam a leitura de uma peça física (NFC/Bluetooth)
+  — nunca fazem parte da tela real do aplicativo.
+</p>
+
+<div class="barra-controles">
+  <label><input type="checkbox" id="chkTablet"> Formato tablet (só muda "Configuração da sessão", decisions/0033)</label>
+  <label><input type="checkbox" id="chkEscuro"> Tema escuro</label>
+  <label><input type="checkbox" id="chkPausada" checked> Existe sessão pausada ao abrir (EI-NAV-01)</label>
+</div>
+
+<div class="palco">
+  <div class="moldura celular" id="moldura">
+    <div class="tela" id="tela" data-theme="claro"></div>
+  </div>
+
+  <div class="simulador">
+    <h2>Simulador</h2>
+    <div class="estado-atual" id="estadoAtual">—</div>
+    <div id="controlesSimulador"></div>
+    <hr>
+    <p class="aviso-nao-real">Este painel não é tela do aplicativo — representa o acessório físico
+    (leitura NFC/Bluetooth) e atalhos de navegação de teste. A tela à esquerda é o protótipo real.</p>
+  </div>
+</div>
+
+<script src="prototipo-navegavel.js"></script>
+</body>
+</html>

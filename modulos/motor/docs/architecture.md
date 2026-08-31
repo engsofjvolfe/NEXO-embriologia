@@ -6,7 +6,7 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Architecture |
-| Versão | 0.44.0 |
+| Versão | 0.45.0 |
 | Data | 30-08-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
@@ -779,17 +779,21 @@ que cada uma mostra) já está fixado no
 seção 6.6. A tecnologia usada pra desenhar essa interface é Jetpack
 Compose, não o sistema de Views tradicional — ver
 [decisions/0031](<../decisions/0031-jetpack-compose-como-ferramenta-de-desenho-de-tela.md>).
-A aparência visual em si (cor, fonte, layout) continua sem decisão —
-pendência registrada em [`tasks.md`](tasks.md). Direção provável,
-ainda não pesquisada nem decidida de verdade: uma casca única,
-neutra, no padrão Material Design do Google — reaproveitada por toda
-instância, já que a única coisa que varia de fato entre instâncias é
-o conteúdo (fotogramas, textos), não a aparência das telas em si.
+A aparência visual em si (cor, fonte, layout) já está decidida — ver
+[decisions/0035](<../decisions/0035-sistema-visual-cor-tipografia-forma-contraste.md>):
+Material Design 3, cor semente laranja e azul royal (com cor dinâmica
+como padrão em aparelhos que suportam), tipografia e forma no padrão
+do próprio Material, contraste no nível comum da WCAG (AA — a norma
+internacional de acessibilidade de contraste de tela) e área de toque
+mínima de 48dp por 48dp — uma casca única, neutra, reaproveitada por
+toda instância, já que a única coisa que varia de fato entre
+instâncias é o conteúdo (fotogramas, textos), não a aparência das
+telas em si.
 
-Ponto específico a não esquecer quando essa aparência for desenhada,
-com detalhe completo em [tasks.md](tasks.md): "Aguardando tentativa"
-(DA-RET-06) precisa mostrar o estado de conexão do acessório
-Bluetooth.
+O estado de conexão do acessório Bluetooth em "Aguardando tentativa"
+(DA-RET-06), e o aviso de NFC/Bluetooth desligado, já têm posição
+decidida — ver
+[wireframe.md, Tela de jogo — posição dos elementos comuns](<../design/wireframe.md#tela-de-jogo--posição-dos-elementos-comuns>).
 
 Material Design decide só a aparência (cor, componente, espaçamento)
 — não decide onde cada elemento vai em cada tela. Essa segunda
@@ -808,7 +812,7 @@ reconhecido fora deste projeto, chamado design centrado no usuário
 4. Protótipo navegável e avaliação contra as heurísticas de
    usabilidade (NIELSEN, 1994) antes de virar código de verdade.
 
-Nenhuma dessas quatro etapas foi concluída ainda. Dentro do passo 2
+As quatro etapas já estão concluídas. Dentro do passo 2
 (wireframe), três pontos já estão decididos: o padrão de navegação
 entre instância, tema e evento usa expansão em acordeão (tocar num
 item abre a lista do nível seguinte embaixo dele, sem trocar de tela),
@@ -836,9 +840,19 @@ pausar; o método (`onPauseRequested`) já existe em
 com o desenho visual do controle em si fechado em
 [wireframe.md](../design/wireframe.md).
 
+Passo 3 (sistema visual) resolvido em
+[decisions/0035](<../decisions/0035-sistema-visual-cor-tipografia-forma-contraste.md>)
+(Material Design 3, cor, tipografia, forma, contraste, área de toque).
+Passo 4 (protótipo navegável e avaliação) resolvido em
+[decisions/0036](<../decisions/0036-ferramenta-e-fidelidade-do-prototipo-navegavel.md>)
+(ferramenta e fidelidade), com o protótipo em si em
+[`design/prototipo-navegavel.html`](<../design/prototipo-navegavel.html>)
+e a avaliação contra as dez heurísticas de Nielsen em
+[`design/avaliacao-heuristica.md`](<../design/avaliacao-heuristica.md>).
+
 ##### Ligação com o núcleo do motor
 
-*Em resumo:* separado da aparência (ainda pendente), o mecanismo que
+*Em resumo:* separado da aparência (já decidida — ver acima), o mecanismo que
 liga a leitura de uma peça à lógica de sessão e ao que a tela mostra
 já está decidido e escrito — inclusive o conteúdo exato de cada
 situação que a tela precisa mostrar.
@@ -1087,3 +1101,4 @@ com o campo Versão da tabela de cabeçalho, que sempre reflete a
 | 0.42.0 | 30-08-2026 | Seção "Interface" ganha o mecanismo de carregamento aos poucos do acordeão de navegação (`LazyColumn` única, achatada), dentro do passo 2 (wireframe) do método. | Resolução de [decisions/0034](<../decisions/0034-mecanismo-de-carregamento-preguicoso-do-acordeao-de-navegacao.md>) |
 | 0.43.0 | 30-08-2026 | Seção "Interface" registra que o passo 2 (wireframe) do método está completo — o esqueleto das 16 entradas de tela restantes, mais o indicador de conexão do acessório e o botão de pausar, agora mora em [wireframe.md](../design/wireframe.md). | Criação de [wireframe.md](../design/wireframe.md) |
 | 0.44.0 | 30-08-2026 | Link pra `wireframe.md` corrigido — arquivo movido de `docs/` pra uma pasta nova, `design/`, fora do conjunto fixo de documentos do molde do módulo. | Reorganização de pasta do módulo |
+| 0.45.0 | 30-08-2026 | Seção "Interface" corrigida: três trechos desatualizados removidos — a aparência visual não estava mais "sem decisão" desde [decisions/0035](<../decisions/0035-sistema-visual-cor-tipografia-forma-contraste.md>); o indicador de conexão Bluetooth em "Aguardando tentativa" já tem posição fechada em `wireframe.md`; e a frase "nenhuma das quatro etapas foi concluída" já não valia (as três primeiras estavam prontas, só a quarta — protótipo navegável — seguia pendente). | Auditoria de leitura completa antes da tarefa do protótipo navegável |

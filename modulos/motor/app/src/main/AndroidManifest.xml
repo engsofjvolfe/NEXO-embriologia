@@ -15,7 +15,8 @@
     <application
         android:name=".NexoMotorApplication"
         android:allowBackup="true"
-        android:label="NEXO Motor">
+        android:label="NEXO Motor"
+        android:theme="@style/Theme.NexoMotor">
 
         <activity
             android:name=".MainActivity"

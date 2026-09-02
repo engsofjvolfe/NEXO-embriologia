@@ -137,6 +137,16 @@ mais próximo de "painel de apoio" que de "lista-detalhe" — mas a
 escolha final fica para quando essa tela for desenhada de verdade, não
 presumida aqui.
 
+**Nota de acompanhamento (02-09-2026):**
+
+*Resumo simples:* a pasta `Design/` citada no Contexto e no item 6, acima, nunca foi versionada
+neste repositório e continua sem existir nele — quem ler esta ADR agora não consegue conferir o
+que ela continha. A citação nunca serviu de prova da decisão em si (que se apoia só nas duas
+fontes oficiais da seção Referências); serve só de registro de onde a ideia original das duas
+colunas veio. Ainda assim, por este projeto exigir que toda fonte citada seja conferível, essa
+referência específica fica, a partir de agora, marcada como não conferível — não uma correção da
+decisão, só um esclarecimento sobre os limites dessa citação.
+
 ## Referências
 
 Fontes externas consultadas para embasar esta decisão, no formato

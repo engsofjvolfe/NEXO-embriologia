@@ -6,8 +6,8 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Analysis |
-| Versão | 0.24.0 |
-| Data | 31-08-2026 |
+| Versão | 0.27.0 |
+| Data | 01-09-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
 > Registro datado de como uma investigação foi feita neste módulo — o
@@ -1142,6 +1142,144 @@ ainda) e testados com asserções específicas contra o que EI-ENC-01/02 e `deci
   cogitada pra "o que o botão deveria dizer" ou "que classe a moldura deveria ter") — por isso nenhum
   ADR novo, mesma regra já aplicada nas correções anteriores desta sessão.
 
+### <a id="2026-09-01-escrita-da-sessiongamescreen-revela-tres-lacunas"></a>2026-09-01 — Escrita de `SessionGameScreen.kt` revela três lacunas não decididas
+
+**Levou a:** [tasks.md, Em aberto](<tasks.md#em-aberto>) (três
+pendências novas, nenhuma decidida ainda)
+
+*Resumo simples:* ao escrever a primeira tela de verdade em Compose
+(a tela de jogo, os oito estados de `SessionScreen` mais a confirmação
+de saída — decisions/0022, decisions/0032, `design/wireframe.md`),
+três pontos que pareciam só "detalhe de implementação" se revelaram,
+na prática, decisões reais ainda não tomadas em nenhum documento.
+Nenhum dos três bloqueou a tela de compilar ou de ser testada — cada
+um recebeu, por enquanto, o comportamento mais simples possível que
+não inventa contrato novo, com um comentário no código apontando de
+volta pra esta investigação.
+
+*Detalhe técnico:*
+
+- **Carregamento de imagem:** `SessionScreen.Reference.referenceImage`
+  e o campo equivalente de outras variantes carregam só o caminho do
+  fotograma dentro do pacote de conteúdo (PD-IMP-01, campo `image`) —
+  nunca os bytes da imagem em si, que só existem através de
+  `ContentPackageArchive.readImage(path): ByteArray`
+  ([architecture.md, pacote `content`](<architecture.md#pacote-content--desenho-interno>)),
+  fora do que `SessionScreen` carrega. Nenhum documento decide como
+  esse caminho vira pixel de verdade na tela — decodificação direta do
+  `ByteArray` (`BitmapFactory`, já disponível no próprio Android, sem
+  dependência nova) resolveria sem precisar de biblioteca de terceiro,
+  mas isso ainda não foi decidido, só percebido como possível. Tratado
+  por enquanto como texto (o próprio caminho, visível na tela) — apenas
+  pra manter a tela compilável e testável, nunca como resposta final.
+- **Forma exata de `SkipMessage`:**
+  [architecture.md, pacote `summary`](<architecture.md#pacote-summary--desenho-interno>)
+  lista `SkipMessage(answered, unansweredPositions)` e `AnsweredPosition`
+  só como nomes de parâmetro da API pública — sem o mesmo nível de
+  detalhe de campo que decisions/0022 e decisions/0026 já deram a
+  `SessionState`/`ContentInstance`. Implementar de verdade a tela de
+  mensagem de pulo (DA-RET-12) exigiria adivinhar esse formato — mesmo
+  tipo de lacuna já formalizado antes por
+  [decisions/0026](<../decisions/0026-forma-de-sessionstate-tipos-de-content-e-construtor-do-viewmodel.md>)
+  pra `SessionState`, sem alternativa real de desenho a comparar (é só
+  uma forma de dado Kotlin já escrita, nunca decidida via ADR). Tratado
+  por enquanto com um texto fixo, sem tocar nenhum campo interno de
+  `SkipMessage`.
+- **Fonte de ícone dos controles de tela:**
+  [`design/wireframe.md`](<../design/wireframe.md#tela-de-jogo--posição-dos-elementos-comuns>)
+  pede um ícone, sem texto, pro controle de pausar. Fonte oficial
+  consultada antes de declarar a dependência
+  (`developer.android.com/develop/ui/compose/graphics/images/material`,
+  acesso em 01 set. 2026): o artefato mais comumente usado pra isso
+  (`androidx.compose.material:material-icons-core`/`-extended`) é
+  descrito pela própria documentação como "no longer maintained or
+  recommended for use in your apps" — em tradução livre, não é mais
+  mantido nem recomendado pra uso em aplicativos novos —, com a
+  recomendação de baixar um ícone específico (Material Symbols) do
+  Google Fonts Icons como recurso `.xml` importado no projeto. Esse
+  processo de importação de recurso (qual ícone exato, como o arquivo
+  entra no repositório) nunca foi decidido em nenhum documento deste
+  módulo. Tratado por enquanto como botão de texto ("Pausar"), mantendo
+  o comportamento já fechado (EI-PAU-03 só exige confirmação pra sair,
+  nunca pra pausar) — só a aparência exata pedida no wireframe fica
+  pendente.
+- Nenhum dos três pontos envolveu escolher entre alternativas já
+  totalmente pesquisadas — cada um é registrado como pendência em
+  `tasks.md`, não como ADR, mesma régua já usada pra "Substituir o
+  módulo leitor NFC" e "Confirmar homologação ANATEL": achado real,
+  sem decisão ainda, sem forçar uma escolha só pra fechar a tarefa.
+
+### <a id="2026-09-01-confirmacao-visual-do-ponto-de-entrada-real-e-limite-de-ambiente-do-emulador"></a>2026-09-01 — Confirmação visual do ponto de entrada real: achado do tema, limite de ambiente do emulador
+
+**Levou a:** [pitfalls.md#2026-09-01-sem-tema-xml-noactionbar-a-barra-nativa-cobre-o-compose](<pitfalls.md#2026-09-01-sem-tema-xml-noactionbar-a-barra-nativa-cobre-o-compose>)
+
+*Resumo simples:* depois de ligar as sete telas de navegação com a tela de jogo de verdade
+(`MotorApp.kt`, decisions/0040), a primeira captura de tela real no emulador mostrou uma barra de
+título nativa do Android, preta, sem nenhuma das cores escolhidas — achado real, corrigido e
+registrado em `pitfalls.md`. Confirmar de novo, com o tema corrigido, não foi possível nesta
+sessão: o emulador deste computador especificamente (não o projeto) trava de forma consistente,
+por três causas diferentes em três tentativas — não é uma dúvida a resolver, é um limite real do
+ambiente local.
+
+*Detalhe técnico:*
+- Primeira captura de tela (antes da correção): confirmou o encadeamento real funcionando de
+  verdade (busca, entrada "Fecundação", chegada na Configuração) — mas com uma barra preta no
+  topo, texto "NEXO Motor", sobre o conteúdo em Compose. Investigação completa, causa e correção:
+  ver o achado em `pitfalls.md` linkado acima.
+- Depois de aplicar a correção (tema `NoActionBar` mais a dependência nova
+  `com.google.android.material:material`), três tentativas de reabrir o emulador pra tirar uma
+  segunda captura de tela, cada uma falhando por um motivo diferente:
+  1. Renderização por hardware (padrão): emulador trava sem aviso entre um comando e outro — log
+     mostra `UpdateLayeredWindowIndirect failed... Um dispositivo conectado ao sistema não está
+     funcionando`, e depois um diálogo de erro relatando falha do driver de gráficos do sistema
+     operacional, sugerindo renderização por software.
+  2. Renderização por software via `-gpu swiftshader_indirect`: falha ainda mais cedo —
+     `Failed to load opengl32sw (Não foi possível encontrar o módulo especificado.)`, um arquivo
+     que deveria vir junto da instalação do emulador e não está presente nesta máquina.
+  3. Renderização pelo lado do sistema convidado via `-gpu guest`: cai de volta pro mesmo módulo
+     ausente (`opengl32sw`), com o mesmo erro da tentativa 2.
+- Nenhuma das três é falha do código escrito nesta tarefa — as sete telas e a tela de jogo já
+  tinham sido confirmadas rodando de verdade antes desta rodada (tela de jogo, ver
+  [analysis.md, achados anteriores](<#investigacoes>); encadeamento real, primeira captura desta
+  mesma entrada). O que ficou sem confirmação visual ao vivo, especificamente, é só a ausência da
+  barra nativa depois da correção — a build resolve a referência ao tema sem erro
+  (`BUILD SUCCESSFUL`, mesmo teste de resolução de recurso que já falhava antes da dependência ser
+  acrescentada), e a suíte de teste automatizado (Robolectric) não cobre esse tipo de detalhe
+  visual (mesma régua já registrada em `architecture.md`, Interface: "o que esse teste prova é
+  comportamento... nunca aparência real").
+- Pendência registrada em `tasks.md`: confirmar visualmente, num emulador ou aparelho que não
+  tenha esse problema, que a barra nativa realmente sumiu.
+
+### <a id="2026-09-01-fonte-de-icone-oficial-via-repositorio-github-do-google"></a>2026-09-01 — Fonte de ícone oficial pro botão de pausar, via repositório GitHub do Google
+
+**Levou a:** [decisions/0041-fonte-de-icone-do-botao-de-pausar.md](<../decisions/0041-fonte-de-icone-do-botao-de-pausar.md>)
+
+*Resumo simples:* [decisions/0039](<../decisions/0039-fonte-de-icone-dos-controles-de-tela.md>) tinha
+descartado usar ícone no botão de pausar porque o único caminho conhecido na hora
+(`fonts.google.com/icons`) carrega por JavaScript e não deixa uma ferramenta automatizada escolher
+e baixar o arquivo certo — mesma limitação já registrada pra `m3.material.io`. Reaberta a pergunta
+por pedido direto, uma fonte alternativa, ainda oficial, resolveu o bloqueio: o repositório no
+GitHub que guarda o código-fonte por trás daquele site.
+
+*Detalhe técnico:*
+- Confirmado que `github.com/google/material-design-icons` é a fonte de verdade oficial (não uma
+  cópia de terceiro): o próprio arquivo `README.md` do repositório diz "The icons can be browsed
+  in a more user-friendly way at https://fonts.google.com/icons" — ou seja, o site é só uma
+  interface mais fácil de navegar sobre o mesmo catálogo que mora ali.
+- Licença do repositório: Apache License 2.0, lida por completo (`LICENSE`, primeira linha:
+  "Apache License / Version 2.0, January 2004") — permissiva, compatível com uso neste projeto.
+- Diferente da interface JS do site, os arquivos individuais do repositório são texto estático,
+  buscáveis direto pela URL de conteúdo bruto do GitHub
+  (`raw.githubusercontent.com/google/material-design-icons/master/...`) — sem precisar rodar
+  JavaScript nem navegar visualmente. Testado ao vivo, duas vezes, com o mesmo arquivo
+  (`symbols/android/pause/materialsymbolsoutlined/pause_24px.xml`): as duas buscas devolveram
+  exatamente o mesmo conteúdo (incluindo trechos de `pathData` menos óbvios, com pontos repetidos
+  sem efeito visual) — confirmação de que o conteúdo buscado é estável, não uma resposta inventada
+  a cada tentativa.
+- Conteúdo do arquivo já vem pronto no formato de vetor do Android (`<vector>`,
+  `android:pathData`), sem exigir conversão nem ferramenta extra — só salvar como está em
+  `app/src/main/res/drawable/`.
+
 ## Controle de versão
 
 <!-- uma linha por versão publicada deste documento, mais antiga no
@@ -1175,3 +1313,6 @@ sem reescrever) também conta como mudança de conteúdo real. -->
 | 0.22.0 | 30-08-2026 | Acrescentadas três entradas: fechamento da escolha da cor semente (com fonte oficial nova sobre orientação de marca do Google), nota de acompanhamento sobre a entrada anterior ter ficado desatualizada, e a reorganização de `wireframe.md`/`cor-semente-candidatas.html` pra uma pasta nova (`design/`). | Resolução de [decisions/0035](<../decisions/0035-sistema-visual-cor-tipografia-forma-contraste.md>); correção estrutural de pasta do módulo |
 | 0.23.0 | 30-08-2026 | Acrescentada a auditoria de leitura completa que precedeu a tarefa do protótipo navegável — cinco frases desatualizadas sobre aparência visual encontradas e corrigidas em `concept.md`, `architecture.md` e três ADRs (nota de acompanhamento). | Preparação pra "Montar o protótipo navegável", em `tasks.md` |
 | 0.24.0 | 31-08-2026 | Acrescentada a verificação do protótipo navegável depois da revisão de PR — três pontos sem teste de verdade implementados (ramo `hasNextEvent`) ou testados (isolamento do leiaute tablet, clique real no botão "Pular peça" sob o toque-livre), com asserções específicas, não genéricas. | Resposta às decisões do usuário sobre os achados de `/revisar-pr` |
+| 0.25.0 | 01-09-2026 | Acrescentada a investigação da escrita de `SessionGameScreen.kt` — três lacunas reais encontradas (carregamento de imagem, forma de `SkipMessage`, fonte de ícone dos controles), nenhuma delas bloqueando a tela de compilar/testar. | Escrita da primeira tela real do módulo `app`; três pendências novas em `tasks.md` |
+| 0.26.0 | 01-09-2026 | Acrescentada a investigação da confirmação visual do ponto de entrada real — achado do tema `NoActionBar`, e registro do limite de ambiente do emulador local (três causas de travamento diferentes, nenhuma delas no código do projeto). | Achado [pitfalls.md#2026-09-01-sem-tema-xml-noactionbar-a-barra-nativa-cobre-o-compose](<pitfalls.md#2026-09-01-sem-tema-xml-noactionbar-a-barra-nativa-cobre-o-compose>); pendência nova em `tasks.md` |
+| 0.27.0 | 01-09-2026 | Acrescentada a investigação da fonte de ícone oficial pro botão de pausar, via repositório GitHub do Google — reabre e resolve o bloqueio registrado em `decisions/0039`. | Resolução parcial de [decisions/0041](<../decisions/0041-fonte-de-icone-do-botao-de-pausar.md>) |

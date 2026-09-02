@@ -6,8 +6,8 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Pitfalls |
-| Versão | 0.8.0 |
-| Data | 17-08-2026 |
+| Versão | 0.9.0 |
+| Data | 01-09-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
 > Comportamento não óbvio de ferramenta/mecanismo usado só neste módulo
@@ -215,6 +215,38 @@ os bytes já montados manualmente no formato de estrutura de
 propaganda BLE (tamanho, tipo `0x07` — lista completa de UUID de 128
 bits —, UUID em ordem de byte invertida).
 
+### <a id="2026-09-01-sem-tema-xml-noactionbar-a-barra-nativa-cobre-o-compose"></a>2026-09-01 — Sem um tema XML `NoActionBar`, a barra de título nativa do Android aparece por cima das telas em Compose
+
+*Resumo simples:* o conteúdo desenhado com Jetpack Compose (a ferramenta usada pra desenhar a
+tela, ver [decisions/0031](<../decisions/0031-jetpack-compose-como-ferramenta-de-desenho-de-tela.md>))
+só controla o que aparece dentro da tela — a moldura da janela em volta dele (a barra escura no
+topo, com o título do aplicativo) é decidida por um arquivo de configuração separado, que nunca
+tinha sido criado neste módulo. Sem esse arquivo, o Android desenha sua própria barra de título
+padrão por cima de tudo, sem nenhuma das cores/fontes escolhidas em
+[decisions/0035](<../decisions/0035-sistema-visual-cor-tipografia-forma-contraste.md>).
+
+*Detalhe técnico:* confirmado ao vivo — captura de tela real do aplicativo rodando no emulador
+mostrou uma barra preta, com o texto "NEXO Motor" (vindo de `android:label` no
+`AndroidManifest.xml`), acima do conteúdo Compose (o campo "Buscar" e a lista de navegação),
+mesmo com `NexoMotorTheme` (Compose) já aplicado em `MainActivity.kt`
+(`setContent { NexoMotorTheme { MotorApp() } }`). Causa: `app/src/main/res/` não existia até este
+ponto — nenhum arquivo `values/themes.xml`, e o `<application>` do `AndroidManifest.xml` não
+declarava `android:theme` nenhum. Sem um tema XML de base, o Android usa um tema padrão da
+plataforma, que inclui uma barra de ação (*ActionBar*) nativa — mecanismo completamente separado
+de `MaterialTheme`/`NexoMotorTheme` do Compose, que só afeta o que é desenhado dentro de
+`setContent`, nunca a moldura da janela em volta dele. Corrigido criando
+`app/src/main/res/values/themes.xml`, com um tema que estende
+`Theme.Material3.DayNight.NoActionBar` (suprime a barra nativa), referenciado via
+`android:theme="@style/Theme.NexoMotor"` no `<application>` do manifesto. Esse estilo, apesar do
+nome "Material3", não vem do Compose (`androidx.compose.material3`, já usado neste módulo) — é
+parte da biblioteca de Views/XML `com.google.android.material:material` (Material Components for
+Android), nunca antes declarada aqui; sem ela, a build falha com "AAPT: error: resource
+style/Theme.Material3.DayNight.NoActionBar not found". Dependência acrescentada na versão estável
+mais recente confirmada direto no repositório oficial (`dl.google.com/android/maven2/.../
+maven-metadata.xml`, tag `<release>`): `1.14.0`. Build resolve a referência ao tema sem erro
+(`BUILD SUCCESSFUL`); confirmação visual da ausência da barra numa segunda captura de tela segue
+em aberto — ver [analysis.md](<analysis.md#2026-09-01-confirmacao-visual-do-ponto-de-entrada-real-e-limite-de-ambiente-do-emulador>).
+
 ## Referências
 
 Fontes citadas nas armadilhas acima, no formato definido pela norma
@@ -250,3 +282,4 @@ reescrever) também conta como mudança de conteúdo real. -->
 | 0.6.0 | 15-08-2026 | Acrescentada a armadilha de `sdk.dir` em `local.properties` precisar de barra invertida duplicada no Windows. | Achado ao configurar `local.properties` numa worktree nova, pela segunda vez nesta tarefa |
 | 0.7.0 | 16-08-2026 | Acrescentadas duas armadilhas do Robolectric: `NfcAdapter.getDefaultAdapter()` volta nulo sem declarar a característica de hardware NFC no `PackageManager` simulado; `ShadowNfcAdapter.createMockTag()` não aceita o identificador da etiqueta como parâmetro. | Achado ao escrever e rodar de verdade o teste de `MainActivity.kt` (leitura NFC) |
 | 0.8.0 | 17-08-2026 | Acrescentada a armadilha de `ScanRecord.parseFromBytes` ser método oculto do SDK público do Android. | Achado ao escrever e rodar de verdade o teste de `BleAccessoryService.kt` (Bluetooth) |
+| 0.9.0 | 01-09-2026 | Acrescentada a armadilha da barra de título nativa do Android aparecer por cima das telas em Compose sem um tema XML `NoActionBar`. | Achado por captura de tela ao vivo, ao confirmar visualmente o encadeamento real das telas |

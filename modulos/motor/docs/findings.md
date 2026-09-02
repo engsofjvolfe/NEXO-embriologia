@@ -6,8 +6,8 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Findings |
-| Versão | 0.8.0 |
-| Data | 27-08-2026 |
+| Versão | 0.9.0 |
+| Data | 01-09-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
 > Achados confirmados (por leitura de código, teste ao vivo, ou os dois)
@@ -243,6 +243,36 @@ Testado ao vivo: `gradlew :app:testDebugUnitTest --tests
 suíte completa (`:core:test :app:testDebugUnitTest`) rodada de novo,
 sem quebra.
 
+### <a id="2026-09-01-compose-1-12-0-exige-compilesdk-37"></a>2026-09-01 — Compose 1.12.0 exige `compileSdk` 37, um a mais que o já fixado (36)
+
+**Confirmado por:** teste ao vivo
+
+*Resumo simples:* declarar as dependências do Compose (Compose BOM
+2026.08.00, decisions/0037) e tentar compilar o primeiro teste de tela
+revelou que a versão atual de dez bibliotecas do Compose (`ui`,
+`foundation`, `material3`, `animation`, `runtime`, entre outras, todas
+1.12.0) exige `compileSdk` 37 — um a mais que o valor já fixado
+(decisions/0012, `compileSdk` = 36).
+
+*Detalhe técnico:*
+- `gradlew :app:testDebugUnitTest` recusou o build, repetindo pra cada
+  uma das dez bibliotecas a mesma mensagem do Android Gradle Plugin:
+  "Dependency '...:1.12.0' requires libraries and applications that
+  depend on it to compile against version 37 or later of the Android
+  APIs" — em tradução livre, essa dependência exige compilar contra a
+  versão 37 (ou mais nova) das APIs do Android.
+- A mesma mensagem confirma, direto na fonte, que `compileSdk` e
+  `targetSdk` são exigências independentes: "updating compileSdk...
+  can be done separately from updating targetSdk... and minSdk" — em
+  tradução livre, atualizar o `compileSdk` pode ser feito separado de
+  atualizar o `targetSdk`/`minSdk`.
+- Resolvido subindo `compileSdk` pra 37 em `app/build.gradle.kts`. Ver
+  [decisions/0012](<../decisions/0012-versoes-de-plataforma-e-build-do-modulo-app.md>).
+- Testado ao vivo depois da correção: `gradlew :app:compileDebugKotlin`
+  e `gradlew :app:testDebugUnitTest --tests
+  "org.nexo.motor.app.ui.SessionGameScreenTest"`, `BUILD SUCCESSFUL`
+  nos dois.
+
 ## Controle de versão
 
 <!-- uma linha por versão publicada deste documento, mais antiga no
@@ -262,3 +292,4 @@ reescrever) também conta como mudança de conteúdo real. -->
 | 0.6.0 | 17-08-2026 | Achado "Caminho antigo de `ReportFileWriter.kt` não testável com Robolectric" acrescentado. | Tentativa de escrever o teste de `ReportFileWriter.kt`/`ReportShareIntent.kt` |
 | 0.7.0 | 18-08-2026 | Achado "`SessionViewModel.kt` não tem ação de pausar por toque da pessoa" acrescentado. | Montagem da arquitetura de informação das telas do motor, releitura do Documento de Conceito contra os documentos derivados |
 | 0.8.0 | 27-08-2026 | Achado "`SessionViewModel.kt` ganha a ação de pausar por toque da pessoa" acrescentado, fechando a lacuna registrada em 18-08-2026. | Escrita e teste de `onPauseRequested()` em `SessionViewModel.kt` |
+| 0.9.0 | 01-09-2026 | Achado "Compose 1.12.0 exige `compileSdk` 37" acrescentado. | Declaração das dependências de Compose pro primeiro teste de tela |

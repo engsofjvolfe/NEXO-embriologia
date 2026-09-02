@@ -204,6 +204,9 @@
 - Revisão de PR por assistentes chamados manualmente, um por assunto --
   ver
   [modulos/conformidade/docs/handoff.md](modulos/conformidade/docs/handoff.md).
+- As 17 entradas de tela do motor estão escritas e encadeadas de
+  verdade no aplicativo — ver
+  [modulos/motor/docs/handoff.md](modulos/motor/docs/handoff.md).
 - [TASKS.md, Resolvidas](TASKS.md#resolvidas) — pendências já corrigidas.
 
 ## Próximo passo

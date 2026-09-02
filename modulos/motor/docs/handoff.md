@@ -6,8 +6,8 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Handoff |
-| Versão | 0.44.0 |
-| Data | 30-08-2026 |
+| Versão | 0.48.0 |
+| Data | 02-09-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
 > Resumo curto de "onde este módulo está" e "o que fazer a seguir" nele.
@@ -130,6 +130,28 @@
   desenho visual.
 - [design/avaliacao-heuristica.md](<../design/avaliacao-heuristica.md>) —
   avaliação do protótipo contra as dez heurísticas de Nielsen.
+- [decisions/0037-ferramenta-de-teste-das-telas-compose.md](<../decisions/0037-ferramenta-de-teste-das-telas-compose.md>) —
+  ferramenta de teste das telas em Jetpack Compose decidida
+  (Robolectric, sem aparelho).
+- [app/src/main/kotlin/org/nexo/motor/app/ui/SessionGameScreen.kt](<../app/src/main/kotlin/org/nexo/motor/app/ui/SessionGameScreen.kt>) —
+  primeira tela real do motor, a tela de jogo, testada de verdade.
+- [decisions/0038-carregamento-de-imagem-de-fotograma-na-tela.md](<../decisions/0038-carregamento-de-imagem-de-fotograma-na-tela.md>) —
+  carregamento de imagem de fotograma na tela decidido.
+- [decisions/0039-fonte-de-icone-dos-controles-de-tela.md](<../decisions/0039-fonte-de-icone-dos-controles-de-tela.md>) —
+  fonte de ícone dos controles de tela decidida (rótulo de texto).
+- [app/src/main/kotlin/org/nexo/motor/app/ui/](<../app/src/main/kotlin/org/nexo/motor/app/ui/>) —
+  as 17 entradas de tela do motor, escritas e testadas.
+- [decisions/0040-mecanismo-de-navegacao-entre-telas-do-motor.md](<../decisions/0040-mecanismo-de-navegacao-entre-telas-do-motor.md>) —
+  mecanismo de navegação entre as telas decidido.
+- [app/src/main/kotlin/org/nexo/motor/app/ui/MotorApp.kt](<../app/src/main/kotlin/org/nexo/motor/app/ui/MotorApp.kt>) —
+  ponto de entrada real do módulo `app`, testado (`MotorAppTest.kt`).
+- [decisions/0041-fonte-de-icone-do-botao-de-pausar.md](<../decisions/0041-fonte-de-icone-do-botao-de-pausar.md>) —
+  fonte de ícone do botão de pausar revisada (ícone oficial).
+- [decisions/0042-conteudo-de-teste-visual-isolado-por-tipo-de-build.md](<../decisions/0042-conteudo-de-teste-visual-isolado-por-tipo-de-build.md>) —
+  conteúdo de teste visual isolado por tipo de build decidido.
+- [decisions/0043-mecanismo-de-classificacao-de-tamanho-de-janela.md](<../decisions/0043-mecanismo-de-classificacao-de-tamanho-de-janela.md>) —
+  mecanismo de classificação de tamanho de janela (`isTabletLayout`)
+  decidido.
 - [findings.md](findings.md) — achados confirmados até agora.
 - [analysis.md](analysis.md) — registro de como cada investigação
   deste módulo foi feita.
@@ -193,3 +215,7 @@ com o campo Versão da tabela de cabeçalho, que sempre reflete a
 | 0.42.0 | 30-08-2026 | Link pra `wireframe.md` corrigido. | Reorganização de pasta do módulo |
 | 0.43.0 | 30-08-2026 | Acrescentado ponteiro para decisions/0035. | Resolução de decisions/0035 |
 | 0.44.0 | 30-08-2026 | Acrescentado ponteiro para decisions/0036, `design/prototipo-navegavel.html` e `design/avaliacao-heuristica.md`. | Resolução de decisions/0036 |
+| 0.45.0 | 01-09-2026 | Acrescentado ponteiro para decisions/0037 e `SessionGameScreen.kt`. | Resolução de decisions/0037 |
+| 0.46.0 | 01-09-2026 | Acrescentado ponteiro para decisions/0038, 0039, 0040, 0041, `app/ui/` e `MotorApp.kt`. | Resolução de decisions/0040 e 0041 |
+| 0.47.0 | 02-09-2026 | Acrescentado ponteiro para decisions/0042. | Resolução de decisions/0042 |
+| 0.48.0 | 02-09-2026 | Acrescentado ponteiro para decisions/0043. | Resolução de decisions/0043 |

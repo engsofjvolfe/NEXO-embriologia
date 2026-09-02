@@ -114,6 +114,29 @@ terceiro — quem reabrir este documento no futuro deve reconfirmar os
 valores atuais na fonte oficial antes de tratá-los como corretos, não
 assumir que continuam válidos só porque estão escritos aqui.
 
+**Nota de acompanhamento (01-09-2026):**
+
+*Resumo simples:* `compileSdk` sobe de 36 pra 37 — não porque a
+exigência da Google Play mudou, mas porque a versão atual do Jetpack
+Compose (decisions/0031, decisions/0037) exige compilar contra uma API
+mais nova que 36. `targetSdk`/`minSdk` continuam como já estavam —
+nenhum aparelho antes coberto (Android 7.0 em diante) deixa de ser
+coberto. Achado que revelou isso, com a mensagem de erro exata e o
+teste ao vivo depois da correção, em
+[findings.md](<../docs/findings.md#2026-09-01-compose-1-12-0-exige-compilesdk-37>).
+
+*Detalhe técnico:* alternativa descartada: usar uma versão mais antiga
+do Compose BOM (a mais recente compatível com `compileSdk` 36 seria
+2024.11.00, quase dois anos mais antiga que a atual, 2026.08.00) —
+rejeitada por trocar uma correção pontual e de baixo risco (subir só
+`compileSdk`, sem mudar comportamento de nenhum aparelho já em uso)
+por uma dependência bem mais antiga do sistema visual que
+decisions/0035 já decidiu construir em cima do Material 3 corrente.
+Número exato (37) confirmado na mesma página oficial já citada acima
+(GOOGLE, [s.d.]c): versão estável mais recente do Android é a 17
+(nível de API 37), lançada depois da pesquisa original deste
+documento (14 ago. 2026).
+
 ## Referências
 
 Fontes citadas no Contexto e na Decisão, no formato definido pela norma

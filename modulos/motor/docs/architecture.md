@@ -6,8 +6,8 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Architecture |
-| Versão | 0.45.0 |
-| Data | 30-08-2026 |
+| Versão | 0.52.0 |
+| Data | 02-09-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
 > Descreve como o módulo é construído por dentro — layout de arquivos,
@@ -43,6 +43,7 @@ Convenção dos códigos citados neste documento:
 - `EI-HIE` — [`3 - especificacao-conceito-geral.md`](<../../../docs/docs-VMODEL-visao-geral/3 - especificacao-conceito-geral.md>), seção 6.1.
 - `EI-SES` — [`3 - especificacao-conceito-geral.md`](<../../../docs/docs-VMODEL-visao-geral/3 - especificacao-conceito-geral.md>), seção 6.10.
 - `EI-VAL` — [`3 - especificacao-conceito-geral.md`](<../../../docs/docs-VMODEL-visao-geral/3 - especificacao-conceito-geral.md>), seção 6.4.
+- `EI-NAV` — [`3 - especificacao-conceito-geral.md`](<../../../docs/docs-VMODEL-visao-geral/3 - especificacao-conceito-geral.md>), seção 6.15.
 - `PD-LEI` — [`5 - projeto-detalhado.md`](<../../../docs/docs-VMODEL-visao-geral/5 - projeto-detalhado.md>), seção 6.1.
 - `PD-CON` — [`5 - projeto-detalhado.md`](<../../../docs/docs-VMODEL-visao-geral/5 - projeto-detalhado.md>), seção 6.2.
 - `PD-IMP` — [`5 - projeto-detalhado.md`](<../../../docs/docs-VMODEL-visao-geral/5 - projeto-detalhado.md>), seção 6.3.
@@ -61,6 +62,7 @@ Convenção dos códigos citados neste documento:
     - [Pacote `summary` — desenho interno](#pacote-summary--desenho-interno)
     - [Interface](#interface)
       - [Ligação com o núcleo do motor](#ligação-com-o-núcleo-do-motor)
+      - [Ponto de entrada real (MotorApp)](#ponto-de-entrada-real-motorapp)
     - [Esqueleto mínimo e versões de build](#esqueleto-mínimo-e-versões-de-build)
   - [Acessório leitor (firmware)](#acessório-leitor-firmware)
   - [Fronteira de dado entre aplicativo e acessório](#fronteira-de-dado-entre-aplicativo-e-acessório)
@@ -744,12 +746,19 @@ espírito de `search`:
 ```
 core/summary/
   Summary.kt   PositionOutcome (sealed: Answered(position, confirmationText), Skipped(position)),
-               AnsweredPosition, SkipMessage(answered, unansweredPositions),
+               AnsweredPosition(position: Int, confirmationText: String?),
+               SkipMessage(answered: List<AnsweredPosition>, unansweredPositions: List<Int>),
                buildSkipMessage(positions: List<PositionOutcome>): SkipMessage — EI-PUL-05
                ChainOutcome (Filled/Lost), ChainSkipSynthesis(filledCount, lostCount),
                buildChainSkipSynthesis(outcomes: List<ChainOutcome>): ChainSkipSynthesis — EI-ENC-03, caso com pulo
                buildContinuousSynthesis(summaryFragmentsInOrder: List<String>): String — EI-RET-04, EI-ENC-03 sem pulo
 ```
+
+Forma exata de `AnsweredPosition` e `SkipMessage` confirmada ao escrever
+`SkipMessageContent` (tela de jogo, `SessionGameScreen.kt`) direto a
+partir do que já estava documentado aqui — compilou de primeira contra
+o código real, sem nenhuma divergência, então não gerou ADR de
+correção (diferente do caso de `SessionState`, decisions/0027).
 
 `buildSkipMessage` nunca recebe nem devolve o conteúdo de uma posição
 pulada — só a posição em si, preservando a proibição de revelar
@@ -850,6 +859,16 @@ Passo 4 (protótipo navegável e avaliação) resolvido em
 e a avaliação contra as dez heurísticas de Nielsen em
 [`design/avaliacao-heuristica.md`](<../design/avaliacao-heuristica.md>).
 
+Teste de tela: Robolectric, como teste local (sem aparelho nem
+emulador), com `createComposeRule()` — mesma versão de Robolectric já
+fixada em [decisions/0025](<../decisions/0025-ferramenta-de-teste-do-modulo-app.md>),
+mesma pasta (`test`, nunca `androidTest`) dos demais testes de `app` —
+ver [decisions/0037](<../decisions/0037-ferramenta-de-teste-das-telas-compose.md>).
+O que esse teste prova é comportamento (texto certo pro estado certo,
+botão certo chamando o método certo do `ViewModel`), nunca aparência
+real (pixel, cor, espaçamento) — isso já foi validado no protótipo
+navegável e na avaliação heurística acima.
+
 ##### Ligação com o núcleo do motor
 
 *Em resumo:* separado da aparência (já decidida — ver acima), o mecanismo que
@@ -921,6 +940,70 @@ Ferramenta de teste: `kotlin-test-junit`, sem Robolectric — nenhuma
 classe do Android envolvida
 ([decisions/0025](<../decisions/0025-ferramenta-de-teste-do-modulo-app.md>)).
 
+##### Ponto de entrada real (MotorApp)
+
+*Em resumo:* separado da lógica de sessão (já descrita acima), falta descrever qual tela o
+aplicativo mostra primeiro ao abrir, e como ele troca de uma tela pra outra conforme a pessoa usa.
+`app/ui/MotorApp.kt` é essa peça — decide, ao abrir, se existe uma sessão pausada esperando
+retomada (EI-NAV-01) ou se mostra a navegação normal (EI-NAV-02), e encadeia as sete telas de
+navegação já escritas com a tela de jogo.
+
+*Em detalhe técnico:* mecanismo de troca de tela decidido em
+[decisions/0040](<../decisions/0040-mecanismo-de-navegacao-entre-telas-do-motor.md>). `MotorApp()`
+verifica, na primeira composição, se existe um arquivo de sessão pausada em disco
+(`loadSessionState`, `core/session`, decisions/0010) — havendo um, a tela inicial é
+`AppScreen.Paused` (`PausedSessionScreen`); não havendo, é `AppScreen.Navigation`
+(`NavigationScreen`) — implementação direta de EI-NAV-01/EI-NAV-02, sem alternativa de desenho.
+
+Encadeamento das telas já escritas, conferido contra o protótipo navegável já validado
+(decisions/0036, `design/prototipo-navegavel.js`):
+
+```
+AppScreen.Paused        "Retomar" -> AppScreen.Game
+                         "Sair da sessão" -> deleteSessionState (core/session) -> AppScreen.Navigation
+AppScreen.Navigation    escolher um item -> AppScreen.Configuration
+AppScreen.Configuration "Iniciar sessão" -> AppScreen.Game
+AppScreen.Game           pausar -> AppScreen.Paused
+                          saída confirmada -> AppScreen.Result
+                          continuar (fim de sessão) -> AppScreen.Result
+AppScreen.Result         "Voltar à navegação" -> AppScreen.Navigation
+```
+
+`SessionConfigurationScreen` recebe `isTabletLayout` calculado de verdade a partir do tamanho real
+da janela — `MotorApp()` chama `currentWindowAdaptiveInfo().windowSizeClass.isWidthAtLeastBreakpoint(
+WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND)` (biblioteca oficial `androidx.compose.material3.adaptive`),
+nenhum limiar copiado à mão pro código do motor — ver
+[decisions/0043](<../decisions/0043-mecanismo-de-classificacao-de-tamanho-de-janela.md>).
+
+Duas limitações explícitas, nenhuma delas escondida atrás de dado de exemplo silencioso:
+
+- **Retomar uma sessão pausada não reconstrói a sessão de verdade ainda.** O botão "Retomar" de
+  `PausedSessionScreen` leva pra `AppScreen.Game`, mas sem reconstruir o `SessionViewModel` a
+  partir do `SessionState` já lido do arquivo — falta a pergunta ainda sem resposta de onde o
+  conteúdo já importado (`ContentInstance`) fica guardado no aparelho entre uma abertura do
+  aplicativo e outra, sem a qual não dá pra montar o `SessionViewModel` de volta (`instance` é
+  parâmetro obrigatório do construtor, decisions/0026). Registrado como pendência em
+  [`tasks.md`](tasks.md).
+- **Consentimento e Importar conteúdo não têm gatilho real ainda.** `ConsentScreen` e
+  `ImportContentScreen` existem, testadas, mas nenhuma tela do encadeamento acima leva até elas.
+  Registrado como pendência em [`tasks.md`](tasks.md), sem tela nem mecanismo de coleta ainda — os
+  dados que já são coletados continuam ficando só no aparelho de quem abre o aplicativo
+  (EI-REG-08), sem que essa pendência mude isso.
+
+Nenhum dado de conteúdo (nome de instância, tema, evento) é declarado dentro de `MotorApp.kt` —
+o arquivo chama cinco funções (`conteudoInicialDe*()`) sem saber de onde vem a resposta; cada tipo
+de build do Android (`debug`, `release`) fornece a própria versão delas, numa pasta própria
+(`src/debug/`, `src/release/`), nunca em `src/main/` — mecanismo estrutural decidido em
+[decisions/0042](<../decisions/0042-conteudo-de-teste-visual-isolado-por-tipo-de-build.md>). Numa
+build de depuração, essas funções devolvem conteúdo de exemplo rico o bastante pra exercitar o
+encadeamento (dois temas, eventos com dica habilitada/desabilitada, mais de uma posição de
+início); numa build de produção, devolvem sempre vazio/neutro — reflexo honesto de que o
+aplicativo, hoje, não tem nenhum jeito real de carregar conteúdo importado, sem esconder isso
+atrás de um exemplo silencioso.
+
+Ferramenta de teste: Robolectric + `createComposeRule()`, mesma de toda tela em Compose
+([decisions/0037](<../decisions/0037-ferramenta-de-teste-das-telas-compose.md>)).
+
 #### Esqueleto mínimo e versões de build
 
 *Em resumo:* antes de qualquer tela de verdade existir, o módulo `app`
@@ -934,14 +1017,29 @@ Interface descrita acima (que continua pendente):
 ```
 app/
   src/main/AndroidManifest.xml   declaração do pacote, da Application
-                                  e da Activity de entrada
+                                  e da Activity de entrada;
+                                  android:theme aponta pro tema abaixo
+  src/main/res/values/themes.xml Theme.NexoMotor, estendendo
+                                  Theme.Material3.DayNight.NoActionBar
+                                  -- ver pitfalls.md
   src/main/kotlin/org/nexo/motor/app/
     NexoMotorApplication.kt      subclasse mínima de Application
-    MainActivity.kt              subclasse mínima de Activity, sem
-                                  tela (nenhum setContentView) —
-                                  aparência fica pra quando a pendência
-                                  de desenho visual (ver tasks.md) for
-                                  resolvida
+    MainActivity.kt              estende ComponentActivity, a forma
+                                  exigida pelo próprio Compose já
+                                  escolhido em decisions/0031 pra
+                                  hospedar uma tela (setContent) — sem
+                                  alternativa real, não é uma escolha
+                                  nova. Chama setContent com
+                                  NexoMotorTheme { MotorApp() } -- ponto
+                                  de entrada real, ver "Ponto de entrada
+                                  real (MotorApp)", acima
+  src/debug/kotlin/org/nexo/motor/app/ui/
+    ConteudoInicial.kt            conteúdo de exemplo pra MotorApp.kt,
+                                  só em build de depuração --
+                                  decisions/0042
+  src/release/kotlin/org/nexo/motor/app/ui/
+    ConteudoInicial.kt            mesmas funções, sempre vazias --
+                                  decisions/0042
 ```
 
 Versão mínima de Android aceita, versão usada como alvo/compilação, e
@@ -1102,3 +1200,10 @@ com o campo Versão da tabela de cabeçalho, que sempre reflete a
 | 0.43.0 | 30-08-2026 | Seção "Interface" registra que o passo 2 (wireframe) do método está completo — o esqueleto das 16 entradas de tela restantes, mais o indicador de conexão do acessório e o botão de pausar, agora mora em [wireframe.md](../design/wireframe.md). | Criação de [wireframe.md](../design/wireframe.md) |
 | 0.44.0 | 30-08-2026 | Link pra `wireframe.md` corrigido — arquivo movido de `docs/` pra uma pasta nova, `design/`, fora do conjunto fixo de documentos do molde do módulo. | Reorganização de pasta do módulo |
 | 0.45.0 | 30-08-2026 | Seção "Interface" corrigida: três trechos desatualizados removidos — a aparência visual não estava mais "sem decisão" desde [decisions/0035](<../decisions/0035-sistema-visual-cor-tipografia-forma-contraste.md>); o indicador de conexão Bluetooth em "Aguardando tentativa" já tem posição fechada em `wireframe.md`; e a frase "nenhuma das quatro etapas foi concluída" já não valia (as três primeiras estavam prontas, só a quarta — protótipo navegável — seguia pendente). | Auditoria de leitura completa antes da tarefa do protótipo navegável |
+| 0.46.0 | 01-09-2026 | Seção "Interface" ganha a ferramenta de teste das telas em Compose (Robolectric, teste local, `createComposeRule()`) — lacuna encontrada ao começar a escrever o código real das telas: nenhum documento decidia isso ainda. | Resolução de [decisions/0037](<../decisions/0037-ferramenta-de-teste-das-telas-compose.md>) |
+| 0.47.0 | 01-09-2026 | Seção "Esqueleto mínimo e versões de build" corrigida. | Ligação provisória da tela de jogo à `MainActivity` |
+| 0.48.0 | 01-09-2026 | Acrescentada a seção "Ponto de entrada real (MotorApp)" (verificação de sessão pausada ao abrir, EI-NAV-01/EI-NAV-02, encadeamento real das sete telas de navegação com a tela de jogo, duas limitações explícitas registradas); acrescentado `EI-NAV` à convenção de códigos do documento. | Resolução de [decisions/0040-mecanismo-de-navegacao-entre-telas-do-motor.md](<../decisions/0040-mecanismo-de-navegacao-entre-telas-do-motor.md>) |
+| 0.49.0 | 01-09-2026 | Seção "Esqueleto mínimo e versões de build" atualizada com o tema `NoActionBar` e o novo ponto de entrada real de `MainActivity.kt`. | Achado [pitfalls.md#2026-09-01-sem-tema-xml-noactionbar-a-barra-nativa-cobre-o-compose](<pitfalls.md#2026-09-01-sem-tema-xml-noactionbar-a-barra-nativa-cobre-o-compose>) |
+| 0.50.0 | 02-09-2026 | Seção "Ponto de entrada real (MotorApp)" corrigida: encadeamento de pausar (leva à Sessão pausada, não à Navegação) e de sair confirmado (leva ao Resultado, não à Navegação) conferido contra o protótipo navegável; conteúdo de exemplo deixa de morar em `src/main/`, passa a vir de `src/debug/`/`src/release/`. Árvore da seção "Esqueleto mínimo e versões de build" ganha as duas pastas novas. | Resolução de [decisions/0042](<../decisions/0042-conteudo-de-teste-visual-isolado-por-tipo-de-build.md>) |
+| 0.51.0 | 02-09-2026 | Seção "Ponto de entrada real (MotorApp)" ganha terceira limitação explícita: `isTabletLayout` fixo em `false`, nunca calculado a partir de `WindowSizeClass`. | Achado na revisão de PR (revisor-valores-fixos) |
+| 0.52.0 | 02-09-2026 | Seção "Ponto de entrada real (MotorApp)" corrigida: `isTabletLayout` deixa de ser limitação — `MotorApp()` já calcula o valor real via `WindowSizeClass`, voltando a duas limitações explícitas. | Resolução de [decisions/0043](<../decisions/0043-mecanismo-de-classificacao-de-tamanho-de-janela.md>) |

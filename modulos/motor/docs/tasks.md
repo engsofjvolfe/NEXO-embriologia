@@ -6,8 +6,8 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Tasks |
-| Versão | 0.56.0 |
-| Data | 31-08-2026 |
+| Versão | 0.60.0 |
+| Data | 02-09-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
 > Lista mutável de pendências só deste módulo. Lida depois de
@@ -171,33 +171,19 @@ Convenção dos códigos citados aqui:
       terceiro (ANATEL), pode mudar — reconfirmar na fonte oficial
       antes de agir (comprar homologação, iniciar processo).
 
-- [ ] **Escrever o código real das telas do módulo `app` (Jetpack
-      Compose) e ligar tudo — telas, `SessionViewModel`, `core`.**
+- [ ] **Decidir como o caminho de imagem de um fotograma vira pixel de
+      verdade na tela.** Ver
+      [analysis.md](<analysis.md#2026-09-01-escrita-da-sessiongamescreen-revela-tres-lacunas>).
 
-      *Resumo simples:* o método de desenho visual (arquitetura de
-      informação, esqueleto, cor/fonte, protótipo clicável) está
-      inteiramente concluído — falta escrever o código de verdade das
-      17 entradas de tela, em Kotlin/Compose, e conectar cada uma ao
-      que já existe por baixo (`SessionViewModel`, `core/session`,
-      `core/content`, etc.). O protótipo navegável (HTML) não vira
-      código nenhum — é só a maquete que validou o desenho antes desta
-      etapa.
+- [ ] **Decidir onde o conteúdo importado (`ContentInstance`) fica
+      guardado no aparelho entre uma abertura do aplicativo e outra.**
+      Ver
+      [architecture.md, Ponto de entrada real (MotorApp)](<architecture.md#ponto-de-entrada-real-motorapp>).
 
-      *Detalhe técnico:* implementa, em Jetpack Compose
-      ([decisions/0031](<../decisions/0031-jetpack-compose-como-ferramenta-de-desenho-de-tela.md>)),
-      o leiaute já fechado em
-      [design/wireframe.md](<../design/wireframe.md>), o sistema visual
-      de
-      [decisions/0035](<../decisions/0035-sistema-visual-cor-tipografia-forma-contraste.md>),
-      o gatilho de toque de
-      [decisions/0032](<../decisions/0032-gatilho-de-toque-entre-estados-do-sessionscreen.md>)
-      e o acordeão de
-      [decisions/0030](<../decisions/0030-padrao-de-navegacao-hierarquica-de-conteudo.md>)/[decisions/0034](<../decisions/0034-mecanismo-de-carregamento-preguicoso-do-acordeao-de-navegacao.md>).
-      Cada tela consome o `uiState: StateFlow<SessionUiState>` e chama
-      os métodos já existentes do `SessionViewModel` (ver
-      [architecture.md, Ligação com o núcleo do
-      motor](<architecture.md#ligação-com-o-núcleo-do-motor>)) — nenhuma
-      lógica nova de sessão, só a tela em si. Sem trabalho iniciado.
+- [ ] **Decidir o gatilho de Consentimento e de Importar conteúdo —
+      quando cada tela aparece de verdade no encadeamento do
+      aplicativo.** Ver
+      [architecture.md, Ponto de entrada real (MotorApp)](<architecture.md#ponto-de-entrada-real-motorapp>).
 
 - [ ] **Escrever os testes instrumentados de `ReportPdfRenderer.kt` e
       do caminho antigo de `ReportFileWriter.kt` (Android 7 a 9).**
@@ -292,6 +278,18 @@ Convenção dos códigos citados aqui:
       pra simular) — dá o critério numérico, repetível, pra decidir se
       um limiar novo é de fato melhor que o atual, em vez de julgar só
       pela impressão.
+
+- [ ] **Confirmar visualmente, num ambiente sem o limite de emulador já
+      registrado, que a barra de título nativa do Android some de
+      verdade depois da correção do tema.** Ver
+      [analysis.md](<analysis.md#2026-09-01-confirmacao-visual-do-ponto-de-entrada-real-e-limite-de-ambiente-do-emulador>)
+      e [pitfalls.md](<pitfalls.md#2026-09-01-sem-tema-xml-noactionbar-a-barra-nativa-cobre-o-compose>).
+
+- [ ] **Cobrir o estado "NFC/Bluetooth desligado no aparelho" no
+      indicador de conexão da tela de jogo (`connectionIndicatorText`,
+      `SessionGameScreen.kt`).** Ver
+      [wireframe.md, Tela de jogo — posição dos elementos comuns](<../design/wireframe.md#tela-de-jogo--posição-dos-elementos-comuns>).
+      Achado na revisão de PR (revisor-testes).
 
 - [ ] **Explicar a organização de pastas do código de `core` em
       linguagem simples, e reavaliar se ainda faz sentido conforme
@@ -558,7 +556,26 @@ Convenção dos códigos citados aqui:
       Edge) em modo sem interface, com asserções específicas contra o
       comportamento já documentado — ver
       [analysis.md](<analysis.md#2026-08-31-verificacao-do-prototipo-navegavel-apos-revisao-de-pr>).
-
+- [x] **Escrever o código real das telas do módulo `app` (Jetpack
+      Compose) e ligar tudo — telas, `SessionViewModel`, `core`.**
+      Resolvido — ver
+      [architecture.md, Ponto de entrada real (MotorApp)](<architecture.md#ponto-de-entrada-real-motorapp>)
+      e
+      [decisions/0040](<../decisions/0040-mecanismo-de-navegacao-entre-telas-do-motor.md>).
+- [x] **Confirmar a forma exata de `SkipMessage`/`AnsweredPosition`
+      (`core/summary`).** Resolvido — ver
+      [architecture.md, pacote `summary`](<architecture.md#pacote-summary--desenho-interno>),
+      sem divergência encontrada.
+- [x] **Decidir a fonte de ícone dos controles de tela.** Resolvido —
+      ver
+      [decisions/0039](<../decisions/0039-fonte-de-icone-dos-controles-de-tela.md>)
+      (rótulo de texto, decisão original) e
+      [decisions/0041](<../decisions/0041-fonte-de-icone-do-botao-de-pausar.md>)
+      (revisão: ícone oficial pro botão de pausar, via repositório
+      GitHub do Google).
+- [x] **Calcular `isTabletLayout`, em `MotorApp.kt`, a partir do
+      tamanho real da janela, em vez de valor fixo.** Resolvido — ver
+      [decisions/0043](<../decisions/0043-mecanismo-de-classificacao-de-tamanho-de-janela.md>).
 ## Referências
 
 Fontes externas citadas nas pendências "Validar em campo o limiar de
@@ -662,3 +679,7 @@ como mudança de conteúdo real. -->
 | 0.54.0 | 30-08-2026 | Pendência "Aplicar o sistema visual (Material Design) sobre o esqueleto de tela já pronto" resolvida — movida para Resolvidas. Pendência "Montar o protótipo navegável..." perde o bloqueio. | Resolução de [decisions/0035](<../decisions/0035-sistema-visual-cor-tipografia-forma-contraste.md>) |
 | 0.55.0 | 30-08-2026 | Pendência "Montar o protótipo navegável e avaliar contra as boas práticas de usabilidade" resolvida — movida para Resolvidas, fechando as quatro etapas do método de desenho visual. Pendência nova "Escrever o código real das telas do módulo `app` (Jetpack Compose) e ligar tudo" acrescentada em seu lugar — a implementação de tela em si nunca tinha pendência própria registrada. | Resolução de [decisions/0036](<../decisions/0036-ferramenta-e-fidelidade-do-prototipo-navegavel.md>) |
 | 0.56.0 | 31-08-2026 | Nota de teste do item resolvido "Montar o protótipo navegável..." trocada por ponteiro pra `analysis.md`, com o detalhe das asserções específicas usadas na revisão pós-`/revisar-pr` (antes só dizia "sem erro de execução"). | Verificação com asserções específicas, ver [analysis.md](<analysis.md#2026-08-31-verificacao-do-prototipo-navegavel-apos-revisao-de-pr>) |
+| 0.57.0 | 01-09-2026 | Pendência "Escrever o código real das telas..." atualizada: primeira tela (jogo) escrita e testada, ponteiro pra decisions/0037. Três pendências novas acrescentadas, reveladas ao escrever essa tela (carregamento de imagem, forma de `SkipMessage`, fonte de ícone). | Escrita de `SessionGameScreen.kt`; investigação em [analysis.md](<analysis.md#2026-09-01-escrita-da-sessiongamescreen-revela-tres-lacunas>) |
+| 0.58.0 | 01-09-2026 | Pendência "Escrever o código real das telas..." resolvida — movida para Resolvidas. Pendências "Confirmar a forma exata de `SkipMessage`..." e "Decidir a fonte de ícone dos controles de tela" resolvidas — movidas para Resolvidas. Três pendências novas acrescentadas. | Resolução de [decisions/0040](<../decisions/0040-mecanismo-de-navegacao-entre-telas-do-motor.md>) e [decisions/0041](<../decisions/0041-fonte-de-icone-do-botao-de-pausar.md>) |
+| 0.59.0 | 02-09-2026 | Pendência "Confirmar visualmente que a barra de título nativa..." segue em "Em aberto", com ponteiro pra `analysis.md` e `pitfalls.md`. Pendência nova acrescentada (aviso de NFC/Bluetooth desligado). | Achados na revisão de PR (revisor-visao-de-conjunto, revisor-testes, revisor-valores-fixos) |
+| 0.60.0 | 02-09-2026 | Pendência nova "`isTabletLayout` fixo em `MotorApp.kt`" acrescentada já resolvida, movida direto para Resolvidas — nunca existiu aqui como "Em aberto". | Resolução de [decisions/0043](<../decisions/0043-mecanismo-de-classificacao-de-tamanho-de-janela.md>) |

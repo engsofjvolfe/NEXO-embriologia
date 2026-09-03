@@ -110,7 +110,7 @@ class MotorAppTest {
         abrirConfiguracaoEIniciarSessao()
 
         composeTestRule.onNodeWithText("Ver resultado").performClick()
-        composeTestRule.onNodeWithText("Erros: 0").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Voltar à navegação").assertIsDisplayed()
 
         composeTestRule.onNodeWithText("Voltar à navegação").performClick()
         composeTestRule.onNodeWithText("Buscar").assertIsDisplayed()
@@ -126,7 +126,7 @@ class MotorAppTest {
         composeTestRule.onNodeWithText("Sair").performClick()
         composeTestRule.onNodeWithTag(EXIT_CONFIRM_BUTTON_TAG).performClick()
 
-        composeTestRule.onNodeWithText("Erros: 0").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Voltar à navegação").assertIsDisplayed()
     }
 
     @Test

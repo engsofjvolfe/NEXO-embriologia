@@ -208,9 +208,9 @@
   já encadeadas de verdade no aplicativo (as duas restantes,
   Consentimento e Importar conteúdo, ainda sem gatilho que leve até
   elas) — ver [modulos/motor/docs/handoff.md](modulos/motor/docs/handoff.md).
-- Achados de duas rodadas de revisão de PR das telas do motor
+- Achados das três rodadas de revisão de PR das telas do motor
   resolvidos (campo editável, testes de tela novos, divergências de
-  código corrigidas) — ver
+  código corrigidas, índice de decisões do módulo atualizado) — ver
   [modulos/motor/docs/handoff.md](modulos/motor/docs/handoff.md).
 - [TASKS.md, Resolvidas](TASKS.md#resolvidas) — pendências já corrigidas.
 

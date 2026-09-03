@@ -6,7 +6,7 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Analysis |
-| Versão | 0.29.0 |
+| Versão | 0.30.0 |
 | Data | 03-09-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
@@ -1372,6 +1372,48 @@ casos são o código passando a bater com o que o documento já exigia,
 mesmo padrão já usado no achado de `hierarchy` sobre posição com
 buraco (ver acima, entrada de 14-08-2026).
 
+### <a id="2026-09-03-fundamentacao-em-documento-da-revisao-final-de-pr"></a>2026-09-03 — Fundamentação em documento da revisão final de PR, antes de abrir o PR
+
+**Levou a:** [findings.md#2026-09-03-conteudo-de-exemplo-nao-varia-disponibilidade-de-pular-entre-eventos](<findings.md#2026-09-03-conteudo-de-exemplo-nao-varia-disponibilidade-de-pular-entre-eventos>), [findings.md#2026-09-03-valores-de-preenchimento-sem-significado-quando-a-lista-de-exemplo-esta-vazia](<findings.md#2026-09-03-valores-de-preenchimento-sem-significado-quando-a-lista-de-exemplo-esta-vazia>)
+
+*Resumo simples:* a rodada final de `/revisar-pr` (depois de duas rodadas de correção já
+resolvidas) trouxe cinco pontos novos, de três assistentes diferentes. Cada um foi checado contra
+o documento que deveria decidir aquilo, antes de qualquer correção — dois viraram achado real
+(conteúdo de exemplo, valores de preenchimento), dois foram corrigidos como ajuste direto de
+qualidade de teste (sem base documental pra virar achado), e um foi conferido contra o sistema
+visual já decidido e concluído que não precisa de correção nenhuma.
+
+*Detalhe técnico:*
+- Conteúdo de exemplo (`ConteudoInicial.kt`) e valores de preenchimento sem significado
+  (`selectedStartingPosition ?: 1`, nome de evento `?: ""` em `MotorApp.kt`): os dois viraram achado
+  confirmado — fato técnico completo (documento comparado, trecho de código, resolução ou motivo de
+  não corrigir agora) mora só em
+  [findings.md#2026-09-03-conteudo-de-exemplo-nao-varia-disponibilidade-de-pular-entre-eventos](<findings.md#2026-09-03-conteudo-de-exemplo-nao-varia-disponibilidade-de-pular-entre-eventos>)
+  e
+  [findings.md#2026-09-03-valores-de-preenchimento-sem-significado-quando-a-lista-de-exemplo-esta-vazia](<findings.md#2026-09-03-valores-de-preenchimento-sem-significado-quando-a-lista-de-exemplo-esta-vazia>),
+  não repetido aqui.
+- Asserção de teste com número fixo (`MotorAppTest.kt`, "Erros: 0"): checado contra o próprio
+  código de produção (`MotorApp.kt`, `errorCount = 0`, fixo) — a asserção não provava contagem
+  nenhuma, só que a tela de Resultado foi alcançada, porque esse número nunca muda hoje. Sem
+  requisito de documento envolvido (não é divergência de comportamento, é escolha de qual texto
+  prova qual coisa) — corrigido direto, trocando pela asserção de um botão que também só existe na
+  tela de Resultado ("Voltar à navegação"), sem depender de um valor ainda fixo.
+- Mistura de estilo de asserção (`SessionConfigurationScreenTest.kt`): `assert()` é a função
+  embutida da própria linguagem Kotlin, compilada como instrução JVM `assert` — só executa de
+  verdade se a JVM rodar com a flag `-ea` (assertions habilitadas); sem essa flag, a chamada nunca
+  falha, mesmo com a condição falsa. `kotlin.test.assertTrue`/`assertFalse`, já usadas no mesmo
+  arquivo, são funções normais, sempre ativas, independente de flag. Sem requisito de documento
+  envolvido (mesma categoria do ponto anterior) — todas as chamadas convertidas pra
+  `kotlin.test.assertEquals`, removendo a dependência da flag.
+- Proporção de coluna (`0.3f`/`0.7f`, `TabletLayout`) e recuo de navegação
+  (`NavigationEntryIndentStep = 16.dp`): checados contra
+  [decisions/0035](<../decisions/0035-sistema-visual-cor-tipografia-forma-contraste.md>), que já
+  decide cor, tema, tipografia, forma, contraste e área de toque — nenhum dos sete pontos da
+  Decisão cobre proporção de layout nem recuo de indentação. Os dois valores continuam sem decisão
+  documentada, mas na mesma categoria de qualquer outro espaçamento já usado nas telas (`16.dp`,
+  `12.dp`, `8.dp` de `padding`, por exemplo) — implementação visual comum, não dado de conteúdo ou
+  configuração que devesse vir de outro lugar. Sem correção.
+
 ## Controle de versão
 
 <!-- uma linha por versão publicada deste documento, mais antiga no
@@ -1410,3 +1452,4 @@ sem reescrever) também conta como mudança de conteúdo real. -->
 | 0.27.0 | 01-09-2026 | Acrescentada a investigação da fonte de ícone oficial pro botão de pausar, via repositório GitHub do Google — reabre e resolve o bloqueio registrado em `decisions/0039`. | Resolução parcial de [decisions/0041](<../decisions/0041-fonte-de-icone-do-botao-de-pausar.md>) |
 | 0.28.0 | 03-09-2026 | Acrescentada a investigação de fundamentação em documento, antes de teste, dos quatro pontos apontados por `revisor-testes` — dois seguem pra teste, um vira pendência bloqueada, um vira achado real em `findings.md`. | Achados na revisão de PR (revisor-testes) |
 | 0.29.0 | 03-09-2026 | Acrescentada a investigação de fundamentação em documento da segunda rodada de revisão de PR — dois pontos que pareciam simples revelaram divergência real (nome do evento no leiaute compacto, formato da mensagem de pulo com posições não-contíguas). | Achados na revisão de PR (revisor-testes, revisor-visao-de-conjunto) |
+| 0.30.0 | 03-09-2026 | Acrescentada a investigação de fundamentação em documento da revisão final de PR — cinco pontos checados, dois viram achado real, dois viram ajuste direto de teste, um confirmado sem necessidade de correção (proporção de layout e recuo de navegação, fora do escopo de `decisions/0035`). | Achados na revisão final de PR (revisor-visao-de-conjunto, revisor-testes, revisor-valores-fixos) |

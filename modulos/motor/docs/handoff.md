@@ -6,7 +6,7 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Handoff |
-| Versão | 0.50.0 |
+| Versão | 0.52.0 |
 | Data | 03-09-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
@@ -221,3 +221,5 @@ com o campo Versão da tabela de cabeçalho, que sempre reflete a
 | 0.48.0 | 02-09-2026 | Acrescentado ponteiro para decisions/0043. | Resolução de decisions/0043 |
 | 0.49.0 | 03-09-2026 | Nenhum ponteiro novo (`findings.md`, `analysis.md`, `tasks.md` e `architecture.md` já citados). | Revisão de PR das telas do motor |
 | 0.50.0 | 03-09-2026 | Nenhum ponteiro novo (`findings.md`, `analysis.md`, `tasks.md` e `architecture.md` já citados). | Segunda rodada de revisão de PR das telas do motor |
+| 0.51.0 | 03-09-2026 | Nenhum ponteiro novo (`findings.md`, `analysis.md` e `tasks.md` já citados). | Revisão final de PR das telas do motor — quatro assistentes, achados dos três primeiros resolvidos, índice de decisões corrigido |
+| 0.52.0 | 03-09-2026 | Nenhuma mudança de conteúdo — reordenação da sequência de edição, mantendo este arquivo como o último tocado dentro do módulo. | Fechamento da rodada final de revisão de PR |

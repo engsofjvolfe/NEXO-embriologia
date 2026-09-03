@@ -11,6 +11,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 @RunWith(RobolectricTestRunner::class)
@@ -162,8 +163,8 @@ class SessionConfigurationScreenTest {
 
         composeTestRule.onNodeWithText("Pular disponível").performClick()
 
-        assert(changedEvent == "Fecundação")
-        assert(changedValue == true)
+        assertEquals("Fecundação", changedEvent)
+        assertEquals(true, changedValue)
     }
 
     @Test
@@ -239,7 +240,7 @@ class SessionConfigurationScreenTest {
 
         composeTestRule.onNodeWithText("Nidação").performClick()
 
-        assert(selected == "Nidação")
+        assertEquals("Nidação", selected)
     }
 
     @Test
@@ -273,7 +274,7 @@ class SessionConfigurationScreenTest {
 
         composeTestRule.onNodeWithTag("posicao-inicio-12").performClick()
 
-        assert(selected == 12)
+        assertEquals(12, selected)
     }
 
     @Test
@@ -316,8 +317,8 @@ class SessionConfigurationScreenTest {
 
         composeTestRule.onAllNodesWithText("Limiar de erro — dica")[1].performTextInput("4")
 
-        assert(changedEvent == "Implantação")
-        assert(changedValue == "4")
+        assertEquals("Implantação", changedEvent)
+        assertEquals("4", changedValue)
     }
 
     @Test
@@ -360,8 +361,8 @@ class SessionConfigurationScreenTest {
 
         composeTestRule.onAllNodesWithText("Limiar de erro — sugestão de estudo")[1].performTextInput("9")
 
-        assert(changedEvent == "Eclosão")
-        assert(changedValue == "9")
+        assertEquals("Eclosão", changedEvent)
+        assertEquals("9", changedValue)
     }
 
     @Test
@@ -387,7 +388,7 @@ class SessionConfigurationScreenTest {
 
         composeTestRule.onNodeWithText("Tempo de ociosidade").performTextInput("45")
 
-        assert(changedValue == "45")
+        assertEquals("45", changedValue)
     }
 
     @Test

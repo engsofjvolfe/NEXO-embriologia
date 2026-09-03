@@ -33,7 +33,7 @@ internal fun conteudoInicialDeConfiguracoesDeEvento(): List<EventConfigUiState> 
     EventConfigUiState(
         eventName = "Evento 2",
         hintEnabledInContent = false,
-        skipAvailable = true,
+        skipAvailable = false,
         hintThresholdText = "3",
         studyThresholdText = "6",
     ),

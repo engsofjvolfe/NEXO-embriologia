@@ -6,8 +6,8 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Decisions — Índice |
-| Versão | 0.24.0 |
-| Data | 30-08-2026 |
+| Versão | 0.25.0 |
+| Data | 03-09-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
 > Decisões (ADR) específicas deste módulo — um arquivo por decisão,
@@ -77,6 +77,13 @@
 | [0034](0034-mecanismo-de-carregamento-preguicoso-do-acordeao-de-navegacao.md) | Mecanismo de carregamento aos poucos (lazy) do acordeão de navegação |
 | [0035](0035-sistema-visual-cor-tipografia-forma-contraste.md) | Sistema visual: cor, tipografia, forma, contraste e área de toque |
 | [0036](0036-ferramenta-e-fidelidade-do-prototipo-navegavel.md) | Ferramenta e fidelidade do protótipo navegável |
+| [0037](0037-ferramenta-de-teste-das-telas-compose.md) | Ferramenta de teste das telas em Jetpack Compose do módulo app |
+| [0038](0038-carregamento-de-imagem-de-fotograma-na-tela.md) | Carregamento de imagem de fotograma na tela |
+| [0039](0039-fonte-de-icone-dos-controles-de-tela.md) | Fonte de ícone dos controles de tela |
+| [0040](0040-mecanismo-de-navegacao-entre-telas-do-motor.md) | Mecanismo de navegação entre as telas do módulo app |
+| [0041](0041-fonte-de-icone-do-botao-de-pausar.md) | Fonte de ícone do botão de pausar (revisão de decisions/0039) |
+| [0042](0042-conteudo-de-teste-visual-isolado-por-tipo-de-build.md) | Conteúdo de teste visual isolado por tipo de build |
+| [0043](0043-mecanismo-de-classificacao-de-tamanho-de-janela.md) | Mecanismo de classificação de tamanho de janela (isTabletLayout) |
 
 ## Controle de versão
 
@@ -115,3 +122,4 @@ pelo ADR-NNNN). -->
 | 0.22.0 | 30-08-2026 | ADR 0034 acrescentada ao índice. | Resolução de [decisions/0034](0034-mecanismo-de-carregamento-preguicoso-do-acordeao-de-navegacao.md) |
 | 0.23.0 | 30-08-2026 | ADR 0035 acrescentada ao índice. | Resolução de [decisions/0035](0035-sistema-visual-cor-tipografia-forma-contraste.md) |
 | 0.24.0 | 30-08-2026 | ADR 0036 acrescentada ao índice. | Resolução de [decisions/0036](0036-ferramenta-e-fidelidade-do-prototipo-navegavel.md) |
+| 0.25.0 | 03-09-2026 | ADRs 0037 a 0043 acrescentadas ao índice, retroativamente — já existiam como arquivo desde a tarefa que as criou (escrita das 17 telas), mas nunca tinham entrado nesta lista. | Achado na revisão final de PR (revisor-referencias-cruzadas) |

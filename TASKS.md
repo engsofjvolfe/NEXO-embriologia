@@ -13,10 +13,12 @@
 
 - [ ] **Continuar a implementação do módulo motor.**
 
-      *Resumo simples:* o módulo já tem desenho de código, contrato de
-      dado, decisões de linguagem e o desenho visual das telas
-      (protótipo navegável já avaliado) — falta o código real das
-      telas e os testes.
+      *Resumo simples:* as 17 telas do motor já estão escritas e
+      testadas, com 15 delas encadeadas de verdade dentro do
+      aplicativo (as duas restantes, Consentimento e Importar
+      conteúdo, ainda sem gatilho que leve até elas) — falta ligar a
+      tela de jogo à lógica real de sessão (hoje ainda mostra
+      conteúdo de demonstração) e os testes que dependem disso.
 
       *Detalhe técnico:* ver
       [modulos/motor/docs/tasks.md, Em aberto](modulos/motor/docs/tasks.md#em-aberto)

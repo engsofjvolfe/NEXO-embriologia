@@ -6,7 +6,7 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Tasks |
-| Versão | 0.64.0 |
+| Versão | 0.66.0 |
 | Data | 03-09-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
@@ -94,9 +94,12 @@ Convenção dos códigos citados aqui:
       `skipCount = 0`, `pauseCount = 0` sempre fixos, em vez de vir do
       registro real da sessão (`core/session`, já escrito e testado
       desde a pendência "Escrever o código-fonte da ligação entre
-      leitura de peça, sessão e tela", Resolvidas). Bloqueada pela
-      pendência acima ("Decidir onde o conteúdo importado fica
-      guardado"): o construtor de `SessionViewModel`
+      leitura de peça, sessão e tela", Resolvidas). Mesma causa também
+      produz dois valores de preenchimento sem significado real no
+      mesmo arquivo — ver
+      [findings.md](<findings.md#2026-09-03-valores-de-preenchimento-sem-significado-quando-a-lista-de-exemplo-esta-vazia>).
+      Bloqueada pela pendência acima ("Decidir onde o conteúdo
+      importado fica guardado"): o construtor de `SessionViewModel`
       ([decisions/0026](<../decisions/0026-forma-de-sessionstate-tipos-de-content-e-construtor-do-viewmodel.md>))
       exige um `ContentInstance` real, que só existe depois de
       resolvida essa pendência — ligar antes disso obrigaria
@@ -110,7 +113,7 @@ Convenção dos códigos citados aqui:
       (`MotorAppTest.kt`), que hoje só progride porque
       `conteudoInicialDeResumoDeJogo()` já entrega a tela pronta pra
       terminar. Achado na revisão de PR (revisor-testes,
-      revisor-visao-de-conjunto).
+      revisor-visao-de-conjunto, revisor-valores-fixos).
 
 - [ ] **Escrever o teste do estado "Referência" (`SessionScreen.Reference`)
       da tela de jogo, com o conteúdo real (imagem), não o texto
@@ -693,6 +696,15 @@ Convenção dos códigos citados aqui:
       Testado ao vivo: `gradlew :core:test :app:testDebugUnitTest`, `BUILD
       SUCCESSFUL`. Achados na revisão de PR (revisor-testes,
       revisor-visao-de-conjunto).
+- [x] **Corrigir o conteúdo de exemplo que não variava a disponibilidade de pular entre eventos, a
+      asserção de teste que provava só navegação usando um número fixo como se fosse contagem de
+      verdade, e a mistura de estilo de asserção num teste de tela — achados da revisão final de
+      PR.** Resolvido — primeiro ponto (`ConteudoInicial.kt`) e raciocínio completo dos três em
+      [findings.md#2026-09-03-conteudo-de-exemplo-nao-varia-disponibilidade-de-pular-entre-eventos](<findings.md#2026-09-03-conteudo-de-exemplo-nao-varia-disponibilidade-de-pular-entre-eventos>)
+      e
+      [analysis.md#2026-09-03-fundamentacao-em-documento-da-revisao-final-de-pr](<analysis.md#2026-09-03-fundamentacao-em-documento-da-revisao-final-de-pr>),
+      não repetido aqui. Testado ao vivo: `gradlew :core:test :app:testDebugUnitTest`, `BUILD
+      SUCCESSFUL`. Achados na revisão final de PR (revisor-visao-de-conjunto, revisor-testes).
 
 ## Referências
 
@@ -805,3 +817,5 @@ como mudança de conteúdo real. -->
 | 0.62.0 | 03-09-2026 | Seção "Em aberto" reordenada (critério registrado na própria seção). Pendência nova "Escrever o teste do estado Referência com conteúdo real" acrescentada, bloqueada pela pendência do conteúdo importado. Três achados de teste resolvidos — movidos direto para Resolvidas. | Achados na revisão de PR (revisor-testes) |
 | 0.63.0 | 03-09-2026 | Pendência do conteúdo importado ganha ponteiro cruzado pro trecho equivalente no pacote `content` de `architecture.md`. Dois achados novos resolvidos — movidos direto para Resolvidas (nome do evento no leiaute compacto, formato da mensagem de pulo com posições não-contíguas). | Achados na segunda rodada de revisão de PR (revisor-testes, revisor-visao-de-conjunto) |
 | 0.64.0 | 03-09-2026 | Item resolvido da linha anterior ganha a confirmação de teste ao vivo (`gradlew :core:test :app:testDebugUnitTest`, `BUILD SUCCESSFUL`), que faltava. | Suíte completa rodada de novo após as duas correções |
+| 0.65.0 | 03-09-2026 | Pendência "Ligar `SessionViewModel` de verdade..." ganha ponteiro pro achado novo sobre os dois valores de preenchimento sem significado, e mais um revisor na atribuição. Um achado novo resolvido — movido direto para Resolvidas (conteúdo de exemplo, asserção de teste com número fixo, mistura de estilo de asserção). | Achados na revisão final de PR (revisor-visao-de-conjunto, revisor-testes, revisor-valores-fixos) |
+| 0.66.0 | 03-09-2026 | Item resolvido da linha anterior ganha a confirmação de teste ao vivo (`gradlew :core:test :app:testDebugUnitTest`, `BUILD SUCCESSFUL`), que faltava. | Suíte completa rodada de novo após as três correções |

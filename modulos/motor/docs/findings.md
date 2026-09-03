@@ -6,7 +6,7 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Findings |
-| Versão | 0.11.0 |
+| Versão | 0.12.0 |
 | Data | 03-09-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
@@ -305,6 +305,45 @@ sugerindo, por engano, que a posição respondida no meio também ficou sem resp
 Resolvido agrupando as posições sem resposta em blocos vizinhos, em vez de um único intervalo — ver
 [tasks.md, Resolvidas](<tasks.md#resolvidas>).
 
+### <a id="2026-09-03-conteudo-de-exemplo-nao-varia-disponibilidade-de-pular-entre-eventos"></a>2026-09-03 — Conteúdo de exemplo não varia a disponibilidade de pular entre eventos, como a ADR já exige
+
+**Confirmado por:** leitura de código
+
+*Resumo simples:* a decisão que criou o conteúdo de exemplo pedia, explicitamente, que a
+disponibilidade de pular variasse entre os dois eventos de exemplo — mas os dois eventos foram
+escritos com o mesmo valor.
+
+*Detalhe técnico:*
+- [decisions/0042](<../decisions/0042-conteudo-de-teste-visual-isolado-por-tipo-de-build.md>),
+  Decisão, item 4: conteúdo de exemplo com "disponibilidade de pular variando entre eventos".
+- `ConteudoInicial.kt` (`app/src/debug/`), antes desta correção: `skipAvailable = true` em
+  "Evento 1" e em "Evento 2" — sem variação nenhuma.
+- Achado na revisão final de PR (revisor-visao-de-conjunto).
+
+Resolvido mudando `skipAvailable` de "Evento 2" para `false` — ver
+[tasks.md, Resolvidas](<tasks.md#resolvidas>).
+
+### <a id="2026-09-03-valores-de-preenchimento-sem-significado-quando-a-lista-de-exemplo-esta-vazia"></a>2026-09-03 — Dois valores de preenchimento sem significado real aparecem quando a lista de exemplo está vazia
+
+**Confirmado por:** leitura de código
+
+*Resumo simples:* em `MotorApp.kt`, duas contas usam um valor de reserva quando a lista de exemplo
+não tem nenhum item — hoje isso nunca acontece de verdade, mas numa build de produção, onde essa
+mesma lista ainda vem sempre vazia (decisions/0042), os dois valores de reserva apareceriam na
+tela sem representar nada real.
+
+*Detalhe técnico:*
+- `selectedStartingPosition = conteudoInicialDePosicoesDeInicio().firstOrNull() ?: 1`: sem nenhuma
+  posição de início disponível, mostra a posição `1` como se fosse selecionada, mesmo sem existir.
+- `onPauseRequested = { current = AppScreen.Paused(configs.firstOrNull()?.eventName ?: "") }`: sem
+  nenhum evento configurado, mostra a tela de sessão pausada com nome de evento vazio.
+- Achado na revisão final de PR (revisor-valores-fixos).
+
+Sem correção nesta tarefa — mesma causa raiz da pendência já aberta "Ligar `SessionViewModel` de
+verdade..." (ver [tasks.md, Em aberto](<tasks.md#em-aberto>)): sem conteúdo real carregado, qualquer
+valor de reserva aqui seria arbitrário; a correção de verdade só existe depois de resolvida a
+pendência sobre onde o conteúdo importado fica guardado.
+
 ### <a id="2026-09-01-compose-1-12-0-exige-compilesdk-37"></a>2026-09-01 — Compose 1.12.0 exige `compileSdk` 37, um a mais que o já fixado (36)
 
 **Confirmado por:** teste ao vivo
@@ -357,3 +396,4 @@ reescrever) também conta como mudança de conteúdo real. -->
 | 0.9.0 | 01-09-2026 | Achado "Compose 1.12.0 exige `compileSdk` 37" acrescentado. | Declaração das dependências de Compose pro primeiro teste de tela |
 | 0.10.0 | 03-09-2026 | Achado "`SkipMessageContent` nunca mostra a síntese de cadeia" acrescentado. | Achado na revisão de PR (revisor-testes) |
 | 0.11.0 | 03-09-2026 | Frase de resolução acrescentada ao achado anterior; dois achados novos: "Leiaute compacto da Configuração nunca mostra o nome do evento" e "Mensagem de pulo trata posições sem resposta como intervalo mesmo quando não são". | Achados na revisão de PR (revisor-testes, revisor-visao-de-conjunto) |
+| 0.12.0 | 03-09-2026 | Dois achados novos: "Conteúdo de exemplo não varia a disponibilidade de pular entre eventos" e "Dois valores de preenchimento sem significado real aparecem quando a lista de exemplo está vazia". | Achados na revisão final de PR (revisor-visao-de-conjunto, revisor-valores-fixos) |

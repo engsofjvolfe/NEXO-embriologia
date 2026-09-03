@@ -25,6 +25,9 @@ import androidx.compose.ui.window.DialogProperties
 import org.nexo.motor.app.R
 import org.nexo.motor.core.connectivity.ConnectionState
 
+// Mensagem única e padronizada de não correspondência (EI-RET-02) -- a redação exata não é
+// exigida por nenhum documento, só a exigência de ser sempre a mesma, sem identificar a peça
+// correta nem o motivo da rejeição.
 private const val NEGATIVE_MESSAGE = "Essa peça não é a próxima da sequência."
 const val EXIT_CONFIRM_BUTTON_TAG = "exit-confirm-button"
 const val ACKNOWLEDGEABLE_CONTENT_TAG = "acknowledgeable-content"
@@ -109,9 +112,9 @@ private fun SessionGameScreenContent(
 @Composable
 private fun ReferenceContent(screen: SessionScreen.Reference) {
     // screen.referenceImage é só o caminho do fotograma dentro do pacote de conteúdo (PD-IMP-01)
-    // -- transformar isso numa imagem de verdade na tela depende de uma estratégia de
-    // carregamento ainda não decidida em nenhum documento -- ver tasks.md,
-    // analysis.md#2026-09-01-escrita-da-sessiongamescreen-revela-tres-lacunas.
+    // -- a estratégia de carregamento já está decidida (decisions/0038); falta só a parte de
+    // acesso ao pacote de conteúdo já importado (ContentPackageArchive) pra aplicá-la aqui -- ver
+    // tasks.md. Texto provisório até essa pendência fechar.
     Text(text = "Referência: ${screen.referenceImage}", style = MaterialTheme.typography.bodyLarge)
 }
 
@@ -241,12 +244,48 @@ private fun SkipMessageContent(
             )
             if (unanswered.isNotEmpty()) {
                 Text(
-                    text = "Sem resposta: ${unanswered.first()}-${unanswered.last()}",
+                    text = "Sem resposta: ${formatUnansweredPositions(unanswered)}",
                     style = MaterialTheme.typography.bodyLarge,
                 )
             }
+            when (val chain = screen.chainSynthesis) {
+                is ChainSynthesisResult.Continuous ->
+                    Text(text = chain.synthesis, style = MaterialTheme.typography.bodyLarge)
+                is ChainSynthesisResult.Consolidated ->
+                    Text(
+                        text = "Preenchidas: ${chain.totals.filledCount} " +
+                            "— Perdidas: ${chain.totals.lostCount}",
+                        style = MaterialTheme.typography.bodyLarge,
+                    )
+                null -> Unit
+            }
         }
         ContinueFooter(hasNextEvent = screen.hasNextEvent, onContinueRequested = onContinueRequested)
+    }
+}
+
+// Agrupa posições em blocos vizinhos (ex.: [2, 3, 5] -> "2-3, 5") em vez de presumir que a
+// primeira e a última posição da lista formam sempre um intervalo fechado -- EI-PUL-05 exige
+// "a indicação do intervalo sem resposta", mas EI-VAL-01/EI-PUL-04 permitem pular uma posição,
+// responder a seguinte, e pular outra depois, então as posições sem resposta nem sempre são
+// vizinhas entre si.
+private fun formatUnansweredPositions(positions: List<Int>): String {
+    val sorted = positions.sorted()
+    val groups = mutableListOf<IntRange>()
+    var start = sorted.first()
+    var end = start
+    for (position in sorted.drop(1)) {
+        if (position == end + 1) {
+            end = position
+        } else {
+            groups += start..end
+            start = position
+            end = position
+        }
+    }
+    groups += start..end
+    return groups.joinToString(", ") { range ->
+        if (range.first == range.last) "${range.first}" else "${range.first}-${range.last}"
     }
 }
 

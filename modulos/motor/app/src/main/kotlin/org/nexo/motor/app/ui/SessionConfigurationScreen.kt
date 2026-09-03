@@ -14,6 +14,7 @@ import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Switch
@@ -21,6 +22,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 
 /**
@@ -119,6 +121,7 @@ private fun CompactLayout(
                     RadioButton(
                         selected = position == selectedStartingPosition,
                         onClick = { onStartingPositionSelected(position) },
+                        modifier = Modifier.testTag("posicao-inicio-$position"),
                     )
                     Text(position.toString())
                 }
@@ -126,6 +129,10 @@ private fun CompactLayout(
         }
         eventConfigs.forEach { event ->
             HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+            // wireframe.md, "Ponto de início / Configuração da sessão (DA-RET-03/04)", leiaute
+            // celular: cada bloco leva o nome do evento -- sem isso, uma sessão com mais de um
+            // evento no alcance escolhido (EI-SES-08) não deixa claro qual bloco é de qual evento.
+            Text(text = event.eventName, style = MaterialTheme.typography.titleMedium)
             EventConfigBlock(
                 event = event,
                 onSkipAvailableChanged = { onSkipAvailableChanged(event.eventName, it) },
@@ -173,6 +180,7 @@ private fun TabletLayout(
                     RadioButton(
                         selected = position == selectedStartingPosition,
                         onClick = { onStartingPositionSelected(position) },
+                        modifier = Modifier.testTag("posicao-inicio-$position"),
                     )
                     Text(position.toString())
                 }

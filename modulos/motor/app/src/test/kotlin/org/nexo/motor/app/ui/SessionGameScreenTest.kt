@@ -11,6 +11,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.nexo.motor.core.connectivity.ConnectionState
 import org.nexo.motor.core.summary.AnsweredPosition
+import org.nexo.motor.core.summary.ChainSkipSynthesis
 import org.nexo.motor.core.summary.SkipMessage
 import org.robolectric.RobolectricTestRunner
 import kotlin.test.assertFalse
@@ -111,6 +112,20 @@ class SessionGameScreenTest {
     }
 
     @Test
+    fun `AwaitingAttempt mostra o indicador de conexao procurando`() {
+        setContent(screen = SessionScreen.AwaitingAttempt(connectionState = ConnectionState.SCANNING))
+
+        composeTestRule.onNodeWithText("◐ procurando").assertIsDisplayed()
+    }
+
+    @Test
+    fun `AwaitingAttempt mostra o indicador de conexao desconectado`() {
+        setContent(screen = SessionScreen.AwaitingAttempt(connectionState = ConnectionState.DISCONNECTED))
+
+        composeTestRule.onNodeWithText("○ desconectado").assertIsDisplayed()
+    }
+
+    @Test
     fun `AwaitingAttempt sem acessorio nao mostra nenhum indicador de conexao`() {
         setContent(screen = SessionScreen.AwaitingAttempt(connectionState = null))
 
@@ -188,6 +203,34 @@ class SessionGameScreenTest {
     }
 
     @Test
+    fun `EventSummary com sintese de cadeia continua mostra a narrativa da cadeia`() {
+        setContent(
+            screen = SessionScreen.EventSummary(
+                synthesis = "Síntese do evento.",
+                hasNextEvent = false,
+                chainSynthesis = ChainSynthesisResult.Continuous(synthesis = "Narrativa da cadeia inteira."),
+            ),
+        )
+
+        composeTestRule.onNodeWithText("Narrativa da cadeia inteira.").assertIsDisplayed()
+    }
+
+    @Test
+    fun `EventSummary com sintese de cadeia consolidada mostra o total preenchidas e perdidas`() {
+        setContent(
+            screen = SessionScreen.EventSummary(
+                synthesis = "Síntese do evento.",
+                hasNextEvent = false,
+                chainSynthesis = ChainSynthesisResult.Consolidated(
+                    totals = ChainSkipSynthesis(filledCount = 5, lostCount = 2),
+                ),
+            ),
+        )
+
+        composeTestRule.onNodeWithText("Preenchidas: 5 — Perdidas: 2").assertIsDisplayed()
+    }
+
+    @Test
     fun `SkipMessageShown mostra quantas posicoes foram respondidas e o intervalo sem resposta`() {
         setContent(
             screen = SessionScreen.SkipMessageShown(
@@ -205,6 +248,43 @@ class SessionGameScreenTest {
 
         composeTestRule.onNodeWithText("Respondidas: 2").assertIsDisplayed()
         composeTestRule.onNodeWithText("Sem resposta: 3-4").assertIsDisplayed()
+    }
+
+    @Test
+    fun `SkipMessageShown com sintese de cadeia consolidada mostra o total junto com a mensagem de pulo`() {
+        setContent(
+            screen = SessionScreen.SkipMessageShown(
+                message = SkipMessage(
+                    answered = listOf(AnsweredPosition(position = 1, confirmationText = null)),
+                    unansweredPositions = listOf(2, 3),
+                ),
+                hasNextEvent = false,
+                chainSynthesis = ChainSynthesisResult.Consolidated(
+                    totals = ChainSkipSynthesis(filledCount = 7, lostCount = 4),
+                ),
+            ),
+        )
+
+        composeTestRule.onNodeWithText("Respondidas: 1").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Sem resposta: 2-3").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Preenchidas: 7 — Perdidas: 4").assertIsDisplayed()
+    }
+
+    @Test
+    fun `SkipMessageShown com posicoes sem resposta nao contiguas nao finge que sao um intervalo unico`() {
+        setContent(
+            screen = SessionScreen.SkipMessageShown(
+                message = SkipMessage(
+                    answered = listOf(AnsweredPosition(position = 4, confirmationText = null)),
+                    unansweredPositions = listOf(2, 3, 5),
+                ),
+                hasNextEvent = true,
+                chainSynthesis = null,
+            ),
+        )
+
+        composeTestRule.onNodeWithText("Sem resposta: 2-3, 5").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Sem resposta: 2-5").assertDoesNotExist()
     }
 
     @Test

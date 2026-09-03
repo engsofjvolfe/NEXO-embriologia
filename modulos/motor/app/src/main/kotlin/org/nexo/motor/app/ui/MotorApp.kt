@@ -38,17 +38,13 @@ private sealed interface AppScreen {
     data object Result : AppScreen
 }
 
-private fun pausedSessionFile(context: Context): File =
-    File(context.filesDir, "sessao-pausada.json")
+// Visível (não privado) pra MotorAppTest.kt montar o mesmo caminho de arquivo sem duplicar o
+// nome, separado da função abaixo porque o teste não tem um Context de produção pra passar por
+// ela inteira.
+internal const val PAUSED_SESSION_FILE_NAME = "sessao-pausada.json"
 
-/**
- * Valor de exibição inicial pro campo "Tempo de ociosidade" (EI-NAV-05) -- nenhum documento da
- * cascata fixa um padrão pra esse número (EI-CFG-01: sempre escolhido por quem configura a
- * sessão, nunca pelo motor); placeholder até a tela ganhar estado de verdade e um valor
- * digitado pela pessoa, ver pendência sobre onde o conteúdo importado fica guardado
- * (`tasks.md`).
- */
-private const val PLACEHOLDER_IDLE_THRESHOLD_TEXT = "60"
+private fun pausedSessionFile(context: Context): File =
+    File(context.filesDir, PAUSED_SESSION_FILE_NAME)
 
 @Composable
 fun MotorApp() {
@@ -61,6 +57,9 @@ fun MotorApp() {
     }
     var gameUiState by remember { mutableStateOf(conteudoInicialDeResumoDeJogo()) }
     val configs = conteudoInicialDeConfiguracoesDeEvento()
+    // Campo "Tempo de ociosidade" (EI-NAV-05) começa vazio -- EI-CFG-01 diz que esse número é
+    // sempre escolhido por quem configura a sessão, nunca pelo motor.
+    var idleThresholdText by remember { mutableStateOf("") }
 
     when (val screen = current) {
         is AppScreen.Paused -> PausedSessionScreen(
@@ -92,8 +91,8 @@ fun MotorApp() {
             onSkipAvailableChanged = { _, _ -> },
             onHintThresholdChanged = { _, _ -> },
             onStudyThresholdChanged = { _, _ -> },
-            idleThresholdText = PLACEHOLDER_IDLE_THRESHOLD_TEXT,
-            onIdleThresholdChanged = {},
+            idleThresholdText = idleThresholdText,
+            onIdleThresholdChanged = { idleThresholdText = it },
             onStartSessionRequested = {
                 gameUiState = conteudoInicialDeResumoDeJogo()
                 current = AppScreen.Game

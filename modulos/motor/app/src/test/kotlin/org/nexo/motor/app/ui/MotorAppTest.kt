@@ -1,7 +1,9 @@
 package org.nexo.motor.app.ui
 
+import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
@@ -26,7 +28,7 @@ class MotorAppTest {
     val composeTestRule = createComposeRule()
 
     private fun pausedSessionFile(): File =
-        File(RuntimeEnvironment.getApplication().filesDir, "sessao-pausada.json")
+        File(RuntimeEnvironment.getApplication().filesDir, PAUSED_SESSION_FILE_NAME)
 
     private fun abrirConfiguracaoEIniciarSessao() {
         composeTestRule.onNodeWithText("Evento 1").performClick()
@@ -156,9 +158,13 @@ class MotorAppTest {
         composeTestRule.setContent { MotorApp() }
         abrirConfiguracaoEIniciarSessaoSemIniciar()
 
-        // CompactLayout nunca desenha o nome do evento como texto (só EventConfigBlock, sem
-        // lista) -- ver SessionConfigurationScreen.kt.
-        composeTestRule.onNodeWithText("Evento 1").assertDoesNotExist()
+        // CompactLayout mostra o bloco de configuração completo de cada evento do alcance da
+        // sessão, sem esconder nenhum atrás de seleção -- diferente do leiaute de tablet, que só
+        // mostra o bloco do evento selecionado (ver teste de tablet, abaixo). O conteúdo de
+        // exemplo (ConteudoInicial.kt) tem dois eventos, então "Pular disponível" aparecendo duas
+        // vezes -- uma por evento -- é o sinal de que estamos no leiaute celular, não no de
+        // tablet, onde apareceria só uma vez.
+        composeTestRule.onAllNodesWithText("Pular disponível").assertCountEquals(2)
     }
 
     @Config(qualifiers = "w840dp-h480dp")
@@ -169,9 +175,12 @@ class MotorAppTest {
         composeTestRule.setContent { MotorApp() }
         abrirConfiguracaoEIniciarSessaoSemIniciar()
 
-        // TabletLayout desenha o nome do evento como item de lista clicável, separado do painel
-        // de detalhe -- ver SessionConfigurationScreen.kt.
-        composeTestRule.onNodeWithText("Evento 1").assertIsDisplayed()
+        // TabletLayout desenha o nome de cada evento como item de lista clicável, mas só desenha
+        // o bloco de configuração completo (com "Pular disponível") do evento selecionado -- só
+        // um evento pré-selecionado (o primeiro), então só um "Pular disponível" aparece, mesmo
+        // com dois eventos no conteúdo de exemplo -- ver SessionConfigurationScreen.kt.
+        composeTestRule.onNodeWithText("Evento 2").assertIsDisplayed()
+        composeTestRule.onAllNodesWithText("Pular disponível").assertCountEquals(1)
     }
 
     private fun abrirConfiguracaoEIniciarSessaoSemIniciar() {

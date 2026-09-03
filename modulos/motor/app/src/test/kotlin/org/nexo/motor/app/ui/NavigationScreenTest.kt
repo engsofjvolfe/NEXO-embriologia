@@ -35,21 +35,22 @@ class NavigationScreenTest {
     }
 
     @Test
-    fun `tocar numa entrada chama onEntryClicked com ela`() {
+    fun `tocar numa entrada chama onEntryClicked com ela, nao com outra entrada da lista`() {
         var clicked: NavigationEntry? = null
-        val entry = NavigationEntry(id = "instancia-1", label = "Embriologia", depth = 0, expandable = true, expanded = false)
+        val primeiraEntrada = NavigationEntry(id = "instancia-1", label = "Embriologia", depth = 0, expandable = true, expanded = false)
+        val segundaEntrada = NavigationEntry(id = "tema-1", label = "Fecundação", depth = 1, expandable = true, expanded = false)
         composeTestRule.setContent {
             NavigationScreen(
                 searchText = "",
                 onSearchTextChanged = {},
-                entries = listOf(entry),
+                entries = listOf(primeiraEntrada, segundaEntrada),
                 onEntryClicked = { clicked = it },
             )
         }
 
-        composeTestRule.onNodeWithText("Embriologia").performClick()
+        composeTestRule.onNodeWithText("Fecundação").performClick()
 
-        assertEquals(entry, clicked)
+        assertEquals(segundaEntrada, clicked)
     }
 
     @Test

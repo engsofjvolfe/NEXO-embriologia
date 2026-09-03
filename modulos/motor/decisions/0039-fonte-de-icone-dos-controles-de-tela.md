@@ -7,7 +7,7 @@ mudar o que cada controle faz, só a forma de mostrar.
 
 **Status:** substituído pelo [ADR-0041](0041-fonte-de-icone-do-botao-de-pausar.md) para o botão de
 pausar — continua valendo, sem mudança, pra qualquer outro controle sem exigência de ícone no
-wireframe hoje (ver nota de acompanhamento abaixo).
+wireframe hoje (ver Decisão, item 2, abaixo).
 
 **Contexto:**
 

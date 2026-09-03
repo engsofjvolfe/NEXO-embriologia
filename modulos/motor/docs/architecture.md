@@ -6,8 +6,8 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Architecture |
-| Versão | 0.52.0 |
-| Data | 02-09-2026 |
+| Versão | 0.54.0 |
+| Data | 03-09-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
 > Descreve como o módulo é construído por dentro — layout de arquivos,
@@ -511,7 +511,10 @@ usada entre `SessionState.kt` (lógica pura) e
 único arquivo e devolve uma única instância (completa) ou nenhuma —
 nunca mescla conteúdo de mais de uma importação; decidir o que fazer
 quando um nome de instância já existente é reimportado fica fora deste
-pacote, numa camada de armazenamento ainda não desenhada.
+pacote, numa camada de armazenamento ainda não desenhada — mesma
+lacuna registrada em ["Ponto de entrada real
+(MotorApp)"](#ponto-de-entrada-real-motorapp), abaixo, e como pendência
+em [`tasks.md`](tasks.md).
 
 Testado com `kotlin-test` + JUnit Jupiter, mesma ferramenta já fixada
 em [decisions/0005](<../decisions/0005-abordagem-de-teste-do-nucleo-do-motor.md>)
@@ -969,13 +972,19 @@ AppScreen.Game           pausar -> AppScreen.Paused
 AppScreen.Result         "Voltar à navegação" -> AppScreen.Navigation
 ```
 
+O rótulo "continuar (fim de sessão)" descreve o comportamento de hoje, não uma regra fixa: o botão
+"Continuar"/"Ver resultado" sempre leva ao Resultado, porque `MotorApp()` ainda não distingue
+"terminou este evento, tem próximo" de "terminou a sessão inteira" — a mesma limitação já
+registrada abaixo (`SessionViewModel` nunca instanciado, `hasNextEvent` nunca calculado de
+verdade).
+
 `SessionConfigurationScreen` recebe `isTabletLayout` calculado de verdade a partir do tamanho real
 da janela — `MotorApp()` chama `currentWindowAdaptiveInfo().windowSizeClass.isWidthAtLeastBreakpoint(
 WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND)` (biblioteca oficial `androidx.compose.material3.adaptive`),
 nenhum limiar copiado à mão pro código do motor — ver
 [decisions/0043](<../decisions/0043-mecanismo-de-classificacao-de-tamanho-de-janela.md>).
 
-Duas limitações explícitas, nenhuma delas escondida atrás de dado de exemplo silencioso:
+Três limitações explícitas, nenhuma delas escondida atrás de dado de exemplo silencioso:
 
 - **Retomar uma sessão pausada não reconstrói a sessão de verdade ainda.** O botão "Retomar" de
   `PausedSessionScreen` leva pra `AppScreen.Game`, mas sem reconstruir o `SessionViewModel` a
@@ -989,6 +998,15 @@ Duas limitações explícitas, nenhuma delas escondida atrás de dado de exemplo
   Registrado como pendência em [`tasks.md`](tasks.md), sem tela nem mecanismo de coleta ainda — os
   dados que já são coletados continuam ficando só no aparelho de quem abre o aplicativo
   (EI-REG-08), sem que essa pendência mude isso.
+- **`SessionViewModel` nunca é instanciado dentro de `MotorApp()` — a interação de jogo e o
+  resultado exibido são demonstração, não a lógica real da sessão.** `AppScreen.Game` chama
+  `SessionGameScreen` com `onScreenAcknowledged`/`onSkipRequested` vazios (nenhum efeito real
+  sobre uma tentativa), e `AppScreen.Result` sempre mostra `errorCount = 0`, `skipCount = 0`,
+  `pauseCount = 0`, fixos, em vez de vir do registro real da sessão (`core/session`, já escrito e
+  testado). Mesma causa raiz da primeira limitação acima: montar um `SessionViewModel` de verdade
+  exige um `ContentInstance` real (decisions/0026), que só existe depois de resolvida a pendência
+  sobre onde o conteúdo importado fica guardado no aparelho. Registrado como pendência em
+  [`tasks.md`](tasks.md).
 
 Nenhum dado de conteúdo (nome de instância, tema, evento) é declarado dentro de `MotorApp.kt` —
 o arquivo chama cinco funções (`conteudoInicialDe*()`) sem saber de onde vem a resposta; cada tipo
@@ -1207,3 +1225,5 @@ com o campo Versão da tabela de cabeçalho, que sempre reflete a
 | 0.50.0 | 02-09-2026 | Seção "Ponto de entrada real (MotorApp)" corrigida: encadeamento de pausar (leva à Sessão pausada, não à Navegação) e de sair confirmado (leva ao Resultado, não à Navegação) conferido contra o protótipo navegável; conteúdo de exemplo deixa de morar em `src/main/`, passa a vir de `src/debug/`/`src/release/`. Árvore da seção "Esqueleto mínimo e versões de build" ganha as duas pastas novas. | Resolução de [decisions/0042](<../decisions/0042-conteudo-de-teste-visual-isolado-por-tipo-de-build.md>) |
 | 0.51.0 | 02-09-2026 | Seção "Ponto de entrada real (MotorApp)" ganha terceira limitação explícita: `isTabletLayout` fixo em `false`, nunca calculado a partir de `WindowSizeClass`. | Achado na revisão de PR (revisor-valores-fixos) |
 | 0.52.0 | 02-09-2026 | Seção "Ponto de entrada real (MotorApp)" corrigida: `isTabletLayout` deixa de ser limitação — `MotorApp()` já calcula o valor real via `WindowSizeClass`, voltando a duas limitações explícitas. | Resolução de [decisions/0043](<../decisions/0043-mecanismo-de-classificacao-de-tamanho-de-janela.md>) |
+| 0.53.0 | 03-09-2026 | Seção "Ponto de entrada real (MotorApp)" ganha terceira limitação explícita: `SessionViewModel` nunca é instanciado dentro de `MotorApp()` — interação de jogo e resultado exibido são demonstração, não a lógica real da sessão. | Achado na revisão de PR (revisor-testes, revisor-visao-de-conjunto) |
+| 0.54.0 | 03-09-2026 | Ligado o trecho do pacote `content` sobre reimportação de instância já existente à lacuna equivalente já registrada em "Ponto de entrada real (MotorApp)" e em `tasks.md` — mesmo assunto, três lugares, sem se referenciar antes. Tabela de encadeamento ganha nota explícita: o rótulo "continuar (fim de sessão)" descreve o comportamento de hoje (demonstração), não uma regra fixa. | Achados na revisão de PR (revisor-referencias-cruzadas, revisor-visao-de-conjunto) |

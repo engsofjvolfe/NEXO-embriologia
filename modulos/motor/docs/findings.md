@@ -6,8 +6,8 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Findings |
-| Versão | 0.9.0 |
-| Data | 01-09-2026 |
+| Versão | 0.11.0 |
+| Data | 03-09-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
 > Achados confirmados (por leitura de código, teste ao vivo, ou os dois)
@@ -243,6 +243,68 @@ Testado ao vivo: `gradlew :app:testDebugUnitTest --tests
 suíte completa (`:core:test :app:testDebugUnitTest`) rodada de novo,
 sem quebra.
 
+### <a id="2026-09-03-skipmessagecontent-nunca-mostra-a-sintese-de-cadeia"></a>2026-09-03 — `SkipMessageContent` nunca mostra a síntese de cadeia, mesmo quando ela existe
+
+**Confirmado por:** leitura de código
+
+*Resumo simples:* ao final de uma cadeia de eventos com pulo, a tela deveria mostrar um total
+resumido de tudo que aconteceu na cadeia inteira — mas essa tela nunca chega a exibir esse total,
+mesmo o dado já chegando pronto até ela.
+
+*Detalhe técnico:*
+- Raciocínio completo — comparação com `EventSummaryContent`, que já faz isso corretamente, e a
+  regra exata do documento — em
+  [analysis.md#2026-09-03-fundamentacao-em-documento-dos-quatro-pontos-do-revisor-testes](<analysis.md#2026-09-03-fundamentacao-em-documento-dos-quatro-pontos-do-revisor-testes>);
+  não repetido aqui.
+- `DA-RET-13` (documento 4, Projeto Arquitetônico): a síntese de cadeia aparece mesmo quando a
+  cadeia termina com pulo, reduzida ao total consolidado.
+- `SessionScreen.SkipMessageShown` (`SessionUiState.kt`) já carrega o campo `chainSynthesis`.
+- `SkipMessageContent` (`SessionGameScreen.kt`) nunca lê esse campo em nenhum ramo.
+
+Resolvido espelhando `EventSummaryContent`, que já fazia certo — ver
+[tasks.md, Resolvidas](<tasks.md#resolvidas>).
+
+### <a id="2026-09-03-leiaute-compacto-da-configuracao-nunca-mostra-o-nome-do-evento"></a>2026-09-03 — Leiaute compacto da tela de Configuração da sessão nunca mostra o nome do evento
+
+**Confirmado por:** leitura de código
+
+*Resumo simples:* numa sessão que cobre mais de um evento, a versão da tela de Configuração pra
+celular mostra os controles de cada evento um embaixo do outro, mas sem nenhum nome identificando
+qual bloco pertence a qual evento.
+
+*Detalhe técnico:*
+- Raciocínio completo — comparação com o requisito do wireframe e com o teste que já existia — em
+  [analysis.md#2026-09-03-fundamentacao-em-documento-da-segunda-rodada-de-revisao-de-pr](<analysis.md#2026-09-03-fundamentacao-em-documento-da-segunda-rodada-de-revisao-de-pr>);
+  não repetido aqui.
+- `wireframe.md`, seção "Ponto de início / Configuração da sessão (DA-RET-03/04)", item 2 do
+  leiaute celular: cada bloco leva "nome do evento, alternador 'Pular disponível', campo 'limiar
+  de erro — dica', campo 'limiar de erro — sugestão de estudo'".
+- `SessionConfigurationScreen.kt`, funções `CompactLayout`/`EventConfigBlock`: nenhuma das duas
+  desenha `event.eventName` em texto — só o leiaute de tablet mostra o nome, na lista separada à
+  esquerda.
+
+### <a id="2026-09-03-mensagem-de-pulo-trata-posicoes-sem-resposta-como-intervalo-mesmo-quando-nao-sao"></a>2026-09-03 — Mensagem de pulo trata posições sem resposta como um intervalo contínuo, mesmo quando não são
+
+**Confirmado por:** leitura de código
+
+*Resumo simples:* se uma pessoa pular uma posição, responder a seguinte normalmente e pular outra
+depois, a tela mostraria as duas posições puladas como se fosse um intervalo contínuo entre elas —
+sugerindo, por engano, que a posição respondida no meio também ficou sem resposta.
+
+*Detalhe técnico:*
+- Raciocínio completo — comparação entre EI-PUL-05, EI-VAL-01/EI-PUL-04 e `buildSkipMessage` — em
+  [analysis.md#2026-09-03-fundamentacao-em-documento-da-segunda-rodada-de-revisao-de-pr](<analysis.md#2026-09-03-fundamentacao-em-documento-da-segunda-rodada-de-revisao-de-pr>);
+  não repetido aqui.
+- `EI-PUL-05` (documento 3, seção 6.6) e `EI-VAL-01`/`EI-PUL-04` (mesmo documento, seções
+  6.4/6.6): nada exige que pular uma posição force pular todo o resto do evento.
+- `buildSkipMessage` (`core/summary/Summary.kt`): monta `unansweredPositions` percorrendo a lista
+  de resultados posição a posição, sem checar contiguidade.
+- `SkipMessageContent` (`SessionGameScreen.kt`): monta o texto unindo só a primeira e a última
+  posição sem resposta por um traço, presumindo que elas são sempre contíguas.
+
+Resolvido agrupando as posições sem resposta em blocos vizinhos, em vez de um único intervalo — ver
+[tasks.md, Resolvidas](<tasks.md#resolvidas>).
+
 ### <a id="2026-09-01-compose-1-12-0-exige-compilesdk-37"></a>2026-09-01 — Compose 1.12.0 exige `compileSdk` 37, um a mais que o já fixado (36)
 
 **Confirmado por:** teste ao vivo
@@ -293,3 +355,5 @@ reescrever) também conta como mudança de conteúdo real. -->
 | 0.7.0 | 18-08-2026 | Achado "`SessionViewModel.kt` não tem ação de pausar por toque da pessoa" acrescentado. | Montagem da arquitetura de informação das telas do motor, releitura do Documento de Conceito contra os documentos derivados |
 | 0.8.0 | 27-08-2026 | Achado "`SessionViewModel.kt` ganha a ação de pausar por toque da pessoa" acrescentado, fechando a lacuna registrada em 18-08-2026. | Escrita e teste de `onPauseRequested()` em `SessionViewModel.kt` |
 | 0.9.0 | 01-09-2026 | Achado "Compose 1.12.0 exige `compileSdk` 37" acrescentado. | Declaração das dependências de Compose pro primeiro teste de tela |
+| 0.10.0 | 03-09-2026 | Achado "`SkipMessageContent` nunca mostra a síntese de cadeia" acrescentado. | Achado na revisão de PR (revisor-testes) |
+| 0.11.0 | 03-09-2026 | Frase de resolução acrescentada ao achado anterior; dois achados novos: "Leiaute compacto da Configuração nunca mostra o nome do evento" e "Mensagem de pulo trata posições sem resposta como intervalo mesmo quando não são". | Achados na revisão de PR (revisor-testes, revisor-visao-de-conjunto) |

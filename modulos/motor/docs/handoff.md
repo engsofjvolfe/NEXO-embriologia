@@ -6,8 +6,8 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Handoff |
-| Versão | 0.48.0 |
-| Data | 02-09-2026 |
+| Versão | 0.50.0 |
+| Data | 03-09-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
 > Resumo curto de "onde este módulo está" e "o que fazer a seguir" nele.
@@ -219,3 +219,5 @@ com o campo Versão da tabela de cabeçalho, que sempre reflete a
 | 0.46.0 | 01-09-2026 | Acrescentado ponteiro para decisions/0038, 0039, 0040, 0041, `app/ui/` e `MotorApp.kt`. | Resolução de decisions/0040 e 0041 |
 | 0.47.0 | 02-09-2026 | Acrescentado ponteiro para decisions/0042. | Resolução de decisions/0042 |
 | 0.48.0 | 02-09-2026 | Acrescentado ponteiro para decisions/0043. | Resolução de decisions/0043 |
+| 0.49.0 | 03-09-2026 | Nenhum ponteiro novo (`findings.md`, `analysis.md`, `tasks.md` e `architecture.md` já citados). | Revisão de PR das telas do motor |
+| 0.50.0 | 03-09-2026 | Nenhum ponteiro novo (`findings.md`, `analysis.md`, `tasks.md` e `architecture.md` já citados). | Segunda rodada de revisão de PR das telas do motor |

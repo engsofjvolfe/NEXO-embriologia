@@ -6,8 +6,8 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Analysis |
-| Versão | 0.27.0 |
-| Data | 01-09-2026 |
+| Versão | 0.29.0 |
+| Data | 03-09-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
 > Registro datado de como uma investigação foi feita neste módulo — o
@@ -1280,6 +1280,98 @@ GitHub que guarda o código-fonte por trás daquele site.
   `android:pathData`), sem exigir conversão nem ferramenta extra — só salvar como está em
   `app/src/main/res/drawable/`.
 
+### <a id="2026-09-03-fundamentacao-em-documento-dos-quatro-pontos-do-revisor-testes"></a>2026-09-03 — Fundamentação em documento, antes de teste, dos quatro pontos apontados por `revisor-testes`
+
+**Levou a:** [findings.md#2026-09-03-skipmessagecontent-nunca-mostra-a-sintese-de-cadeia](<findings.md#2026-09-03-skipmessagecontent-nunca-mostra-a-sintese-de-cadeia>)
+(achado novo) e [tasks.md, Em aberto](<tasks.md#em-aberto>) (pendência
+nova sobre a tela "Referência")
+
+*Resumo simples:* a revisão de PR (`revisor-testes`) apontou quatro
+telas de jogo/configuração sem teste cobrindo um comportamento já
+documentado. Antes de escrever qualquer teste, cada um dos quatro foi
+checado contra o documento normativo primeiro — não contra o código já
+existente — pra decidir se a fundamentação vem mesmo de um requisito
+já fechado ou se seria só o teste copiando o que o código já faz.
+Resultado: dois pontos têm base documental direta e seguem pra teste;
+um é bloqueado por uma pendência já registrada (o texto que ele testaria
+é um placeholder arbitrário, sem formato exigido em documento nenhum);
+o quarto revelou um achado de verdade — o código não faz o que o
+documento já exige, independente de teste.
+
+*Detalhe técnico:*
+- Indicador de conexão (`◐ procurando`, `○ desconectado`):
+  `design/wireframe.md`, seção "Tela de jogo — posição dos elementos
+  comuns", já fixa as três variantes de texto, com o símbolo exato de
+  cada uma — decisão de documento, não do código. Sem alternativa nova
+  entre opções, então sem ADR necessária.
+- Clique num evento da lista, no leiaute de tablet da Configuração da
+  sessão: `design/wireframe.md`, seção "Ponto de início / Configuração
+  da sessão", e `decisions/0033` já fixam o comportamento (lista à
+  esquerda, painel do evento selecionado à direita). Sem alternativa
+  nova, sem ADR necessária.
+- Tela "Referência" (`SessionScreen.Reference`): documento 4 (Projeto
+  Arquitetônico), item `DA-RET-05`, exige mostrar "o marco zero, o
+  fotograma anterior, ou a última peça do evento anterior" — não fixa
+  nenhum texto nem formato. O texto hoje exibido
+  (`"Referência: ${screen.referenceImage}"`, `SessionGameScreen.kt`) é
+  um placeholder já assumido como provisório no próprio comentário do
+  código, esperando a mesma pendência que já bloqueia a exibição real
+  de imagem de fotograma (decisions/0038, ponto 4) e a ligação de
+  `SessionViewModel`. Testar esse texto fixo provaria só a
+  interpolação de string, não nenhum requisito — virou pendência
+  própria em `tasks.md`, ligada à pendência maior já existente, em vez
+  de teste forçado sem base documental.
+- Síntese de cadeia na tela de mensagem de pulo (`SkipMessageContent`):
+  comparação lado a lado com `EventSummaryContent` (mesmo arquivo)
+  contra o item `DA-RET-13` do mesmo documento revelou que a segunda já
+  lê e desenha `chainSynthesis` corretamente, mas a primeira nunca lê
+  esse campo, mesmo `SessionScreen.SkipMessageShown` já carregando o
+  dado pronto. Diferente dos três pontos acima, isso não é lacuna de
+  teste — é divergência real entre código e requisito já decidido,
+  então virou achado (`findings.md`), não pendência de teste direta.
+
+### <a id="2026-09-03-fundamentacao-em-documento-da-segunda-rodada-de-revisao-de-pr"></a>2026-09-03 — Fundamentação em documento da segunda rodada de achados da revisão de PR
+
+**Levou a:** [findings.md#2026-09-03-leiaute-compacto-da-configuracao-nunca-mostra-o-nome-do-evento](<findings.md#2026-09-03-leiaute-compacto-da-configuracao-nunca-mostra-o-nome-do-evento>), [findings.md#2026-09-03-mensagem-de-pulo-trata-posicoes-sem-resposta-como-intervalo-mesmo-quando-nao-sao](<findings.md#2026-09-03-mensagem-de-pulo-trata-posicoes-sem-resposta-como-intervalo-mesmo-quando-nao-sao>)
+
+*Resumo simples:* dois pontos trazidos por `revisor-testes` e
+`revisor-visao-de-conjunto` nesta rodada pareciam simples de resolver
+olhando só o código — seguindo a mesma regra da investigação anterior
+(documento primeiro, nunca o código), os dois revelaram divergência
+real contra requisito já decidido, não só ajuste de teste.
+
+*Detalhe técnico:*
+- Releitura de [`wireframe.md`, Ponto de início / Configuração da
+  sessão](<../design/wireframe.md#ponto-de-início--configuração-da-sessão-da-ret-0304>),
+  item 2 do leiaute celular, mostrou que cada bloco de evento deveria
+  levar o nome do evento — comparado contra `CompactLayout`/
+  `EventConfigBlock` (`SessionConfigurationScreen.kt`), nenhum dos dois
+  desenha esse nome; só o leiaute de tablet mostra, numa lista
+  separada. O teste que já existia (`MotorAppTest.kt`, `decisions0043 -
+  largura compacta...`) tinha sido escrito contra esse comportamento
+  errado, não contra o wireframe — o padrão de teste "decorado" que a
+  regra de nunca testar antes de ler documento existe pra evitar.
+- Segundo ponto sobre a mesma função `SkipMessageContent`, mas sobre um
+  campo diferente do achado de `chainSynthesis` registrado logo acima
+  (esse já resolvido) — este é sobre a linha "Sem resposta: N-M", nunca
+  sobre a síntese de cadeia. Releitura de `EI-PUL-05` (documento 3,
+  seção 6.6 — mensagem de pulo mostra "o intervalo sem resposta") junto
+  com `EI-VAL-01`/`EI-PUL-04` (mesmo documento, seções 6.4/6.6 — nada
+  força pular o resto do evento depois de um pulo) e o código de
+  `buildSkipMessage` (`core/summary/Summary.kt`, monta a lista posição
+  a posição, sem checar vizinhança) mostrou que um pulo intercalado com
+  respostas normais é possível pela própria mecânica já descrita — e a
+  linha "Sem resposta" monta o texto como se essas posições fossem
+  sempre um intervalo fechado (primeira à última), o que erraria
+  justamente nesse caso. O núcleo (`core/summary`) já calcula a lista
+  certa; o erro é só de como a tela escreve essa lista como texto.
+
+Os dois viraram achado (`findings.md`), não pendência de teste direta.
+Nenhuma escolha entre alternativas reais em nenhum dos dois — os dois
+casos são o código passando a bater com o que o documento já exigia,
+mesmo padrão já usado no achado de `hierarchy` sobre posição com
+buraco (ver acima, entrada de 14-08-2026).
+
 ## Controle de versão
 
 <!-- uma linha por versão publicada deste documento, mais antiga no
@@ -1316,3 +1408,5 @@ sem reescrever) também conta como mudança de conteúdo real. -->
 | 0.25.0 | 01-09-2026 | Acrescentada a investigação da escrita de `SessionGameScreen.kt` — três lacunas reais encontradas (carregamento de imagem, forma de `SkipMessage`, fonte de ícone dos controles), nenhuma delas bloqueando a tela de compilar/testar. | Escrita da primeira tela real do módulo `app`; três pendências novas em `tasks.md` |
 | 0.26.0 | 01-09-2026 | Acrescentada a investigação da confirmação visual do ponto de entrada real — achado do tema `NoActionBar`, e registro do limite de ambiente do emulador local (três causas de travamento diferentes, nenhuma delas no código do projeto). | Achado [pitfalls.md#2026-09-01-sem-tema-xml-noactionbar-a-barra-nativa-cobre-o-compose](<pitfalls.md#2026-09-01-sem-tema-xml-noactionbar-a-barra-nativa-cobre-o-compose>); pendência nova em `tasks.md` |
 | 0.27.0 | 01-09-2026 | Acrescentada a investigação da fonte de ícone oficial pro botão de pausar, via repositório GitHub do Google — reabre e resolve o bloqueio registrado em `decisions/0039`. | Resolução parcial de [decisions/0041](<../decisions/0041-fonte-de-icone-do-botao-de-pausar.md>) |
+| 0.28.0 | 03-09-2026 | Acrescentada a investigação de fundamentação em documento, antes de teste, dos quatro pontos apontados por `revisor-testes` — dois seguem pra teste, um vira pendência bloqueada, um vira achado real em `findings.md`. | Achados na revisão de PR (revisor-testes) |
+| 0.29.0 | 03-09-2026 | Acrescentada a investigação de fundamentação em documento da segunda rodada de revisão de PR — dois pontos que pareciam simples revelaram divergência real (nome do evento no leiaute compacto, formato da mensagem de pulo com posições não-contíguas). | Achados na revisão de PR (revisor-testes, revisor-visao-de-conjunto) |

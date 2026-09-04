@@ -1,8 +1,8 @@
 # NEXO
 
-![Status](https://img.shields.io/badge/status-em%20desenvolvimento-yellow) ![Fase](https://img.shields.io/badge/fase-documenta%C3%A7%C3%A3o-blue) ![Licença](https://img.shields.io/badge/licença-todos%20os%20direitos%20reservados-red)
+![Status](https://img.shields.io/badge/status-em%20desenvolvimento-yellow) ![Fase](https://img.shields.io/badge/fase-implementa%C3%A7%C3%A3o-blue) ![Licença](https://img.shields.io/badge/licença-todos%20os%20direitos%20reservados-red)
 
-Um sistema para aprender processos reconstruindo-os com as próprias mãos, em vez de só assistir alguém explicar.
+Um sistema para aprender processos "reconstruindo-os" com as próprias mãos.
 
 ## Qual problema ele resolve
 
@@ -10,9 +10,9 @@ Ver um processo sendo explicado — mesmo bem explicado — deixa pouco rastro n
 
 ## Situação atual
 
-O NEXO ainda não tem nenhuma parte funcionando — o projeto está na fase de desenhar, em documentos, exatamente o que o sistema deve fazer, antes de qualquer código ser escrito. É uma escolha deliberada: entender bem o problema primeiro evita construir a coisa errada rápido.
+O projeto começou desenhando, em documentos, exatamente o que o sistema deve fazer, antes de escrever qualquer código — uma escolha deliberada, pra entender bem o problema antes de construir a coisa errada rápido. Essa fase de desenho do motor (a parte central do sistema, que não conhece nenhum assunto específico — ver seção abaixo) está pronta e aprovada.
 
-Hoje já estão prontos e aprovados todos os documentos que descrevem o motor (a parte central do sistema, que não conhece nenhum assunto específico — ver seção abaixo): o que ele é, o que ele precisa fazer, como ele atende a cada uma dessas necessidades, como suas peças se conectam entre si, e o detalhe exato de cada peça. Aqui a documentação fala com desenvolvedores de software, um público mais técnico. O próximo passo é começar a escrever o código do motor.
+Hoje já existem partes do sistema construídas — mas ainda numa forma que só quem desenvolve o projeto consegue abrir e ver funcionando, longe de virar algo pronto pra qualquer pessoa instalar e usar. Em resumo: não há ainda algo pronto pro uso final.
 
 Acompanhar o que muda em [HANDOFF.md](HANDOFF.md).
 

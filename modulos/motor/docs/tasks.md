@@ -6,8 +6,8 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Tasks |
-| Versão | 0.56.0 |
-| Data | 31-08-2026 |
+| Versão | 0.66.0 |
+| Data | 03-09-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
 > Lista mutável de pendências só deste módulo. Lida depois de
@@ -44,6 +44,98 @@ Convenção dos códigos citados aqui:
 
 ## Em aberto
 
+> Ordem revisada em 03-09-2026: pendências de tela primeiro (resolvem
+> mais rápido, é onde o trabalho recente se concentra); pendências do
+> acessório físico por último (`firmware`, chip leitor, homologação),
+> porque esse acessório não vai existir por enquanto.
+
+- [ ] **Cobrir o estado "NFC/Bluetooth desligado no aparelho" no
+      indicador de conexão da tela de jogo (`connectionIndicatorText`,
+      `SessionGameScreen.kt`).** Ver
+      [wireframe.md, Tela de jogo — posição dos elementos comuns](<../design/wireframe.md#tela-de-jogo--posição-dos-elementos-comuns>).
+      Achado na revisão de PR (revisor-testes).
+
+- [ ] **Confirmar visualmente, num ambiente sem o limite de emulador já
+      registrado, que a barra de título nativa do Android some de
+      verdade depois da correção do tema.** Ver
+      [analysis.md](<analysis.md#2026-09-01-confirmacao-visual-do-ponto-de-entrada-real-e-limite-de-ambiente-do-emulador>)
+      e [pitfalls.md](<pitfalls.md#2026-09-01-sem-tema-xml-noactionbar-a-barra-nativa-cobre-o-compose>).
+
+- [ ] **Decidir o gatilho de Consentimento e de Importar conteúdo —
+      quando cada tela aparece de verdade no encadeamento do
+      aplicativo.** Ver
+      [architecture.md, Ponto de entrada real (MotorApp)](<architecture.md#ponto-de-entrada-real-motorapp>).
+
+- [ ] **Decidir onde o conteúdo importado (`ContentInstance`) fica
+      guardado no aparelho entre uma abertura do aplicativo e outra.**
+      Ver
+      [architecture.md, Ponto de entrada real (MotorApp)](<architecture.md#ponto-de-entrada-real-motorapp>)
+      e, mesma lacuna, [architecture.md, pacote `content`](<architecture.md#pacote-content--desenho-interno>)
+      (reimportação de instância já existente). Bloqueia também a
+      exibição real de imagem de fotograma (decisions/0038, ponto 4), o
+      teste da tela "Referência" e a ligação de `SessionViewModel` à
+      tela de jogo, as duas pendências seguintes.
+
+- [ ] **Ligar `SessionViewModel` de verdade à tela de jogo dentro de
+      `MotorApp.kt` — hoje a interação de jogo e os números da tela de
+      Resultado são só demonstração, sem lógica real por trás.**
+
+      *Resumo simples:* a tela de jogo mostra conteúdo de exemplo fixo
+      e nunca valida uma tentativa de verdade; a tela de Resultado
+      sempre mostra zero erros, zero pulos e zero pausas, não importa
+      o que aconteça durante a sessão.
+
+      *Detalhe técnico:* `MotorApp.kt` guarda `gameUiState` como
+      estado local (`conteudoInicialDeResumoDeJogo()`/
+      `conteudoInicialDeEstadoDeJogo()`, conteúdo de exemplo) e nunca
+      instancia `SessionViewModel` — os retornos de
+      `SessionGameScreen` (`onScreenAcknowledged`, `onSkipRequested`)
+      ficam vazios, e `ResultScreen` recebe `errorCount = 0`,
+      `skipCount = 0`, `pauseCount = 0` sempre fixos, em vez de vir do
+      registro real da sessão (`core/session`, já escrito e testado
+      desde a pendência "Escrever o código-fonte da ligação entre
+      leitura de peça, sessão e tela", Resolvidas). Mesma causa também
+      produz dois valores de preenchimento sem significado real no
+      mesmo arquivo — ver
+      [findings.md](<findings.md#2026-09-03-valores-de-preenchimento-sem-significado-quando-a-lista-de-exemplo-esta-vazia>).
+      Bloqueada pela pendência acima ("Decidir onde o conteúdo
+      importado fica guardado"): o construtor de `SessionViewModel`
+      ([decisions/0026](<../decisions/0026-forma-de-sessionstate-tipos-de-content-e-construtor-do-viewmodel.md>))
+      exige um `ContentInstance` real, que só existe depois de
+      resolvida essa pendência — ligar antes disso obrigaria
+      inventar um contorno provisório, sem base em nenhum documento
+      já decidido. Mesma causa também explica a inconsistência entre
+      `onStartSessionRequested` (usa `conteudoInicialDeResumoDeJogo()`)
+      e `onResumeRequested` (usa `conteudoInicialDeEstadoDeJogo()`) —
+      igualar as duas chamadas antes de existir lógica real de
+      tentativa quebraria o teste
+      `terminar a sessao leva ao resultado, que volta pra navegacao`
+      (`MotorAppTest.kt`), que hoje só progride porque
+      `conteudoInicialDeResumoDeJogo()` já entrega a tela pronta pra
+      terminar. Achado na revisão de PR (revisor-testes,
+      revisor-visao-de-conjunto, revisor-valores-fixos).
+
+- [ ] **Escrever o teste do estado "Referência" (`SessionScreen.Reference`)
+      da tela de jogo, com o conteúdo real (imagem), não o texto
+      provisório de hoje.**
+
+      *Resumo simples:* essa tela ainda mostra um texto provisório (o
+      caminho do arquivo de imagem, como texto simples) em vez da
+      imagem de verdade — testar esse texto provisório não provaria
+      nenhum requisito real, só a montagem da frase.
+
+      *Detalhe técnico:* bloqueada pela pendência acima ("Decidir onde
+      o conteúdo importado fica guardado"), que também bloqueia a
+      exibição real de imagem de fotograma (decisions/0038, ponto 4) —
+      sem essa decisão, não existe um `ContentPackageArchive` acessível
+      de onde carregar a imagem de verdade na tela, então o teste de
+      hoje só provaria a interpolação de string, não o comportamento
+      exigido por `DA-RET-05` (documento 4, Projeto Arquitetônico:
+      "mostra o marco zero, o fotograma anterior, ou a última peça do
+      evento anterior"). Achado na revisão de PR (revisor-testes);
+      investigação completa em
+      [analysis.md](<analysis.md#2026-09-03-fundamentacao-em-documento-dos-quatro-pontos-do-revisor-testes>).
+
 - [ ] **Avaliar importação parcial de conteúdo (só um tema ou evento
       novo, sem reimportar a instância inteira).**
 
@@ -63,6 +155,120 @@ Convenção dos códigos citados aqui:
       Levantada durante a escrita do pacote `content`
       ([decisions/0013](<../decisions/0013-desenho-do-pacote-content.md>)),
       que hoje só sabe importar instância completa.
+
+- [ ] **Escrever os testes instrumentados de `ReportPdfRenderer.kt` e
+      do caminho antigo de `ReportFileWriter.kt` (Android 7 a 9).**
+
+      *Resumo simples:* os dois exigem um aparelho ou emulador Android
+      de verdade ligado pra rodar — nenhuma ferramenta sem aparelho
+      simula o desenho do PDF nem o retorno que o Android dá quando o
+      arquivo termina de ser escrito nesses aparelhos mais antigos.
+
+      *Detalhe técnico:* ver
+      [decisions/0025](<../decisions/0025-ferramenta-de-teste-do-modulo-app.md>),
+      nota de acompanhamento, e
+      [findings.md#2026-08-17-caminho-antigo-de-reportfilewriter-nao-testavel-com-robolectric](<findings.md#2026-08-17-caminho-antigo-de-reportfilewriter-nao-testavel-com-robolectric>).
+      Nenhum arquivo de teste escrito ainda.
+
+- [ ] **Avaliar isolar `BleAccessoryService.kt`/`MainActivity.kt` atrás
+      de uma interface trocável por implementação falsa no teste
+      (injeção de dependência).**
+
+      *Resumo simples:* reduziria o quanto de código dessas duas
+      classes depende de simulação de Android, seguindo a mesma
+      recomendação oficial já citada em `decisions/0015` — mas exige
+      refatorar as duas classes, reforma de arquitetura, não escolha de
+      ferramenta de teste.
+
+      *Detalhe técnico:* considerada em
+      [decisions/0025](<../decisions/0025-ferramenta-de-teste-do-modulo-app.md>)
+      e não necessária pra decidir a ferramenta de teste desta tarefa —
+      a parte que decodifica o identificador (`tagIdFromBytes`) já está
+      isolada numa função pura, com teste próprio. A ideia continua
+      válida por outro motivo (reduzir acoplamento com classe do
+      Android), registrada aqui como pendência própria, sem desenho nem
+      decisão ainda.
+
+- [ ] **Escrever os testes de unidade, integração, sistema e
+      aceitação.**
+
+      *Resumo simples:* nenhum teste existe ainda — só faz sentido
+      escrever depois que o código acima existir.
+
+      *Detalhe técnico:* segue a cascata ascendente descrita em
+      `docs/prompt model.txt`: teste de unidade valida o
+      [Projeto Detalhado](<../../../docs/docs-VMODEL-visao-geral/5 - projeto-detalhado.md>),
+      integração valida o
+      [Projeto Arquitetônico](<../../../docs/docs-VMODEL-visao-geral/4 - projeto-arquitetonico.md>),
+      sistema valida a
+      [Especificação](<../../../docs/docs-VMODEL-visao-geral/3 - especificacao-conceito-geral.md>),
+      aceitação valida os
+      [Requisitos](<../../../docs/docs-VMODEL-visao-geral/2 - requisitos-conceito-geral.md>)
+      e o
+      [Conceito](<../../../docs/docs-VMODEL-visao-geral/1 - documento-de-conceito-geral.md>).
+
+- [ ] **Validar em campo o limiar de busca aproximada.**
+
+      *Resumo simples:* o número escolhido pro quanto de erro de
+      digitação a busca tolera
+      ([Projeto Detalhado](<../../../docs/docs-VMODEL-visao-geral/5 - projeto-detalhado.md>),
+      PD-NAV-02) é um ponto de partida, nunca testado com gente de
+      verdade usando o sistema.
+
+      *Detalhe técnico:* ajustar depois de observação de uso real é
+      esperado, não conserto de erro — mesma premissa já registrada
+      no [Projeto Detalhado](<../../../docs/docs-VMODEL-visao-geral/5 - projeto-detalhado.md>),
+      seção 8. Critério objetivo pra essa validação, não inventado
+      aqui: **precisão** e **revocação** (precision e recall), as duas
+      métricas padrão de avaliação de sistema de busca (MANNING;
+      RAGHAVAN; SCHÜTZE, 2008, cap. 8) — precisão é a fração dos
+      resultados devolvidos que realmente eram o item procurado;
+      revocação é a fração das vezes em que o item procurado existia e
+      foi mesmo devolvido. Aplicado aqui: reunir uma coleção de teste
+      (pares "termo digitado com erro" → "item que deveria aparecer"),
+      a partir de nomes reais de um pacote de conteúdo em uso; rodar a
+      busca com o limiar atual contra essa coleção; contar quantas
+      vezes o item certo apareceu (revocação) e quantos resultados
+      errados vieram junto (precisão). Isso não substitui a validação
+      em campo (que depende de comportamento real de digitação, não dá
+      pra simular) — dá o critério numérico, repetível, pra decidir se
+      um limiar novo é de fato melhor que o atual, em vez de julgar só
+      pela impressão.
+
+- [ ] **Explicar a organização de pastas do código de `core` em
+      linguagem simples, e reavaliar se ainda faz sentido conforme
+      mais pacotes nascerem.**
+
+      *Resumo simples:* quem acompanha o projeto sem saber ler Kotlin
+      não consegue confirmar sozinho onde cada coisa mora nem por quê
+      — falta uma explicação acessível da organização que já existe,
+      não um conserto nela.
+
+      *Detalhe técnico:* a organização em si já está decidida
+      ([decisions/0003](<../decisions/0003-estrutura-de-modulos-do-aplicativo.md>):
+      uma pasta por assunto funcional dentro de `core` — `hierarchy/`,
+      `search/`, `session/`, `content/`, `connectivity/`, e ainda por
+      escrever, `report/` e `summary/` —, nunca por tipo técnico de
+      arquivo misturado. Falta: (1) uma explicação, sem termo técnico,
+      de como ler essa árvore de pastas; (2) conferir de novo, conforme
+      `report` e `summary` forem escritos, se essa divisão continua
+      fazendo sentido ou se algum pacote cresceu demais e merece ser
+      dividido.
+
+- [ ] **Empacotar o instalável final e decidir sobre canal de
+      distribuição.**
+
+      *Resumo simples:* falta gerar o arquivo instalável assinado do
+      aplicativo e, se o motor crescer além de um piloto pequeno,
+      decidir se vale registrar uma conta de desenvolvedor verificada.
+
+      *Detalhe técnico:*
+      [Projeto Detalhado](<../../../docs/docs-VMODEL-visao-geral/5 - projeto-detalhado.md>),
+      PD-IMP-07 — marcado `[REVISAR-EXTERNO]`: antes de agir (comprar
+      conta, escolher
+      canal), reconfirmar na fonte oficial se a política ainda bate
+      com o que está registrado lá, já que é regra de terceiro
+      (Google), não decisão do NEXO.
 
 - [ ] **Escrever o firmware do acessório leitor.**
 
@@ -170,148 +376,6 @@ Convenção dos códigos citados aqui:
       usada no Projeto Detalhado (PD-IMP-05, PD-IMP-07): é regra de
       terceiro (ANATEL), pode mudar — reconfirmar na fonte oficial
       antes de agir (comprar homologação, iniciar processo).
-
-- [ ] **Escrever o código real das telas do módulo `app` (Jetpack
-      Compose) e ligar tudo — telas, `SessionViewModel`, `core`.**
-
-      *Resumo simples:* o método de desenho visual (arquitetura de
-      informação, esqueleto, cor/fonte, protótipo clicável) está
-      inteiramente concluído — falta escrever o código de verdade das
-      17 entradas de tela, em Kotlin/Compose, e conectar cada uma ao
-      que já existe por baixo (`SessionViewModel`, `core/session`,
-      `core/content`, etc.). O protótipo navegável (HTML) não vira
-      código nenhum — é só a maquete que validou o desenho antes desta
-      etapa.
-
-      *Detalhe técnico:* implementa, em Jetpack Compose
-      ([decisions/0031](<../decisions/0031-jetpack-compose-como-ferramenta-de-desenho-de-tela.md>)),
-      o leiaute já fechado em
-      [design/wireframe.md](<../design/wireframe.md>), o sistema visual
-      de
-      [decisions/0035](<../decisions/0035-sistema-visual-cor-tipografia-forma-contraste.md>),
-      o gatilho de toque de
-      [decisions/0032](<../decisions/0032-gatilho-de-toque-entre-estados-do-sessionscreen.md>)
-      e o acordeão de
-      [decisions/0030](<../decisions/0030-padrao-de-navegacao-hierarquica-de-conteudo.md>)/[decisions/0034](<../decisions/0034-mecanismo-de-carregamento-preguicoso-do-acordeao-de-navegacao.md>).
-      Cada tela consome o `uiState: StateFlow<SessionUiState>` e chama
-      os métodos já existentes do `SessionViewModel` (ver
-      [architecture.md, Ligação com o núcleo do
-      motor](<architecture.md#ligação-com-o-núcleo-do-motor>)) — nenhuma
-      lógica nova de sessão, só a tela em si. Sem trabalho iniciado.
-
-- [ ] **Escrever os testes instrumentados de `ReportPdfRenderer.kt` e
-      do caminho antigo de `ReportFileWriter.kt` (Android 7 a 9).**
-
-      *Resumo simples:* os dois exigem um aparelho ou emulador Android
-      de verdade ligado pra rodar — nenhuma ferramenta sem aparelho
-      simula o desenho do PDF nem o retorno que o Android dá quando o
-      arquivo termina de ser escrito nesses aparelhos mais antigos.
-
-      *Detalhe técnico:* ver
-      [decisions/0025](<../decisions/0025-ferramenta-de-teste-do-modulo-app.md>),
-      nota de acompanhamento, e
-      [findings.md#2026-08-17-caminho-antigo-de-reportfilewriter-nao-testavel-com-robolectric](<findings.md#2026-08-17-caminho-antigo-de-reportfilewriter-nao-testavel-com-robolectric>).
-      Nenhum arquivo de teste escrito ainda.
-
-- [ ] **Avaliar isolar `BleAccessoryService.kt`/`MainActivity.kt` atrás
-      de uma interface trocável por implementação falsa no teste
-      (injeção de dependência).**
-
-      *Resumo simples:* reduziria o quanto de código dessas duas
-      classes depende de simulação de Android, seguindo a mesma
-      recomendação oficial já citada em `decisions/0015` — mas exige
-      refatorar as duas classes, reforma de arquitetura, não escolha de
-      ferramenta de teste.
-
-      *Detalhe técnico:* considerada em
-      [decisions/0025](<../decisions/0025-ferramenta-de-teste-do-modulo-app.md>)
-      e não necessária pra decidir a ferramenta de teste desta tarefa —
-      a parte que decodifica o identificador (`tagIdFromBytes`) já está
-      isolada numa função pura, com teste próprio. A ideia continua
-      válida por outro motivo (reduzir acoplamento com classe do
-      Android), registrada aqui como pendência própria, sem desenho nem
-      decisão ainda.
-
-- [ ] **Escrever os testes de unidade, integração, sistema e
-      aceitação.**
-
-      *Resumo simples:* nenhum teste existe ainda — só faz sentido
-      escrever depois que o código acima existir.
-
-      *Detalhe técnico:* segue a cascata ascendente descrita em
-      `docs/prompt model.txt`: teste de unidade valida o
-      [Projeto Detalhado](<../../../docs/docs-VMODEL-visao-geral/5 - projeto-detalhado.md>),
-      integração valida o
-      [Projeto Arquitetônico](<../../../docs/docs-VMODEL-visao-geral/4 - projeto-arquitetonico.md>),
-      sistema valida a
-      [Especificação](<../../../docs/docs-VMODEL-visao-geral/3 - especificacao-conceito-geral.md>),
-      aceitação valida os
-      [Requisitos](<../../../docs/docs-VMODEL-visao-geral/2 - requisitos-conceito-geral.md>)
-      e o
-      [Conceito](<../../../docs/docs-VMODEL-visao-geral/1 - documento-de-conceito-geral.md>).
-
-- [ ] **Empacotar o instalável final e decidir sobre canal de
-      distribuição.**
-
-      *Resumo simples:* falta gerar o arquivo instalável assinado do
-      aplicativo e, se o motor crescer além de um piloto pequeno,
-      decidir se vale registrar uma conta de desenvolvedor verificada.
-
-      *Detalhe técnico:*
-      [Projeto Detalhado](<../../../docs/docs-VMODEL-visao-geral/5 - projeto-detalhado.md>),
-      PD-IMP-07 — marcado `[REVISAR-EXTERNO]`: antes de agir (comprar
-      conta, escolher
-      canal), reconfirmar na fonte oficial se a política ainda bate
-      com o que está registrado lá, já que é regra de terceiro
-      (Google), não decisão do NEXO.
-
-- [ ] **Validar em campo o limiar de busca aproximada.**
-
-      *Resumo simples:* o número escolhido pro quanto de erro de
-      digitação a busca tolera
-      ([Projeto Detalhado](<../../../docs/docs-VMODEL-visao-geral/5 - projeto-detalhado.md>),
-      PD-NAV-02) é um ponto de partida, nunca testado com gente de
-      verdade usando o sistema.
-
-      *Detalhe técnico:* ajustar depois de observação de uso real é
-      esperado, não conserto de erro — mesma premissa já registrada
-      no [Projeto Detalhado](<../../../docs/docs-VMODEL-visao-geral/5 - projeto-detalhado.md>),
-      seção 8. Critério objetivo pra essa validação, não inventado
-      aqui: **precisão** e **revocação** (precision e recall), as duas
-      métricas padrão de avaliação de sistema de busca (MANNING;
-      RAGHAVAN; SCHÜTZE, 2008, cap. 8) — precisão é a fração dos
-      resultados devolvidos que realmente eram o item procurado;
-      revocação é a fração das vezes em que o item procurado existia e
-      foi mesmo devolvido. Aplicado aqui: reunir uma coleção de teste
-      (pares "termo digitado com erro" → "item que deveria aparecer"),
-      a partir de nomes reais de um pacote de conteúdo em uso; rodar a
-      busca com o limiar atual contra essa coleção; contar quantas
-      vezes o item certo apareceu (revocação) e quantos resultados
-      errados vieram junto (precisão). Isso não substitui a validação
-      em campo (que depende de comportamento real de digitação, não dá
-      pra simular) — dá o critério numérico, repetível, pra decidir se
-      um limiar novo é de fato melhor que o atual, em vez de julgar só
-      pela impressão.
-
-- [ ] **Explicar a organização de pastas do código de `core` em
-      linguagem simples, e reavaliar se ainda faz sentido conforme
-      mais pacotes nascerem.**
-
-      *Resumo simples:* quem acompanha o projeto sem saber ler Kotlin
-      não consegue confirmar sozinho onde cada coisa mora nem por quê
-      — falta uma explicação acessível da organização que já existe,
-      não um conserto nela.
-
-      *Detalhe técnico:* a organização em si já está decidida
-      ([decisions/0003](<../decisions/0003-estrutura-de-modulos-do-aplicativo.md>):
-      uma pasta por assunto funcional dentro de `core` — `hierarchy/`,
-      `search/`, `session/`, `content/`, `connectivity/`, e ainda por
-      escrever, `report/` e `summary/` —, nunca por tipo técnico de
-      arquivo misturado. Falta: (1) uma explicação, sem termo técnico,
-      de como ler essa árvore de pastas; (2) conferir de novo, conforme
-      `report` e `summary` forem escritos, se essa divisão continua
-      fazendo sentido ou se algum pacote cresceu demais e merece ser
-      dividido.
 
 ## Resolvidas
 
@@ -558,6 +622,89 @@ Convenção dos códigos citados aqui:
       Edge) em modo sem interface, com asserções específicas contra o
       comportamento já documentado — ver
       [analysis.md](<analysis.md#2026-08-31-verificacao-do-prototipo-navegavel-apos-revisao-de-pr>).
+- [x] **Escrever o código real das telas do módulo `app` (Jetpack
+      Compose) e ligar tudo — telas, `SessionViewModel`, `core`.**
+      Resolvido — ver
+      [architecture.md, Ponto de entrada real (MotorApp)](<architecture.md#ponto-de-entrada-real-motorapp>)
+      e
+      [decisions/0040](<../decisions/0040-mecanismo-de-navegacao-entre-telas-do-motor.md>).
+- [x] **Confirmar a forma exata de `SkipMessage`/`AnsweredPosition`
+      (`core/summary`).** Resolvido — ver
+      [architecture.md, pacote `summary`](<architecture.md#pacote-summary--desenho-interno>),
+      sem divergência encontrada.
+- [x] **Decidir a fonte de ícone dos controles de tela.** Resolvido —
+      ver
+      [decisions/0039](<../decisions/0039-fonte-de-icone-dos-controles-de-tela.md>)
+      (rótulo de texto, decisão original) e
+      [decisions/0041](<../decisions/0041-fonte-de-icone-do-botao-de-pausar.md>)
+      (revisão: ícone oficial pro botão de pausar, via repositório
+      GitHub do Google).
+- [x] **Calcular `isTabletLayout`, em `MotorApp.kt`, a partir do
+      tamanho real da janela, em vez de valor fixo.** Resolvido — ver
+      [decisions/0043](<../decisions/0043-mecanismo-de-classificacao-de-tamanho-de-janela.md>).
+- [x] **Decidir como o caminho de imagem de um fotograma vira pixel de
+      verdade na tela.** Resolvido — ver
+      [decisions/0038](<../decisions/0038-carregamento-de-imagem-de-fotograma-na-tela.md>).
+      Exibir a imagem de verdade (em vez do texto provisório já
+      usado hoje em `SessionGameScreen.Reference`) segue bloqueado
+      pela pendência "Decidir onde o conteúdo importado fica
+      guardado", acima.
+- [x] **Corrigir o campo "Tempo de ociosidade" (EI-NAV-05) em
+      `MotorApp.kt`, que mostrava um valor fixo em vez de um campo
+      editável de verdade.** Resolvido — o campo agora guarda o texto
+      digitado em estado local do Compose
+      (`remember { mutableStateOf("") }`), começando vazio e
+      atualizado a cada toque, em vez de um valor fixo sem efeito.
+      Achado na revisão de PR (revisor-valores-fixos).
+- [x] **Cobrir o indicador de conexão "procurando"/"desconectado", o
+      clique num evento da lista no tablet, e mostrar a síntese de
+      cadeia na tela de mensagem de pulo — três achados de teste da
+      revisão de PR.** Resolvido — dois eram lacuna de teste
+      (indicador de conexão, clique no tablet), fundamentados em
+      `design/wireframe.md`/`decisions/0033` antes de qualquer teste
+      ser escrito, sem alternativa nova, sem ADR. O terceiro
+      (`SkipMessageContent` nunca lia `chainSynthesis`, mesmo
+      `DA-RET-13` exigindo isso) era divergência real de código —
+      corrigido espelhando `EventSummaryContent`, que já fazia certo.
+      Achado, investigação e achado registrados em
+      [findings.md#2026-09-03-skipmessagecontent-nunca-mostra-a-sintese-de-cadeia](<findings.md#2026-09-03-skipmessagecontent-nunca-mostra-a-sintese-de-cadeia>)
+      e
+      [analysis.md#2026-09-03-fundamentacao-em-documento-dos-quatro-pontos-do-revisor-testes](<analysis.md#2026-09-03-fundamentacao-em-documento-dos-quatro-pontos-do-revisor-testes>).
+      Testado ao vivo: `gradlew :app:testDebugUnitTest --tests
+      "org.nexo.motor.app.ui.SessionGameScreenTest" --tests
+      "org.nexo.motor.app.ui.SessionConfigurationScreenTest" --tests
+      "org.nexo.motor.app.ui.NavigationScreenTest"`, `BUILD
+      SUCCESSFUL`; suíte completa (`gradlew :core:test
+      :app:testDebugUnitTest`) rodada de novo, sem quebra. Achado na
+      revisão de PR (revisor-testes).
+- [x] **Mostrar o nome do evento no leiaute compacto da Configuração da
+      sessão, e corrigir a mensagem de pulo pra não tratar posições sem
+      resposta não-contíguas como um intervalo único — dois achados da
+      segunda rodada de revisão de PR.** Resolvido — o primeiro
+      (`SessionConfigurationScreen.kt`, `CompactLayout`) divergia de
+      `wireframe.md`; corrigido acrescentando o nome do evento no topo
+      de cada bloco. O segundo (`SkipMessageContent`) presumia que a
+      primeira e a última posição sem resposta formavam sempre um
+      intervalo fechado; corrigido agrupando em blocos vizinhos
+      (`formatUnansweredPositions`), preservando o núcleo
+      (`core/summary`), que já calculava a lista certa. Achados,
+      investigação e correção registrados em
+      [findings.md#2026-09-03-leiaute-compacto-da-configuracao-nunca-mostra-o-nome-do-evento](<findings.md#2026-09-03-leiaute-compacto-da-configuracao-nunca-mostra-o-nome-do-evento>),
+      [findings.md#2026-09-03-mensagem-de-pulo-trata-posicoes-sem-resposta-como-intervalo-mesmo-quando-nao-sao](<findings.md#2026-09-03-mensagem-de-pulo-trata-posicoes-sem-resposta-como-intervalo-mesmo-quando-nao-sao>)
+      e
+      [analysis.md#2026-09-03-fundamentacao-em-documento-da-segunda-rodada-de-revisao-de-pr](<analysis.md#2026-09-03-fundamentacao-em-documento-da-segunda-rodada-de-revisao-de-pr>).
+      Testado ao vivo: `gradlew :core:test :app:testDebugUnitTest`, `BUILD
+      SUCCESSFUL`. Achados na revisão de PR (revisor-testes,
+      revisor-visao-de-conjunto).
+- [x] **Corrigir o conteúdo de exemplo que não variava a disponibilidade de pular entre eventos, a
+      asserção de teste que provava só navegação usando um número fixo como se fosse contagem de
+      verdade, e a mistura de estilo de asserção num teste de tela — achados da revisão final de
+      PR.** Resolvido — primeiro ponto (`ConteudoInicial.kt`) e raciocínio completo dos três em
+      [findings.md#2026-09-03-conteudo-de-exemplo-nao-varia-disponibilidade-de-pular-entre-eventos](<findings.md#2026-09-03-conteudo-de-exemplo-nao-varia-disponibilidade-de-pular-entre-eventos>)
+      e
+      [analysis.md#2026-09-03-fundamentacao-em-documento-da-revisao-final-de-pr](<analysis.md#2026-09-03-fundamentacao-em-documento-da-revisao-final-de-pr>),
+      não repetido aqui. Testado ao vivo: `gradlew :core:test :app:testDebugUnitTest`, `BUILD
+      SUCCESSFUL`. Achados na revisão final de PR (revisor-visao-de-conjunto, revisor-testes).
 
 ## Referências
 
@@ -662,3 +809,13 @@ como mudança de conteúdo real. -->
 | 0.54.0 | 30-08-2026 | Pendência "Aplicar o sistema visual (Material Design) sobre o esqueleto de tela já pronto" resolvida — movida para Resolvidas. Pendência "Montar o protótipo navegável..." perde o bloqueio. | Resolução de [decisions/0035](<../decisions/0035-sistema-visual-cor-tipografia-forma-contraste.md>) |
 | 0.55.0 | 30-08-2026 | Pendência "Montar o protótipo navegável e avaliar contra as boas práticas de usabilidade" resolvida — movida para Resolvidas, fechando as quatro etapas do método de desenho visual. Pendência nova "Escrever o código real das telas do módulo `app` (Jetpack Compose) e ligar tudo" acrescentada em seu lugar — a implementação de tela em si nunca tinha pendência própria registrada. | Resolução de [decisions/0036](<../decisions/0036-ferramenta-e-fidelidade-do-prototipo-navegavel.md>) |
 | 0.56.0 | 31-08-2026 | Nota de teste do item resolvido "Montar o protótipo navegável..." trocada por ponteiro pra `analysis.md`, com o detalhe das asserções específicas usadas na revisão pós-`/revisar-pr` (antes só dizia "sem erro de execução"). | Verificação com asserções específicas, ver [analysis.md](<analysis.md#2026-08-31-verificacao-do-prototipo-navegavel-apos-revisao-de-pr>) |
+| 0.57.0 | 01-09-2026 | Pendência "Escrever o código real das telas..." atualizada: primeira tela (jogo) escrita e testada, ponteiro pra decisions/0037. Três pendências novas acrescentadas, reveladas ao escrever essa tela (carregamento de imagem, forma de `SkipMessage`, fonte de ícone). | Escrita de `SessionGameScreen.kt`; investigação em [analysis.md](<analysis.md#2026-09-01-escrita-da-sessiongamescreen-revela-tres-lacunas>) |
+| 0.58.0 | 01-09-2026 | Pendência "Escrever o código real das telas..." resolvida — movida para Resolvidas. Pendências "Confirmar a forma exata de `SkipMessage`..." e "Decidir a fonte de ícone dos controles de tela" resolvidas — movidas para Resolvidas. Três pendências novas acrescentadas. | Resolução de [decisions/0040](<../decisions/0040-mecanismo-de-navegacao-entre-telas-do-motor.md>) e [decisions/0041](<../decisions/0041-fonte-de-icone-do-botao-de-pausar.md>) |
+| 0.59.0 | 02-09-2026 | Pendência "Confirmar visualmente que a barra de título nativa..." segue em "Em aberto", com ponteiro pra `analysis.md` e `pitfalls.md`. Pendência nova acrescentada (aviso de NFC/Bluetooth desligado). | Achados na revisão de PR (revisor-visao-de-conjunto, revisor-testes, revisor-valores-fixos) |
+| 0.60.0 | 02-09-2026 | Pendência nova "`isTabletLayout` fixo em `MotorApp.kt`" acrescentada já resolvida, movida direto para Resolvidas — nunca existiu aqui como "Em aberto". | Resolução de [decisions/0043](<../decisions/0043-mecanismo-de-classificacao-de-tamanho-de-janela.md>) |
+| 0.61.0 | 02-09-2026 | Pendência "Decidir como o caminho de imagem de um fotograma vira pixel de verdade na tela" resolvida — movida para Resolvidas, ponteiro pra decisions/0038. Pendência nova "Ligar `SessionViewModel` de verdade à tela de jogo dentro de `MotorApp.kt`" acrescentada, bloqueada pela pendência do conteúdo importado, cobrindo também a inconsistência entre `onStartSessionRequested` e `onResumeRequested`. Pendência nova "Corrigir o campo Tempo de ociosidade em `MotorApp.kt`" acrescentada já resolvida, movida direto para Resolvidas. | Achados na revisão de PR (revisor-valores-fixos, revisor-testes, revisor-visao-de-conjunto) |
+| 0.62.0 | 03-09-2026 | Seção "Em aberto" reordenada (critério registrado na própria seção). Pendência nova "Escrever o teste do estado Referência com conteúdo real" acrescentada, bloqueada pela pendência do conteúdo importado. Três achados de teste resolvidos — movidos direto para Resolvidas. | Achados na revisão de PR (revisor-testes) |
+| 0.63.0 | 03-09-2026 | Pendência do conteúdo importado ganha ponteiro cruzado pro trecho equivalente no pacote `content` de `architecture.md`. Dois achados novos resolvidos — movidos direto para Resolvidas (nome do evento no leiaute compacto, formato da mensagem de pulo com posições não-contíguas). | Achados na segunda rodada de revisão de PR (revisor-testes, revisor-visao-de-conjunto) |
+| 0.64.0 | 03-09-2026 | Item resolvido da linha anterior ganha a confirmação de teste ao vivo (`gradlew :core:test :app:testDebugUnitTest`, `BUILD SUCCESSFUL`), que faltava. | Suíte completa rodada de novo após as duas correções |
+| 0.65.0 | 03-09-2026 | Pendência "Ligar `SessionViewModel` de verdade..." ganha ponteiro pro achado novo sobre os dois valores de preenchimento sem significado, e mais um revisor na atribuição. Um achado novo resolvido — movido direto para Resolvidas (conteúdo de exemplo, asserção de teste com número fixo, mistura de estilo de asserção). | Achados na revisão final de PR (revisor-visao-de-conjunto, revisor-testes, revisor-valores-fixos) |
+| 0.66.0 | 03-09-2026 | Item resolvido da linha anterior ganha a confirmação de teste ao vivo (`gradlew :core:test :app:testDebugUnitTest`, `BUILD SUCCESSFUL`), que faltava. | Suíte completa rodada de novo após as três correções |

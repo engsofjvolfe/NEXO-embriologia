@@ -6,8 +6,8 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Findings |
-| Versão | 0.8.0 |
-| Data | 27-08-2026 |
+| Versão | 0.12.0 |
+| Data | 03-09-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
 > Achados confirmados (por leitura de código, teste ao vivo, ou os dois)
@@ -243,6 +243,137 @@ Testado ao vivo: `gradlew :app:testDebugUnitTest --tests
 suíte completa (`:core:test :app:testDebugUnitTest`) rodada de novo,
 sem quebra.
 
+### <a id="2026-09-03-skipmessagecontent-nunca-mostra-a-sintese-de-cadeia"></a>2026-09-03 — `SkipMessageContent` nunca mostra a síntese de cadeia, mesmo quando ela existe
+
+**Confirmado por:** leitura de código
+
+*Resumo simples:* ao final de uma cadeia de eventos com pulo, a tela deveria mostrar um total
+resumido de tudo que aconteceu na cadeia inteira — mas essa tela nunca chega a exibir esse total,
+mesmo o dado já chegando pronto até ela.
+
+*Detalhe técnico:*
+- Raciocínio completo — comparação com `EventSummaryContent`, que já faz isso corretamente, e a
+  regra exata do documento — em
+  [analysis.md#2026-09-03-fundamentacao-em-documento-dos-quatro-pontos-do-revisor-testes](<analysis.md#2026-09-03-fundamentacao-em-documento-dos-quatro-pontos-do-revisor-testes>);
+  não repetido aqui.
+- `DA-RET-13` (documento 4, Projeto Arquitetônico): a síntese de cadeia aparece mesmo quando a
+  cadeia termina com pulo, reduzida ao total consolidado.
+- `SessionScreen.SkipMessageShown` (`SessionUiState.kt`) já carrega o campo `chainSynthesis`.
+- `SkipMessageContent` (`SessionGameScreen.kt`) nunca lê esse campo em nenhum ramo.
+
+Resolvido espelhando `EventSummaryContent`, que já fazia certo — ver
+[tasks.md, Resolvidas](<tasks.md#resolvidas>).
+
+### <a id="2026-09-03-leiaute-compacto-da-configuracao-nunca-mostra-o-nome-do-evento"></a>2026-09-03 — Leiaute compacto da tela de Configuração da sessão nunca mostra o nome do evento
+
+**Confirmado por:** leitura de código
+
+*Resumo simples:* numa sessão que cobre mais de um evento, a versão da tela de Configuração pra
+celular mostra os controles de cada evento um embaixo do outro, mas sem nenhum nome identificando
+qual bloco pertence a qual evento.
+
+*Detalhe técnico:*
+- Raciocínio completo — comparação com o requisito do wireframe e com o teste que já existia — em
+  [analysis.md#2026-09-03-fundamentacao-em-documento-da-segunda-rodada-de-revisao-de-pr](<analysis.md#2026-09-03-fundamentacao-em-documento-da-segunda-rodada-de-revisao-de-pr>);
+  não repetido aqui.
+- `wireframe.md`, seção "Ponto de início / Configuração da sessão (DA-RET-03/04)", item 2 do
+  leiaute celular: cada bloco leva "nome do evento, alternador 'Pular disponível', campo 'limiar
+  de erro — dica', campo 'limiar de erro — sugestão de estudo'".
+- `SessionConfigurationScreen.kt`, funções `CompactLayout`/`EventConfigBlock`: nenhuma das duas
+  desenha `event.eventName` em texto — só o leiaute de tablet mostra o nome, na lista separada à
+  esquerda.
+
+### <a id="2026-09-03-mensagem-de-pulo-trata-posicoes-sem-resposta-como-intervalo-mesmo-quando-nao-sao"></a>2026-09-03 — Mensagem de pulo trata posições sem resposta como um intervalo contínuo, mesmo quando não são
+
+**Confirmado por:** leitura de código
+
+*Resumo simples:* se uma pessoa pular uma posição, responder a seguinte normalmente e pular outra
+depois, a tela mostraria as duas posições puladas como se fosse um intervalo contínuo entre elas —
+sugerindo, por engano, que a posição respondida no meio também ficou sem resposta.
+
+*Detalhe técnico:*
+- Raciocínio completo — comparação entre EI-PUL-05, EI-VAL-01/EI-PUL-04 e `buildSkipMessage` — em
+  [analysis.md#2026-09-03-fundamentacao-em-documento-da-segunda-rodada-de-revisao-de-pr](<analysis.md#2026-09-03-fundamentacao-em-documento-da-segunda-rodada-de-revisao-de-pr>);
+  não repetido aqui.
+- `EI-PUL-05` (documento 3, seção 6.6) e `EI-VAL-01`/`EI-PUL-04` (mesmo documento, seções
+  6.4/6.6): nada exige que pular uma posição force pular todo o resto do evento.
+- `buildSkipMessage` (`core/summary/Summary.kt`): monta `unansweredPositions` percorrendo a lista
+  de resultados posição a posição, sem checar contiguidade.
+- `SkipMessageContent` (`SessionGameScreen.kt`): monta o texto unindo só a primeira e a última
+  posição sem resposta por um traço, presumindo que elas são sempre contíguas.
+
+Resolvido agrupando as posições sem resposta em blocos vizinhos, em vez de um único intervalo — ver
+[tasks.md, Resolvidas](<tasks.md#resolvidas>).
+
+### <a id="2026-09-03-conteudo-de-exemplo-nao-varia-disponibilidade-de-pular-entre-eventos"></a>2026-09-03 — Conteúdo de exemplo não varia a disponibilidade de pular entre eventos, como a ADR já exige
+
+**Confirmado por:** leitura de código
+
+*Resumo simples:* a decisão que criou o conteúdo de exemplo pedia, explicitamente, que a
+disponibilidade de pular variasse entre os dois eventos de exemplo — mas os dois eventos foram
+escritos com o mesmo valor.
+
+*Detalhe técnico:*
+- [decisions/0042](<../decisions/0042-conteudo-de-teste-visual-isolado-por-tipo-de-build.md>),
+  Decisão, item 4: conteúdo de exemplo com "disponibilidade de pular variando entre eventos".
+- `ConteudoInicial.kt` (`app/src/debug/`), antes desta correção: `skipAvailable = true` em
+  "Evento 1" e em "Evento 2" — sem variação nenhuma.
+- Achado na revisão final de PR (revisor-visao-de-conjunto).
+
+Resolvido mudando `skipAvailable` de "Evento 2" para `false` — ver
+[tasks.md, Resolvidas](<tasks.md#resolvidas>).
+
+### <a id="2026-09-03-valores-de-preenchimento-sem-significado-quando-a-lista-de-exemplo-esta-vazia"></a>2026-09-03 — Dois valores de preenchimento sem significado real aparecem quando a lista de exemplo está vazia
+
+**Confirmado por:** leitura de código
+
+*Resumo simples:* em `MotorApp.kt`, duas contas usam um valor de reserva quando a lista de exemplo
+não tem nenhum item — hoje isso nunca acontece de verdade, mas numa build de produção, onde essa
+mesma lista ainda vem sempre vazia (decisions/0042), os dois valores de reserva apareceriam na
+tela sem representar nada real.
+
+*Detalhe técnico:*
+- `selectedStartingPosition = conteudoInicialDePosicoesDeInicio().firstOrNull() ?: 1`: sem nenhuma
+  posição de início disponível, mostra a posição `1` como se fosse selecionada, mesmo sem existir.
+- `onPauseRequested = { current = AppScreen.Paused(configs.firstOrNull()?.eventName ?: "") }`: sem
+  nenhum evento configurado, mostra a tela de sessão pausada com nome de evento vazio.
+- Achado na revisão final de PR (revisor-valores-fixos).
+
+Sem correção nesta tarefa — mesma causa raiz da pendência já aberta "Ligar `SessionViewModel` de
+verdade..." (ver [tasks.md, Em aberto](<tasks.md#em-aberto>)): sem conteúdo real carregado, qualquer
+valor de reserva aqui seria arbitrário; a correção de verdade só existe depois de resolvida a
+pendência sobre onde o conteúdo importado fica guardado.
+
+### <a id="2026-09-01-compose-1-12-0-exige-compilesdk-37"></a>2026-09-01 — Compose 1.12.0 exige `compileSdk` 37, um a mais que o já fixado (36)
+
+**Confirmado por:** teste ao vivo
+
+*Resumo simples:* declarar as dependências do Compose (Compose BOM
+2026.08.00, decisions/0037) e tentar compilar o primeiro teste de tela
+revelou que a versão atual de dez bibliotecas do Compose (`ui`,
+`foundation`, `material3`, `animation`, `runtime`, entre outras, todas
+1.12.0) exige `compileSdk` 37 — um a mais que o valor já fixado
+(decisions/0012, `compileSdk` = 36).
+
+*Detalhe técnico:*
+- `gradlew :app:testDebugUnitTest` recusou o build, repetindo pra cada
+  uma das dez bibliotecas a mesma mensagem do Android Gradle Plugin:
+  "Dependency '...:1.12.0' requires libraries and applications that
+  depend on it to compile against version 37 or later of the Android
+  APIs" — em tradução livre, essa dependência exige compilar contra a
+  versão 37 (ou mais nova) das APIs do Android.
+- A mesma mensagem confirma, direto na fonte, que `compileSdk` e
+  `targetSdk` são exigências independentes: "updating compileSdk...
+  can be done separately from updating targetSdk... and minSdk" — em
+  tradução livre, atualizar o `compileSdk` pode ser feito separado de
+  atualizar o `targetSdk`/`minSdk`.
+- Resolvido subindo `compileSdk` pra 37 em `app/build.gradle.kts`. Ver
+  [decisions/0012](<../decisions/0012-versoes-de-plataforma-e-build-do-modulo-app.md>).
+- Testado ao vivo depois da correção: `gradlew :app:compileDebugKotlin`
+  e `gradlew :app:testDebugUnitTest --tests
+  "org.nexo.motor.app.ui.SessionGameScreenTest"`, `BUILD SUCCESSFUL`
+  nos dois.
+
 ## Controle de versão
 
 <!-- uma linha por versão publicada deste documento, mais antiga no
@@ -262,3 +393,7 @@ reescrever) também conta como mudança de conteúdo real. -->
 | 0.6.0 | 17-08-2026 | Achado "Caminho antigo de `ReportFileWriter.kt` não testável com Robolectric" acrescentado. | Tentativa de escrever o teste de `ReportFileWriter.kt`/`ReportShareIntent.kt` |
 | 0.7.0 | 18-08-2026 | Achado "`SessionViewModel.kt` não tem ação de pausar por toque da pessoa" acrescentado. | Montagem da arquitetura de informação das telas do motor, releitura do Documento de Conceito contra os documentos derivados |
 | 0.8.0 | 27-08-2026 | Achado "`SessionViewModel.kt` ganha a ação de pausar por toque da pessoa" acrescentado, fechando a lacuna registrada em 18-08-2026. | Escrita e teste de `onPauseRequested()` em `SessionViewModel.kt` |
+| 0.9.0 | 01-09-2026 | Achado "Compose 1.12.0 exige `compileSdk` 37" acrescentado. | Declaração das dependências de Compose pro primeiro teste de tela |
+| 0.10.0 | 03-09-2026 | Achado "`SkipMessageContent` nunca mostra a síntese de cadeia" acrescentado. | Achado na revisão de PR (revisor-testes) |
+| 0.11.0 | 03-09-2026 | Frase de resolução acrescentada ao achado anterior; dois achados novos: "Leiaute compacto da Configuração nunca mostra o nome do evento" e "Mensagem de pulo trata posições sem resposta como intervalo mesmo quando não são". | Achados na revisão de PR (revisor-testes, revisor-visao-de-conjunto) |
+| 0.12.0 | 03-09-2026 | Dois achados novos: "Conteúdo de exemplo não varia a disponibilidade de pular entre eventos" e "Dois valores de preenchimento sem significado real aparecem quando a lista de exemplo está vazia". | Achados na revisão final de PR (revisor-visao-de-conjunto, revisor-valores-fixos) |

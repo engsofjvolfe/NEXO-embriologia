@@ -6,8 +6,8 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Analysis |
-| Versão | 0.24.0 |
-| Data | 31-08-2026 |
+| Versão | 0.30.0 |
+| Data | 03-09-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
 > Registro datado de como uma investigação foi feita neste módulo — o
@@ -1142,6 +1142,278 @@ ainda) e testados com asserções específicas contra o que EI-ENC-01/02 e `deci
   cogitada pra "o que o botão deveria dizer" ou "que classe a moldura deveria ter") — por isso nenhum
   ADR novo, mesma regra já aplicada nas correções anteriores desta sessão.
 
+### <a id="2026-09-01-escrita-da-sessiongamescreen-revela-tres-lacunas"></a>2026-09-01 — Escrita de `SessionGameScreen.kt` revela três lacunas não decididas
+
+**Levou a:** [tasks.md, Em aberto](<tasks.md#em-aberto>) (três
+pendências novas, nenhuma decidida ainda)
+
+*Resumo simples:* ao escrever a primeira tela de verdade em Compose
+(a tela de jogo, os oito estados de `SessionScreen` mais a confirmação
+de saída — decisions/0022, decisions/0032, `design/wireframe.md`),
+três pontos que pareciam só "detalhe de implementação" se revelaram,
+na prática, decisões reais ainda não tomadas em nenhum documento.
+Nenhum dos três bloqueou a tela de compilar ou de ser testada — cada
+um recebeu, por enquanto, o comportamento mais simples possível que
+não inventa contrato novo, com um comentário no código apontando de
+volta pra esta investigação.
+
+*Detalhe técnico:*
+
+- **Carregamento de imagem:** `SessionScreen.Reference.referenceImage`
+  e o campo equivalente de outras variantes carregam só o caminho do
+  fotograma dentro do pacote de conteúdo (PD-IMP-01, campo `image`) —
+  nunca os bytes da imagem em si, que só existem através de
+  `ContentPackageArchive.readImage(path): ByteArray`
+  ([architecture.md, pacote `content`](<architecture.md#pacote-content--desenho-interno>)),
+  fora do que `SessionScreen` carrega. Nenhum documento decide como
+  esse caminho vira pixel de verdade na tela — decodificação direta do
+  `ByteArray` (`BitmapFactory`, já disponível no próprio Android, sem
+  dependência nova) resolveria sem precisar de biblioteca de terceiro,
+  mas isso ainda não foi decidido, só percebido como possível. Tratado
+  por enquanto como texto (o próprio caminho, visível na tela) — apenas
+  pra manter a tela compilável e testável, nunca como resposta final.
+- **Forma exata de `SkipMessage`:**
+  [architecture.md, pacote `summary`](<architecture.md#pacote-summary--desenho-interno>)
+  lista `SkipMessage(answered, unansweredPositions)` e `AnsweredPosition`
+  só como nomes de parâmetro da API pública — sem o mesmo nível de
+  detalhe de campo que decisions/0022 e decisions/0026 já deram a
+  `SessionState`/`ContentInstance`. Implementar de verdade a tela de
+  mensagem de pulo (DA-RET-12) exigiria adivinhar esse formato — mesmo
+  tipo de lacuna já formalizado antes por
+  [decisions/0026](<../decisions/0026-forma-de-sessionstate-tipos-de-content-e-construtor-do-viewmodel.md>)
+  pra `SessionState`, sem alternativa real de desenho a comparar (é só
+  uma forma de dado Kotlin já escrita, nunca decidida via ADR). Tratado
+  por enquanto com um texto fixo, sem tocar nenhum campo interno de
+  `SkipMessage`.
+- **Fonte de ícone dos controles de tela:**
+  [`design/wireframe.md`](<../design/wireframe.md#tela-de-jogo--posição-dos-elementos-comuns>)
+  pede um ícone, sem texto, pro controle de pausar. Fonte oficial
+  consultada antes de declarar a dependência
+  (`developer.android.com/develop/ui/compose/graphics/images/material`,
+  acesso em 01 set. 2026): o artefato mais comumente usado pra isso
+  (`androidx.compose.material:material-icons-core`/`-extended`) é
+  descrito pela própria documentação como "no longer maintained or
+  recommended for use in your apps" — em tradução livre, não é mais
+  mantido nem recomendado pra uso em aplicativos novos —, com a
+  recomendação de baixar um ícone específico (Material Symbols) do
+  Google Fonts Icons como recurso `.xml` importado no projeto. Esse
+  processo de importação de recurso (qual ícone exato, como o arquivo
+  entra no repositório) nunca foi decidido em nenhum documento deste
+  módulo. Tratado por enquanto como botão de texto ("Pausar"), mantendo
+  o comportamento já fechado (EI-PAU-03 só exige confirmação pra sair,
+  nunca pra pausar) — só a aparência exata pedida no wireframe fica
+  pendente.
+- Nenhum dos três pontos envolveu escolher entre alternativas já
+  totalmente pesquisadas — cada um é registrado como pendência em
+  `tasks.md`, não como ADR, mesma régua já usada pra "Substituir o
+  módulo leitor NFC" e "Confirmar homologação ANATEL": achado real,
+  sem decisão ainda, sem forçar uma escolha só pra fechar a tarefa.
+
+### <a id="2026-09-01-confirmacao-visual-do-ponto-de-entrada-real-e-limite-de-ambiente-do-emulador"></a>2026-09-01 — Confirmação visual do ponto de entrada real: achado do tema, limite de ambiente do emulador
+
+**Levou a:** [pitfalls.md#2026-09-01-sem-tema-xml-noactionbar-a-barra-nativa-cobre-o-compose](<pitfalls.md#2026-09-01-sem-tema-xml-noactionbar-a-barra-nativa-cobre-o-compose>)
+
+*Resumo simples:* depois de ligar as sete telas de navegação com a tela de jogo de verdade
+(`MotorApp.kt`, decisions/0040), a primeira captura de tela real no emulador mostrou uma barra de
+título nativa do Android, preta, sem nenhuma das cores escolhidas — achado real, corrigido e
+registrado em `pitfalls.md`. Confirmar de novo, com o tema corrigido, não foi possível nesta
+sessão: o emulador deste computador especificamente (não o projeto) trava de forma consistente,
+por três causas diferentes em três tentativas — não é uma dúvida a resolver, é um limite real do
+ambiente local.
+
+*Detalhe técnico:*
+- Primeira captura de tela (antes da correção): confirmou o encadeamento real funcionando de
+  verdade (busca, entrada "Fecundação", chegada na Configuração) — mas com uma barra preta no
+  topo, texto "NEXO Motor", sobre o conteúdo em Compose. Investigação completa, causa e correção:
+  ver o achado em `pitfalls.md` linkado acima.
+- Depois de aplicar a correção (tema `NoActionBar` mais a dependência nova
+  `com.google.android.material:material`), três tentativas de reabrir o emulador pra tirar uma
+  segunda captura de tela, cada uma falhando por um motivo diferente:
+  1. Renderização por hardware (padrão): emulador trava sem aviso entre um comando e outro — log
+     mostra `UpdateLayeredWindowIndirect failed... Um dispositivo conectado ao sistema não está
+     funcionando`, e depois um diálogo de erro relatando falha do driver de gráficos do sistema
+     operacional, sugerindo renderização por software.
+  2. Renderização por software via `-gpu swiftshader_indirect`: falha ainda mais cedo —
+     `Failed to load opengl32sw (Não foi possível encontrar o módulo especificado.)`, um arquivo
+     que deveria vir junto da instalação do emulador e não está presente nesta máquina.
+  3. Renderização pelo lado do sistema convidado via `-gpu guest`: cai de volta pro mesmo módulo
+     ausente (`opengl32sw`), com o mesmo erro da tentativa 2.
+- Nenhuma das três é falha do código escrito nesta tarefa — as sete telas e a tela de jogo já
+  tinham sido confirmadas rodando de verdade antes desta rodada (tela de jogo, ver
+  [analysis.md, achados anteriores](<#investigacoes>); encadeamento real, primeira captura desta
+  mesma entrada). O que ficou sem confirmação visual ao vivo, especificamente, é só a ausência da
+  barra nativa depois da correção — a build resolve a referência ao tema sem erro
+  (`BUILD SUCCESSFUL`, mesmo teste de resolução de recurso que já falhava antes da dependência ser
+  acrescentada), e a suíte de teste automatizado (Robolectric) não cobre esse tipo de detalhe
+  visual (mesma régua já registrada em `architecture.md`, Interface: "o que esse teste prova é
+  comportamento... nunca aparência real").
+- Pendência registrada em `tasks.md`: confirmar visualmente, num emulador ou aparelho que não
+  tenha esse problema, que a barra nativa realmente sumiu.
+
+### <a id="2026-09-01-fonte-de-icone-oficial-via-repositorio-github-do-google"></a>2026-09-01 — Fonte de ícone oficial pro botão de pausar, via repositório GitHub do Google
+
+**Levou a:** [decisions/0041-fonte-de-icone-do-botao-de-pausar.md](<../decisions/0041-fonte-de-icone-do-botao-de-pausar.md>)
+
+*Resumo simples:* [decisions/0039](<../decisions/0039-fonte-de-icone-dos-controles-de-tela.md>) tinha
+descartado usar ícone no botão de pausar porque o único caminho conhecido na hora
+(`fonts.google.com/icons`) carrega por JavaScript e não deixa uma ferramenta automatizada escolher
+e baixar o arquivo certo — mesma limitação já registrada pra `m3.material.io`. Reaberta a pergunta
+por pedido direto, uma fonte alternativa, ainda oficial, resolveu o bloqueio: o repositório no
+GitHub que guarda o código-fonte por trás daquele site.
+
+*Detalhe técnico:*
+- Confirmado que `github.com/google/material-design-icons` é a fonte de verdade oficial (não uma
+  cópia de terceiro): o próprio arquivo `README.md` do repositório diz "The icons can be browsed
+  in a more user-friendly way at https://fonts.google.com/icons" — ou seja, o site é só uma
+  interface mais fácil de navegar sobre o mesmo catálogo que mora ali.
+- Licença do repositório: Apache License 2.0, lida por completo (`LICENSE`, primeira linha:
+  "Apache License / Version 2.0, January 2004") — permissiva, compatível com uso neste projeto.
+- Diferente da interface JS do site, os arquivos individuais do repositório são texto estático,
+  buscáveis direto pela URL de conteúdo bruto do GitHub
+  (`raw.githubusercontent.com/google/material-design-icons/master/...`) — sem precisar rodar
+  JavaScript nem navegar visualmente. Testado ao vivo, duas vezes, com o mesmo arquivo
+  (`symbols/android/pause/materialsymbolsoutlined/pause_24px.xml`): as duas buscas devolveram
+  exatamente o mesmo conteúdo (incluindo trechos de `pathData` menos óbvios, com pontos repetidos
+  sem efeito visual) — confirmação de que o conteúdo buscado é estável, não uma resposta inventada
+  a cada tentativa.
+- Conteúdo do arquivo já vem pronto no formato de vetor do Android (`<vector>`,
+  `android:pathData`), sem exigir conversão nem ferramenta extra — só salvar como está em
+  `app/src/main/res/drawable/`.
+
+### <a id="2026-09-03-fundamentacao-em-documento-dos-quatro-pontos-do-revisor-testes"></a>2026-09-03 — Fundamentação em documento, antes de teste, dos quatro pontos apontados por `revisor-testes`
+
+**Levou a:** [findings.md#2026-09-03-skipmessagecontent-nunca-mostra-a-sintese-de-cadeia](<findings.md#2026-09-03-skipmessagecontent-nunca-mostra-a-sintese-de-cadeia>)
+(achado novo) e [tasks.md, Em aberto](<tasks.md#em-aberto>) (pendência
+nova sobre a tela "Referência")
+
+*Resumo simples:* a revisão de PR (`revisor-testes`) apontou quatro
+telas de jogo/configuração sem teste cobrindo um comportamento já
+documentado. Antes de escrever qualquer teste, cada um dos quatro foi
+checado contra o documento normativo primeiro — não contra o código já
+existente — pra decidir se a fundamentação vem mesmo de um requisito
+já fechado ou se seria só o teste copiando o que o código já faz.
+Resultado: dois pontos têm base documental direta e seguem pra teste;
+um é bloqueado por uma pendência já registrada (o texto que ele testaria
+é um placeholder arbitrário, sem formato exigido em documento nenhum);
+o quarto revelou um achado de verdade — o código não faz o que o
+documento já exige, independente de teste.
+
+*Detalhe técnico:*
+- Indicador de conexão (`◐ procurando`, `○ desconectado`):
+  `design/wireframe.md`, seção "Tela de jogo — posição dos elementos
+  comuns", já fixa as três variantes de texto, com o símbolo exato de
+  cada uma — decisão de documento, não do código. Sem alternativa nova
+  entre opções, então sem ADR necessária.
+- Clique num evento da lista, no leiaute de tablet da Configuração da
+  sessão: `design/wireframe.md`, seção "Ponto de início / Configuração
+  da sessão", e `decisions/0033` já fixam o comportamento (lista à
+  esquerda, painel do evento selecionado à direita). Sem alternativa
+  nova, sem ADR necessária.
+- Tela "Referência" (`SessionScreen.Reference`): documento 4 (Projeto
+  Arquitetônico), item `DA-RET-05`, exige mostrar "o marco zero, o
+  fotograma anterior, ou a última peça do evento anterior" — não fixa
+  nenhum texto nem formato. O texto hoje exibido
+  (`"Referência: ${screen.referenceImage}"`, `SessionGameScreen.kt`) é
+  um placeholder já assumido como provisório no próprio comentário do
+  código, esperando a mesma pendência que já bloqueia a exibição real
+  de imagem de fotograma (decisions/0038, ponto 4) e a ligação de
+  `SessionViewModel`. Testar esse texto fixo provaria só a
+  interpolação de string, não nenhum requisito — virou pendência
+  própria em `tasks.md`, ligada à pendência maior já existente, em vez
+  de teste forçado sem base documental.
+- Síntese de cadeia na tela de mensagem de pulo (`SkipMessageContent`):
+  comparação lado a lado com `EventSummaryContent` (mesmo arquivo)
+  contra o item `DA-RET-13` do mesmo documento revelou que a segunda já
+  lê e desenha `chainSynthesis` corretamente, mas a primeira nunca lê
+  esse campo, mesmo `SessionScreen.SkipMessageShown` já carregando o
+  dado pronto. Diferente dos três pontos acima, isso não é lacuna de
+  teste — é divergência real entre código e requisito já decidido,
+  então virou achado (`findings.md`), não pendência de teste direta.
+
+### <a id="2026-09-03-fundamentacao-em-documento-da-segunda-rodada-de-revisao-de-pr"></a>2026-09-03 — Fundamentação em documento da segunda rodada de achados da revisão de PR
+
+**Levou a:** [findings.md#2026-09-03-leiaute-compacto-da-configuracao-nunca-mostra-o-nome-do-evento](<findings.md#2026-09-03-leiaute-compacto-da-configuracao-nunca-mostra-o-nome-do-evento>), [findings.md#2026-09-03-mensagem-de-pulo-trata-posicoes-sem-resposta-como-intervalo-mesmo-quando-nao-sao](<findings.md#2026-09-03-mensagem-de-pulo-trata-posicoes-sem-resposta-como-intervalo-mesmo-quando-nao-sao>)
+
+*Resumo simples:* dois pontos trazidos por `revisor-testes` e
+`revisor-visao-de-conjunto` nesta rodada pareciam simples de resolver
+olhando só o código — seguindo a mesma regra da investigação anterior
+(documento primeiro, nunca o código), os dois revelaram divergência
+real contra requisito já decidido, não só ajuste de teste.
+
+*Detalhe técnico:*
+- Releitura de [`wireframe.md`, Ponto de início / Configuração da
+  sessão](<../design/wireframe.md#ponto-de-início--configuração-da-sessão-da-ret-0304>),
+  item 2 do leiaute celular, mostrou que cada bloco de evento deveria
+  levar o nome do evento — comparado contra `CompactLayout`/
+  `EventConfigBlock` (`SessionConfigurationScreen.kt`), nenhum dos dois
+  desenha esse nome; só o leiaute de tablet mostra, numa lista
+  separada. O teste que já existia (`MotorAppTest.kt`, `decisions0043 -
+  largura compacta...`) tinha sido escrito contra esse comportamento
+  errado, não contra o wireframe — o padrão de teste "decorado" que a
+  regra de nunca testar antes de ler documento existe pra evitar.
+- Segundo ponto sobre a mesma função `SkipMessageContent`, mas sobre um
+  campo diferente do achado de `chainSynthesis` registrado logo acima
+  (esse já resolvido) — este é sobre a linha "Sem resposta: N-M", nunca
+  sobre a síntese de cadeia. Releitura de `EI-PUL-05` (documento 3,
+  seção 6.6 — mensagem de pulo mostra "o intervalo sem resposta") junto
+  com `EI-VAL-01`/`EI-PUL-04` (mesmo documento, seções 6.4/6.6 — nada
+  força pular o resto do evento depois de um pulo) e o código de
+  `buildSkipMessage` (`core/summary/Summary.kt`, monta a lista posição
+  a posição, sem checar vizinhança) mostrou que um pulo intercalado com
+  respostas normais é possível pela própria mecânica já descrita — e a
+  linha "Sem resposta" monta o texto como se essas posições fossem
+  sempre um intervalo fechado (primeira à última), o que erraria
+  justamente nesse caso. O núcleo (`core/summary`) já calcula a lista
+  certa; o erro é só de como a tela escreve essa lista como texto.
+
+Os dois viraram achado (`findings.md`), não pendência de teste direta.
+Nenhuma escolha entre alternativas reais em nenhum dos dois — os dois
+casos são o código passando a bater com o que o documento já exigia,
+mesmo padrão já usado no achado de `hierarchy` sobre posição com
+buraco (ver acima, entrada de 14-08-2026).
+
+### <a id="2026-09-03-fundamentacao-em-documento-da-revisao-final-de-pr"></a>2026-09-03 — Fundamentação em documento da revisão final de PR, antes de abrir o PR
+
+**Levou a:** [findings.md#2026-09-03-conteudo-de-exemplo-nao-varia-disponibilidade-de-pular-entre-eventos](<findings.md#2026-09-03-conteudo-de-exemplo-nao-varia-disponibilidade-de-pular-entre-eventos>), [findings.md#2026-09-03-valores-de-preenchimento-sem-significado-quando-a-lista-de-exemplo-esta-vazia](<findings.md#2026-09-03-valores-de-preenchimento-sem-significado-quando-a-lista-de-exemplo-esta-vazia>)
+
+*Resumo simples:* a rodada final de `/revisar-pr` (depois de duas rodadas de correção já
+resolvidas) trouxe cinco pontos novos, de três assistentes diferentes. Cada um foi checado contra
+o documento que deveria decidir aquilo, antes de qualquer correção — dois viraram achado real
+(conteúdo de exemplo, valores de preenchimento), dois foram corrigidos como ajuste direto de
+qualidade de teste (sem base documental pra virar achado), e um foi conferido contra o sistema
+visual já decidido e concluído que não precisa de correção nenhuma.
+
+*Detalhe técnico:*
+- Conteúdo de exemplo (`ConteudoInicial.kt`) e valores de preenchimento sem significado
+  (`selectedStartingPosition ?: 1`, nome de evento `?: ""` em `MotorApp.kt`): os dois viraram achado
+  confirmado — fato técnico completo (documento comparado, trecho de código, resolução ou motivo de
+  não corrigir agora) mora só em
+  [findings.md#2026-09-03-conteudo-de-exemplo-nao-varia-disponibilidade-de-pular-entre-eventos](<findings.md#2026-09-03-conteudo-de-exemplo-nao-varia-disponibilidade-de-pular-entre-eventos>)
+  e
+  [findings.md#2026-09-03-valores-de-preenchimento-sem-significado-quando-a-lista-de-exemplo-esta-vazia](<findings.md#2026-09-03-valores-de-preenchimento-sem-significado-quando-a-lista-de-exemplo-esta-vazia>),
+  não repetido aqui.
+- Asserção de teste com número fixo (`MotorAppTest.kt`, "Erros: 0"): checado contra o próprio
+  código de produção (`MotorApp.kt`, `errorCount = 0`, fixo) — a asserção não provava contagem
+  nenhuma, só que a tela de Resultado foi alcançada, porque esse número nunca muda hoje. Sem
+  requisito de documento envolvido (não é divergência de comportamento, é escolha de qual texto
+  prova qual coisa) — corrigido direto, trocando pela asserção de um botão que também só existe na
+  tela de Resultado ("Voltar à navegação"), sem depender de um valor ainda fixo.
+- Mistura de estilo de asserção (`SessionConfigurationScreenTest.kt`): `assert()` é a função
+  embutida da própria linguagem Kotlin, compilada como instrução JVM `assert` — só executa de
+  verdade se a JVM rodar com a flag `-ea` (assertions habilitadas); sem essa flag, a chamada nunca
+  falha, mesmo com a condição falsa. `kotlin.test.assertTrue`/`assertFalse`, já usadas no mesmo
+  arquivo, são funções normais, sempre ativas, independente de flag. Sem requisito de documento
+  envolvido (mesma categoria do ponto anterior) — todas as chamadas convertidas pra
+  `kotlin.test.assertEquals`, removendo a dependência da flag.
+- Proporção de coluna (`0.3f`/`0.7f`, `TabletLayout`) e recuo de navegação
+  (`NavigationEntryIndentStep = 16.dp`): checados contra
+  [decisions/0035](<../decisions/0035-sistema-visual-cor-tipografia-forma-contraste.md>), que já
+  decide cor, tema, tipografia, forma, contraste e área de toque — nenhum dos sete pontos da
+  Decisão cobre proporção de layout nem recuo de indentação. Os dois valores continuam sem decisão
+  documentada, mas na mesma categoria de qualquer outro espaçamento já usado nas telas (`16.dp`,
+  `12.dp`, `8.dp` de `padding`, por exemplo) — implementação visual comum, não dado de conteúdo ou
+  configuração que devesse vir de outro lugar. Sem correção.
+
 ## Controle de versão
 
 <!-- uma linha por versão publicada deste documento, mais antiga no
@@ -1175,3 +1447,9 @@ sem reescrever) também conta como mudança de conteúdo real. -->
 | 0.22.0 | 30-08-2026 | Acrescentadas três entradas: fechamento da escolha da cor semente (com fonte oficial nova sobre orientação de marca do Google), nota de acompanhamento sobre a entrada anterior ter ficado desatualizada, e a reorganização de `wireframe.md`/`cor-semente-candidatas.html` pra uma pasta nova (`design/`). | Resolução de [decisions/0035](<../decisions/0035-sistema-visual-cor-tipografia-forma-contraste.md>); correção estrutural de pasta do módulo |
 | 0.23.0 | 30-08-2026 | Acrescentada a auditoria de leitura completa que precedeu a tarefa do protótipo navegável — cinco frases desatualizadas sobre aparência visual encontradas e corrigidas em `concept.md`, `architecture.md` e três ADRs (nota de acompanhamento). | Preparação pra "Montar o protótipo navegável", em `tasks.md` |
 | 0.24.0 | 31-08-2026 | Acrescentada a verificação do protótipo navegável depois da revisão de PR — três pontos sem teste de verdade implementados (ramo `hasNextEvent`) ou testados (isolamento do leiaute tablet, clique real no botão "Pular peça" sob o toque-livre), com asserções específicas, não genéricas. | Resposta às decisões do usuário sobre os achados de `/revisar-pr` |
+| 0.25.0 | 01-09-2026 | Acrescentada a investigação da escrita de `SessionGameScreen.kt` — três lacunas reais encontradas (carregamento de imagem, forma de `SkipMessage`, fonte de ícone dos controles), nenhuma delas bloqueando a tela de compilar/testar. | Escrita da primeira tela real do módulo `app`; três pendências novas em `tasks.md` |
+| 0.26.0 | 01-09-2026 | Acrescentada a investigação da confirmação visual do ponto de entrada real — achado do tema `NoActionBar`, e registro do limite de ambiente do emulador local (três causas de travamento diferentes, nenhuma delas no código do projeto). | Achado [pitfalls.md#2026-09-01-sem-tema-xml-noactionbar-a-barra-nativa-cobre-o-compose](<pitfalls.md#2026-09-01-sem-tema-xml-noactionbar-a-barra-nativa-cobre-o-compose>); pendência nova em `tasks.md` |
+| 0.27.0 | 01-09-2026 | Acrescentada a investigação da fonte de ícone oficial pro botão de pausar, via repositório GitHub do Google — reabre e resolve o bloqueio registrado em `decisions/0039`. | Resolução parcial de [decisions/0041](<../decisions/0041-fonte-de-icone-do-botao-de-pausar.md>) |
+| 0.28.0 | 03-09-2026 | Acrescentada a investigação de fundamentação em documento, antes de teste, dos quatro pontos apontados por `revisor-testes` — dois seguem pra teste, um vira pendência bloqueada, um vira achado real em `findings.md`. | Achados na revisão de PR (revisor-testes) |
+| 0.29.0 | 03-09-2026 | Acrescentada a investigação de fundamentação em documento da segunda rodada de revisão de PR — dois pontos que pareciam simples revelaram divergência real (nome do evento no leiaute compacto, formato da mensagem de pulo com posições não-contíguas). | Achados na revisão de PR (revisor-testes, revisor-visao-de-conjunto) |
+| 0.30.0 | 03-09-2026 | Acrescentada a investigação de fundamentação em documento da revisão final de PR — cinco pontos checados, dois viram achado real, dois viram ajuste direto de teste, um confirmado sem necessidade de correção (proporção de layout e recuo de navegação, fora do escopo de `decisions/0035`). | Achados na revisão final de PR (revisor-visao-de-conjunto, revisor-testes, revisor-valores-fixos) |

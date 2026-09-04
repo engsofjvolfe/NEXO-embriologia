@@ -24,3 +24,13 @@ local.properties
 /.vale/
 /.github/pull_request_template.md
 /.gitattributes
+
+# Copia indevida do material acima, aninhada dentro de modulos/<nome>/
+# -- nunca deveria existir de verdade (só a pasta principal ou a raiz
+# de uma worktree tem essas pastas), mas um bug ja causou isso uma vez
+# (atalho de pasta criado, por engano, dentro da pasta errada). Causa
+# corrigida no modulo de Conformidade (repositorio proprio, fora deste
+# -- ver decisions/0021 la), nao rastreavel aqui; o padrao abaixo fica
+# so como precaucao, mesmo com a causa ja corrigida.
+modulos/*/.claude/
+modulos/*/modulos/

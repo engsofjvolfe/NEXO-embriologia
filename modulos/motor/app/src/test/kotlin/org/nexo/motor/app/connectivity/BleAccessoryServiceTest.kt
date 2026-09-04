@@ -5,11 +5,17 @@ import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothGattCharacteristic
 import android.bluetooth.le.ScanRecord
 import android.bluetooth.le.ScanResult
+import android.content.Intent
+import android.os.Looper
 import java.nio.ByteBuffer
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.nexo.motor.core.connectivity.ConnectionState
 import org.nexo.motor.core.connectivity.NordicUartService
+import org.nexo.motor.core.connectivity.Radio
 import org.nexo.motor.core.connectivity.tagIdFromBytes
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
@@ -48,6 +54,7 @@ class BleAccessoryServiceTest {
         service.setPieceReadListener(PieceReadListener { tagId -> receivedTagId = tagId })
 
         val bluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
+        shadowOf(bluetoothAdapter).setEnabled(true)
         val scanner = bluetoothAdapter.bluetoothLeScanner
         val device = bluetoothAdapter.getRemoteDevice("00:11:22:33:44:55")
         val scanRecord: ScanRecord = ReflectionHelpers.callStaticMethod(
@@ -74,5 +81,128 @@ class BleAccessoryServiceTest {
         gattCallback.onCharacteristicChanged(gatt, txCharacteristic)
 
         assertEquals(tagIdFromBytes(rawId), receivedTagId)
+    }
+
+    @Test
+    fun `Bluetooth desligado -- startScanAndConnect avisa o RadioStateListener e nao busca -- decisions0044`() {
+        val application = RuntimeEnvironment.getApplication()
+        shadowOf(application).grantPermissions(
+            Manifest.permission.BLUETOOTH_SCAN,
+            Manifest.permission.BLUETOOTH_CONNECT,
+        )
+        val controller: ServiceController<BleAccessoryService> =
+            org.robolectric.Robolectric.buildService(BleAccessoryService::class.java)
+        val service = controller.create().get()
+        shadowOf(BluetoothAdapter.getDefaultAdapter()).setEnabled(false)
+        var lastRadio: Radio? = null
+        var lastEnabled: Boolean? = null
+        service.setRadioStateListener(RadioStateListener { radio, enabled ->
+            lastRadio = radio
+            lastEnabled = enabled
+        })
+
+        val started = service.startScanAndConnect()
+
+        assertFalse(started)
+        assertEquals(Radio.BLUETOOTH, lastRadio)
+        assertFalse(lastEnabled!!)
+    }
+
+    @Test
+    fun `Bluetooth ligado -- startScanAndConnect avisa o RadioStateListener com enabled=true -- decisions0044`() {
+        val application = RuntimeEnvironment.getApplication()
+        shadowOf(application).grantPermissions(
+            Manifest.permission.BLUETOOTH_SCAN,
+            Manifest.permission.BLUETOOTH_CONNECT,
+        )
+        val controller: ServiceController<BleAccessoryService> =
+            org.robolectric.Robolectric.buildService(BleAccessoryService::class.java)
+        val service = controller.create().get()
+        shadowOf(BluetoothAdapter.getDefaultAdapter()).setEnabled(true)
+        var lastEnabled: Boolean? = null
+        service.setRadioStateListener(RadioStateListener { _, enabled -> lastEnabled = enabled })
+
+        val started = service.startScanAndConnect()
+
+        assertTrue(started)
+        assertTrue(lastEnabled!!)
+    }
+
+    @Test
+    fun `Bluetooth desligado em tempo real chega pelo broadcast e derruba a conexao -- decisions0044`() {
+        val application = RuntimeEnvironment.getApplication()
+        shadowOf(application).grantPermissions(
+            Manifest.permission.BLUETOOTH_SCAN,
+            Manifest.permission.BLUETOOTH_CONNECT,
+        )
+        val controller: ServiceController<BleAccessoryService> =
+            org.robolectric.Robolectric.buildService(BleAccessoryService::class.java)
+        val service = controller.create().get()
+        val bluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
+        shadowOf(bluetoothAdapter).setEnabled(true)
+        service.startScanAndConnect()
+        var lastEnabled: Boolean? = null
+        service.setRadioStateListener(RadioStateListener { _, enabled -> lastEnabled = enabled })
+
+        service.sendBroadcast(
+            Intent(BluetoothAdapter.ACTION_STATE_CHANGED)
+                .putExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.STATE_OFF),
+        )
+        shadowOf(Looper.getMainLooper()).idle()
+
+        assertFalse(lastEnabled!!)
+        assertEquals(ConnectionState.DISCONNECTED, service.currentConnectionState())
+    }
+
+    @Test
+    fun `Bluetooth religado em tempo real chega pelo broadcast -- decisions0044`() {
+        val application = RuntimeEnvironment.getApplication()
+        shadowOf(application).grantPermissions(
+            Manifest.permission.BLUETOOTH_SCAN,
+            Manifest.permission.BLUETOOTH_CONNECT,
+        )
+        val controller: ServiceController<BleAccessoryService> =
+            org.robolectric.Robolectric.buildService(BleAccessoryService::class.java)
+        val service = controller.create().get()
+        val bluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
+        shadowOf(bluetoothAdapter).setEnabled(false)
+        var lastEnabled: Boolean? = null
+        service.setRadioStateListener(RadioStateListener { _, enabled -> lastEnabled = enabled })
+
+        shadowOf(bluetoothAdapter).setEnabled(true)
+        service.sendBroadcast(
+            Intent(BluetoothAdapter.ACTION_STATE_CHANGED)
+                .putExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.STATE_ON),
+        )
+        shadowOf(Looper.getMainLooper()).idle()
+
+        assertTrue(lastEnabled!!)
+    }
+
+    @Test
+    fun `onDestroy desregistra o receptor -- broadcast depois nao derruba nada -- decisions0044`() {
+        val application = RuntimeEnvironment.getApplication()
+        shadowOf(application).grantPermissions(
+            Manifest.permission.BLUETOOTH_SCAN,
+            Manifest.permission.BLUETOOTH_CONNECT,
+        )
+        val controller: ServiceController<BleAccessoryService> =
+            org.robolectric.Robolectric.buildService(BleAccessoryService::class.java)
+        val service = controller.create().get()
+        val bluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
+        shadowOf(bluetoothAdapter).setEnabled(true)
+        var callCount = 0
+        service.setRadioStateListener(RadioStateListener { _, _ -> callCount++ })
+        controller.destroy()
+        val callsAfterDestroy = callCount
+
+        shadowOf(bluetoothAdapter).setEnabled(false)
+        service.sendBroadcast(
+            Intent(BluetoothAdapter.ACTION_STATE_CHANGED)
+                .putExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.STATE_OFF),
+        )
+        shadowOf(Looper.getMainLooper()).idle()
+
+        assertEquals(callsAfterDestroy, callCount)
     }
 }

@@ -11,7 +11,9 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.nexo.motor.app.connectivity.ConnectionStateListener
 import org.nexo.motor.app.connectivity.PieceReadListener
+import org.nexo.motor.app.connectivity.RadioStateListener
 import org.nexo.motor.core.connectivity.ConnectionState
+import org.nexo.motor.core.connectivity.Radio
 import org.nexo.motor.core.content.ContentEvent
 import org.nexo.motor.core.content.ContentInstance
 import org.nexo.motor.core.report.EventConfiguration
@@ -46,10 +48,12 @@ class SessionViewModel(
     initialState: SessionState,
     private val pausedStateFile: File? = null,
     private val now: () -> Long = { System.currentTimeMillis() },
-) : ViewModel(), PieceReadListener, ConnectionStateListener {
+) : ViewModel(), PieceReadListener, ConnectionStateListener, RadioStateListener {
 
     private var sessionState: SessionState = initialState
     private var lastConnectionState: ConnectionState? = null
+    private var nfcEnabled: Boolean = true
+    private var bluetoothEnabled: Boolean = true
     private var idleJob: Job? = null
 
     private val _uiState = MutableStateFlow(SessionUiState(screen = referenceScreenFor(initialState)))
@@ -78,8 +82,29 @@ class SessionViewModel(
     override fun onConnectionStateChanged(state: ConnectionState) {
         lastConnectionState = state
         if (_uiState.value.screen is SessionScreen.AwaitingAttempt) {
-            setScreen(SessionScreen.AwaitingAttempt(connectionState = state))
+            setScreen(SessionScreen.AwaitingAttempt(connectionState = state, disabledRadio = currentDisabledRadio()))
         }
+    }
+
+    override fun onRadioStateChanged(radio: Radio, enabled: Boolean) {
+        when (radio) {
+            Radio.NFC -> nfcEnabled = enabled
+            Radio.BLUETOOTH -> bluetoothEnabled = enabled
+        }
+        if (_uiState.value.screen is SessionScreen.AwaitingAttempt) {
+            setScreen(SessionScreen.AwaitingAttempt(connectionState = lastConnectionState, disabledRadio = currentDisabledRadio()))
+        }
+    }
+
+    // Decisions/0044: o aviso reflete só o rádio do caminho que a pessoa está de fato usando --
+    // connectionState não nulo indica acessório Bluetooth em jogo (só o estado do Bluetooth
+    // importa); connectionState nulo indica NFC direto (só o estado do NFC importa). O estado do
+    // rádio que não é o caminho em uso nunca aparece -- avisar sobre um rádio que a pessoa nem
+    // pretende usar seria instrução fora de contexto, não confirmação (Conceito, seção 8).
+    private fun currentDisabledRadio(): Radio? = if (lastConnectionState != null) {
+        if (!bluetoothEnabled) Radio.BLUETOOTH else null
+    } else {
+        if (!nfcEnabled) Radio.NFC else null
     }
 
     fun onSkipRequested() {
@@ -91,11 +116,11 @@ class SessionViewModel(
 
     fun onScreenAcknowledged() {
         val next = when (_uiState.value.screen) {
-            is SessionScreen.Reference -> SessionScreen.AwaitingAttempt(connectionState = lastConnectionState)
+            is SessionScreen.Reference -> awaitingAttemptScreen()
             is SessionScreen.AttemptAccepted -> resolveAfterAdvance()
             is SessionScreen.AttemptRejected,
             is SessionScreen.HintShown,
-            is SessionScreen.StudySuggestionShown -> SessionScreen.AwaitingAttempt(connectionState = lastConnectionState)
+            is SessionScreen.StudySuggestionShown -> awaitingAttemptScreen()
             is SessionScreen.AwaitingAttempt, is SessionScreen.EventSummary, is SessionScreen.SkipMessageShown -> return
         }
         setScreen(next)
@@ -172,11 +197,14 @@ class SessionViewModel(
     private fun resolveAfterAdvance(): SessionScreen {
         val event = contentEvent(sessionState.expectedEventName)
         return if (!eventComplete(sessionState, event.frames.size)) {
-            SessionScreen.AwaitingAttempt(connectionState = lastConnectionState)
+            awaitingAttemptScreen()
         } else {
             resolveEventCompletion()
         }
     }
+
+    private fun awaitingAttemptScreen(): SessionScreen.AwaitingAttempt =
+        SessionScreen.AwaitingAttempt(connectionState = lastConnectionState, disabledRadio = currentDisabledRadio())
 
     private fun resolveEventCompletion(): SessionScreen {
         val eventName = sessionState.expectedEventName

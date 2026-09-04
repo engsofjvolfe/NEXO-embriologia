@@ -6,7 +6,7 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Tasks |
-| Versão | 0.66.0 |
+| Versão | 0.68.0 |
 | Data | 03-09-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
@@ -48,12 +48,6 @@ Convenção dos códigos citados aqui:
 > mais rápido, é onde o trabalho recente se concentra); pendências do
 > acessório físico por último (`firmware`, chip leitor, homologação),
 > porque esse acessório não vai existir por enquanto.
-
-- [ ] **Cobrir o estado "NFC/Bluetooth desligado no aparelho" no
-      indicador de conexão da tela de jogo (`connectionIndicatorText`,
-      `SessionGameScreen.kt`).** Ver
-      [wireframe.md, Tela de jogo — posição dos elementos comuns](<../design/wireframe.md#tela-de-jogo--posição-dos-elementos-comuns>).
-      Achado na revisão de PR (revisor-testes).
 
 - [ ] **Confirmar visualmente, num ambiente sem o limite de emulador já
       registrado, que a barra de título nativa do Android some de
@@ -705,6 +699,30 @@ Convenção dos códigos citados aqui:
       [analysis.md#2026-09-03-fundamentacao-em-documento-da-revisao-final-de-pr](<analysis.md#2026-09-03-fundamentacao-em-documento-da-revisao-final-de-pr>),
       não repetido aqui. Testado ao vivo: `gradlew :core:test :app:testDebugUnitTest`, `BUILD
       SUCCESSFUL`. Achados na revisão final de PR (revisor-visao-de-conjunto, revisor-testes).
+- [x] **Cobrir o estado "NFC/Bluetooth desligado no aparelho" no
+      indicador de conexão da tela de jogo (`connectionIndicatorText`,
+      `SessionGameScreen.kt`).** Resolvido — ver
+      [decisions/0044](<../decisions/0044-deteccao-de-nfc-bluetooth-desligado-no-aparelho.md>).
+      Tipo novo `Radio` (`core/connectivity`), `RadioStateListener`
+      (`app/connectivity`), checagem de `isEnabled` e receptor de
+      notificação de sistema em `MainActivity` (NFC) e
+      `BleAccessoryService` (Bluetooth); `SessionScreen.AwaitingAttempt`
+      ganha o campo `disabledRadio`. `connectionIndicatorText`
+      (`SessionGameScreen.kt`) acabou dividida em três funções durante a
+      implementação: `radioIndicatorText` (decide a prioridade),
+      `disabledRadioText` (texto novo) e `connectionIndicatorText`, que
+      continua existindo, cuidando só do indicador sem aviso de rádio
+      desligado. Revisão de PR (`/revisar-pr`, quatro assistentes) achou
+      um bug real na regra de prioridade — a lógica escrita mostrava o
+      aviso do rádio errado (o que a pessoa nem pretendia usar) quando só
+      um dos dois estava desligado; corrigido, com dois testes novos
+      cobrindo exatamente esse caso, e a tabela da própria ADR corrigida
+      pra bater com a lógica de verdade. Testado ao vivo: `gradlew
+      :core:test :app:testDebugUnitTest :app:assembleDebug`, `BUILD
+      SUCCESSFUL`. Uma armadilha de ferramenta encontrada no caminho,
+      ver [pitfalls.md](<pitfalls.md#armadilhas>). Achados na revisão de
+      PR (revisor-testes, revisor-visao-de-conjunto,
+      revisor-valores-fixos, revisor-referencias-cruzadas).
 
 ## Referências
 
@@ -819,3 +837,5 @@ como mudança de conteúdo real. -->
 | 0.64.0 | 03-09-2026 | Item resolvido da linha anterior ganha a confirmação de teste ao vivo (`gradlew :core:test :app:testDebugUnitTest`, `BUILD SUCCESSFUL`), que faltava. | Suíte completa rodada de novo após as duas correções |
 | 0.65.0 | 03-09-2026 | Pendência "Ligar `SessionViewModel` de verdade..." ganha ponteiro pro achado novo sobre os dois valores de preenchimento sem significado, e mais um revisor na atribuição. Um achado novo resolvido — movido direto para Resolvidas (conteúdo de exemplo, asserção de teste com número fixo, mistura de estilo de asserção). | Achados na revisão final de PR (revisor-visao-de-conjunto, revisor-testes, revisor-valores-fixos) |
 | 0.66.0 | 03-09-2026 | Item resolvido da linha anterior ganha a confirmação de teste ao vivo (`gradlew :core:test :app:testDebugUnitTest`, `BUILD SUCCESSFUL`), que faltava. | Suíte completa rodada de novo após as três correções |
+| 0.67.0 | 03-09-2026 | Pendência "Cobrir o estado NFC/Bluetooth desligado no indicador de conexão da tela de jogo" resolvida — movida para Resolvidas. | Resolução de [decisions/0044](<../decisions/0044-deteccao-de-nfc-bluetooth-desligado-no-aparelho.md>) |
+| 0.68.0 | 03-09-2026 | Item resolvido da linha anterior atualizado: nomes reais das três funções em que `connectionIndicatorText` se dividiu, e o bug de precedência achado e corrigido na revisão. | Revisão de PR (`/revisar-pr`, quatro assistentes) |

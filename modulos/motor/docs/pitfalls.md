@@ -6,8 +6,8 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Pitfalls |
-| Versão | 0.9.0 |
-| Data | 01-09-2026 |
+| Versão | 0.10.0 |
+| Data | 03-09-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
 > Comportamento não óbvio de ferramenta/mecanismo usado só neste módulo
@@ -247,6 +247,31 @@ maven-metadata.xml`, tag `<release>`): `1.14.0`. Build resolve a referência ao 
 (`BUILD SUCCESSFUL`); confirmação visual da ausência da barra numa segunda captura de tela segue
 em aberto — ver [analysis.md](<analysis.md#2026-09-01-confirmacao-visual-do-ponto-de-entrada-real-e-limite-de-ambiente-do-emulador>).
 
+### <a id="2026-09-03-robolectric-sendbroadcast-exige-idle-do-looper-principal"></a>2026-09-03 — `Context.sendBroadcast()` no Robolectric não entrega nada a um receptor registrado sem `Looper.getMainLooper()` idle
+
+*Resumo simples:* mandar uma notificação de sistema de teste
+(`sendBroadcast`) pra um receptor já registrado dinamicamente
+(`registerReceiver`) não chama esse receptor na hora — a entrega fica
+enfileirada até o teste avisar, explicitamente, que o "relógio
+principal" simulado pode avançar.
+
+*Detalhe técnico:* ao testar o receptor dinâmico de
+`NfcAdapter.ACTION_ADAPTER_STATE_CHANGED` (`MainActivity`) e de
+`BluetoothAdapter.ACTION_STATE_CHANGED` (`BleAccessoryService`) —
+decisions/0044 — três testes falharam na primeira tentativa: dois com
+`NullPointerException` (o retrato do estado nunca chegou a ser
+preenchido) e um com `AssertionError` (o valor antigo continuou
+valendo). Causa: o modo de `Looper` do Robolectric usado por padrão
+(`PAUSED`) enfileira o despacho de `sendBroadcast` no Looper principal
+simulado em vez de entregá-lo na mesma chamada — sem avançar esse
+relógio, o teste segue lendo o estado de antes do broadcast, como se
+ele nunca tivesse sido enviado. Correção: chamar
+`Shadows.shadowOf(Looper.getMainLooper()).idle()` logo depois de cada
+`sendBroadcast()` de teste, forçando o despacho a acontecer antes da
+verificação (`assert`) seguinte. Testado ao vivo: `gradlew
+:app:testDebugUnitTest`, `BUILD SUCCESSFUL` depois da correção (falhava
+antes dela).
+
 ## Referências
 
 Fontes citadas nas armadilhas acima, no formato definido pela norma
@@ -283,3 +308,4 @@ reescrever) também conta como mudança de conteúdo real. -->
 | 0.7.0 | 16-08-2026 | Acrescentadas duas armadilhas do Robolectric: `NfcAdapter.getDefaultAdapter()` volta nulo sem declarar a característica de hardware NFC no `PackageManager` simulado; `ShadowNfcAdapter.createMockTag()` não aceita o identificador da etiqueta como parâmetro. | Achado ao escrever e rodar de verdade o teste de `MainActivity.kt` (leitura NFC) |
 | 0.8.0 | 17-08-2026 | Acrescentada a armadilha de `ScanRecord.parseFromBytes` ser método oculto do SDK público do Android. | Achado ao escrever e rodar de verdade o teste de `BleAccessoryService.kt` (Bluetooth) |
 | 0.9.0 | 01-09-2026 | Acrescentada a armadilha da barra de título nativa do Android aparecer por cima das telas em Compose sem um tema XML `NoActionBar`. | Achado por captura de tela ao vivo, ao confirmar visualmente o encadeamento real das telas |
+| 0.10.0 | 03-09-2026 | Acrescentada a armadilha de `Context.sendBroadcast()` no Robolectric exigir `Looper.getMainLooper()` idle pra entregar a um receptor registrado dinamicamente. | Achado ao escrever e rodar de verdade os testes de `MainActivity.kt`/`BleAccessoryService.kt` pra decisions/0044 |

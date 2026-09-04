@@ -14,6 +14,7 @@ import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Before
 import org.nexo.motor.core.connectivity.ConnectionState
+import org.nexo.motor.core.connectivity.Radio
 import org.nexo.motor.core.content.ContentEvent
 import org.nexo.motor.core.content.ContentInstance
 import org.nexo.motor.core.content.ContentTheme
@@ -27,10 +28,10 @@ import java.io.File
 
 /**
  * Prova a ligação entre leitura de peça, `session`, `content` e a tela (decisions/0020, 0022, 0023,
- * 0024, 0026) -- nunca as regras que já são testadas dentro de `core/session` em si. Forma exata de
- * `SessionState`, dos tipos de `content` e do construtor de `SessionViewModel`: decisions/0026 e
- * decisions/0027. Ferramenta: kotlin-test-junit, sem Robolectric (decisions/0025, ponto 3) -- nenhum
- * tipo usado aqui depende de classe do Android.
+ * 0024, 0026, 0044) -- nunca as regras que já são testadas dentro de `core/session` em si. Forma
+ * exata de `SessionState`, dos tipos de `content` e do construtor de `SessionViewModel`:
+ * decisions/0026 e decisions/0027. Ferramenta: kotlin-test-junit, sem Robolectric (decisions/0025,
+ * ponto 3) -- nenhum tipo usado aqui depende de classe do Android.
  */
 @OptIn(ExperimentalCoroutinesApi::class)
 class SessionViewModelTest {
@@ -164,6 +165,97 @@ class SessionViewModelTest {
         val screen = viewModel.uiState.value.screen
         assertIs<SessionScreen.AwaitingAttempt>(screen)
         assertEquals(ConnectionState.CONNECTED, screen.connectionState)
+    }
+
+    @Test
+    fun `NFC desligado chega ate a tela quando nao ha acessorio Bluetooth em jogo -- decisions0044`() {
+        val viewModel = newViewModel()
+        viewModel.onScreenAcknowledged()
+
+        viewModel.onRadioStateChanged(Radio.NFC, false)
+
+        val screen = viewModel.uiState.value.screen
+        assertIs<SessionScreen.AwaitingAttempt>(screen)
+        assertEquals(Radio.NFC, screen.disabledRadio)
+    }
+
+    @Test
+    fun `Bluetooth desligado substitui o indicador de conexao quando ha acessorio em jogo -- decisions0044`() {
+        val viewModel = newViewModel()
+        viewModel.onScreenAcknowledged()
+        viewModel.onConnectionStateChanged(ConnectionState.CONNECTED)
+
+        viewModel.onRadioStateChanged(Radio.BLUETOOTH, false)
+
+        val screen = viewModel.uiState.value.screen
+        assertIs<SessionScreen.AwaitingAttempt>(screen)
+        assertEquals(ConnectionState.CONNECTED, screen.connectionState)
+        assertEquals(Radio.BLUETOOTH, screen.disabledRadio)
+    }
+
+    @Test
+    fun `Bluetooth desligado sozinho, sem acessorio em jogo, nao gera aviso -- NFC e o caminho em uso, decisions0044`() {
+        val viewModel = newViewModel()
+        viewModel.onScreenAcknowledged()
+
+        viewModel.onRadioStateChanged(Radio.BLUETOOTH, false)
+
+        val screen = viewModel.uiState.value.screen
+        assertIs<SessionScreen.AwaitingAttempt>(screen)
+        assertNull(screen.disabledRadio, "sem acessorio em jogo, o estado do Bluetooth eh irrelevante -- nao deve aparecer aviso")
+    }
+
+    @Test
+    fun `NFC desligado sozinho, com acessorio em jogo, nao gera aviso -- Bluetooth e o caminho em uso, decisions0044`() {
+        val viewModel = newViewModel()
+        viewModel.onScreenAcknowledged()
+        viewModel.onConnectionStateChanged(ConnectionState.CONNECTED)
+
+        viewModel.onRadioStateChanged(Radio.NFC, false)
+
+        val screen = viewModel.uiState.value.screen
+        assertIs<SessionScreen.AwaitingAttempt>(screen)
+        assertNull(screen.disabledRadio, "com acessorio em jogo, o estado do NFC eh irrelevante -- nao deve aparecer aviso")
+    }
+
+    @Test
+    fun `os dois radios desligados com acessorio em jogo prioriza o aviso de Bluetooth -- decisions0044`() {
+        val viewModel = newViewModel()
+        viewModel.onScreenAcknowledged()
+        viewModel.onConnectionStateChanged(ConnectionState.SCANNING)
+
+        viewModel.onRadioStateChanged(Radio.NFC, false)
+        viewModel.onRadioStateChanged(Radio.BLUETOOTH, false)
+
+        val screen = viewModel.uiState.value.screen
+        assertIs<SessionScreen.AwaitingAttempt>(screen)
+        assertEquals(Radio.BLUETOOTH, screen.disabledRadio)
+    }
+
+    @Test
+    fun `os dois radios desligados sem acessorio em jogo prioriza o aviso de NFC -- decisions0044`() {
+        val viewModel = newViewModel()
+        viewModel.onScreenAcknowledged()
+
+        viewModel.onRadioStateChanged(Radio.BLUETOOTH, false)
+        viewModel.onRadioStateChanged(Radio.NFC, false)
+
+        val screen = viewModel.uiState.value.screen
+        assertIs<SessionScreen.AwaitingAttempt>(screen)
+        assertEquals(Radio.NFC, screen.disabledRadio)
+    }
+
+    @Test
+    fun `religar o radio limpa o aviso -- decisions0044`() {
+        val viewModel = newViewModel()
+        viewModel.onScreenAcknowledged()
+        viewModel.onRadioStateChanged(Radio.NFC, false)
+
+        viewModel.onRadioStateChanged(Radio.NFC, true)
+
+        val screen = viewModel.uiState.value.screen
+        assertIs<SessionScreen.AwaitingAttempt>(screen)
+        assertNull(screen.disabledRadio)
     }
 
     @Test

@@ -153,6 +153,9 @@
   resolvidos (campo editável, testes de tela novos, divergências de
   código corrigidas, índice de decisões do módulo atualizado) — ver
   [modulos/motor/docs/handoff.md](modulos/motor/docs/handoff.md).
+- Aviso de NFC/Bluetooth desligado no aparelho, achado de revisão de
+  PR, resolvido na tela de jogo do motor — ver
+  [modulos/motor/docs/handoff.md](modulos/motor/docs/handoff.md).
 - [TASKS.md, Resolvidas](TASKS.md#resolvidas) — pendências já corrigidas.
 
 ## Próximo passo

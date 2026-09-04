@@ -19,8 +19,6 @@
   e [projeto detalhado](<docs/docs-VMODEL-visao-geral/5 - projeto-detalhado.md>).
 - [`modulos/_template/`](modulos/_template/) — molde de módulo, agora
   com controle de versão em todo arquivo.
-- [`scripts/`](scripts/) — gancho de git que avisa quando falta subir
-  a versão de um documento.
 - Módulo [motor](modulos/motor/) criado — desenho de código, contrato
   de dado e decisões de linguagem/framework já registrados.
 - Código do módulo motor em andamento, dentro de
@@ -139,71 +137,14 @@
   [modulos/motor/decisions/0036](<modulos/motor/decisions/0036-ferramenta-e-fidelidade-do-prototipo-navegavel.md>).
   Escrever o código real das telas, em Jetpack Compose, segue como
   pendência própria.
-- Sistema de conformidade do `CLAUDE.md` instalado: hooks do Claude
-  Code (`.claude/hooks/`, `.claude/settings.json`) e do git nativo
-  (`scripts/hooks/commit-msg`, `pre-push`, `pre-rebase`, ao lado do
-  `pre-commit` já existente) transformam regras do `CLAUDE.md` em
-  travas automáticas -- leitura obrigatória antes de editar, worktree
-  própria, formato de commit, nunca reescrever `develop`/`main`, entre
-  outras. Ver `MANUAL.md` da instalação (raiz do repositório) pra
-  referência completa; regra que muda no `CLAUDE.md` sem hook
-  correspondente agora recebe aviso automático no commit.
-- Sistema de conformidade do `CLAUDE.md` formalizado como módulo
-  próprio ([modulos/conformidade](modulos/conformidade/)), com
-  `MANUAL.md` continuando como fonte normativa — quatro lacunas reais
-  fechadas (leitura obrigatória cobrindo qualquer ferramenta, não só
-  escrita; comparação de caminho de worktree corrigida pro Windows;
-  checagem de esquema puro cobrindo esquema embutido em documento;
-  revisor do fim da resposta conferindo instrução do usuário não
-  atendida) — ver
-  [modulos/conformidade/docs/handoff.md](modulos/conformidade/docs/handoff.md).
-- Achada e corrigida a causa raiz de os ganchos revisados por IA
-  (revisão de commit, revisão de preview, três checagens do fim da
-  resposta) nunca bloquearem de verdade: o formato de resposta que
-  pediam não era reconhecido pelo Claude Code como decisão de bloqueio
-  — ver
-  [modulos/conformidade/docs/handoff.md](modulos/conformidade/docs/handoff.md).
-- Mais quatro regras do `CLAUDE.md` (nunca emoji, esquema é dado puro,
-  linha de Licença em tabela, nunca "antes e depois" em documento nunca
-  versionado) movidas do momento do commit pro momento da própria
-  edição; achada e corrigida uma falha real do Claude Code (filtro
-  `if` roda um gancho mesmo sem bater o padrão, em comando complexo
-  demais pra ser interpretado) que fazia o revisor de commit disparar
-  fora de contexto; sistema de ficha/síntese (resumo compacto do estado
-  da sessão, substituindo releitura do diário inteiro a cada checagem)
-  documentado retroativamente — ver
-  [modulos/conformidade/docs/handoff.md](modulos/conformidade/docs/handoff.md).
-- Bloqueio real dos ganchos de conformidade corrigido: `SessionStart`
-  não apaga mais a ficha (registro de leitura/edição da sessão)
-  durante o resumo automático de contexto; a ficha se recupera sozinha
-  de um estado corrompido; `AUTORIZO-TRAVA` não dispara mais por um
-  texto de exemplo citado sem motivo real; a leitura manual obrigatória
-  dos seis documentos passa a expirar (frescor uniforme, em vez de
-  permanente); lacuna de trava mecânica em `pitfalls.md`/`findings.md`/
-  `decisions/` fechada — ver
-  [modulos/conformidade/docs/handoff.md](modulos/conformidade/docs/handoff.md).
-- Causa raiz encontrada, com fonte oficial, de por que os ganchos
-  decididos por IA no sistema de conformidade não bloqueavam de
-  verdade: formato de resposta errado em todos, e um deles ficando sem
-  acesso a ferramenta enquanto a sessão está no modo automático. Dois
-  ganchos removidos (revisão de commit, revisão de início do teste no
-  preview), substituídos por checagem mecânica; os outros quatro
-  mantidos, com o formato corrigido — ver
-  [modulos/conformidade/docs/handoff.md](modulos/conformidade/docs/handoff.md).
-- Dois falsos bloqueios reais confirmados ao vivo, com evidência em
-  disco, e corrigidos: `SessionStart` ainda apagava a ficha no evento
-  `resume` (correção anterior só cobria `compact`), e `AUTORIZO-TRAVA`
-  ainda disparava por uma citação com reticências, sem motivo real.
-  Janela de validade da leitura manual obrigatória alongada, e
-  comandos `git`/`gh` isentos dela — ver
-  [modulos/conformidade/docs/handoff.md](modulos/conformidade/docs/handoff.md).
-- Gancho nativo do git `scripts/hooks/pre-commit` corrigido: não
-  reconhecia subida de versão de verdade em documento sem tabela de
-  cabeçalho (caso de `MANUAL.md`) -- ver
-  [modulos/conformidade/docs/handoff.md](modulos/conformidade/docs/handoff.md).
-- Revisão de PR por assistentes chamados manualmente, um por assunto --
-  ver
-  [modulos/conformidade/docs/handoff.md](modulos/conformidade/docs/handoff.md).
+- Módulo `conformidade` e as ferramentas internas ligadas a ele
+  (ganchos do Claude Code e do git nativo, agentes de revisão,
+  `MANUAL.md`, `FRASES-DE-CONFIRMACAO.md`,
+  `configurar-protecao-branch.sh`, `scripts/`, gabarito de PR,
+  configuração de estilo de prosa) retirados do envio para o
+  repositório remoto, por terem subido por engano -- seguem existindo
+  e funcionando só neste computador. `.claude/CLAUDE.md` continua no
+  repositório remoto.
 - As 17 entradas de tela do motor estão escritas e testadas; 15 delas
   já encadeadas de verdade no aplicativo (as duas restantes,
   Consentimento e Importar conteúdo, ainda sem gatilho que leve até

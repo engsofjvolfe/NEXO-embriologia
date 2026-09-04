@@ -6,7 +6,7 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Architecture |
-| Versão | 0.54.0 |
+| Versão | 0.55.0 |
 | Data | 03-09-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
@@ -562,6 +562,10 @@ core/connectivity/
                           fora de escopo aqui); usado só pelo lado app do Bluetooth, já
                           que a leitura NFC não tem estado de conexão (é por peça, não
                           contínua)
+  Radio.kt                enum NFC/BLUETOOTH — dado puro, identifica qual rádio físico
+                          está em jogo; usado só pelo aviso de "rádio desligado no
+                          aparelho", nunca combinado dentro de ConnectionState (motivo
+                          completo em decisions/0044)
 ```
 
 Nenhum tipo do pacote depende de classe do Android — testável por
@@ -622,23 +626,34 @@ app/connectivity/
   ConnectionStateListener.kt   fun interface ConnectionStateListener {
                                 onConnectionStateChanged(state: ConnectionState) } — só o
                                 Service de Bluetooth usa (ver acima, por que NFC não tem isso)
+  RadioStateListener.kt        fun interface RadioStateListener {
+                                onRadioStateChanged(radio: Radio, enabled: Boolean) } — MainActivity
+                                (NFC) e BleAccessoryService (Bluetooth) usam cada um a própria
+                                instância, um rádio por vez (decisions/0044)
   BluetoothPermissions.kt      requiredBluetoothPermissions(), hasBluetoothPermissions(context) —
                                 lista as permissões exigidas pela versão do Android em uso
                                 (decisions/0018), num lugar só
   BleAccessoryService.kt       Service vinculado (LocalBinder); quem se conecta usa
-                                setPieceReadListener(listener)/setConnectionStateListener(listener),
-                                métodos públicos direto na instância devolvida pelo Binder
-                                (mesmo padrão do exemplo de referência oficial do Android pra
-                                Service vinculado no mesmo processo do cliente); startScanAndConnect()
-                                procura por perto um aparelho anunciando o Nordic UART Service e
-                                conecta no primeiro encontrado (só costuma existir um por ambiente —
-                                não há tela de escolha entre vários, pendência ainda em aberto se
-                                algum dia isso deixar de valer); avisa o ConnectionStateListener
-                                a cada mudança de estado (procurando, conectado, desconectado) e
-                                o PieceReadListener a cada leitura — o único lugar que muda os
-                                dois estados é updateConnectionState, em vez de repetir a lógica
-                                de avisar em cada ponto que a conexão muda; onCharacteristicChanged
-                                decodifica a notificação da característica TX com tagIdFromBytes
+                                setPieceReadListener(listener)/setConnectionStateListener(listener)/
+                                setRadioStateListener(listener), métodos públicos direto na
+                                instância devolvida pelo Binder (mesmo padrão do exemplo de
+                                referência oficial do Android pra Service vinculado no mesmo
+                                processo do cliente); startScanAndConnect() checa antes
+                                adapter.isEnabled — se desligado, avisa o RadioStateListener e não
+                                busca; senão procura por perto um aparelho anunciando o Nordic UART
+                                Service e conecta no primeiro encontrado (só costuma existir um por
+                                ambiente — não há tela de escolha entre vários, pendência ainda em
+                                aberto se algum dia isso deixar de valer); avisa o
+                                ConnectionStateListener a cada mudança de estado (procurando,
+                                conectado, desconectado) e o PieceReadListener a cada leitura — o
+                                único lugar que muda os dois estados é updateConnectionState, em
+                                vez de repetir a lógica de avisar em cada ponto que a conexão muda;
+                                onCharacteristicChanged decodifica a notificação da característica
+                                TX com tagIdFromBytes; registra dinamicamente, em onCreate/onDestroy,
+                                um receptor de BluetoothAdapter.ACTION_STATE_CHANGED, avisando o
+                                RadioStateListener a cada troca de estado do rádio em si — cobre o
+                                caso de a pessoa desligar o Bluetooth com o Service já vivo, entre
+                                uma tentativa e outra (decisions/0044)
 ```
 
 `MainActivity` (esqueleto já existente, ver
@@ -655,6 +670,15 @@ Nem `MainActivity` nem
 entregá-la — quem consome esse aviso é o `ViewModel` descrito em
 ["Interface", abaixo](#interface), ver
 [decisions/0020](<../decisions/0020-ligacao-entre-leitura-de-peca-e-a-tela.md>).
+
+`MainActivity` também expõe a propriedade gravável `radioStateListener:
+RadioStateListener?`: em `onResume`, checa `nfcAdapter?.isEnabled` e
+avisa o resultado, além de registrar dinamicamente (desregistrado em
+`onPause`) um receptor de `NfcAdapter.ACTION_ADAPTER_STATE_CHANGED` —
+mesmo ciclo de vida do modo leitor, já que ler NFC só faz sentido com a
+`Activity` em primeiro plano. Motivo completo dos dois mecanismos (NFC
+e Bluetooth), com fonte oficial pra cada um:
+[decisions/0044](<../decisions/0044-deteccao-de-nfc-bluetooth-desligado-no-aparelho.md>).
 
 Ferramenta de teste: Robolectric + JUnit 4
 ([decisions/0025](<../decisions/0025-ferramenta-de-teste-do-modulo-app.md>)).
@@ -1227,3 +1251,4 @@ com o campo Versão da tabela de cabeçalho, que sempre reflete a
 | 0.52.0 | 02-09-2026 | Seção "Ponto de entrada real (MotorApp)" corrigida: `isTabletLayout` deixa de ser limitação — `MotorApp()` já calcula o valor real via `WindowSizeClass`, voltando a duas limitações explícitas. | Resolução de [decisions/0043](<../decisions/0043-mecanismo-de-classificacao-de-tamanho-de-janela.md>) |
 | 0.53.0 | 03-09-2026 | Seção "Ponto de entrada real (MotorApp)" ganha terceira limitação explícita: `SessionViewModel` nunca é instanciado dentro de `MotorApp()` — interação de jogo e resultado exibido são demonstração, não a lógica real da sessão. | Achado na revisão de PR (revisor-testes, revisor-visao-de-conjunto) |
 | 0.54.0 | 03-09-2026 | Ligado o trecho do pacote `content` sobre reimportação de instância já existente à lacuna equivalente já registrada em "Ponto de entrada real (MotorApp)" e em `tasks.md` — mesmo assunto, três lugares, sem se referenciar antes. Tabela de encadeamento ganha nota explícita: o rótulo "continuar (fim de sessão)" descreve o comportamento de hoje (demonstração), não uma regra fixa. | Achados na revisão de PR (revisor-referencias-cruzadas, revisor-visao-de-conjunto) |
+| 0.55.0 | 03-09-2026 | Pacote `connectivity` ganha o tipo `Radio` (core) e o mecanismo de aviso de rádio desligado: `RadioStateListener`, checagem de `isEnabled` e receptor de notificação de sistema em `MainActivity` (NFC) e `BleAccessoryService` (Bluetooth). | Resolução de [decisions/0044](<../decisions/0044-deteccao-de-nfc-bluetooth-desligado-no-aparelho.md>) |

@@ -24,11 +24,17 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import org.nexo.motor.app.R
 import org.nexo.motor.core.connectivity.ConnectionState
+import org.nexo.motor.core.connectivity.Radio
 
 // Mensagem única e padronizada de não correspondência (EI-RET-02) -- a redação exata não é
 // exigida por nenhum documento, só a exigência de ser sempre a mesma, sem identificar a peça
 // correta nem o motivo da rejeição.
 private const val NEGATIVE_MESSAGE = "Essa peça não é a próxima da sequência."
+
+// Aviso de rádio desligado (decisions/0044) -- texto exigido por essa ADR, nunca instrução
+// ("vá em Configurações e ligue"), só confirmação (Documento de Conceito, seção 8).
+private const val NFC_DISABLED_TEXT = "NFC desligado"
+private const val BLUETOOTH_DISABLED_TEXT = "Bluetooth desligado"
 const val EXIT_CONFIRM_BUTTON_TAG = "exit-confirm-button"
 const val ACKNOWLEDGEABLE_CONTENT_TAG = "acknowledgeable-content"
 
@@ -124,9 +130,9 @@ private fun AwaitingAttemptContent(
     onSkipRequested: () -> Unit,
 ) {
     Box(modifier = Modifier.fillMaxSize()) {
-        screen.connectionState?.let { state ->
+        radioIndicatorText(screen)?.let { text ->
             Text(
-                text = connectionIndicatorText(state),
+                text = text,
                 modifier = Modifier
                     .align(Alignment.TopEnd)
                     .padding(top = 56.dp, end = 16.dp),
@@ -142,6 +148,19 @@ private fun AwaitingAttemptContent(
             Text("Pular peça")
         }
     }
+}
+
+// decisions/0044: o aviso de rádio desligado substitui o indicador de conexão na mesma posição,
+// nunca os dois ao mesmo tempo (design/wireframe.md, Tela de jogo).
+private fun radioIndicatorText(screen: SessionScreen.AwaitingAttempt): String? = when {
+    screen.disabledRadio != null -> disabledRadioText(screen.disabledRadio)
+    screen.connectionState != null -> connectionIndicatorText(screen.connectionState)
+    else -> null
+}
+
+private fun disabledRadioText(radio: Radio): String = when (radio) {
+    Radio.NFC -> NFC_DISABLED_TEXT
+    Radio.BLUETOOTH -> BLUETOOTH_DISABLED_TEXT
 }
 
 private fun connectionIndicatorText(state: ConnectionState): String = when (state) {

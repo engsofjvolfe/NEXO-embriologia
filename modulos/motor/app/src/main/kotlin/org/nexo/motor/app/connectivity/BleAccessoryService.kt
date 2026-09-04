@@ -12,14 +12,18 @@ import android.bluetooth.le.ScanCallback
 import android.bluetooth.le.ScanFilter
 import android.bluetooth.le.ScanResult
 import android.bluetooth.le.ScanSettings
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.os.Binder
+import android.os.Build
 import android.os.IBinder
 import android.os.ParcelUuid
 import java.util.UUID
 import org.nexo.motor.core.connectivity.ConnectionState
 import org.nexo.motor.core.connectivity.NordicUartService
+import org.nexo.motor.core.connectivity.Radio
 import org.nexo.motor.core.connectivity.tagIdFromBytes
 
 private val CLIENT_CHARACTERISTIC_CONFIG_UUID: UUID =
@@ -32,10 +36,37 @@ class BleAccessoryService : Service() {
     private var bluetoothGatt: BluetoothGatt? = null
     private var pieceReadListener: PieceReadListener? = null
     private var connectionStateListener: ConnectionStateListener? = null
+    private var radioStateListener: RadioStateListener? = null
     private var connectionState: ConnectionState = ConnectionState.DISCONNECTED
+
+    private val bluetoothStateReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            if (intent.action != BluetoothAdapter.ACTION_STATE_CHANGED) return
+            when (intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.ERROR)) {
+                BluetoothAdapter.STATE_ON -> radioStateListener?.onRadioStateChanged(Radio.BLUETOOTH, true)
+                BluetoothAdapter.STATE_OFF -> {
+                    radioStateListener?.onRadioStateChanged(Radio.BLUETOOTH, false)
+                    updateConnectionState(ConnectionState.DISCONNECTED)
+                }
+            }
+        }
+    }
 
     inner class LocalBinder : Binder() {
         fun getService(): BleAccessoryService = this@BleAccessoryService
+    }
+
+    override fun onCreate() {
+        super.onCreate()
+        val filter = IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            // RECEIVER_EXPORTED é exigido a partir do Android 13 (API 33) pra receber
+            // broadcasts de apps de sistema altamente privilegiados -- decisions/0044.
+            registerReceiver(bluetoothStateReceiver, filter, RECEIVER_EXPORTED)
+        } else {
+            @Suppress("DEPRECATION")
+            registerReceiver(bluetoothStateReceiver, filter)
+        }
     }
 
     override fun onBind(intent: Intent): IBinder = binder
@@ -48,11 +79,20 @@ class BleAccessoryService : Service() {
         connectionStateListener = listener
     }
 
+    fun setRadioStateListener(listener: RadioStateListener?) {
+        radioStateListener = listener
+    }
+
     fun currentConnectionState(): ConnectionState = connectionState
 
     fun startScanAndConnect(): Boolean {
         val manager = getSystemService(Context.BLUETOOTH_SERVICE) as? BluetoothManager
         val adapter = manager?.adapter ?: return false
+        if (!adapter.isEnabled) {
+            radioStateListener?.onRadioStateChanged(Radio.BLUETOOTH, false)
+            return false
+        }
+        radioStateListener?.onRadioStateChanged(Radio.BLUETOOTH, true)
         val scanner = adapter.bluetoothLeScanner ?: return false
         bluetoothAdapter = adapter
 
@@ -73,6 +113,7 @@ class BleAccessoryService : Service() {
     }
 
     override fun onDestroy() {
+        unregisterReceiver(bluetoothStateReceiver)
         disconnect()
         bluetoothGatt?.close()
         bluetoothGatt = null

@@ -6,7 +6,7 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Decisions — Índice |
-| Versão | 0.25.0 |
+| Versão | 0.26.0 |
 | Data | 03-09-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
@@ -84,6 +84,7 @@
 | [0041](0041-fonte-de-icone-do-botao-de-pausar.md) | Fonte de ícone do botão de pausar (revisão de decisions/0039) |
 | [0042](0042-conteudo-de-teste-visual-isolado-por-tipo-de-build.md) | Conteúdo de teste visual isolado por tipo de build |
 | [0043](0043-mecanismo-de-classificacao-de-tamanho-de-janela.md) | Mecanismo de classificação de tamanho de janela (isTabletLayout) |
+| [0044](0044-deteccao-de-nfc-bluetooth-desligado-no-aparelho.md) | Detecção de NFC/Bluetooth desligado no aparelho, pra tela de jogo |
 
 ## Controle de versão
 
@@ -123,3 +124,4 @@ pelo ADR-NNNN). -->
 | 0.23.0 | 30-08-2026 | ADR 0035 acrescentada ao índice. | Resolução de [decisions/0035](0035-sistema-visual-cor-tipografia-forma-contraste.md) |
 | 0.24.0 | 30-08-2026 | ADR 0036 acrescentada ao índice. | Resolução de [decisions/0036](0036-ferramenta-e-fidelidade-do-prototipo-navegavel.md) |
 | 0.25.0 | 03-09-2026 | ADRs 0037 a 0043 acrescentadas ao índice, retroativamente — já existiam como arquivo desde a tarefa que as criou (escrita das 17 telas), mas nunca tinham entrado nesta lista. | Achado na revisão final de PR (revisor-referencias-cruzadas) |
+| 0.26.0 | 03-09-2026 | ADR 0044 acrescentada ao índice. | Achado na revisão de PR (revisor-referencias-cruzadas) |

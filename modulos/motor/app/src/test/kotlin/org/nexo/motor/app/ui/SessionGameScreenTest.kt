@@ -10,6 +10,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.nexo.motor.core.connectivity.ConnectionState
+import org.nexo.motor.core.connectivity.Radio
 import org.nexo.motor.core.summary.AnsweredPosition
 import org.nexo.motor.core.summary.ChainSkipSynthesis
 import org.nexo.motor.core.summary.SkipMessage
@@ -132,6 +133,26 @@ class SessionGameScreenTest {
         composeTestRule.onNodeWithText("● conectado").assertDoesNotExist()
         composeTestRule.onNodeWithText("◐ procurando").assertDoesNotExist()
         composeTestRule.onNodeWithText("○ desconectado").assertDoesNotExist()
+    }
+
+    @Test
+    fun `AwaitingAttempt com NFC desligado mostra o aviso mesmo sem acessorio em jogo`() {
+        setContent(screen = SessionScreen.AwaitingAttempt(connectionState = null, disabledRadio = Radio.NFC))
+
+        composeTestRule.onNodeWithText("NFC desligado").assertIsDisplayed()
+    }
+
+    @Test
+    fun `AwaitingAttempt com Bluetooth desligado substitui o indicador de conexao, nunca os dois juntos`() {
+        setContent(
+            screen = SessionScreen.AwaitingAttempt(
+                connectionState = ConnectionState.CONNECTED,
+                disabledRadio = Radio.BLUETOOTH,
+            ),
+        )
+
+        composeTestRule.onNodeWithText("Bluetooth desligado").assertIsDisplayed()
+        composeTestRule.onNodeWithText("● conectado").assertDoesNotExist()
     }
 
     @Test

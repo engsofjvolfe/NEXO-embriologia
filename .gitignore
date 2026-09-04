@@ -6,3 +6,21 @@ build/
 local.properties
 .idea/
 *.iml
+
+# Ferramentas internas de trabalho desta sessao (Claude Code, ganchos
+# que transformam regras do CLAUDE.md em travas automaticas) -- nao
+# fazem parte do projeto NEXO em si, continuam existindo e funcionando
+# neste computador, so nao vao mais para o repositorio remoto.
+/scripts/
+/.claude/agents/
+/.claude/hooks/
+/.claude/settings.json
+/.claude/skills/
+/modulos/conformidade/
+/MANUAL.md
+/FRASES-DE-CONFIRMACAO.md
+/configurar-protecao-branch.sh
+/.vale.ini
+/.vale/
+/.github/pull_request_template.md
+/.gitattributes

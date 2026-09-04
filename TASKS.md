@@ -83,31 +83,6 @@
       já aprovado, que é imutável (ver
       [docs/docs-VMODEL-visao-geral/README.md](<docs/docs-VMODEL-visao-geral/README.md>)).
 
-- [ ] **Fechar as lacunas restantes do sistema de conformidade do
-      `CLAUDE.md`.**
-
-      *Resumo simples:* o sistema de hooks que trava as regras do
-      `CLAUDE.md` automaticamente foi formalizado como módulo próprio
-      — várias lacunas reais já fechadas em múltiplas rodadas (entre
-      elas: o formato de resposta que os ganchos revisados por IA
-      usavam nunca era reconhecido pelo Claude Code como bloqueio de
-      verdade; uma auditoria linha a linha do `CLAUDE.md` inteiro já
-      foi feita, virou o `MANUAL.md` na raiz; dez regras adicionais
-      movidas do momento do commit pro momento da própria edição; uma
-      falha real do Claude Code, no filtro `if`, corrigida com
-      auto-portão nos ganchos afetados; a causa raiz de os ganchos
-      revisados por IA nunca bloquearem de verdade confirmada com fonte
-      oficial -- formato de resposta errado, mais um deles ficando sem
-      acesso a ferramenta enquanto a sessão está no modo automático --
-      dois desses ganchos removidos, os outros quatro mantidos com o
-      formato corrigido), mas ainda falta confirmar tudo ao vivo numa
-      sessão nova -- nenhuma correção feita na mesma sessão que a
-      escreveu pôde ser vista bloqueando de verdade.
-
-      *Detalhe técnico:* ver
-      [modulos/conformidade/docs/tasks.md, Em aberto](modulos/conformidade/docs/tasks.md#em-aberto)
-      pra lista completa.
-
 - [ ] **Desenhar e construir o preview isolado do projeto.**
 
       *Resumo simples:* `modulos/preview/`, citado no `CLAUDE.md`
@@ -143,11 +118,11 @@
       arquivo, o campo Versão (na tabela de cabeçalho) e a tabela
       Controle de versão (no rodapé), no mesmo formato já usado nos
       cinco documentos da cascata do motor.
-- [x] **Automatizar o aviso de versão desatualizada.** Resolvido — ver
-      [`scripts/hooks/pre-commit`](scripts/hooks/pre-commit) e
-      [`scripts/README.md`](scripts/README.md): gancho de git que
-      bloqueia o commit quando um documento com campo de versão
-      reconhecido muda de conteúdo sem a versão acompanhar.
+- [x] **Automatizar o aviso de versão desatualizada.** Resolvido —
+      gancho de git interno (ferramenta de trabalho local, fora do
+      repositório remoto) que bloqueia o commit quando um documento
+      com campo de versão reconhecido muda de conteúdo sem a versão
+      acompanhar.
 - [x] **Criar o módulo "motor" em `modulos/`.** Resolvido — desenho
       de código, contrato de dado e decisões de linguagem/framework
       já registrados, ver [modulos/motor/](modulos/motor/).

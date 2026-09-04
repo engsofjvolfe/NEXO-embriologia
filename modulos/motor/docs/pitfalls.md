@@ -6,8 +6,8 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Pitfalls |
-| Versão | 0.10.0 |
-| Data | 03-09-2026 |
+| Versão | 0.11.0 |
+| Data | 04-09-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
 > Comportamento não óbvio de ferramenta/mecanismo usado só neste módulo
@@ -272,6 +272,38 @@ verificação (`assert`) seguinte. Testado ao vivo: `gradlew
 :app:testDebugUnitTest`, `BUILD SUCCESSFUL` depois da correção (falhava
 antes dela).
 
+### <a id="2026-09-04-modo-no-window-contorna-a-falha-de-renderizacao-do-emulador-nesta-maquina"></a>2026-09-04 — Rodar o emulador sem janela (`-no-window`) contorna a falha de renderização gráfica só desta máquina
+
+*Resumo simples:* nesta máquina específica, o simulador de celular
+sempre trava quando tenta abrir a janela que mostra a tela dele na
+tela do computador (três causas diferentes, ver a armadilha de
+01-09-2026 acima). Pedir pra ele rodar escondido, sem essa janela,
+evita o travamento por completo — o celular simulado liga do mesmo
+jeito por dentro, só não aparece nenhuma janela; uma foto da tela dele
+continua podendo ser tirada por fora, normalmente.
+
+*Detalhe técnico:* comando usado: `emulator -avd nexo_motor_test
+-no-window -gpu swiftshader_indirect -no-snapshot -no-audio
+-no-boot-anim`. Diferente das três tentativas de 01-09-2026 (que
+sempre abriam a janela visível, desenhada pelo processo Qt do próprio
+emulador), este modo nunca inicia esse processo — o backend gráfico
+usado (`gfxstream` + SwiftShader, confirmado no log: "Graphics backend:
+gfxstream", "Graphics API Version OpenGL ES 3.0 (OpenGL ES 3.0
+SwiftShader 4.0.0.1)") atende só o conteúdo *dentro* do dispositivo
+virtual (o que o Android desenha), nunca a moldura da janela do
+emulador em si — a mesma distinção, um nível abaixo, que já existe
+entre `MaterialTheme` (Compose) e o tema XML da janela (ver a
+armadilha de 01-09-2026 acima). Boot confirmado por `adb wait-for-device
+shell` até `sys.boot_completed` aparecer, sem travar. Consequência
+colateral observada, sem relação com o NEXO: dois avisos de sistema
+não relacionados ("Messages isn't responding", "System UI isn't
+responding") apareceram durante o uso, atribuídos à lentidão normal de
+um dispositivo renderizado inteiramente por software (SwiftShader),
+sem aceleração de hardware — dispensados sem afetar a confirmação
+visual em si. Relevante pra quem for desenhar o preview isolado do
+projeto (ver [TASKS.md, raiz](<../../../TASKS.md#em-aberto>)), se esse
+trabalho envolver rodar o emulador Android nesta mesma máquina.
+
 ## Referências
 
 Fontes citadas nas armadilhas acima, no formato definido pela norma
@@ -309,3 +341,4 @@ reescrever) também conta como mudança de conteúdo real. -->
 | 0.8.0 | 17-08-2026 | Acrescentada a armadilha de `ScanRecord.parseFromBytes` ser método oculto do SDK público do Android. | Achado ao escrever e rodar de verdade o teste de `BleAccessoryService.kt` (Bluetooth) |
 | 0.9.0 | 01-09-2026 | Acrescentada a armadilha da barra de título nativa do Android aparecer por cima das telas em Compose sem um tema XML `NoActionBar`. | Achado por captura de tela ao vivo, ao confirmar visualmente o encadeamento real das telas |
 | 0.10.0 | 03-09-2026 | Acrescentada a armadilha de `Context.sendBroadcast()` no Robolectric exigir `Looper.getMainLooper()` idle pra entregar a um receptor registrado dinamicamente. | Achado ao escrever e rodar de verdade os testes de `MainActivity.kt`/`BleAccessoryService.kt` pra decisions/0044 |
+| 0.11.0 | 04-09-2026 | Acrescentada a armadilha de rodar o emulador sem janela (`-no-window`) contornar a falha de renderização gráfica só desta máquina. | Achado ao confirmar visualmente, de verdade, a ausência da barra de título nativa |

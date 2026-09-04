@@ -94,7 +94,11 @@
       [modulos/motor/docs/tasks.md, Resolvidas](modulos/motor/docs/tasks.md#resolvidas),
       "Escrever o esqueleto mínimo do módulo `app`". Falta agora
       desenhar e construir o preview isolado em si — ainda sem
-      trabalho iniciado.
+      trabalho iniciado. Se esse trabalho envolver rodar o emulador
+      Android nesta mesma máquina, conferir antes
+      [modulos/motor/docs/pitfalls.md, armadilha de 04-09-2026](<modulos/motor/docs/pitfalls.md#2026-09-04-modo-no-window-contorna-a-falha-de-renderizacao-do-emulador-nesta-maquina>) —
+      a janela visível do emulador trava sempre aqui, com um contorno
+      já registrado (rodar sem janela).
 
 ## Resolvidas
 

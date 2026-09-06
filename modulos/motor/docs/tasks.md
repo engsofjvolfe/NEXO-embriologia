@@ -6,8 +6,8 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Tasks |
-| Versão | 0.68.0 |
-| Data | 03-09-2026 |
+| Versão | 0.69.0 |
+| Data | 04-09-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
 > Lista mutável de pendências só deste módulo. Lida depois de
@@ -48,12 +48,6 @@ Convenção dos códigos citados aqui:
 > mais rápido, é onde o trabalho recente se concentra); pendências do
 > acessório físico por último (`firmware`, chip leitor, homologação),
 > porque esse acessório não vai existir por enquanto.
-
-- [ ] **Confirmar visualmente, num ambiente sem o limite de emulador já
-      registrado, que a barra de título nativa do Android some de
-      verdade depois da correção do tema.** Ver
-      [analysis.md](<analysis.md#2026-09-01-confirmacao-visual-do-ponto-de-entrada-real-e-limite-de-ambiente-do-emulador>)
-      e [pitfalls.md](<pitfalls.md#2026-09-01-sem-tema-xml-noactionbar-a-barra-nativa-cobre-o-compose>).
 
 - [ ] **Decidir o gatilho de Consentimento e de Importar conteúdo —
       quando cada tela aparece de verdade no encadeamento do
@@ -723,6 +717,17 @@ Convenção dos códigos citados aqui:
       ver [pitfalls.md](<pitfalls.md#armadilhas>). Achados na revisão de
       PR (revisor-testes, revisor-visao-de-conjunto,
       revisor-valores-fixos, revisor-referencias-cruzadas).
+- [x] **Confirmar visualmente, num ambiente sem o limite de emulador já
+      registrado, que a barra de título nativa do Android some de
+      verdade depois da correção do tema.** Resolvido — rodando o
+      emulador sem janela visível (`-no-window`), o limite desta
+      máquina (registrado em 01-09-2026) deixa de se aplicar; captura
+      de tela real, tirada direto do dispositivo por `adb`, confirma
+      que não existe mais nenhuma barra preta entre a barra de status
+      do sistema e o conteúdo em Compose. Ver
+      [analysis.md](<analysis.md#2026-09-04-confirmacao-visual-real-da-ausencia-da-barra-nativa>)
+      e
+      [pitfalls.md](<pitfalls.md#2026-09-04-modo-no-window-contorna-a-falha-de-renderizacao-do-emulador-nesta-maquina>).
 
 ## Referências
 
@@ -839,3 +844,4 @@ como mudança de conteúdo real. -->
 | 0.66.0 | 03-09-2026 | Item resolvido da linha anterior ganha a confirmação de teste ao vivo (`gradlew :core:test :app:testDebugUnitTest`, `BUILD SUCCESSFUL`), que faltava. | Suíte completa rodada de novo após as três correções |
 | 0.67.0 | 03-09-2026 | Pendência "Cobrir o estado NFC/Bluetooth desligado no indicador de conexão da tela de jogo" resolvida — movida para Resolvidas. | Resolução de [decisions/0044](<../decisions/0044-deteccao-de-nfc-bluetooth-desligado-no-aparelho.md>) |
 | 0.68.0 | 03-09-2026 | Item resolvido da linha anterior atualizado: nomes reais das três funções em que `connectionIndicatorText` se dividiu, e o bug de precedência achado e corrigido na revisão. | Revisão de PR (`/revisar-pr`, quatro assistentes) |
+| 0.69.0 | 04-09-2026 | Pendência "Confirmar visualmente que a barra de título nativa..." resolvida — movida para Resolvidas. | Confirmação visual real, contornando o limite de ambiente do emulador local; ver [analysis.md](<analysis.md#2026-09-04-confirmacao-visual-real-da-ausencia-da-barra-nativa>) |

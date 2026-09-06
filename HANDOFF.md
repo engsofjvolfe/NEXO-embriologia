@@ -156,6 +156,10 @@
 - Aviso de NFC/Bluetooth desligado no aparelho, achado de revisão de
   PR, resolvido na tela de jogo do motor — ver
   [modulos/motor/docs/handoff.md](modulos/motor/docs/handoff.md).
+- Ausência da barra de título nativa do Android, pendente de
+  confirmação visual desde 01-09-2026, confirmada — limite de
+  ambiente do emulador local contornado rodando o emulador sem
+  janela — ver [modulos/motor/docs/handoff.md](modulos/motor/docs/handoff.md).
 - [TASKS.md, Resolvidas](TASKS.md#resolvidas) — pendências já corrigidas.
 
 ## Próximo passo

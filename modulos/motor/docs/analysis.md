@@ -6,8 +6,8 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Analysis |
-| Versão | 0.30.0 |
-| Data | 03-09-2026 |
+| Versão | 0.31.0 |
+| Data | 04-09-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
 > Registro datado de como uma investigação foi feita neste módulo — o
@@ -1414,6 +1414,60 @@ visual já decidido e concluído que não precisa de correção nenhuma.
   `12.dp`, `8.dp` de `padding`, por exemplo) — implementação visual comum, não dado de conteúdo ou
   configuração que devesse vir de outro lugar. Sem correção.
 
+### <a id="2026-09-04-confirmacao-visual-real-da-ausencia-da-barra-nativa"></a>2026-09-04 — Confirmação visual real, contornando o limite de ambiente do emulador: a barra de título nativa some de verdade
+
+**Levou a:** [pitfalls.md#2026-09-04-modo-no-window-contorna-a-falha-de-renderizacao-do-emulador-nesta-maquina](<pitfalls.md#2026-09-04-modo-no-window-contorna-a-falha-de-renderizacao-do-emulador-nesta-maquina>)
+
+*Resumo simples:* na sessão de 01-09-2026, não foi possível verificar
+com os próprios olhos se a barra preta por cima da tela do aplicativo
+tinha realmente sumido, porque o simulador de celular travava sempre
+que tentava abrir sua janela visível, nesta máquina específica. Desta
+vez, o mesmo simulador foi aberto sem essa janela, escondido, e uma
+foto real da tela dele, tirada por fora, mostra: a barra preta não
+existe mais. Depois da barra de bateria e relógio do celular, já vem
+direto o conteúdo do aplicativo, sem nada estranho no meio.
+
+*Detalhe técnico:*
+- Worktree já existente (`confirmar-visual-barra-titulo`, criada numa
+  sessão anterior) reaproveitada; uma mudança sem relação com esta
+  tarefa (edição de `README.md` sobre um "módulo de Conformidade") já
+  estava pendente ali, sem nenhum commit — guardada de lado (`git
+  stash`), não descartada de imediato, por não pertencer a este
+  trabalho. Descartada só depois, já dentro desta mesma sessão: o
+  módulo de Conformidade passou a ter repositório próprio, com README
+  explicando a si mesmo, tornando aquela mudança redundante.
+- `local.properties` do módulo já existia, com a barra dupla correta
+  (mesma armadilha já registrada). AVD `nexo_motor_test` já existia
+  nesta máquina.
+- Tentativa: `emulator -avd nexo_motor_test -no-window -gpu
+  swiftshader_indirect -no-snapshot -no-audio -no-boot-anim`, em
+  segundo plano. Log confirmou o backend gráfico `gfxstream`/
+  SwiftShader inicializando sem erro — diferente das três tentativas
+  de 01-09-2026, nenhuma menção a `opengl32sw` apareceu.
+- `adb wait-for-device shell` até `sys.boot_completed` aparecer: boot
+  completo confirmado, sem travar.
+- `gradlew :app:installDebug`: `BUILD SUCCESSFUL`, instalado no
+  dispositivo (`nexo_motor_test(AVD) - 14`).
+- `adb shell am start -n org.nexo.motor.app/.MainActivity`, seguido de
+  `adb exec-out screencap -p`: duas capturas de tela intermediárias
+  mostraram avisos de sistema não relacionados ao NEXO ("Messages
+  isn't responding", "System UI isn't responding" — atribuídos à
+  lentidão normal de renderização por software, sem aceleração de
+  hardware, dispensados sem afetar o teste). Terceira captura, limpa:
+  barra de status do sistema seguida direto do campo "Buscar" e da
+  lista de navegação ("Instância de exemplo", "Tema A", "Evento 1",
+  "Evento 2", "Tema B") — nenhuma barra preta com "NEXO Motor" entre
+  as duas, confirmando a correção.
+- Pendência de `tasks.md` (01-09-2026) resolvida; mecanismo do
+  contorno (rodar sem janela) registrado em `pitfalls.md` — não em
+  `decisions/`, porque não envolveu escolher entre alternativas de
+  desenho do NEXO, só uma forma de rodar a mesma ferramenta já usada,
+  pra contornar um limite de ambiente desta máquina específica, mesma
+  categoria já usada nas armadilhas anteriores sobre `local.properties`
+  e versão de Kotlin do AGP.
+- Emulador encerrado ao final (`adb emu kill`), sem deixar processo de
+  fundo pendente.
+
 ## Controle de versão
 
 <!-- uma linha por versão publicada deste documento, mais antiga no
@@ -1453,3 +1507,4 @@ sem reescrever) também conta como mudança de conteúdo real. -->
 | 0.28.0 | 03-09-2026 | Acrescentada a investigação de fundamentação em documento, antes de teste, dos quatro pontos apontados por `revisor-testes` — dois seguem pra teste, um vira pendência bloqueada, um vira achado real em `findings.md`. | Achados na revisão de PR (revisor-testes) |
 | 0.29.0 | 03-09-2026 | Acrescentada a investigação de fundamentação em documento da segunda rodada de revisão de PR — dois pontos que pareciam simples revelaram divergência real (nome do evento no leiaute compacto, formato da mensagem de pulo com posições não-contíguas). | Achados na revisão de PR (revisor-testes, revisor-visao-de-conjunto) |
 | 0.30.0 | 03-09-2026 | Acrescentada a investigação de fundamentação em documento da revisão final de PR — cinco pontos checados, dois viram achado real, dois viram ajuste direto de teste, um confirmado sem necessidade de correção (proporção de layout e recuo de navegação, fora do escopo de `decisions/0035`). | Achados na revisão final de PR (revisor-visao-de-conjunto, revisor-testes, revisor-valores-fixos) |
+| 0.31.0 | 04-09-2026 | Acrescentada a investigação da confirmação visual real, contornando o limite de ambiente do emulador registrado em 01-09-2026 — rodar o emulador sem janela (`-no-window`) permitiu ligar o sistema Android e tirar captura de tela real, confirmando a ausência da barra de título nativa. | Resolução da pendência "Confirmar visualmente que a barra de título nativa..." em `tasks.md` |

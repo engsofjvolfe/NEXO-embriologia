@@ -6,8 +6,8 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Handoff |
-| Versão | 0.53.0 |
-| Data | 03-09-2026 |
+| Versão | 0.54.0 |
+| Data | 04-09-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
 > Resumo curto de "onde este módulo está" e "o que fazer a seguir" nele.
@@ -227,3 +227,4 @@ com o campo Versão da tabela de cabeçalho, que sempre reflete a
 | 0.51.0 | 03-09-2026 | Nenhum ponteiro novo (`findings.md`, `analysis.md` e `tasks.md` já citados). | Revisão final de PR das telas do motor — quatro assistentes, achados dos três primeiros resolvidos, índice de decisões corrigido |
 | 0.52.0 | 03-09-2026 | Nenhuma mudança de conteúdo — reordenação da sequência de edição, mantendo este arquivo como o último tocado dentro do módulo. | Fechamento da rodada final de revisão de PR |
 | 0.53.0 | 03-09-2026 | Acrescentado ponteiro para decisions/0044. | Detecção de NFC/Bluetooth desligado no aparelho, resolvida — pendência "Cobrir o estado NFC/Bluetooth desligado..." movida pra `tasks.md`, Resolvidas |
+| 0.54.0 | 04-09-2026 | Nenhum ponteiro novo (`analysis.md`/`pitfalls.md`/`tasks.md` já citados). | Confirmação visual real da ausência da barra de título nativa, contornando o limite de ambiente do emulador local |

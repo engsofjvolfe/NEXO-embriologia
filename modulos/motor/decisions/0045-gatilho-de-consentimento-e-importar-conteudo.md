@@ -160,6 +160,20 @@ nem aparece na lista de `AppScreen.Navigation` — depende da pendência já reg
 em `ConsentScreen` — o dado que `EI-REG-03` descreve continua sem um formulário que o colete,
 questão separada da de quando a tela aparece.
 
+**Nota de acompanhamento (07-09-2026):**
+
+*Resumo simples:* esta ADR decide só quando a tela de Consentimento aparece — não decide o que
+o texto dela precisa dizer. Uma revisão de PR encontrou que `EI-REG-09` exige informar, no
+próprio momento do consentimento, a finalidade e o prazo real de retenção do dado — hoje o texto
+exibido (`consentText`) é só um texto de exemplo fixo, sem ligação com o prazo real da instância.
+Isso já estava fora do alcance desta ADR (ver Consequências, item 2, sobre a ausência de um
+formulário que colete o dado descrito em `EI-REG-03`) — a mesma lacuna se estende ao conteúdo
+exigido por `EI-REG-09`, agora registrada como pendência própria.
+
+*Detalhe técnico:* pendência completa em
+[tasks.md, Em aberto](<../docs/tasks.md#em-aberto>) — "Decidir como a tela de Consentimento
+informa a finalidade e o prazo de retenção de dados reais (EI-REG-09)".
+
 ## Referências
 
 Fontes externas consultadas para embasar esta decisão, no formato definido pela norma ABNT NBR 6023

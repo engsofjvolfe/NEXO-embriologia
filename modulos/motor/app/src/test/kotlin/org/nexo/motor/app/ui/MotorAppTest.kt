@@ -9,6 +9,8 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
+import kotlinx.coroutines.runBlocking
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -26,6 +28,15 @@ class MotorAppTest {
 
     @get:Rule
     val composeTestRule = createComposeRule()
+
+    // O arquivo do DataStore da escolha de consentimento lembrada sobrevive de um método de teste
+    // pro outro dentro da mesma sandbox do Robolectric (mesma armadilha já documentada em
+    // ConsentPreferenceTest.kt) -- sem isso, a ordem em que os testes rodam decide se a tela de
+    // Consentimento aparece ou não, quebrando testes que não têm nada a ver com essa escolha.
+    @Before
+    fun limparEscolhaDeConsentimentoLembrada() = runBlocking {
+        saveConsentChoice(RuntimeEnvironment.getApplication(), null)
+    }
 
     private fun pausedSessionFile(): File =
         File(RuntimeEnvironment.getApplication().filesDir, PAUSED_SESSION_FILE_NAME)
@@ -214,5 +225,36 @@ class MotorAppTest {
         composeTestRule.onNodeWithText("Voltar").performClick()
 
         composeTestRule.onNodeWithText("Buscar").assertIsDisplayed()
+    }
+
+    // decisions/0045, item 3: com escolha já lembrada, "Iniciar sessão" pula direto pro jogo, sem
+    // passar por AppScreen.Consent -- metade da regra que "decisions0045 - EI-REG-03..." acima não
+    // cobre (aquele teste só prova o caso sem escolha lembrada).
+    @Test
+    fun `decisions0045 - com escolha lembrada, iniciar sessao pula direto pro jogo, sem Consentimento`() {
+        pausedSessionFile().delete()
+        runBlocking { saveConsentChoice(RuntimeEnvironment.getApplication(), RememberedConsent(given = true)) }
+
+        composeTestRule.setContent { MotorApp() }
+        composeTestRule.onNodeWithText("Evento 1").performClick()
+        composeTestRule.onNodeWithText("Iniciar sessão").performScrollTo().performClick()
+
+        composeTestRule.onNodeWithText("Sair").assertIsDisplayed()
+    }
+
+    // decisions/0045, item 3: o lembrete da tela de Configuração leva de volta pro Consentimento a
+    // qualquer momento -- a outra metade da regra que o teste acima não cobre.
+    @Test
+    fun `decisions0045 - tocar no lembrete de consentimento na Configuracao volta pro Consentimento`() {
+        pausedSessionFile().delete()
+        runBlocking { saveConsentChoice(RuntimeEnvironment.getApplication(), RememberedConsent(given = true)) }
+
+        composeTestRule.setContent { MotorApp() }
+        composeTestRule.onNodeWithText("Evento 1").performClick()
+        composeTestRule.onNodeWithText("Identificação: ativada — toque pra rever o consentimento")
+            .performScrollTo()
+            .performClick()
+
+        composeTestRule.onNodeWithText("Li e concordo").assertIsDisplayed()
     }
 }

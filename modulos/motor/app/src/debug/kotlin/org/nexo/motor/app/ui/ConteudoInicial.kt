@@ -6,7 +6,7 @@ package org.nexo.motor.app.ui
  * jeito real de carregar conteúdo importado (pendência própria, já registrada). Nomes genéricos
  * (Tema A/B, Evento 1/2), no mesmo padrão já usado no protótipo navegável
  * (`design/prototipo-navegavel.js`) — nunca um assunto real, porque o motor não conhece nenhum
- * assunto específico (RNF-MOD-01). `src/main/` nunca declara estas cinco funções — só chama,
+ * assunto específico (RNF-MOD-01). `src/main/` nunca declara estas seis funções — só chama,
  * cada tipo de build fornecendo a própria versão (ver `src/release/` pro par vazio).
  *
  * Conteúdo rico o bastante pra exercitar de verdade o encadeamento: dois temas, um evento com
@@ -48,3 +48,7 @@ internal fun conteudoInicialDeEstadoDeJogo(): SessionUiState = SessionUiState(
 internal fun conteudoInicialDeResumoDeJogo(): SessionUiState = SessionUiState(
     screen = SessionScreen.EventSummary(synthesis = "Síntese de exemplo, só pra teste visual.", hasNextEvent = false),
 )
+
+internal fun conteudoInicialDeTextoDeConsentimento(): String =
+    "Texto de consentimento de exemplo, só pra teste visual -- o texto legal exato fica fora do " +
+        "escopo da cascata do motor (Projeto Arquitetônico, §2.2)."

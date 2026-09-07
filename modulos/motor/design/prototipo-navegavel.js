@@ -53,6 +53,7 @@ let estado = {
   errosSeguidos: 0,
   saiuPedido: false,
   conexao: "conectado", // conectado | procurando | desconectado | null (sem acessório)
+  consentimentoLembrado: null, // null (sem escolha lembrada) | { concordou: true } — decisions/0045
   limiarDica: LIMIAR_ERRO_DICA_EXEMPLO,
   limiarSugestaoEstudo: LIMIAR_ERRO_SUGESTAO_ESTUDO_EXEMPLO,
   tempoOciosidadeSegundos: TEMPO_OCIOSIDADE_EXEMPLO_SEGUNDOS
@@ -195,14 +196,18 @@ function telaNavegacao(){
 
   const html = `
     <div class="topo-app"><div></div><div></div></div>
-    <div class="campo-busca">Buscar instância, tema ou evento…</div>
+    <div class="linha-busca-importar">
+      <div class="campo-busca">Buscar instância, tema ou evento…</div>
+      <button class="acao secundario" onclick="irPara('importar')">Importar conteúdo</button>
+    </div>
     <div class="lista-acordeao">
       <div class="item-nivel item-instancia" onclick="estado.temaAberto=null;renderizar()">${instanciaExemplo.nome} ▾</div>
       ${linhasTemas}
-      <div class="item-nivel item-tema" style="opacity:.6" onclick="irPara('importar')">Importar conteúdo (DA-RET-16) →</div>
     </div>`;
   const simulador = `<p>Acordeão: tocar expande a lista do nível seguinte embaixo do próprio item
-    (<a href="../decisions/0030-padrao-de-navegacao-hierarquica-de-conteudo.md">decisions/0030</a>), sem trocar de tela.</p>`;
+    (<a href="../decisions/0030-padrao-de-navegacao-hierarquica-de-conteudo.md">decisions/0030</a>), sem trocar de tela.
+    Botão "Importar conteúdo" sempre visível, ao lado da busca —
+    <a href="../decisions/0045-gatilho-de-consentimento-e-importar-conteudo.md">decisions/0045</a>.</p>`;
   return { html, simulador, estadoTexto: "DA-RET-02 — Navegação (acordeão)" };
 }
 
@@ -218,7 +223,16 @@ function abrirEvento(indiceTema, indiceEvento){
 /* ---------- DA-RET-03/04 — Ponto de início / Configuração da sessão (EI-NAV-05, mesma tela) ---------- */
 function telaConfiguracaoDaSessao(){
   const nomeEvento = estado.eventoAlvoConfig || "Evento 1";
-  const iniciarSessao = "irPara('session',{sessionSubEstado:'Reference', posicaoAtual:1, errosSeguidos:0})";
+  // decisions/0045: sem escolha de consentimento lembrada, "Iniciar sessão" passa por
+  // AppScreen.Consent primeiro; com escolha lembrada, vai direto pra Reference.
+  const iniciarSessao = estado.consentimentoLembrado
+    ? "irPara('session',{sessionSubEstado:'Reference', posicaoAtual:1, errosSeguidos:0})"
+    : "irPara('consentimento')";
+  const lembreteConsentimento = estado.consentimentoLembrado
+    ? `<div class="lembrete-consentimento" onclick="irPara('consentimento')">Identificação: ${
+        estado.consentimentoLembrado.concordou ? "ativada" : "desativada"
+      } — toque pra rever o consentimento</div>`
+    : "";
 
   const html = chkTablet.checked
     ? `
@@ -242,7 +256,8 @@ function telaConfiguracaoDaSessao(){
           ${blocoConfigEvento(instanciaExemplo.temas[0].eventos[estado.eventoTabletSelecionado].nome)}
         </div>
       </div>
-      <div class="rodape-app" style="justify-content:flex-end;">
+      <div class="rodape-app" style="justify-content:flex-end;flex-direction:column;align-items:stretch;gap:4px;">
+        ${lembreteConsentimento}
         <button class="acao primario" onclick="${iniciarSessao}">Iniciar sessão</button>
       </div>`
     : `
@@ -259,12 +274,15 @@ function telaConfiguracaoDaSessao(){
                  onchange="estado.tempoOciosidadeSegundos=Number(this.value)||${TEMPO_OCIOSIDADE_EXEMPLO_SEGUNDOS}"></div>
       </div>
       <div class="rodape-fixo-fone">
+        ${lembreteConsentimento}
         <button class="acao primario" style="width:100%" onclick="${iniciarSessao}">Iniciar sessão</button>
       </div>`;
 
   const simulador = `<p>Marque "Formato tablet" acima pra ver o leiaute de duas colunas —
     única tela com leiaute de tablet dedicado
-    (<a href="../decisions/0033-formato-de-aparelho-leiaute-responsivo.md">decisions/0033</a>).</p>`;
+    (<a href="../decisions/0033-formato-de-aparelho-leiaute-responsivo.md">decisions/0033</a>).</p>
+    <p>Gatilho de "Iniciar sessão" (Consentimento antes do jogo, ou direto se já lembrado):
+    <a href="../decisions/0045-gatilho-de-consentimento-e-importar-conteudo.md">decisions/0045</a>.</p>`;
   return { html, simulador, estadoTexto: "DA-RET-03/04 — Ponto de início / Configuração da sessão (EI-NAV-05, mesma tela)" };
 }
 
@@ -425,21 +443,29 @@ function telaImportarConteudo(){
 
 /* ---------- DA-RET-17 — Consentimento ---------- */
 function telaConsentimento(){
-  const jaConcordou = document.getElementById("chkConsentimento")
-    ? document.getElementById("chkConsentimento").checked
-    : false;
   const html = `
     <div class="conteudo-central" style="justify-content:flex-start; padding-top:40px;">
       <p class="texto-principal" style="font-size:13px; text-align:left;">
         [Texto legal do termo de consentimento — fora do escopo da cascata do motor, Projeto Arquitetônico §2.2]
       </p>
-      <label class="checkbox-linha"><input type="checkbox" id="chkConsentimento" onchange="renderizar()"> Li e concordo</label>
+      <label class="checkbox-linha"><input type="checkbox" id="chkConsentimento"> Li e concordo</label>
+      <label class="checkbox-linha"><input type="checkbox" id="chkLembrarConsentimento"> Lembrar minha escolha nas próximas sessões</label>
     </div>
     <div class="rodape-app">
-      <button class="acao primario" style="width:100%" ${jaConcordou ? "" : "disabled"} onclick="irPara('nav')">Continuar</button>
+      <button class="acao primario" style="width:100%" onclick="confirmarConsentimento()">Continuar</button>
     </div>`;
-  const simulador = `<p>Só aparece antes de registrar dado que identifique a pessoa (EI-REG-03).</p>`;
+  // EI-REG-03 exige consentimento só pra registrar dado de identificação, nunca pra seguir
+  // jogando -- "Continuar" nunca fica desabilitado (findings.md, 2026-09-07).
+  const simulador = `<p>Só aparece antes de registrar dado que identifique a pessoa (EI-REG-03) — gatilho e
+    lembrete: <a href="../decisions/0045-gatilho-de-consentimento-e-importar-conteudo.md">decisions/0045</a>.</p>`;
   return { html, simulador, estadoTexto: "DA-RET-17 — Consentimento" };
+}
+
+function confirmarConsentimento(){
+  const concordou = document.getElementById("chkConsentimento").checked;
+  const lembrar = document.getElementById("chkLembrarConsentimento").checked;
+  estado.consentimentoLembrado = lembrar ? { concordou } : null;
+  irPara("session", { sessionSubEstado: "Reference", posicaoAtual: 1, errosSeguidos: 0 });
 }
 
 /* ---------- inicialização ---------- */

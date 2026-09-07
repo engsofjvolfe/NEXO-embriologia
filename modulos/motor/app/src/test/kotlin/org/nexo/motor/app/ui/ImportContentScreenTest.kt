@@ -47,6 +47,22 @@ class ImportContentScreenTest {
     }
 
     @Test
+    fun `decisions0045 - botao Voltar chama onBackRequested`() {
+        var requested = false
+        composeTestRule.setContent {
+            ImportContentScreen(
+                result = null,
+                onSelectFileRequested = {},
+                onBackRequested = { requested = true },
+            )
+        }
+
+        composeTestRule.onNodeWithText("Voltar").performClick()
+
+        assertTrue(requested)
+    }
+
+    @Test
     fun `resultado recusado mostra a lista completa de violacoes`() {
         composeTestRule.setContent {
             ImportContentScreen(

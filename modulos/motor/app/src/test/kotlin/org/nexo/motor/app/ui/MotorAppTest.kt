@@ -30,9 +30,13 @@ class MotorAppTest {
     private fun pausedSessionFile(): File =
         File(RuntimeEnvironment.getApplication().filesDir, PAUSED_SESSION_FILE_NAME)
 
+    // decisions/0045: sem escolha de consentimento lembrada (caso padrão de todos os testes que só
+    // querem chegar no jogo), "Iniciar sessão" passa por AppScreen.Consent antes de AppScreen.Game.
     private fun abrirConfiguracaoEIniciarSessao() {
         composeTestRule.onNodeWithText("Evento 1").performClick()
         composeTestRule.onNodeWithText("Iniciar sessão").performScrollTo().performClick()
+        composeTestRule.onNodeWithText("Li e concordo").performClick()
+        composeTestRule.onNodeWithText("Continuar").performClick()
     }
 
     @Test
@@ -185,5 +189,30 @@ class MotorAppTest {
 
     private fun abrirConfiguracaoEIniciarSessaoSemIniciar() {
         composeTestRule.onNodeWithText("Evento 1").performClick()
+    }
+
+    @Test
+    fun `decisions0045 - EI-REG-03 - iniciar sessao sem escolha lembrada mostra o Consentimento antes do jogo`() {
+        pausedSessionFile().delete()
+
+        composeTestRule.setContent { MotorApp() }
+        composeTestRule.onNodeWithText("Evento 1").performClick()
+        composeTestRule.onNodeWithText("Iniciar sessão").performScrollTo().performClick()
+
+        composeTestRule.onNodeWithText("Li e concordo").assertIsDisplayed()
+    }
+
+    @Test
+    fun `decisions0045 - tocar em Importar conteudo na navegacao leva a essa tela, e Voltar retorna`() {
+        pausedSessionFile().delete()
+
+        composeTestRule.setContent { MotorApp() }
+        composeTestRule.onNodeWithText("Importar conteúdo").performClick()
+
+        composeTestRule.onNodeWithText("Selecionar arquivo (.zip)").assertIsDisplayed()
+
+        composeTestRule.onNodeWithText("Voltar").performClick()
+
+        composeTestRule.onNodeWithText("Buscar").assertIsDisplayed()
     }
 }

@@ -59,6 +59,8 @@ fun SessionConfigurationScreen(
     idleThresholdText: String,
     onIdleThresholdChanged: (String) -> Unit,
     onStartSessionRequested: () -> Unit,
+    rememberedConsentGiven: Boolean? = null,
+    onConsentReminderClicked: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     if (isTabletLayout) {
@@ -75,6 +77,8 @@ fun SessionConfigurationScreen(
             idleThresholdText = idleThresholdText,
             onIdleThresholdChanged = onIdleThresholdChanged,
             onStartSessionRequested = onStartSessionRequested,
+            rememberedConsentGiven = rememberedConsentGiven,
+            onConsentReminderClicked = onConsentReminderClicked,
             modifier = modifier,
         )
     } else {
@@ -89,9 +93,25 @@ fun SessionConfigurationScreen(
             idleThresholdText = idleThresholdText,
             onIdleThresholdChanged = onIdleThresholdChanged,
             onStartSessionRequested = onStartSessionRequested,
+            rememberedConsentGiven = rememberedConsentGiven,
+            onConsentReminderClicked = onConsentReminderClicked,
             modifier = modifier,
         )
     }
+}
+
+/** wireframe.md, "Ponto de início / Configuração da sessão", item 4 -- decisions/0045. */
+@Composable
+private fun ConsentReminder(consentGiven: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier) {
+    val status = if (consentGiven) "ativada" else "desativada"
+    Text(
+        text = "Identificação: $status — toque pra rever o consentimento",
+        style = MaterialTheme.typography.bodySmall,
+        modifier = modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick)
+            .padding(vertical = 8.dp),
+    )
 }
 
 @Composable
@@ -106,6 +126,8 @@ private fun CompactLayout(
     idleThresholdText: String,
     onIdleThresholdChanged: (String) -> Unit,
     onStartSessionRequested: () -> Unit,
+    rememberedConsentGiven: Boolean? = null,
+    onConsentReminderClicked: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -147,9 +169,16 @@ private fun CompactLayout(
             label = { Text("Tempo de ociosidade") },
             modifier = Modifier.fillMaxWidth(),
         )
+        if (rememberedConsentGiven != null) {
+            ConsentReminder(
+                consentGiven = rememberedConsentGiven,
+                onClick = onConsentReminderClicked,
+                modifier = Modifier.padding(top = 16.dp),
+            )
+        }
         Button(
             onClick = onStartSessionRequested,
-            modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
+            modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
         ) {
             Text("Iniciar sessão")
         }
@@ -170,6 +199,8 @@ private fun TabletLayout(
     idleThresholdText: String,
     onIdleThresholdChanged: (String) -> Unit,
     onStartSessionRequested: () -> Unit,
+    rememberedConsentGiven: Boolean? = null,
+    onConsentReminderClicked: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier.fillMaxSize().padding(16.dp)) {
@@ -215,6 +246,9 @@ private fun TabletLayout(
                     )
                 }
             }
+        }
+        if (rememberedConsentGiven != null) {
+            ConsentReminder(consentGiven = rememberedConsentGiven, onClick = onConsentReminderClicked)
         }
         Button(onClick = onStartSessionRequested, modifier = Modifier.fillMaxWidth()) {
             Text("Iniciar sessão")

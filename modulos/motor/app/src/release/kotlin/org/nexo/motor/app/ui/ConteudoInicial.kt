@@ -4,7 +4,7 @@ package org.nexo.motor.app.ui
  * Fonte de conteúdo pra `MotorApp.kt` (`src/main/`) numa build de produção — decisions/0042.
  * Sempre vazia/neutra: o aplicativo, hoje, não tem nenhum jeito real de carregar conteúdo
  * importado (pendência própria, já registrada). Par exato de `src/debug/ConteudoInicial.kt`, que
- * preenche as mesmas cinco funções com conteúdo de exemplo pra teste visual.
+ * preenche as mesmas seis funções com conteúdo de exemplo pra teste visual.
  */
 
 internal fun conteudoInicialDeNavegacao(): List<NavigationEntry> = emptyList()
@@ -20,3 +20,5 @@ internal fun conteudoInicialDeEstadoDeJogo(): SessionUiState = SessionUiState(
 internal fun conteudoInicialDeResumoDeJogo(): SessionUiState = SessionUiState(
     screen = SessionScreen.EventSummary(synthesis = "", hasNextEvent = false),
 )
+
+internal fun conteudoInicialDeTextoDeConsentimento(): String = ""

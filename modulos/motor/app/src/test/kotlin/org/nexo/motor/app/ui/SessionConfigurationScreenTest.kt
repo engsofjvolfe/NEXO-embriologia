@@ -392,6 +392,59 @@ class SessionConfigurationScreenTest {
     }
 
     @Test
+    fun `decisions0045 - sem escolha de consentimento lembrada, nao mostra o lembrete`() {
+        composeTestRule.setContent {
+            SessionConfigurationScreen(
+                isTabletLayout = false,
+                startingPositionOptions = listOf(1),
+                selectedStartingPosition = 1,
+                onStartingPositionSelected = {},
+                eventConfigs = oneEvent,
+                selectedEventName = null,
+                onEventSelected = {},
+                onSkipAvailableChanged = { _, _ -> },
+                onHintThresholdChanged = { _, _ -> },
+                onStudyThresholdChanged = { _, _ -> },
+                idleThresholdText = "60",
+                onIdleThresholdChanged = {},
+                onStartSessionRequested = {},
+                rememberedConsentGiven = null,
+                onConsentReminderClicked = {},
+            )
+        }
+
+        composeTestRule.onNodeWithText("toque pra rever o consentimento", substring = true).assertDoesNotExist()
+    }
+
+    @Test
+    fun `decisions0045 - com escolha lembrada, mostra o lembrete e tocar nele chama onConsentReminderClicked`() {
+        var reminderClicked = false
+        composeTestRule.setContent {
+            SessionConfigurationScreen(
+                isTabletLayout = false,
+                startingPositionOptions = listOf(1),
+                selectedStartingPosition = 1,
+                onStartingPositionSelected = {},
+                eventConfigs = oneEvent,
+                selectedEventName = null,
+                onEventSelected = {},
+                onSkipAvailableChanged = { _, _ -> },
+                onHintThresholdChanged = { _, _ -> },
+                onStudyThresholdChanged = { _, _ -> },
+                idleThresholdText = "60",
+                onIdleThresholdChanged = {},
+                onStartSessionRequested = {},
+                rememberedConsentGiven = true,
+                onConsentReminderClicked = { reminderClicked = true },
+            )
+        }
+
+        composeTestRule.onNodeWithText("toque pra rever o consentimento", substring = true).performClick()
+
+        assertTrue(reminderClicked)
+    }
+
+    @Test
     fun `tablet sem evento selecionado mostra a lista mas nao mostra o painel de configuracao`() {
         composeTestRule.setContent {
             SessionConfigurationScreen(

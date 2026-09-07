@@ -6,8 +6,8 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Findings |
-| Versão | 0.12.0 |
-| Data | 03-09-2026 |
+| Versão | 0.13.0 |
+| Data | 07-09-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
 > Achados confirmados (por leitura de código, teste ao vivo, ou os dois)
@@ -374,6 +374,33 @@ revelou que a versão atual de dez bibliotecas do Compose (`ui`,
   "org.nexo.motor.app.ui.SessionGameScreenTest"`, `BUILD SUCCESSFUL`
   nos dois.
 
+### <a id="2026-09-07-continuar-do-consentimento-bloqueia-a-sessao-inteira-sem-aceitar-os-termos"></a>2026-09-07 — "Continuar" da tela de Consentimento bloqueia a sessão inteira sem aceitar os termos
+
+**Confirmado por:** leitura de código
+
+`EI-REG-03` (Especificação, seção 6.13) exige consentimento explícito só antes de registrar dado
+que identifique a pessoa — "sem consentimento, a sessão segue sendo registrada normalmente, só sem
+os dados de identificação". `ConsentScreen.kt` (já existente antes desta tarefa, comportamento
+mantido) desabilita o botão "Continuar" até a caixa "Li e concordo" ser marcada — o único caminho
+pra sair dessa tela é aceitar. Como o gatilho de entrada nessa tela, decidido em
+[decisions/0045](<../decisions/0045-gatilho-de-consentimento-e-importar-conteudo.md>), passa a ficar
+no meio do caminho de toda sessão nova (a partir de "Iniciar sessão"), essa trava passa a impedir
+qualquer sessão de começar sem aceitar os termos — mais restritivo do que `EI-REG-03` exige.
+
+Sem efeito prático até então: nenhuma tela do motor tem campo pra coletar nome ou papel da pessoa
+ainda (o dado que `EI-REG-03` protege) — aceitar ou não os termos não mudava, até aqui, nenhum dado
+realmente coletado. Só ficou visível porque o gatilho novo (`decisions/0045`) tornou a tela
+alcançável de verdade pela primeira vez — antes disso, a trava existia só no código, nunca no
+caminho real de uso.
+
+**Corrigido na mesma tarefa:** `ConsentScreen.kt` para de desabilitar "Continuar" — o botão fica
+sempre habilitado, e passa a informar tanto se "Li e concordo" foi marcada quanto se "lembrar" foi
+marcada (`onContinueRequested(given, rememberChoice)`, antes só `onContinueRequested(rememberChoice)`).
+`MotorApp.kt` só grava a escolha lembrada com o valor real de `given` (nunca fixo em `true`).
+`wireframe.md` e o protótipo navegável (`design/prototipo-navegavel.js`) atualizados junto. Testado
+ao vivo: `gradlew :app:testDebugUnitTest --tests "org.nexo.motor.app.ui.ConsentScreenTest"` e suíte
+completa (`:core:test :app:testDebugUnitTest`), `BUILD SUCCESSFUL`.
+
 ## Controle de versão
 
 <!-- uma linha por versão publicada deste documento, mais antiga no
@@ -397,3 +424,4 @@ reescrever) também conta como mudança de conteúdo real. -->
 | 0.10.0 | 03-09-2026 | Achado "`SkipMessageContent` nunca mostra a síntese de cadeia" acrescentado. | Achado na revisão de PR (revisor-testes) |
 | 0.11.0 | 03-09-2026 | Frase de resolução acrescentada ao achado anterior; dois achados novos: "Leiaute compacto da Configuração nunca mostra o nome do evento" e "Mensagem de pulo trata posições sem resposta como intervalo mesmo quando não são". | Achados na revisão de PR (revisor-testes, revisor-visao-de-conjunto) |
 | 0.12.0 | 03-09-2026 | Dois achados novos: "Conteúdo de exemplo não varia a disponibilidade de pular entre eventos" e "Dois valores de preenchimento sem significado real aparecem quando a lista de exemplo está vazia". | Achados na revisão final de PR (revisor-visao-de-conjunto, revisor-valores-fixos) |
+| 0.13.0 | 07-09-2026 | Achado "'Continuar' da tela de Consentimento bloqueia a sessão inteira sem aceitar os termos" acrescentado. | Resolução de [decisions/0045](<../decisions/0045-gatilho-de-consentimento-e-importar-conteudo.md>) tornou a tela alcançável de verdade pela primeira vez |

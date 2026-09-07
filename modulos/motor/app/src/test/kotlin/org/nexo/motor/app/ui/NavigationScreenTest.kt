@@ -69,4 +69,22 @@ class NavigationScreenTest {
 
         assertTrue(typed.endsWith("emb"))
     }
+
+    @Test
+    fun `decisions0045 - botao Importar conteudo sempre visivel chama onImportContentRequested`() {
+        var requested = false
+        composeTestRule.setContent {
+            NavigationScreen(
+                searchText = "",
+                onSearchTextChanged = {},
+                entries = emptyList(),
+                onEntryClicked = {},
+                onImportContentRequested = { requested = true },
+            )
+        }
+
+        composeTestRule.onNodeWithText("Importar conteúdo").performClick()
+
+        assertTrue(requested)
+    }
 }

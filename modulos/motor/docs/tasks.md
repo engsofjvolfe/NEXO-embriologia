@@ -6,8 +6,8 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Tasks |
-| Versão | 0.69.0 |
-| Data | 04-09-2026 |
+| Versão | 0.70.0 |
+| Data | 07-09-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
 > Lista mutável de pendências só deste módulo. Lida depois de
@@ -48,11 +48,6 @@ Convenção dos códigos citados aqui:
 > mais rápido, é onde o trabalho recente se concentra); pendências do
 > acessório físico por último (`firmware`, chip leitor, homologação),
 > porque esse acessório não vai existir por enquanto.
-
-- [ ] **Decidir o gatilho de Consentimento e de Importar conteúdo —
-      quando cada tela aparece de verdade no encadeamento do
-      aplicativo.** Ver
-      [architecture.md, Ponto de entrada real (MotorApp)](<architecture.md#ponto-de-entrada-real-motorapp>).
 
 - [ ] **Decidir onde o conteúdo importado (`ContentInstance`) fica
       guardado no aparelho entre uma abertura do aplicativo e outra.**
@@ -728,6 +723,16 @@ Convenção dos códigos citados aqui:
       [analysis.md](<analysis.md#2026-09-04-confirmacao-visual-real-da-ausencia-da-barra-nativa>)
       e
       [pitfalls.md](<pitfalls.md#2026-09-04-modo-no-window-contorna-a-falha-de-renderizacao-do-emulador-nesta-maquina>).
+- [x] **Decidir o gatilho de Consentimento e de Importar conteúdo —
+      quando cada tela aparece de verdade no encadeamento do
+      aplicativo.** Resolvido — ver
+      [decisions/0045](<../decisions/0045-gatilho-de-consentimento-e-importar-conteudo.md>).
+      Importar conteúdo ganha botão sempre visível na Navegação;
+      Consentimento passa a aparecer no momento de iniciar uma sessão,
+      com opção de lembrar a escolha (Jetpack DataStore) e lembrete não
+      bloqueante, sempre reversível, na tela de Configuração da sessão.
+      Testado ao vivo: `gradlew :core:test :app:testDebugUnitTest`
+      (97 testes) e `gradlew :app:assembleDebug`, `BUILD SUCCESSFUL`.
 
 ## Referências
 

@@ -26,12 +26,14 @@ sealed interface ImportScreenResult {
 /**
  * DA-RET-16 (Importar conteúdo). O seletor de arquivo em si é o padrão do sistema Android
  * (DA-IMP-04) -- fora do controle deste Composable; quem chama decide como abri-lo e como chegar
- * a um [ImportScreenResult] (usando `importContentPackage`, já escrito em core/content).
+ * a um [ImportScreenResult] (usando `importContentPackage`, já escrito em core/content). Gatilho
+ * de entrada (sempre visível na Navegação) e de volta ("Voltar"): decisions/0045.
  */
 @Composable
 fun ImportContentScreen(
     result: ImportScreenResult?,
     onSelectFileRequested: () -> Unit,
+    onBackRequested: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -39,7 +41,13 @@ fun ImportContentScreen(
             .fillMaxSize()
             .padding(16.dp),
     ) {
-        Button(onClick = onSelectFileRequested, modifier = Modifier.fillMaxWidth()) {
+        Button(onClick = onBackRequested) {
+            Text("Voltar")
+        }
+        Button(
+            onClick = onSelectFileRequested,
+            modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
+        ) {
             Text("Selecionar arquivo (.zip)")
         }
         when (result) {

@@ -6,8 +6,8 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Handoff |
-| Versão | 0.54.0 |
-| Data | 04-09-2026 |
+| Versão | 0.56.0 |
+| Data | 07-09-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
 > Resumo curto de "onde este módulo está" e "o que fazer a seguir" nele.
@@ -155,6 +155,9 @@
 - [decisions/0044-deteccao-de-nfc-bluetooth-desligado-no-aparelho.md](<../decisions/0044-deteccao-de-nfc-bluetooth-desligado-no-aparelho.md>) —
   detecção de NFC/Bluetooth desligado no aparelho decidida, com aviso
   na tela de jogo.
+- [decisions/0045-gatilho-de-consentimento-e-importar-conteudo.md](<../decisions/0045-gatilho-de-consentimento-e-importar-conteudo.md>) —
+  gatilho de Consentimento e de Importar conteúdo no encadeamento do
+  `MotorApp` decidido.
 - [findings.md](findings.md) — achados confirmados até agora.
 - [analysis.md](analysis.md) — registro de como cada investigação
   deste módulo foi feita.
@@ -228,3 +231,5 @@ com o campo Versão da tabela de cabeçalho, que sempre reflete a
 | 0.52.0 | 03-09-2026 | Nenhuma mudança de conteúdo — reordenação da sequência de edição, mantendo este arquivo como o último tocado dentro do módulo. | Fechamento da rodada final de revisão de PR |
 | 0.53.0 | 03-09-2026 | Acrescentado ponteiro para decisions/0044. | Detecção de NFC/Bluetooth desligado no aparelho, resolvida — pendência "Cobrir o estado NFC/Bluetooth desligado..." movida pra `tasks.md`, Resolvidas |
 | 0.54.0 | 04-09-2026 | Nenhum ponteiro novo (`analysis.md`/`pitfalls.md`/`tasks.md` já citados). | Confirmação visual real da ausência da barra de título nativa, contornando o limite de ambiente do emulador local |
+| 0.55.0 | 07-09-2026 | Acrescentado ponteiro para decisions/0045. | Resolução de decisions/0045 |
+| 0.56.0 | 07-09-2026 | Nenhum ponteiro novo (`tasks.md` e `decisions/0045` já citados). | Revisão de PR (revisor-testes, revisor-referencias-cruzadas) |

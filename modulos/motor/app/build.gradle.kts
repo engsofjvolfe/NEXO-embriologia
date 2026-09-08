@@ -44,6 +44,7 @@ dependencies {
     implementation(libs.androidx.compose.material3.adaptive.adaptive)
     implementation(libs.androidx.activity.activity.compose)
     implementation(libs.com.google.android.material.material)
+    implementation(libs.androidx.datastore.datastore.preferences)
     testImplementation(libs.junit.junit)
     testImplementation(libs.org.robolectric.robolectric)
     testImplementation(libs.org.jetbrains.kotlin.kotlin.test.junit)

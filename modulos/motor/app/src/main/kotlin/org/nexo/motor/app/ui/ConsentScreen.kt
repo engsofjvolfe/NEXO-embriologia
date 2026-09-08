@@ -22,16 +22,20 @@ import androidx.compose.ui.unit.dp
 
 /**
  * DA-RET-17 (Consentimento). Só aparece antes de registrar dado que identifique a pessoa
- * (EI-REG-03) -- o texto legal exato fica fora do escopo da cascata do motor. O botão
- * "Continuar" fica desabilitado até a caixa "Li e concordo" ser marcada.
+ * (EI-REG-03) -- o texto legal exato fica fora do escopo da cascata do motor. "Continuar" nunca
+ * fica travado: `EI-REG-03` exige consentimento só pra registrar dado de identificação, nunca pra
+ * seguir jogando -- sem marcar "Li e concordo", a sessão segue normalmente, só sem esse dado
+ * (achado corrigido em findings.md, 2026-09-07). "Lembrar minha escolha nas próximas sessões" é
+ * independente das duas -- gatilho e uso do valor lembrado em decisions/0045.
  */
 @Composable
 fun ConsentScreen(
     consentText: String,
-    onContinueRequested: () -> Unit,
+    onContinueRequested: (given: Boolean, rememberChoice: Boolean) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     var agreed by remember { mutableStateOf(false) }
+    var rememberChoice by remember { mutableStateOf(false) }
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -46,9 +50,15 @@ fun ConsentScreen(
             Checkbox(checked = agreed, onCheckedChange = null)
             Text("Li e concordo")
         }
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.toggleable(value = rememberChoice, onValueChange = { rememberChoice = it }),
+        ) {
+            Checkbox(checked = rememberChoice, onCheckedChange = null)
+            Text("Lembrar minha escolha nas próximas sessões")
+        }
         Button(
-            onClick = onContinueRequested,
-            enabled = agreed,
+            onClick = { onContinueRequested(agreed, rememberChoice) },
             modifier = Modifier.fillMaxWidth(),
         ) {
             Text("Continuar")

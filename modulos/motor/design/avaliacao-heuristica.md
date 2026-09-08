@@ -6,8 +6,8 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Avaliação heurística |
-| Versão | 0.1.0 |
-| Data | 30-08-2026 |
+| Versão | 0.2.0 |
+| Data | 07-09-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
 > Passo 4 do método de desenho visual ([architecture.md, Interface](<../docs/architecture.md#interface>)):
@@ -83,10 +83,10 @@ por ser onde mais chance existe de um toque acidental disparar "pular" sem inten
 
 *Em resumo:* melhor impedir o erro de acontecer do que só avisar depois que já aconteceu.
 
-**Atende.** No protótipo, o botão "Continuar" da tela de Consentimento fica desabilitado até a
-caixa "Li e concordo" ser marcada — impossível avançar sem o consentimento explícito exigido por
-`EI-REG-03`. A única ação destrutiva de toda a interface (sair de uma sessão) está atrás de um
-diálogo de confirmação de dois passos, nunca de um toque só.
+**Atende.** A única ação destrutiva de toda a interface (sair de uma sessão) está atrás de um
+diálogo de confirmação de dois passos, nunca de um toque só. **Correção (07-09-2026):** o parágrafo
+original citava o botão "Continuar" da tela de Consentimento como exemplo desta heurística — deixou
+de valer, ver [findings.md](<../docs/findings.md#2026-09-07-continuar-do-consentimento-bloqueia-a-sessao-inteira-sem-aceitar-os-termos>).
 
 ### 6. Reconhecimento em vez de memorização
 
@@ -178,3 +178,4 @@ com o campo Versão da tabela de cabeçalho, que sempre reflete a
 | Versão | Data | Alteração | Origem da alteração |
 |---|---|---|---|
 | 0.1.0 | 30-08-2026 | Criação inicial: avaliação das dez heurísticas de Nielsen sobre `prototipo-navegavel.html`. | Resolução da pendência "Montar o protótipo navegável e avaliar contra as boas práticas de usabilidade" |
+| 0.2.0 | 07-09-2026 | Heurística 5 corrigida: exemplo do botão "Continuar" da tela de Consentimento removido, apontando pro achado que corrigiu esse comportamento. | Achado [findings.md#2026-09-07-continuar-do-consentimento-bloqueia-a-sessao-inteira-sem-aceitar-os-termos](<../docs/findings.md#2026-09-07-continuar-do-consentimento-bloqueia-a-sessao-inteira-sem-aceitar-os-termos>) |

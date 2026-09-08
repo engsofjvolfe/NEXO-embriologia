@@ -6,8 +6,8 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Architecture |
-| Versão | 0.55.0 |
-| Data | 03-09-2026 |
+| Versão | 0.56.0 |
+| Data | 07-09-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
 > Descreve como o módulo é construído por dentro — layout de arquivos,
@@ -43,6 +43,7 @@ Convenção dos códigos citados neste documento:
 - `EI-HIE` — [`3 - especificacao-conceito-geral.md`](<../../../docs/docs-VMODEL-visao-geral/3 - especificacao-conceito-geral.md>), seção 6.1.
 - `EI-SES` — [`3 - especificacao-conceito-geral.md`](<../../../docs/docs-VMODEL-visao-geral/3 - especificacao-conceito-geral.md>), seção 6.10.
 - `EI-VAL` — [`3 - especificacao-conceito-geral.md`](<../../../docs/docs-VMODEL-visao-geral/3 - especificacao-conceito-geral.md>), seção 6.4.
+- `EI-REG` — [`3 - especificacao-conceito-geral.md`](<../../../docs/docs-VMODEL-visao-geral/3 - especificacao-conceito-geral.md>), seção 6.13.
 - `EI-NAV` — [`3 - especificacao-conceito-geral.md`](<../../../docs/docs-VMODEL-visao-geral/3 - especificacao-conceito-geral.md>), seção 6.15.
 - `PD-LEI` — [`5 - projeto-detalhado.md`](<../../../docs/docs-VMODEL-visao-geral/5 - projeto-detalhado.md>), seção 6.1.
 - `PD-CON` — [`5 - projeto-detalhado.md`](<../../../docs/docs-VMODEL-visao-geral/5 - projeto-detalhado.md>), seção 6.2.
@@ -986,15 +987,26 @@ Encadeamento das telas já escritas, conferido contra o protótipo navegável j�
 (decisions/0036, `design/prototipo-navegavel.js`):
 
 ```
-AppScreen.Paused        "Retomar" -> AppScreen.Game
-                         "Sair da sessão" -> deleteSessionState (core/session) -> AppScreen.Navigation
-AppScreen.Navigation    escolher um item -> AppScreen.Configuration
-AppScreen.Configuration "Iniciar sessão" -> AppScreen.Game
+AppScreen.Paused         "Retomar" -> AppScreen.Game
+                          "Sair da sessão" -> deleteSessionState (core/session) -> AppScreen.Navigation
+AppScreen.Navigation     escolher um item -> AppScreen.Configuration
+                          "Importar conteúdo" -> AppScreen.ImportContent
+AppScreen.ImportContent  "Voltar" -> AppScreen.Navigation
+AppScreen.Configuration  "Iniciar sessão", sem escolha de consentimento lembrada -> AppScreen.Consent
+                          "Iniciar sessão", com escolha de consentimento lembrada -> AppScreen.Game
+                          toque no lembrete de consentimento -> AppScreen.Consent
+AppScreen.Consent        "Continuar" (com "Li e concordo" marcado) -> AppScreen.Game
 AppScreen.Game           pausar -> AppScreen.Paused
                           saída confirmada -> AppScreen.Result
                           continuar (fim de sessão) -> AppScreen.Result
 AppScreen.Result         "Voltar à navegação" -> AppScreen.Navigation
 ```
+
+O gatilho de `AppScreen.ImportContent` e de `AppScreen.Consent`, incluindo o mecanismo de lembrar a
+escolha de consentimento entre sessões, foi decidido em
+[decisions/0045](<../decisions/0045-gatilho-de-consentimento-e-importar-conteudo.md>) — substitui a
+limitação "Consentimento e Importar conteúdo não têm gatilho real ainda", registrada mais abaixo em
+versões anteriores deste documento.
 
 O rótulo "continuar (fim de sessão)" descreve o comportamento de hoje, não uma regra fixa: o botão
 "Continuar"/"Ver resultado" sempre leva ao Resultado, porque `MotorApp()` ainda não distingue
@@ -1006,22 +1018,20 @@ verdade).
 da janela — `MotorApp()` chama `currentWindowAdaptiveInfo().windowSizeClass.isWidthAtLeastBreakpoint(
 WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND)` (biblioteca oficial `androidx.compose.material3.adaptive`),
 nenhum limiar copiado à mão pro código do motor — ver
-[decisions/0043](<../decisions/0043-mecanismo-de-classificacao-de-tamanho-de-janela.md>).
+[decisions/0043](<../decisions/0043-mecanismo-de-classificacao-de-tamanho-de-janela.md>). Guarda da
+escolha de consentimento lembrada entre sessões:
+[decisions/0045](<../decisions/0045-gatilho-de-consentimento-e-importar-conteudo.md>).
 
-Três limitações explícitas, nenhuma delas escondida atrás de dado de exemplo silencioso:
+Duas limitações explícitas, nenhuma delas escondida atrás de dado de exemplo silencioso:
 
-- **Retomar uma sessão pausada não reconstrói a sessão de verdade ainda.** O botão "Retomar" de
-  `PausedSessionScreen` leva pra `AppScreen.Game`, mas sem reconstruir o `SessionViewModel` a
-  partir do `SessionState` já lido do arquivo — falta a pergunta ainda sem resposta de onde o
-  conteúdo já importado (`ContentInstance`) fica guardado no aparelho entre uma abertura do
-  aplicativo e outra, sem a qual não dá pra montar o `SessionViewModel` de volta (`instance` é
-  parâmetro obrigatório do construtor, decisions/0026). Registrado como pendência em
-  [`tasks.md`](tasks.md).
-- **Consentimento e Importar conteúdo não têm gatilho real ainda.** `ConsentScreen` e
-  `ImportContentScreen` existem, testadas, mas nenhuma tela do encadeamento acima leva até elas.
-  Registrado como pendência em [`tasks.md`](tasks.md), sem tela nem mecanismo de coleta ainda — os
-  dados que já são coletados continuam ficando só no aparelho de quem abre o aplicativo
-  (EI-REG-08), sem que essa pendência mude isso.
+- **Retomar uma sessão pausada não reconstrói a sessão de verdade ainda, e o pacote aceito por
+  `AppScreen.ImportContent` ainda não aparece na lista de `AppScreen.Navigation`.** O botão
+  "Retomar" de `PausedSessionScreen` leva pra `AppScreen.Game`, mas sem reconstruir o
+  `SessionViewModel` a partir do `SessionState` já lido do arquivo — falta a pergunta ainda sem
+  resposta de onde o conteúdo já importado (`ContentInstance`) fica guardado no aparelho entre uma
+  abertura do aplicativo e outra, sem a qual não dá pra montar o `SessionViewModel` de volta
+  (`instance` é parâmetro obrigatório do construtor, decisions/0026) nem pra listar o que já foi
+  importado. Registrado como pendência em [`tasks.md`](tasks.md).
 - **`SessionViewModel` nunca é instanciado dentro de `MotorApp()` — a interação de jogo e o
   resultado exibido são demonstração, não a lógica real da sessão.** `AppScreen.Game` chama
   `SessionGameScreen` com `onScreenAcknowledged`/`onSkipRequested` vazios (nenhum efeito real
@@ -1252,3 +1262,4 @@ com o campo Versão da tabela de cabeçalho, que sempre reflete a
 | 0.53.0 | 03-09-2026 | Seção "Ponto de entrada real (MotorApp)" ganha terceira limitação explícita: `SessionViewModel` nunca é instanciado dentro de `MotorApp()` — interação de jogo e resultado exibido são demonstração, não a lógica real da sessão. | Achado na revisão de PR (revisor-testes, revisor-visao-de-conjunto) |
 | 0.54.0 | 03-09-2026 | Ligado o trecho do pacote `content` sobre reimportação de instância já existente à lacuna equivalente já registrada em "Ponto de entrada real (MotorApp)" e em `tasks.md` — mesmo assunto, três lugares, sem se referenciar antes. Tabela de encadeamento ganha nota explícita: o rótulo "continuar (fim de sessão)" descreve o comportamento de hoje (demonstração), não uma regra fixa. | Achados na revisão de PR (revisor-referencias-cruzadas, revisor-visao-de-conjunto) |
 | 0.55.0 | 03-09-2026 | Pacote `connectivity` ganha o tipo `Radio` (core) e o mecanismo de aviso de rádio desligado: `RadioStateListener`, checagem de `isEnabled` e receptor de notificação de sistema em `MainActivity` (NFC) e `BleAccessoryService` (Bluetooth). | Resolução de [decisions/0044](<../decisions/0044-deteccao-de-nfc-bluetooth-desligado-no-aparelho.md>) |
+| 0.56.0 | 07-09-2026 | Seção "Ponto de entrada real (MotorApp)" ganha o gatilho real de `AppScreen.ImportContent` e `AppScreen.Consent` no encadeamento (tabela revisada); a limitação "Consentimento e Importar conteúdo não têm gatilho real ainda" é removida, restando duas. | Resolução de [decisions/0045](<../decisions/0045-gatilho-de-consentimento-e-importar-conteudo.md>) |

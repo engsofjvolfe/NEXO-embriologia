@@ -6,8 +6,8 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Wireframe |
-| Versão | 0.1.0 |
-| Data | 30-08-2026 |
+| Versão | 0.4.0 |
+| Data | 07-09-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
 > Esqueleto de cada tela do motor — onde cada botão, texto e campo vai,
@@ -121,8 +121,10 @@ dessa escolha nesse momento (`RF-PAU-05`).
 renderizada como uma `LazyColumn` achatada
 ([decisions/0034](<../decisions/0034-mecanismo-de-carregamento-preguicoso-do-acordeao-de-navegacao.md>)).
 
-*Em detalhe técnico:* campo de busca fixo no topo (`DA-NAV-02`), sempre
-visível mesmo com a lista rolada; abaixo dele, a `LazyColumn` com um
+*Em detalhe técnico:* campo de busca fixo no topo (`DA-NAV-02`), ao lado de um botão "Importar
+conteúdo" (abre `DA-RET-16`, gatilho em
+[decisions/0045](<../decisions/0045-gatilho-de-consentimento-e-importar-conteudo.md>)); abaixo
+deles, a `LazyColumn` com um
 item por instância — tocar expande os temas dela logo abaixo, no
 mesmo lugar, sem esconder as outras instâncias; tocar num tema expande
 os eventos dele do mesmo jeito. Cada item mostra só o nome; a
@@ -153,7 +155,13 @@ ganha leiaute de tablet diferente
    estudo" (os dois só se a dica estiver habilitada nesse evento).
 3. Um único campo "Tempo de ociosidade", fora dos blocos por evento —
    vale pra sessão inteira, não se repete (`EI-NAV-05`).
-4. Botão "Iniciar sessão", fixo na parte inferior da tela.
+4. Se existir uma escolha de consentimento já lembrada (`DA-RET-17`,
+   [decisions/0045](<../decisions/0045-gatilho-de-consentimento-e-importar-conteudo.md>)),
+   um texto curto, não bloqueante, logo acima do botão "Iniciar
+   sessão" — ex.: "Identificação: ativada — toque pra rever o
+   consentimento" —, que abre `DA-RET-17` ao ser tocado. Não existindo
+   escolha lembrada, esse texto simplesmente não aparece.
+5. Botão "Iniciar sessão", fixo na parte inferior da tela.
 
 *Em detalhe técnico, tablet (leiaute próprio):* duas colunas dentro da
 mesma tela — à esquerda, a lista dos eventos dentro do alcance da
@@ -188,10 +196,10 @@ terminou.
 *Em resumo:* usa o seletor de arquivo padrão do Android
 (`DA-IMP-04`) — a tela do motor em si só mostra o resultado.
 
-*Em detalhe técnico:* botão único, "Selecionar arquivo (.zip)", no
-topo — abre o seletor do próprio sistema, fora do controle deste
-desenho. Abaixo, uma área de resultado, vazia até a pessoa escolher um
-arquivo: depois de escolhido, mostra "Pacote aceito" (regra tudo ou
+*Em detalhe técnico:* controle "Voltar" no topo, mesma posição do controle de sair das demais
+telas de navegação. Abaixo dele, botão único, "Selecionar arquivo (.zip)" — abre o seletor do
+próprio sistema, fora do controle deste desenho. Abaixo, uma área de resultado, vazia até a pessoa
+escolher um arquivo: depois de escolhido, mostra "Pacote aceito" (regra tudo ou
 nada — [decisions/0013](<../decisions/0013-desenho-do-pacote-content.md>))
 ou a lista completa de violações encontradas, cada uma com o item
 recusado e o motivo (`DA-CFG-03`).
@@ -203,9 +211,11 @@ pessoa (`EI-REG-03`) — dado de jogo em si nunca depende dessa tela.
 
 *Em detalhe técnico:* texto explicativo (conteúdo legal exato fora do
 escopo da cascata do motor — Projeto Arquitetônico, §2.2) ocupando a
-maior parte da tela, rolável se não couber. Abaixo dele, uma caixa de
-marcar "Li e concordo". O botão "Continuar" fica desabilitado até a
-caixa ser marcada — único controle da tela além dela.
+maior parte da tela, rolável se não couber. Abaixo dele, duas caixas de marcar independentes,
+desmarcadas por padrão: "Li e concordo" e "Lembrar minha escolha nas próximas sessões". Botão
+"Continuar" sempre habilitado — `EI-REG-03` exige consentimento só pra registrar dado de
+identificação, nunca pra seguir jogando (achado em `findings.md`, 2026-09-07). Gatilho de entrada
+nesta tela: [decisions/0045](<../decisions/0045-gatilho-de-consentimento-e-importar-conteudo.md>).
 
 ## Controle de versão
 
@@ -219,3 +229,5 @@ com o campo Versão da tabela de cabeçalho, que sempre reflete a
 |---|---|---|---|
 | 0.1.0 | 30-08-2026 | Criação inicial: esqueleto das 16 entradas de tela restantes (elementos comuns da tela de jogo — sair, pausar, indicador de conexão, aviso de rádio desligado, pular, continuar — e as 6 telas de navegação de fato). | Resolução da pendência "Desenhar o esqueleto das 16 entradas de tela restantes" |
 | 0.2.0 | 30-08-2026 | Movido de `docs/wireframe.md` pra `design/wireframe.md` — pasta nova, fora do conjunto fixo de documentos do molde, reservada pra material visual. Links pra `architecture.md` e `findings.md` corrigidos pra apontar de volta pra `docs/`. | Reorganização de pasta do módulo |
+| 0.3.0 | 07-09-2026 | Botão "Importar conteúdo" acrescentado à tela de Navegação; segunda caixa de marcar ("Lembrar minha escolha nas próximas sessões") acrescentada à tela de Consentimento; lembrete não bloqueante de consentimento acrescentado à tela de Configuração da sessão. | Resolução de [decisions/0045](<../decisions/0045-gatilho-de-consentimento-e-importar-conteudo.md>) |
+| 0.4.0 | 07-09-2026 | Tela de Consentimento corrigida: "Continuar" deixa de ficar desabilitado até "Li e concordo" ser marcada — sempre habilitado. | Achado [findings.md#2026-09-07-continuar-do-consentimento-bloqueia-a-sessao-inteira-sem-aceitar-os-termos](<../docs/findings.md#2026-09-07-continuar-do-consentimento-bloqueia-a-sessao-inteira-sem-aceitar-os-termos>) |

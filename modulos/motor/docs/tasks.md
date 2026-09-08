@@ -6,8 +6,8 @@
 |---|---|
 | Módulo | Motor |
 | Documento | Tasks |
-| Versão | 0.69.0 |
-| Data | 04-09-2026 |
+| Versão | 0.71.0 |
+| Data | 07-09-2026 |
 | Licença | Todos os direitos reservados — ver [LICENSE](../../../LICENSE) |
 
 > Lista mutável de pendências só deste módulo. Lida depois de
@@ -49,10 +49,37 @@ Convenção dos códigos citados aqui:
 > acessório físico por último (`firmware`, chip leitor, homologação),
 > porque esse acessório não vai existir por enquanto.
 
-- [ ] **Decidir o gatilho de Consentimento e de Importar conteúdo —
-      quando cada tela aparece de verdade no encadeamento do
-      aplicativo.** Ver
-      [architecture.md, Ponto de entrada real (MotorApp)](<architecture.md#ponto-de-entrada-real-motorapp>).
+- [ ] **Decidir como a tela de Consentimento informa a finalidade e o
+      prazo real de retenção de dados (`EI-REG-09`) — hoje só um texto
+      de exemplo fixo, sem ligação com o dado real da instância.**
+
+      *Resumo simples:* a lei exige que, no momento em que a pessoa
+      concorda em ter os dados dela coletados, ela saiba por quanto
+      tempo esse dado vai ficar guardado e para quê. Hoje a tela de
+      Consentimento só mostra um texto pronto, escrito por quem monta
+      o conteúdo — sem nenhuma ligação com o prazo real que já existe
+      dentro do pacote de conteúdo (o campo `retention_period`).
+
+      *Detalhe técnico:* `EI-REG-09`
+      ([`3 - especificacao-conceito-geral.md`](<../../../docs/docs-VMODEL-visao-geral/3 - especificacao-conceito-geral.md>),
+      seção 6.13) exige que o motor "informa a finalidade e o prazo no
+      momento do consentimento (EI-REG-03)". O prazo em si já é um
+      parâmetro obrigatório por instância (`retention_period`,
+      `EI-CFG-01`, já presente no contrato de dado de `concept.md`),
+      mas nunca foi ligado ao texto que `ConsentScreen.kt` exibe
+      (parâmetro `consentText`, hoje um texto de exemplo fixo, sem
+      relação com o valor real da instância — ver `ConteudoInicial.kt`).
+      `EI-REG-09` também descreve esse prazo como, em geral, atrelado
+      à "duração da atividade ou pesquisa que motivou a coleta" — o
+      que pode não ser um valor simples de mostrar (diferente de, por
+      exemplo, "6 meses" fixo), exigindo desenho e pesquisa próprios de
+      como comunicar isso, possivelmente uma ADR nova — não é ajuste
+      pontual de texto.
+      [decisions/0045](<../decisions/0045-gatilho-de-consentimento-e-importar-conteudo.md>)
+      decide só *quando* a tela de Consentimento aparece, nunca *o que*
+      ela precisa comunicar — ponto já registrado como fora do alcance
+      daquela ADR (Consequências, item 2), agora com nota de
+      acompanhamento apontando pra esta pendência.
 
 - [ ] **Decidir onde o conteúdo importado (`ContentInstance`) fica
       guardado no aparelho entre uma abertura do aplicativo e outra.**
@@ -728,6 +755,16 @@ Convenção dos códigos citados aqui:
       [analysis.md](<analysis.md#2026-09-04-confirmacao-visual-real-da-ausencia-da-barra-nativa>)
       e
       [pitfalls.md](<pitfalls.md#2026-09-04-modo-no-window-contorna-a-falha-de-renderizacao-do-emulador-nesta-maquina>).
+- [x] **Decidir o gatilho de Consentimento e de Importar conteúdo —
+      quando cada tela aparece de verdade no encadeamento do
+      aplicativo.** Resolvido — ver
+      [decisions/0045](<../decisions/0045-gatilho-de-consentimento-e-importar-conteudo.md>).
+      Importar conteúdo ganha botão sempre visível na Navegação;
+      Consentimento passa a aparecer no momento de iniciar uma sessão,
+      com opção de lembrar a escolha (Jetpack DataStore) e lembrete não
+      bloqueante, sempre reversível, na tela de Configuração da sessão.
+      Testado ao vivo: `gradlew :core:test :app:testDebugUnitTest`
+      (97 testes) e `gradlew :app:assembleDebug`, `BUILD SUCCESSFUL`.
 
 ## Referências
 
@@ -845,3 +882,5 @@ como mudança de conteúdo real. -->
 | 0.67.0 | 03-09-2026 | Pendência "Cobrir o estado NFC/Bluetooth desligado no indicador de conexão da tela de jogo" resolvida — movida para Resolvidas. | Resolução de [decisions/0044](<../decisions/0044-deteccao-de-nfc-bluetooth-desligado-no-aparelho.md>) |
 | 0.68.0 | 03-09-2026 | Item resolvido da linha anterior atualizado: nomes reais das três funções em que `connectionIndicatorText` se dividiu, e o bug de precedência achado e corrigido na revisão. | Revisão de PR (`/revisar-pr`, quatro assistentes) |
 | 0.69.0 | 04-09-2026 | Pendência "Confirmar visualmente que a barra de título nativa..." resolvida — movida para Resolvidas. | Confirmação visual real, contornando o limite de ambiente do emulador local; ver [analysis.md](<analysis.md#2026-09-04-confirmacao-visual-real-da-ausencia-da-barra-nativa>) |
+| 0.70.0 | 07-09-2026 | Pendência "Decidir o gatilho de Consentimento e de Importar conteúdo" resolvida — movida para Resolvidas. | Resolução de [decisions/0045](<../decisions/0045-gatilho-de-consentimento-e-importar-conteudo.md>) |
+| 0.71.0 | 07-09-2026 | Pendência nova "Decidir como a tela de Consentimento informa a finalidade e o prazo real de retenção de dados (EI-REG-09)" acrescentada. | Achado na revisão de PR (revisor-referencias-cruzadas), decisions/0045 |
